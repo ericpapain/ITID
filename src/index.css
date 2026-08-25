@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Lora', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --color-navy: #1a3a5c;
+  --color-navy-dark: #0f2440;
+  --color-navy-light: #2a5080;
+  --color-teal: #2a9d8f;
+  --color-teal-light: #3bb5a6;
+  --color-cream: #f7f4ef;
+  --color-cream-dark: #ede9e1;
+  --color-gold: #e9a84c;
+}
+
+:root {
+  --background: #f7f4ef;
+  --foreground: #1a3a5c;
+  --card: #ffffff;
+  --card-foreground: #1a3a5c;
+  --primary: #1a3a5c;
+  --primary-foreground: #f7f4ef;
+  --secondary: #e8f4f2;
+  --secondary-foreground: #1a3a5c;
+  --muted: #ede9e1;
+  --muted-foreground: #6b7c93;
+  --accent: #2a9d8f;
+  --accent-foreground: #ffffff;
+  --border: #d8d2c8;
+  --ring: #2a9d8f;
+  --radius: 0.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, sans-serif;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 4px 0px;
+}
+
+/* Hide scrollbar, show on hover */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c5bfb5;
+  border-radius: 3px;
+  opacity: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a09a90;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
