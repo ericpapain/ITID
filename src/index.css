@@ -71,3 +71,16 @@ body {
 .font-body {
   font-family: var(--font-body);
 }
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-50% - 12px)); } /* 50% + half of the gap */
+}
+
+.animate-marquee {
+  animation: scroll 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
