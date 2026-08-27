@@ -12,75 +12,29 @@ export const NAV_LINKS = [
 ];
 
 export const PATHOLOGIES = [
-  {
-    icon: "🦴",
-    title: "Lombalgies, sciatiques & cruralgies",
-    desc: "Arthrose, hernies discales, canal lombaire étroit — prise en charge interventionnelle ciblée.",
-  },
-  {
-    icon: "⚡",
-    title: "Douleurs neuropathiques",
-    desc: "Brûlures, fourmillements, allodynie — atteintes nerveuses périphériques et centrales.",
-  },
-  {
-    icon: "🔥",
-    title: "SDRC / Algodystrophie",
-    desc: "Syndrome douloureux régional complexe post-traumatique ou post-chirurgical.",
-  },
-  {
-    icon: "🦿",
-    title: "Douleurs articulaires",
-    desc: "Épaule, hanche, genou — arthrose évoluée, tendinopathies réfractaires.",
-  },
-  {
-    icon: "🌸",
-    title: "Douleurs pelviennes & endométriose",
-    desc: "Suivi pluridisciplinaire avec gynécologue et urologues spécialisés.",
-  },
-  {
-    icon: "🧠",
-    title: "Céphalées & migraines résistantes",
-    desc: "Protocoles spécifiques pour les formes résistantes aux traitements standards.",
-  },
+  { icon: "🦴", title: "Lombalgies, sciatiques & cruralgies", desc: "Arthrose, hernies discales, canal lombaire étroit — prise en charge interventionnelle ciblée.", color: "#48d1c2", borderColor: "#48d1c240", wikipediaUrl: "https://fr.wikipedia.org/wiki/Lombalgie", img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop" },
+  { icon: "⚡", title: "Douleurs neuropathiques", desc: "Brûlures, fourmillements, allodynie — atteintes nerveuses périphériques et centrales.", color: "#2a9d8f", borderColor: "#2a9d8f40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Douleur_neuropathique", img: "https://images.unsplash.com/photo-1601314167099-232775b3d6fd?w=400&h=400&fit=crop" },
+  { icon: "🔥", title: "SDRC / Algodystrophie", desc: "Syndrome douloureux régional complexe post-traumatique ou post-chirurgical.", color: "#e76f51", borderColor: "#e76f5140", wikipediaUrl: "https://fr.wikipedia.org/wiki/Syndrome_douloureux_r%C3%A9gional_complexe", img: "https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400&h=400&fit=crop" },
+  { icon: "🦿", title: "Douleurs articulaires", desc: "Épaule, hanche, genou — arthrose évoluée, tendinopathies réfractaires.", color: "#f4a261", borderColor: "#f4a26140", wikipediaUrl: "https://fr.wikipedia.org/wiki/Arthralgie", img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=400&fit=crop" },
+  { icon: "🌸", title: "Douleurs pelviennes & endométriose", desc: "Suivi pluridisciplinaire avec gynécologue et urologues spécialisés.", color: "#e9c46a", borderColor: "#e9c46a40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Douleur_pelvienne", img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=400&fit=crop" },
+  { icon: "🧠", title: "Céphalées & migraines résistantes", desc: "Protocoles spécifiques pour les formes résistantes aux traitements standards.", color: "#264653", borderColor: "#26465340", wikipediaUrl: "https://fr.wikipedia.org/wiki/C%C3%A9phal%C3%A9e", img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=400&fit=crop" },
+  { icon: "🦠", title: "Syndrome post-zona", desc: "Douleurs neuropathiques séquellaires après une infection par le virus du zona.", color: "#e07a5f", borderColor: "#e07a5f40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Algie_post-zost%C3%A9rienne", img: "https://images.unsplash.com/photo-1628157588553-5eeea00af15c?w=400&h=400&fit=crop" },
+  { icon: "🌬️", title: "Fibromyalgie et douleurs diffuses", desc: "Prise en charge globale et parcours coordonné pluridisciplinaire.", color: "#81b29a", borderColor: "#81b29a40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Fibromyalgie", img: "https://images.unsplash.com/photo-1601314167099-232775b3d6fd?w=400&h=400&fit=crop" },
+  { icon: "💥", title: "Douleurs liées à l'arthrose sévère", desc: "Solutions interventionnelles lorsque la chirurgie n'est pas possible.", color: "#f2cc8f", borderColor: "#f2cc8f40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Arthrose", img: "https://images.unsplash.com/photo-1628157588553-5eeea00af15c?w=400&h=400&fit=crop" },
+  { icon: "⚕️", title: "Douleurs séquellaires post-chirurgicales", desc: "Cicatrices douloureuses, adhérences et lésions nerveuses périphériques.", color: "#3d5a80", borderColor: "#3d5a8040", wikipediaUrl: "https://fr.wikipedia.org/wiki/Douleur", img: "https://images.unsplash.com/photo-1551076805-e1869033e561?w=400&h=400&fit=crop" },
+  { icon: "🪑", title: "Névralgie pudendale et douleurs périnéales", desc: "Douleurs à la position assise et syndromes canalaires du bassin.", color: "#98c1d9", borderColor: "#98c1d940", wikipediaUrl: "https://fr.wikipedia.org/wiki/N%C3%A9vralgie_pudendale", img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop" }
 ];
 
 export const TRAITEMENTS = [
-  {
-    num: "01",
-    title: "Infiltrations rachidiennes & articulaires",
-    desc: "Infiltrations de facettes, racines nerveuses, épidurales — guidées par imagerie pour une précision maximale.",
-    icon: "💉",
-  },
-  {
-    num: "02",
-    title: "Perfusions de lidocaïne",
-    desc: "Administrées en hôpital de jour, indiquées pour les douleurs neuropathiques réfractaires.",
-    icon: "🏥",
-  },
-  {
-    num: "03",
-    title: "Stimulation du ganglion dorsal",
-    desc: "Neuromodulation de pointe, particulièrement efficace dans l'algodystrophie et les douleurs radiculaires.",
-    icon: "⚙️",
-  },
-  {
-    num: "04",
-    title: "Cryoneurolyse",
-    desc: "Traitement par froid contrôlé de nerfs périphériques — alternative non chirurgicale durable.",
-    icon: "❄️",
-  },
-  {
-    num: "05",
-    title: "Hypnose médicale & sophrologie",
-    desc: "Approches intégratives complémentaires pour la gestion cognitive et émotionnelle de la douleur.",
-    icon: "🧘",
-  },
-  {
-    num: "06",
-    title: "Coordination pluridisciplinaire",
-    desc: "Neurologues, psychiatres, psychologues, urologues — un réseau complet autour de chaque patient.",
-    icon: "🤝",
-  },
+  { num: "01", title: "Infiltrations rachidiennes & articulaires", desc: "Infiltrations de facettes, racines nerveuses, épidurales — guidées par imagerie pour une précision maximale.", icon: "💉", img: "https://images.unsplash.com/photo-1551076805-e1869033e561?w=400&h=400&fit=crop" },
+  { num: "02", title: "Perfusions de lidocaïne", desc: "Administrées en hôpital de jour, indiquées pour les douleurs neuropathiques réfractaires.", icon: "🏥", img: "https://images.unsplash.com/photo-1628157588553-5eeea00af15c?w=400&h=400&fit=crop" },
+  { num: "03", title: "Stimulation du ganglion dorsal", desc: "Neuromodulation de pointe, particulièrement efficace dans l'algodystrophie et les douleurs radiculaires.", icon: "⚙️", img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=400&fit=crop" },
+  { num: "04", title: "Cryoneurolyse", desc: "Traitement par froid contrôlé de nerfs périphériques — alternative non chirurgicale durable.", icon: "❄️", img: "https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400&h=400&fit=crop" },
+  { num: "05", title: "Hypnose médicale & sophrologie", desc: "Approches intégratives complémentaires pour la gestion cognitive et émotionnelle de la douleur.", icon: "🧘", img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=400&fit=crop" },
+  { num: "06", title: "Coordination pluridisciplinaire", desc: "Neurologues, psychiatres, psychologues, urologues — un réseau complet autour de chaque patient.", icon: "🤝", img: "https://images.unsplash.com/photo-1601314167099-232775b3d6fd?w=400&h=400&fit=crop" },
+  { num: "07", title: "TENS (Neurostimulation transcutanée)", desc: "Utilisation de courants électriques de faible intensité pour bloquer les signaux de douleur.", icon: "⚡", img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop" },
+  { num: "08", title: "Patchs de Qutenza", desc: "Patchs cutanés fortement dosés en capsaïcine pour les douleurs neuropathiques localisées.", icon: "🩹", img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=400&fit=crop" },
+  { num: "09", title: "Radiofréquence", desc: "Inactivation par la chaleur des petits nerfs transmettant la douleur articulaire.", icon: "🔥", img: "https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400&h=400&fit=crop" }
 ];
 
 export const TEAM_ROLES = [
@@ -140,13 +94,13 @@ const PARA_TITLES = [
 ];
 
 const getRandomTitles = (titles: string[]) => {
-  const count = Math.floor(Math.random() * 4) + 3; // 3 to 6
+  const count = Math.floor(Math.random() * 4) + 3;
   const shuffled = [...titles].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
 
 const generateSubVideos = () => {
-  const count = Math.floor(Math.random() * 4) + 3; // 3 to 6
+  const count = Math.floor(Math.random() * 4) + 3;
   const prefixes = ["Théorie", "Pratique", "Cas d'étude", "Q&A", "Démonstration", "Évaluation"];
   return Array.from({ length: count }).map((_, i) => ({
     title: `Vidéos ${i + 1} : ${prefixes[Math.floor(Math.random() * prefixes.length)]}`,
@@ -196,7 +150,7 @@ export const CATEGORIES_FORMATIONS = [
       img: `https://images.unsplash.com/photo-1758691462743-f9fc9e430d39?w=600&h=380&fit=crop&auto=format&q=${i}`,
       subVideos: generateSubVideos()
     }))
-  },
+  }
 ];
 
 export type Video = { id: string; title: string; duration: string; price: string; img: string; subVideos: { title: string; duration: string }[] };

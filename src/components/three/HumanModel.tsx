@@ -188,7 +188,7 @@ function BoneHitbox({ boneName, bodyPartId, nodes, offset }: { boneName: string,
   const [hovered, setHovered] = useState(false);
   const meshRef = useRef<THREE.Mesh>(null);
   const bone = nodes[boneName];
-  const isSelected = selectedBodyParts.includes(bodyPartId);
+  const isSelected = selectedBodyParts.includes(bodyPartId as any);
   
   const targetPos = useMemo(() => new THREE.Vector3(), []);
 

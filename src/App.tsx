@@ -4,6 +4,8 @@ import { Routes, Route, Link, useLocation, useNavigate, useParams } from "react-
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { HumanModel } from "./components/three/HumanModel";
+import { AssistantIA } from "./components/AssistantIA";
+import { MedicalCard, TreatmentCard } from "./components/Cards";
 import { useAnatomyStore } from "./store/anatomyStore";
 import { FaFacebook, FaLinkedin, FaInstagram, FaYoutube, FaMapSigns, FaStethoscope, FaClipboardCheck, FaSyncAlt, FaChevronDown } from "react-icons/fa";
 import {
@@ -153,7 +155,9 @@ function ChatBot() {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [teamFilter, setTeamFilter] = useState("Tous");
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
+  const [pathoFilter, setPathoFilter] = useState("");
+  const [traitFilter, setTraitFilter] = useState("");
+  const [formData, setFormData] = useState({ category: "Patient", name: "", email: "", phone: "", message: "" });
   const [sent, setSent] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedVideoDetail, setSelectedVideoDetail] = useState<Video | null>(null);
@@ -161,6 +165,7 @@ export default function App() {
   const [formationMode, setFormationMode] = useState<"3d" | "classic">("3d");
   const [formationFilter, setFormationFilter] = useState("Tous");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<"patient" | "pro">("patient");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [cart, setCart] = useState<Video[]>([]);
@@ -216,6 +221,19 @@ export default function App() {
     }
   };
 
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    }
+    setMenuOpen(false);
+  };
+
   const BODY_PART_LABELS: Record<string, string> = {
     head: "Tête",
     neck: "Cou",
@@ -262,10 +280,14 @@ export default function App() {
               </p>
 
               <form onSubmit={(e) => { e.preventDefault(); setIsAuthenticated(true); setShowAuthModal(false); }} className="space-y-4">
+                <div className="flex bg-gray-100 p-1 rounded-xl mb-4">
+                  <button type="button" onClick={() => setUserRole("patient")} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "patient" ? "bg-white text-[#1a3a5c] shadow-sm" : "text-gray-500 hover:text-[#1a3a5c]"}`}>Patient</button>
+                  <button type="button" onClick={() => setUserRole("pro")} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "pro" ? "bg-white text-[#1a3a5c] shadow-sm" : "text-gray-500 hover:text-[#1a3a5c]"}`}>Pro de santé</button>
+                </div>
                 {authMode === "register" && (
                   <div>
                     <label className="block text-xs font-bold text-[#1a3a5c] mb-1">Nom complet</label>
-                    <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder="Dr. Dupont" />
+                    <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder={userRole === "pro" ? "Dr. Dupont" : "Jean Dupont"} />
                   </div>
                 )}
                 <div>
@@ -452,12 +474,13 @@ export default function App() {
 
 
 
-              <a href="https://www.doctolib.fr" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-sm font-bold transition-all hover:opacity-90 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                style={{ background: "#2a9d8f", color: "#fff" }}
-              >
-                📅 Prendre RDV Doctolib
-              </a>
+              <div className="flex items-center gap-2">
+                <button onClick={handleContactClick}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all hover:bg-white/10"
+                  style={{ border: "1px solid rgba(255,255,255,0.3)", color: "#fff" }}>
+                  <FaStethoscope className="text-xs" /> Contactez-nous
+                </button>
+              </div>
             </div>
 
             <button className="lg:hidden text-white text-4xl" onClick={() => setMenuOpen((v) => !v)} aria-label="Menu">
@@ -485,12 +508,12 @@ export default function App() {
               </div>
 
 
-              <a href="https://www.doctolib.fr" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 mt-2 rounded-xl text-base font-bold transition-all"
-                style={{ background: "#2a9d8f", color: "#fff" }}
-              >
-                📅 Prendre RDV Doctolib
-              </a>
+              <div className="flex flex-col gap-2 mt-2">
+                <button onClick={handleContactClick} className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-bold"
+                  style={{ border: "1px solid rgba(255,255,255,0.3)", color: "#fff" }}>
+                  <FaStethoscope className="text-xs" /> Contactez-nous
+                </button>
+              </div>
             </div>
           )}
         </header>
@@ -601,8 +624,8 @@ export default function App() {
                       </style>
 
                       <div className="text-white font-bold mb-8 text-lg tracking-wide uppercase flex items-center gap-3 anim-step" style={{ fontFamily: "var(--font-display)", color: "#48d1c2", animationDelay: "0.1s" }}>
-                        <span className="w-8 h-px bg-[#48d1c2]"></span>
-                        Parcours ITID
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                        Votre parcours chez nous
                       </div>
 
                       <div className="relative z-10">
@@ -729,23 +752,23 @@ export default function App() {
                     </Link>
                   </div>
                   <div className="relative h-[400px] flex items-center justify-center">
-                    <div className="absolute w-52 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-12 -translate-x-24 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform -rotate-12 -translate-x-24 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#fdf8f5", borderColor: "#e9c46a80" }}>
                       <div className="text-5xl mb-3">🏥</div>
                       <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Douleurs pelviennes</div>
                     </div>
-                    <div className="absolute w-52 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-12 translate-x-24 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform rotate-12 translate-x-24 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#fff8ec", borderColor: "#f4a26180" }}>
                       <div className="text-5xl mb-3">🦵</div>
                       <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Douleurs articulaires</div>
                     </div>
-                    <div className="absolute w-52 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-6 -translate-x-12 translate-y-4 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform -rotate-6 -translate-x-12 translate-y-4 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#f0fdfa", borderColor: "#48d1c280" }}>
                       <div className="text-5xl mb-3">🦴</div>
                       <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Lombalgies</div>
                     </div>
-                    <div className="absolute w-52 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-6 translate-x-12 translate-y-4 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform rotate-6 translate-x-12 translate-y-4 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#f1f5f9", borderColor: "#26465380" }}>
                       <div className="text-5xl mb-3">🧠</div>
                       <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Migraines</div>
                     </div>
-                    <div className="absolute w-52 h-64 bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center justify-center z-20 transition-all duration-300 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-52 h-64 rounded-2xl shadow-2xl border flex flex-col items-center justify-center z-20 transition-all duration-300 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#f0fbfa", borderColor: "#2a9d8f80" }}>
                       <div className="text-5xl mb-3">⚡</div>
                       <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Neuropathies</div>
                     </div>
@@ -807,23 +830,23 @@ export default function App() {
 
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
                   <div className="order-2 md:order-1 relative h-[500px] flex items-center justify-center">
-                    <div className="absolute w-56 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-12 -translate-x-24 -translate-y-16 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-12 -translate-x-24 -translate-y-16 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #e8f4f2 0%, #f0f7f6 100%)" }}>
                       <div className="text-6xl mb-4">👨‍⚕️</div>
                       <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Médecins</div>
                     </div>
-                    <div className="absolute w-56 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-12 translate-x-24 -translate-y-16 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-12 translate-x-24 -translate-y-16 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #e6f3ff 0%, #f0f7ff 100%)" }}>
                       <div className="text-6xl mb-4">👩‍⚕️</div>
                       <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Infirmiers</div>
                     </div>
-                    <div className="absolute w-56 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-6 -translate-x-16 translate-y-12 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-6 -translate-x-16 translate-y-12 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #fff3e6 0%, #fff8f0 100%)" }}>
                       <div className="text-6xl mb-4">💆</div>
                       <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Thérapeutes</div>
                     </div>
-                    <div className="absolute w-56 h-64 bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-6 translate-x-16 translate-y-12 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-6 translate-x-16 translate-y-12 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #f3e6ff 0%, #f8f0ff 100%)" }}>
                       <div className="text-6xl mb-4">📞</div>
                       <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Secrétaires</div>
                     </div>
-                    <div className="absolute w-56 h-64 bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center justify-center z-20 transition-all duration-300 hover:scale-110 hover:z-30 cursor-default">
+                    <div className="absolute w-56 h-64 rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center justify-center z-20 transition-all duration-300 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #fffae6 0%, #fffdf0 100%)" }}>
                       <div className="text-6xl mb-4">🧠</div>
                       <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Psychologues</div>
                     </div>
@@ -954,14 +977,18 @@ export default function App() {
                     </div>
 
                     <div className="p-6 space-y-4">
-                      <div>
-                        <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Adresse e-mail</label>
-                        <input type="email" placeholder="votre@email.fr" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Création de mot de passe</label>
-                        <input type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                      </div>
+                      {!isAuthenticated && (
+                        <>
+                          <div>
+                            <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Adresse e-mail</label>
+                            <input type="email" placeholder="votre@email.fr" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Création de mot de passe</label>
+                            <input type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
+                          </div>
+                        </>
+                      )}
                       <div className="pt-2">
                         <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Informations de paiement</label>
                         <div className="relative">
@@ -1001,20 +1028,21 @@ export default function App() {
                 </Link>
                 <div className="mb-8">
                   <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Toutes nos pathologies traitées</h2>
-                  <p className="text-base leading-relaxed max-w-2xl" style={{ color: "#6b7c93" }}>
+                  <p className="text-base leading-relaxed max-w-2xl mb-6" style={{ color: "#6b7c93" }}>
                     Découvrez en détail les syndromes pris en charge par l'Institut du Traitement Interventionnel de la Douleur.
                   </p>
+                  <input 
+                    type="text" 
+                    placeholder="Rechercher une pathologie (ex: lombaire, pelvienne)..." 
+                    value={pathoFilter}
+                    onChange={(e) => setPathoFilter(e.target.value)}
+                    className="w-full max-w-md px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2a9d8f]/50 bg-white"
+                  />
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {PATHOLOGIES.map((p) => (
-                    <div key={p.title} className="p-6 rounded-2xl transition-all hover:-translate-y-1 cursor-default flex items-start gap-4" style={{ background: "#fff", border: "1px solid var(--border)", boxShadow: "0 2px 12px rgba(26,58,92,0.06)" }}>
-                      <div className="text-3xl shrink-0 mt-0.5">{p.icon}</div>
-                      <div>
-                        <h3 className="font-semibold text-base mb-1.5" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c", lineHeight: "1.3" }}>{p.title}</h3>
-                        <p className="text-sm leading-relaxed" style={{ color: "#6b7c93" }}>{p.desc}</p>
-                      </div>
-                    </div>
+                  {PATHOLOGIES.filter(p => p.title.toLowerCase().includes(pathoFilter.toLowerCase()) || p.desc.toLowerCase().includes(pathoFilter.toLowerCase())).map((p) => (
+                    <MedicalCard key={p.title} {...p} />
                   ))}
                 </div>
               </div>
@@ -1032,23 +1060,21 @@ export default function App() {
                 </Link>
                 <div className="mb-8">
                   <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Tous nos traitements</h2>
-                  <p className="text-base leading-relaxed max-w-2xl" style={{ color: "#6b7c93" }}>
+                  <p className="text-base leading-relaxed max-w-2xl mb-6" style={{ color: "#6b7c93" }}>
                     Découvrez en détail les techniques interventionnelles guidées par imagerie proposées par l'ITID.
                   </p>
+                  <input 
+                    type="text" 
+                    placeholder="Rechercher un traitement (ex: infiltration, hypnose)..." 
+                    value={traitFilter}
+                    onChange={(e) => setTraitFilter(e.target.value)}
+                    className="w-full max-w-md px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2a9d8f]/50 bg-white"
+                  />
                 </div>
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {TRAITEMENTS.map((t) => (
-                    <div key={t.num} className="p-5 rounded-2xl flex items-start gap-4" style={{ background: "#fff", border: "1px solid var(--border)", boxShadow: "0 2px 8px rgba(26,58,92,0.05)" }}>
-                      <div className="flex flex-col items-center justify-center shrink-0 mt-1">
-                        <span className="text-3xl mb-0.5 leading-none">{t.icon}</span>
-                        <span className="text-[10px] font-bold" style={{ color: "#3bb5a6" }}>{t.num}</span>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-[#1a3a5c] mb-1.5 text-sm" style={{ fontFamily: "var(--font-display)", lineHeight: "1.3" }}>{t.title}</h3>
-                        <p className="text-xs leading-relaxed" style={{ color: "#6b7c93" }}>{t.desc}</p>
-                      </div>
-                    </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {TRAITEMENTS.filter(t => t.title.toLowerCase().includes(traitFilter.toLowerCase()) || t.desc.toLowerCase().includes(traitFilter.toLowerCase())).map((t) => (
+                    <TreatmentCard key={t.title} {...t} />
                   ))}
                 </div>
               </div>
@@ -1112,55 +1138,7 @@ export default function App() {
             </div>
           } />
 
-          <Route path="/ia" element={
-            <div className="pt-32 pb-12 min-h-screen" style={{ background: "var(--background)" }}>
-              <div className="max-w-7xl mx-auto px-6">
-                <Link
-                  to="/"
-                  className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
-                >
-                  ← Retour à l'accueil
-                </Link>
-
-                <div className="max-w-2xl mx-auto">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Assistant Virtuel ITID</h2>
-
-                  <div className="rounded-2xl overflow-hidden flex flex-col" style={{ border: "1px solid var(--border)", background: "#fff", boxShadow: "0 4px 24px rgba(26,58,92,0.08)", height: "60vh" }}>
-                    <div className="px-5 py-4 flex items-center gap-3 shrink-0" style={{ background: "#1a3a5c" }}>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: "#2a9d8f" }}>IA</div>
-                      <div className="text-white font-semibold text-sm" style={{ fontFamily: "var(--font-display)" }}>Assistant ITID</div>
-                      <div className="ml-auto flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full" style={{ background: "#2a9d8f" }} />
-                        <span className="text-xs" style={{ color: "#8fb3d0" }}>En ligne</span>
-                      </div>
-                    </div>
-                    <div className="p-5 space-y-4 flex-1 overflow-y-auto" style={{ background: "#f8fafc" }}>
-                      {[
-                        { bot: true, text: "Bonjour ! Je suis l'assistant de l'ITID. Comment puis-je vous orienter ?" },
-                        { bot: false, text: "J'ai des douleurs chroniques dans le bas du dos depuis 3 ans." },
-                        { bot: true, text: "Je comprends. L'ITID est spécialisé dans ce type de pathologie. Avez-vous déjà consulté un spécialiste, ou souhaitez-vous un premier rendez-vous d'évaluation ?" },
-                        { bot: false, text: "Mon médecin m'a orienté vers vous." },
-                        { bot: true, text: "Parfait. Vous pouvez prendre rendez-vous directement via Doctolib ou appeler le 03 51 53 20 26. Souhaitez-vous d'autres informations sur nos traitements ?" },
-                      ].map((m, i) => (
-                        <div key={i} className={`flex ${m.bot ? "justify-start" : "justify-end"}`}>
-                          <div className="max-w-[80%] rounded-xl px-4 py-3 text-sm leading-relaxed shadow-sm"
-                            style={m.bot
-                              ? { background: "#fff", color: "#1a3a5c", border: "1px solid #e2e8f0" }
-                              : { background: "#1a3a5c", color: "#fff" }}>
-                            {m.text}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="p-4 bg-white border-t border-gray-100 flex gap-2 shrink-0">
-                      <input type="text" placeholder="Écrivez votre message..." className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" />
-                      <button className="px-4 py-2 bg-[#2a9d8f] text-white rounded-xl font-semibold">Envoyer</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          } />
+          <Route path="/ia" element={<AssistantIA isAuthenticated={isAuthenticated} userRole={userRole} setShowAuthModal={setShowAuthModal} />} />
 
           {["/formations", "/formations/:categoryId"].map(path => (
             <Route key={path} path={path} element={
@@ -1592,14 +1570,18 @@ export default function App() {
                       </div>
 
                       <div className="p-6 space-y-4">
-                        <div>
-                          <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Adresse e-mail</label>
-                          <input type="email" placeholder="votre@email.fr" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Création de mot de passe</label>
-                          <input type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                        </div>
+                        {!isAuthenticated && (
+                          <>
+                            <div>
+                              <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Adresse e-mail</label>
+                              <input type="email" placeholder="votre@email.fr" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Création de mot de passe</label>
+                              <input type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
+                            </div>
+                          </>
+                        )}
                         <div className="pt-2">
                           <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Informations de paiement</label>
                           <div className="relative">
@@ -1783,10 +1765,13 @@ export default function App() {
                     <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-6" style={{ background: "#f0f7f6" }}>🩺</div>
                     <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Services Proposés</h3>
                     <ul className="space-y-4 text-sm" style={{ color: "#6b7c93" }}>
-                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Consultations pluridisciplinaires</li>
-                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Traitements interventionnels sous imagerie</li>
-                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Parcours de soins personnalisés et suivi</li>
+                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Consultations pluridisciplinaires (Algologues, Neurologues, Psychiatres)</li>
+                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Traitements interventionnels sous imagerie (Infiltrations, Cryoneurolyse...)</li>
+                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Parcours de soins personnalisés et suivi global</li>
                       <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Accompagnement psychologique et sophrologie</li>
+                      <li className="flex items-start gap-3 font-semibold text-[#1a3a5c]"><span className="text-[#2a9d8f] mt-1">✔</span> Formations en ligne (E-learning) pour professionnels et patients</li>
+                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Assistant IA médical interactif disponible 24/7</li>
+                      <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Modélisation anatomique 3D pour l'évaluation des douleurs</li>
                     </ul>
                   </div>
 
@@ -1910,7 +1895,8 @@ export default function App() {
         </section>
 
         {/* CONTACT */}
-        <section id="contact" className="py-12" style={{ background: "var(--background)" }}>
+        {["/", "/a-propos"].includes(location.pathname) && (
+          <section id="contact" className="py-12" style={{ background: "var(--background)" }}>
           <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-start">
             <div>
               <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Contact & RDV</div>
@@ -1953,6 +1939,18 @@ export default function App() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Envoyer un message</h3>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Vous êtes</label>
+                    <select
+                      className="w-full px-3 py-2.5 rounded-xl text-sm outline-none cursor-pointer"
+                      style={{ background: "#f7f4ef", border: "1px solid var(--border)", color: "#1a3a5c" }}
+                      value={formData.category}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+                    >
+                      <option value="Patient">Patient</option>
+                      <option value="Professionnel de santé">Professionnel de santé</option>
+                    </select>
+                  </div>
                   {[
                     { name: "name" as const, label: "Nom complet", type: "text", placeholder: "Jean Dupont" },
                     { name: "email" as const, label: "Email", type: "email", placeholder: "jean@exemple.fr" },
@@ -1987,6 +1985,7 @@ export default function App() {
             </div>
           </div>
         </section>
+        )}
 
         {/* FOOTER */}
         <footer style={{ background: "#0f2440", color: "#8fb3d0" }}>
