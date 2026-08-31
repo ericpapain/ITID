@@ -1,12 +1,30 @@
 import { useState, useRef, useEffect } from "react";
 import logo from "./logos/logo ITID 3.png";
 import { Routes, Route, Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { HumanModel } from "./components/three/HumanModel";
 import { AssistantIA } from "./components/AssistantIA";
 import { MedicalCard, TreatmentCard } from "./components/Cards";
 import { useAnatomyStore } from "./store/anatomyStore";
+
+import { HeroPremium } from "./components/home/HeroPremium";
+import { EquipePanorama } from "./components/home/EquipePanorama";
+import { ImmersionSection } from "./components/home/ImmersionSection";
+import { StatsPremium } from "./components/home/StatsPremium";
+import { ProjectsMasonry } from "./components/home/ProjectsMasonry";
+import { FormationsPremium } from "./components/home/FormationsPremium";
+import { CustomCursor } from "./components/CustomCursor";
+import { Section3DWrapper } from "./components/animations/Section3DWrapper";
+import { ShimmerButton } from "./components/ui/ShimmerButton";
+import { OrbitingLogos } from "./components/animations/OrbitingLogos";
+import { SpotlightInput } from "./components/ui/SpotlightInput";
+import { Carousel, CarouselSlide } from "./components/ui/Carousel";
+import { GooeyNav } from "./components/ui/GooeyNav";
+import { User, Mail, Phone } from "lucide-react";
+import { PathologiesPremium } from "./components/pages/PathologiesPremium";
+import { TraitementsPremium } from "./components/pages/TraitementsPremium";
 import { FaFacebook, FaLinkedin, FaInstagram, FaYoutube, FaMapSigns, FaStethoscope, FaClipboardCheck, FaSyncAlt, FaChevronDown } from "react-icons/fa";
 import {
   NAV_LINKS, PATHOLOGIES, TRAITEMENTS, TEAM_ROLES, PARCOURS,
@@ -42,14 +60,47 @@ function getBotReply(msg: string): string {
   return BOT_RESPONSES.default;
 }
 
-const ITID_IMAGES = [
-  "img.jpg",
-  "imo.webp",
-  "rf.jpg",
-  "rrty.webp",
-  "sdfgd.webp",
-  "ssdf.webp",
-  "zyz.webp"
+const VISITE_SLIDES: CarouselSlide[] = [
+  {
+    id: "accueil",
+    index: "01",
+    kicker: "Accueil",
+    title: "Espace apaisant",
+    description: "Dès votre arrivée, notre équipe vous accueille dans un environnement conçu pour réduire l'anxiété.",
+    background: "linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)",
+    accent: "#2a9d8f",
+    image: "/image_itid/img.jpg"
+  },
+  {
+    id: "salle",
+    index: "02",
+    kicker: "Consultation",
+    title: "Salles modernes",
+    description: "Des espaces de consultation équipés pour un diagnostic précis et une prise en charge optimale.",
+    background: "linear-gradient(160deg, #1a3a5c 0%, #0f2440 100%)",
+    accent: "#48d1c2",
+    image: "/image_itid/rf.jpg"
+  },
+  {
+    id: "itid1",
+    index: "03",
+    kicker: "Interventionnel",
+    title: "Plateau technique",
+    description: "Des équipements de pointe pour réaliser des infiltrations et interventions guidées par imagerie.",
+    background: "linear-gradient(160deg, #0f2440 0%, #0a1628 100%)",
+    accent: "#2a9d8f",
+    image: "/image_itid/imo.webp"
+  },
+  {
+    id: "ext",
+    index: "04",
+    kicker: "Environnement",
+    title: "Cadre verdoyant",
+    description: "Le centre est entouré d'espaces verts pour favoriser la sérénité et le calme des patients.",
+    background: "linear-gradient(160deg, #1a3a5c 0%, #0a1628 100%)",
+    accent: "#48d1c2",
+    image: "/image_itid/rrty.webp"
+  }
 ];
 
 function ChatBot() {
@@ -184,6 +235,18 @@ export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const currentIndex = Math.max(0, NAV_LINKS.findIndex(l => {
+    if (l.href === location.pathname) return true;
+    if (l.href === '/' && location.pathname === '/' && !location.hash) return true;
+    if (l.href === '/formations' && location.pathname.startsWith('/formations')) return true;
+    return false;
+  }));
+  const prevIndexRef = useRef(currentIndex);
+  const direction = currentIndex - prevIndexRef.current;
+  if (currentIndex !== prevIndexRef.current) {
+    prevIndexRef.current = currentIndex;
+  }
+
   const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -298,9 +361,9 @@ export default function App() {
                   <label className="block text-xs font-bold text-[#1a3a5c] mb-1">Mot de passe</label>
                   <input type="password" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder="••••••••" />
                 </div>
-                <button type="submit" className="w-full py-4 mt-4 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90" style={{ background: "#2a9d8f" }}>
+                <ShimmerButton type="submit" className="w-full py-4 mt-4 rounded-xl">
                   {authMode === "login" ? "Se connecter" : "S'inscrire maintenant"}
-                </button>
+                </ShimmerButton>
               </form>
             </div>
 
@@ -370,9 +433,9 @@ export default function App() {
                     }, 0)} €
                   </span>
                 </div>
-                <button onClick={() => { setShowCartModal(false); setShowCartCheckoutModal(true); }} className="w-full py-4 rounded-xl text-base font-bold text-white transition-opacity hover:opacity-90 shadow-lg" style={{ background: "#2a9d8f" }}>
+                <ShimmerButton onClick={() => { setShowCartModal(false); setShowCartCheckoutModal(true); }} className="w-full py-4 rounded-xl text-base shadow-lg">
                   Passer la commande
-                </button>
+                </ShimmerButton>
               </div>
             )}
           </div>
@@ -413,7 +476,7 @@ export default function App() {
                 </div>
               </div>
 
-              <button
+              <ShimmerButton
                 onClick={() => {
                   alert("Paiement validé avec succès !");
                   setPurchasedFormations(prev => {
@@ -423,11 +486,10 @@ export default function App() {
                   setCart([]);
                   setShowCartCheckoutModal(false);
                 }}
-                className="w-full py-3.5 mt-2 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 shadow-md"
-                style={{ background: "#2a9d8f" }}
+                className="w-full py-3.5 mt-2 rounded-xl shadow-md"
               >
                 Payer
-              </button>
+              </ShimmerButton>
 
               <p className="text-center text-[10px] text-gray-400 mt-2">Paiement sécurisé. En cliquant sur "Payer", vous acceptez nos CGV.</p>
             </div>
@@ -449,38 +511,11 @@ export default function App() {
               </div>
             </a>
 
-            <div className="hidden lg:flex items-center gap-6 xl:gap-10">
-              <nav className="flex items-center gap-5 xl:gap-8">
-                {NAV_LINKS.map((l) => {
-                  const isActive = l.href === location.pathname || (l.href === '/' && location.pathname === '/' && !location.hash);
-                  return (
-                    <Link key={l.label} to={l.href} onClick={() => {
-                      if (l.view !== 'home' || l.href === '/') { window.scrollTo(0, 0); }
-                    }}
-                      className={`text-base font-medium transition-colors ${isActive ? 'text-white' : ''}`}
-                      style={{
-                        color: isActive ? "#fff" : "#8fb3d0",
-                        borderBottom: isActive ? "2px solid #2a9d8f" : "2px solid transparent",
-                        paddingBottom: "4px"
-                      }}
-                      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.color = "#fff"; }}
-                      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.color = "#8fb3d0"; }}
-                    >
-                      {l.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-
-
-
-              <div className="flex items-center gap-2">
-                <button onClick={handleContactClick}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all hover:bg-white/10"
-                  style={{ border: "1px solid rgba(255,255,255,0.3)", color: "#fff" }}>
-                  <FaStethoscope className="text-xs" /> Contactez-nous
-                </button>
-              </div>
+            <div className="hidden xl:flex items-center">
+              <GooeyNav items={[
+                ...NAV_LINKS.map(l => ({ label: l.label, href: l.href })),
+                { label: "Contactez-nous", onClick: handleContactClick }
+              ]} />
             </div>
 
             <button className="lg:hidden text-white text-4xl" onClick={() => setMenuOpen((v) => !v)} aria-label="Menu">
@@ -518,568 +553,44 @@ export default function App() {
           )}
         </header>
 
-        <Routes>
-          <Route path="/" element={
+        <div className="relative w-full overflow-hidden flex-1">
+          <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+            <motion.div
+              key={location.pathname}
+              custom={direction}
+              variants={{
+                initial: (direction: number) => ({
+                  x: direction > 0 ? "100%" : direction < 0 ? "-100%" : "0%",
+                }),
+                in: {
+                  x: 0,
+                  transition: { duration: 0.5, ease: [0.7, 0, 0.2, 1] }
+                },
+                out: (direction: number) => ({
+                  x: direction > 0 ? "-100%" : direction < 0 ? "100%" : "0%",
+                  transition: { duration: 0.5, ease: [0.7, 0, 0.2, 1] }
+                })
+              }}
+              initial="initial"
+              animate="in"
+              exit="out"
+              className="w-full"
+            >
+              <Routes location={location}>
+                <Route path="/" element={
             <>
-              {/* HERO */}
-              <section className="relative min-h-screen flex items-center overflow-hidden pt-16" style={{ background: "#0f2440" }}>
-                <div className="absolute inset-0 bg-cover bg-center opacity-15" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1625134673337-519d4d10b313?w=1600&h=900&fit=crop&auto=format')" }} />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0f2440 55%, #1a3a5c80 100%)" }} />
-                {/* Decorative Background Widgets */}
-                <div className="absolute top-1/4 left-5 text-[10rem] md:text-[14rem] opacity-5 transition-all duration-700 hover:opacity-20 hover:scale-110 hover:-translate-y-8 cursor-default z-0 pointer-events-none">🏥</div>
-                <div className="absolute bottom-10 right-10 md:right-20 text-[12rem] md:text-[18rem] opacity-5 transition-all duration-700 hover:opacity-20 hover:scale-110 hover:rotate-12 cursor-default z-0 pointer-events-none">🧬</div>
-
-                <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-[1.2fr_1fr] gap-8 items-center py-10">
-                  <div className="pr-4 lg:pr-8 self-start lg:mt-12">
-                    <div className="flex items-center gap-6 mb-4">
-                      <img src={logo} alt="ITID Logo" className="w-32 h-32 md:w-48 md:h-48 rounded-full object-contain shrink-0" />
-                      <h1 className="text-3xl md:text-4xl font-bold leading-tight text-white min-w-[450px]" style={{ fontFamily: "var(--font-display)" }}>
-                        Institut du Traitement{" "}
-                        <em className="not-italic" style={{ color: "#2a9d8f" }}>Interventionnel de la Douleur</em>
-                      </h1>
-                    </div>
-
-                    <p className="text-lg leading-relaxed mb-8" style={{ color: "#a8c4d8", maxWidth: 520 }}>
-                      Centre spécialisé à Troyes accompagnant les patients souffrant de douleurs chroniques et aiguës, avec des techniques interventionnelles de pointe et une approche pluridisciplinaire.
-                    </p>
-
-                    <div className="flex flex-wrap gap-4">
-                      <a href="https://www.doctolib.fr" target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white transition-all hover:opacity-90"
-                        style={{ background: "#2a9d8f" }}>
-                        Prendre RDV sur Doctolib →
-                      </a>
-                      <a href="tel:0351532026"
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold transition-all hover:bg-white/10"
-                        style={{ border: "1px solid rgba(255,255,255,0.3)", color: "#fff" }}>
-                        📞 03 51 53 20 26
-                      </a>
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-8">
-                      {[
-                        { val: "6 spécialités", label: "de douleur prises en charge" },
-                        { val: "12 praticiens", label: "dans l'équipe pluridisciplinaire" },
-                        { val: "3 000+", label: "patients suivis par an" },
-                        { val: "Troyes", label: "25 av. des Mailles, 10800" },
-                      ].map((s) => (
-                        <div key={s.label}>
-                          <div className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>{s.val}</div>
-                          <div className="text-xs mt-0.5" style={{ color: "#8fb3d0" }}>{s.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="hidden md:block relative w-full self-start lg:mt-12">
-                    <div className="rounded-3xl p-8 w-full max-w-md relative overflow-hidden group" style={{ background: "rgba(20, 30, 50, 0.6)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(20px)", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
-
-                      {/* Decorative blur blobs */}
-                      <div className="absolute top-0 right-0 w-48 h-48 bg-[#2a9d8f] rounded-full mix-blend-overlay filter blur-[60px] opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
-                      <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#3bb5a6] rounded-full mix-blend-overlay filter blur-[50px] opacity-10"></div>
-
-                      <style>
-                        {`
-                    @keyframes staggerFadeUp {
-                      0% { opacity: 0; transform: translateY(20px); filter: blur(4px); }
-                      100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-                    }
-                    @keyframes floatIcon {
-                      0%, 100% { transform: translateY(0); }
-                      50% { transform: translateY(-3px); }
-                    }
-                    @keyframes arrowSequence {
-                      0%, 100% { opacity: 0; }
-                      50% { opacity: 1; text-shadow: 0 0 8px rgba(72, 209, 194, 0.8); }
-                    }
-                    @keyframes colorCycle {
-                      0%, 20% { color: #48d1c2; text-shadow: 0 0 10px rgba(72, 209, 194, 0.6); }
-                      40%, 100% { color: white; text-shadow: none; }
-                    }
-                    @keyframes arrowSetVisibility {
-                      0%, 25% { opacity: 1; }
-                      26%, 100% { opacity: 0; }
-                    }
-                    .anim-step {
-                      opacity: 0;
-                      animation: staggerFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    }
-                    .anim-float {
-                      animation: floatIcon 3s ease-in-out infinite;
-                    }
-                    .text-cycle {
-                      animation: colorCycle 12s infinite;
-                    }
-                    .arrow-set {
-                      opacity: 0;
-                      animation: arrowSetVisibility 12s infinite;
-                    }
-                    .arrow-seq-1 { animation: arrowSequence 1s infinite; animation-delay: 0s; }
-                    .arrow-seq-2 { animation: arrowSequence 1s infinite; animation-delay: 0.15s; }
-                    .arrow-seq-3 { animation: arrowSequence 1s infinite; animation-delay: 0.3s; }
-                    .arrow-seq-4 { animation: arrowSequence 1s infinite; animation-delay: 0.45s; }
-                    .arrow-seq-5 { animation: arrowSequence 1s infinite; animation-delay: 0.6s; }
-                    .arrow-seq-6 { animation: arrowSequence 1s infinite; animation-delay: 0.75s; }
-                  `}
-                      </style>
-
-                      <div className="text-white font-bold mb-8 text-lg tracking-wide uppercase flex items-center gap-3 anim-step" style={{ fontFamily: "var(--font-display)", color: "#48d1c2", animationDelay: "0.1s" }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                        Votre parcours chez nous
-                      </div>
-
-                      <div className="relative z-10">
-                        {[
-                          { step: '01', icon: <FaMapSigns />, title: 'Orientation médicale', desc: 'Adressé par votre médecin traitant ou un spécialiste.' },
-                          { step: '02', icon: <FaStethoscope />, title: 'Consultation d\'évaluation', desc: 'Bilan complet avec un médecin algologue.' },
-                          { step: '03', icon: <FaClipboardCheck />, title: 'Plan de traitement', desc: 'Protocole personnalisé, co-construit avec l\'équipe.' },
-                          { step: '04', icon: <FaSyncAlt />, title: 'Suivi & réévaluation', desc: 'Ajustements réguliers pour une prise en charge optimale.' }
-                        ].map((p, i) => (
-                          <div key={p.step} className="anim-step relative flex gap-6 items-center mb-2 last:mb-0 group/step cursor-default" style={{ animationDelay: `${0.3 + i * 0.2}s` }}>
-                            <div className="relative anim-float shrink-0" style={{ animationDelay: `${i * 0.5}s` }}>
-                              <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0 text-white shadow-xl transition-transform duration-300 group-hover/step:scale-110 group-hover/step:bg-[#3bb5a6] relative z-10" style={{ background: "linear-gradient(135deg, #2a9d8f 0%, #1a7a6f 100%)" }}>
-                                {p.icon}
-                              </div>
-                              {/* Glow behind the bubble */}
-                              <div className="absolute inset-0 rounded-full bg-[#2a9d8f] blur-md opacity-20 group-hover/step:opacity-70 transition-opacity duration-300"></div>
-
-                              {/* Flowing downward 6 arrows bridging to next widget */}
-                              {i < 3 && (
-                                <div className="absolute top-[60%] left-1/2 -translate-x-1/2 flex flex-col items-center arrow-set -z-10" style={{ animationDelay: `${i * 3}s` }}>
-                                  <FaChevronDown className="text-[#48d1c2] text-xl -mb-2 arrow-seq-1" />
-                                  <FaChevronDown className="text-[#48d1c2] text-xl -mb-2 arrow-seq-2" />
-                                  <FaChevronDown className="text-[#48d1c2] text-xl -mb-2 arrow-seq-3" />
-                                  <FaChevronDown className="text-[#48d1c2] text-xl -mb-2 arrow-seq-4" />
-                                  <FaChevronDown className="text-[#48d1c2] text-xl -mb-2 arrow-seq-5" />
-                                  <FaChevronDown className="text-[#48d1c2] text-xl arrow-seq-6" />
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="flex-1 pt-1 pb-4 transition-colors">
-                              <div className="font-bold text-white text-lg mb-1 transition-colors text-cycle group-hover/step:text-[#48d1c2]" style={{ animationDelay: `${i * 3}s` }}>
-                                <span className="text-[#2a9d8f] mr-2">{p.step}.</span>
-                                {p.title}
-                              </div>
-                              <div className="text-sm leading-relaxed" style={{ color: "#8fb3d0" }}>{p.desc}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* IA Assistant */}
-                      <div className="anim-step mt-6 relative overflow-hidden rounded-2xl p-4 flex items-start gap-4 transition-transform duration-500 hover:-translate-y-1" style={{ background: "linear-gradient(135deg, rgba(42,157,143,0.15) 0%, rgba(42,157,143,0.05) 100%)", border: "1px solid rgba(42,157,143,0.3)", animationDelay: "1.2s" }}>
-                        <div className="absolute -right-4 -top-4 text-6xl opacity-10 blur-[2px]">🤖</div>
-                        <div className="relative z-10 w-10 h-10 rounded-full bg-[#2a9d8f]/20 flex items-center justify-center text-xl shrink-0 border border-[#2a9d8f]/30 shadow-inner">
-                          🤖
-                        </div>
-                        <div className="relative z-10">
-                          <div className="text-sm font-bold mb-1" style={{ color: "#48d1c2" }}>Assistant IA 24/7</div>
-                          <div className="text-xs leading-relaxed" style={{ color: "#a0c4e0" }}>Posez vos questions entre les consultations, suivi en temps réel.</div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* CENTRE */}
-              <section id="centre" className="relative py-10 overflow-hidden" style={{ background: "var(--background)" }}>
-                <div className="absolute top-20 right-10 text-[12rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-rotate-12 cursor-default z-0">🩺</div>
-                <div className="absolute bottom-10 left-10 md:left-20 text-[10rem] md:text-[14rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-translate-y-6 cursor-default z-0">⚕️</div>
-
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                  <div className="grid md:grid-cols-2 gap-12 items-center">
-                    <div>
-                      <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Qui sommes-nous</div>
-                      <h2 className="text-4xl font-bold mb-5" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
-                        L'ITID, centre de référence de la douleur en Champagne
-                      </h2>
-                      <p className="text-base leading-relaxed mb-4" style={{ color: "#6b7c93" }}>
-                        L'Institut du Traitement Interventionnel de la Douleur est installé au sein de l'Espace Médical de Spécialistes de Champagne, à Troyes. Notre équipe pluridisciplinaire prend en charge l'ensemble des syndromes douloureux chroniques et aigus avec des techniques interventionnelles de pointe.
-                      </p>
-                      <p className="text-base leading-relaxed" style={{ color: "#6b7c93" }}>
-                        Chaque patient bénéficie d'une évaluation complète et d'un plan de traitement personnalisé, co-construit avec l'ensemble des spécialistes impliqués dans sa prise en charge.
-                      </p>
-                      <div className="mt-6 flex flex-wrap gap-3">
-                        {["Sur ordonnance médicale", "Consultation d'évaluation", "Suivi personnalisé"].map((tag) => (
-                          <span key={tag} className="px-3 py-1.5 rounded-full text-xs font-medium" style={{ background: "#e8f4f2", color: "#2a9d8f", border: "1px solid #b3ddd9" }}>
-                            ✓ {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      {[
-                        { label: "Lun – Ven", val: "8h30 – 18h00", icon: "🕒" },
-                        { label: "Téléphone", val: "03 51 53 20 26", icon: "📞" },
-                        { label: "Adresse", val: "25 av. des Mailles\n10800 TROYES", icon: "📍" },
-                        { label: "Prise de RDV", val: "Via Doctolib", icon: "📅" },
-                      ].map((info) => (
-                        <div key={info.label} className="p-4 rounded-2xl" style={{ background: "#fff", border: "1px solid var(--border)" }}>
-                          <div className="text-2xl mb-2">{info.icon}</div>
-                          <div className="text-xs font-medium mb-1" style={{ color: "#6b7c93" }}>{info.label}</div>
-                          <div className="font-semibold text-sm whitespace-pre-line" style={{ color: "#1a3a5c" }}>{info.val}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* PATHOLOGIES SUMMARY */}
-              <section id="pathologies" className="relative py-12 overflow-hidden" style={{ background: "#f0f7f6" }}>
-                <div className="absolute top-10 left-10 text-[12rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:rotate-12 cursor-default z-0">🧠</div>
-                <div className="absolute bottom-20 right-10 text-[14rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-translate-y-8 cursor-default z-0">🦴</div>
-
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
-                  <div>
-                    <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Pathologies traitées</div>
-                    <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
-                      Nous prenons en charge toutes les formes de douleur
-                    </h2>
-                    <p className="text-base leading-relaxed mb-8" style={{ color: "#6b7c93" }}>
-                      Des lombalgies aux céphalées résistantes, en passant par les douleurs neuropathiques et pelviennes — chaque pathologie bénéficie d'un protocole adapté.
-                    </p>
-                    <Link
-                      to="/pathologies"
-                      className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:-translate-y-0.5"
-                      style={{ background: "#2a9d8f", color: "#fff" }}
-                    >
-                      Découvrir nos pathologies traitées →
-                    </Link>
-                  </div>
-                  <div className="relative h-[400px] flex items-center justify-center">
-                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform -rotate-12 -translate-x-24 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#fdf8f5", borderColor: "#e9c46a80" }}>
-                      <div className="text-5xl mb-3">🏥</div>
-                      <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Douleurs pelviennes</div>
-                    </div>
-                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform rotate-12 translate-x-24 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#fff8ec", borderColor: "#f4a26180" }}>
-                      <div className="text-5xl mb-3">🦵</div>
-                      <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Douleurs articulaires</div>
-                    </div>
-                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform -rotate-6 -translate-x-12 translate-y-4 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#f0fdfa", borderColor: "#48d1c280" }}>
-                      <div className="text-5xl mb-3">🦴</div>
-                      <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Lombalgies</div>
-                    </div>
-                    <div className="absolute w-52 h-64 rounded-2xl shadow-xl border flex flex-col items-center justify-center transform rotate-6 translate-x-12 translate-y-4 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#f1f5f9", borderColor: "#26465380" }}>
-                      <div className="text-5xl mb-3">🧠</div>
-                      <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Migraines</div>
-                    </div>
-                    <div className="absolute w-52 h-64 rounded-2xl shadow-2xl border flex flex-col items-center justify-center z-20 transition-all duration-300 hover:scale-110 hover:z-30 cursor-default" style={{ background: "#f0fbfa", borderColor: "#2a9d8f80" }}>
-                      <div className="text-5xl mb-3">⚡</div>
-                      <div className="font-semibold text-sm text-center" style={{ color: "#1a3a5c" }}>Neuropathies</div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* TRAITEMENTS SUMMARY */}
-              <section id="traitements" className="relative py-12 overflow-hidden" style={{ background: "#1a3a5c" }}>
-                <div className="absolute top-1/3 left-10 text-[12rem] opacity-5 transition-all duration-700 hover:opacity-20 hover:scale-110 hover:rotate-12 cursor-default z-0">🎯</div>
-                <div className="absolute bottom-10 right-10 md:right-1/4 text-[14rem] opacity-5 transition-all duration-700 hover:opacity-20 hover:scale-110 hover:-translate-y-10 cursor-default z-0">🩸</div>
-
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
-                  <div>
-                    <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#3bb5a6" }}>Techniques interventionnelles</div>
-                    <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-display)" }}>
-                      Des traitements de pointe
-                    </h2>
-                    <p className="text-base leading-relaxed mb-8" style={{ color: "#a8c4d8" }}>
-                      L'ITID propose les techniques interventionnelles les plus avancées, guidées par imagerie, pour une efficacité maximale sur les douleurs résistantes aux traitements conventionnels.
-                    </p>
-                    <Link
-                      to="/traitements"
-                      className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:-translate-y-0.5"
-                      style={{ background: "#3bb5a6", color: "#fff" }}
-                    >
-                      Découvrir nos traitements →
-                    </Link>
-                  </div>
-                  <div className="relative h-[500px] flex items-center justify-center">
-                    <div className="absolute w-72 h-40 bg-[#2a9d8f]/20 backdrop-blur-md rounded-2xl border border-[#2a9d8f]/40 flex flex-col justify-center px-10 transform -rotate-12 -translate-y-24 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:bg-[#2a9d8f]/40 hover:z-30 cursor-default">
-                      <div className="text-4xl mb-2">🩸</div>
-                      <div className="font-semibold text-lg text-white">PRP</div>
-                    </div>
-                    <div className="absolute w-72 h-40 bg-[#3bb5a6]/20 backdrop-blur-md rounded-2xl border border-[#3bb5a6]/40 flex flex-col justify-center px-10 transform rotate-12 translate-y-24 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:bg-[#3bb5a6]/40 hover:z-30 cursor-default">
-                      <div className="text-4xl mb-2">💉</div>
-                      <div className="font-semibold text-lg text-white">Toxine botulique</div>
-                    </div>
-                    <div className="absolute w-72 h-40 bg-[#2a9d8f]/20 backdrop-blur-md rounded-2xl border border-[#2a9d8f]/40 flex flex-col justify-center px-10 transform rotate-6 translate-y-12 translate-x-16 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:bg-[#2a9d8f]/40 hover:z-30 cursor-default">
-                      <div className="text-4xl mb-2">🎯</div>
-                      <div className="font-semibold text-lg text-white">Infiltrations ciblées</div>
-                    </div>
-                    <div className="absolute w-72 h-40 bg-[#3bb5a6]/20 backdrop-blur-md rounded-2xl border border-[#3bb5a6]/40 flex flex-col justify-center px-10 transform -rotate-6 -translate-y-10 -translate-x-16 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:bg-[#3bb5a6]/40 hover:z-30 cursor-default">
-                      <div className="text-4xl mb-2">⚡</div>
-                      <div className="font-semibold text-lg text-white">Neuromodulation</div>
-                    </div>
-                    <div className="absolute w-72 h-40 bg-[#2a9d8f]/30 backdrop-blur-md rounded-2xl border border-[#2a9d8f]/50 flex flex-col justify-center px-10 z-20 shadow-2xl transition-all duration-300 hover:scale-110 hover:bg-[#2a9d8f]/50 hover:z-30 cursor-default">
-                      <div className="text-4xl mb-2">🔥</div>
-                      <div className="font-semibold text-lg text-white">Radiofréquence</div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* ÉQUIPE SUMMARY */}
-              <section id="equipe" className="relative py-12 overflow-hidden" style={{ background: "var(--background)" }}>
-                <div className="absolute top-10 right-10 md:right-20 text-[12rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-rotate-12 cursor-default z-0">🤝</div>
-                <div className="absolute bottom-20 left-10 text-[14rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-translate-y-8 cursor-default z-0">👨‍⚕️</div>
-
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
-                  <div className="order-2 md:order-1 relative h-[500px] flex items-center justify-center">
-                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-12 -translate-x-24 -translate-y-16 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #e8f4f2 0%, #f0f7f6 100%)" }}>
-                      <div className="text-6xl mb-4">👨‍⚕️</div>
-                      <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Médecins</div>
-                    </div>
-                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-12 translate-x-24 -translate-y-16 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #e6f3ff 0%, #f0f7ff 100%)" }}>
-                      <div className="text-6xl mb-4">👩‍⚕️</div>
-                      <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Infirmiers</div>
-                    </div>
-                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform -rotate-6 -translate-x-16 translate-y-12 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #fff3e6 0%, #fff8f0 100%)" }}>
-                      <div className="text-6xl mb-4">💆</div>
-                      <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Thérapeutes</div>
-                    </div>
-                    <div className="absolute w-56 h-64 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center justify-center transform rotate-6 translate-x-16 translate-y-12 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #f3e6ff 0%, #f8f0ff 100%)" }}>
-                      <div className="text-6xl mb-4">📞</div>
-                      <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Secrétaires</div>
-                    </div>
-                    <div className="absolute w-56 h-64 rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center justify-center z-20 transition-all duration-300 hover:scale-110 hover:z-30 cursor-default" style={{ background: "linear-gradient(135deg, #fffae6 0%, #fffdf0 100%)" }}>
-                      <div className="text-6xl mb-4">🧠</div>
-                      <div className="font-semibold text-base text-center" style={{ color: "#1a3a5c" }}>Psychologues</div>
-                    </div>
-                  </div>
-                  <div className="order-1 md:order-2">
-                    <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Équipe</div>
-                    <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
-                      Une équipe pluridisciplinaire à votre service
-                    </h2>
-                    <p className="text-base leading-relaxed mb-8" style={{ color: "#6b7c93" }}>
-                      Médecins, infirmières, psychologues et thérapeutes — tous engagés dans une prise en charge globale de la douleur.
-                    </p>
-                    <Link
-                      to="/equipe"
-                      className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:-translate-y-0.5"
-                      style={{ background: "#2a9d8f", color: "#fff" }}
-                    >
-                      Rencontrer l'équipe →
-                    </Link>
-                  </div>
-                </div>
-              </section>
-
-              {/* IA SUMMARY */}
-              <section id="ia" className="relative py-10 overflow-hidden" style={{ background: "#f0f7f6" }}>
-                <div className="absolute top-20 right-10 text-[14rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:rotate-12 cursor-default z-0">🤖</div>
-                <div className="absolute bottom-10 left-10 md:left-1/4 text-[10rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-translate-y-8 cursor-default z-0">💻</div>
-
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center relative z-10">
-                  <div>
-                    <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Intelligence artificielle</div>
-                    <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
-                      L'IA au service de votre suivi
-                    </h2>
-                    <p className="text-base leading-relaxed mb-8" style={{ color: "#6b7c93" }}>
-                      Notre assistant intelligent est disponible en dehors des heures de consultation pour répondre à vos questions, vous orienter et faciliter votre suivi entre les séances à l'ITID.
-                    </p>
-                    <Link
-                      to="/ia"
-                      className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:-translate-y-0.5"
-                      style={{ background: "#2a9d8f", color: "#fff" }}
-                    >
-                      Essayer notre assistant IA →
-                    </Link>
-                  </div>
-                  <div className="relative h-[500px] flex items-center justify-center">
-                    <div className="absolute w-96 p-6 bg-white rounded-2xl shadow-xl border border-gray-100 flex items-center gap-5 transform -rotate-3 -translate-y-32 -translate-x-12 transition-all duration-300 hover:-rotate-3 hover:scale-105 hover:z-30 cursor-default">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold text-white shrink-0" style={{ background: "#2a9d8f" }}>IA</div>
-                      <div className="text-lg font-medium" style={{ color: "#1a3a5c" }}>Bonjour ! Comment puis-je vous aider ?</div>
-                    </div>
-                    <div className="absolute w-96 p-6 bg-[#1a3a5c] rounded-2xl shadow-xl flex items-center justify-end transform rotate-2 -translate-y-12 translate-x-12 z-10 transition-all duration-300 hover:rotate-2 hover:scale-105 hover:z-30 cursor-default">
-                      <div className="text-lg font-medium text-white text-right">J'ai des douleurs au dos.</div>
-                    </div>
-                    <div className="absolute w-96 p-6 bg-white rounded-2xl shadow-xl border border-gray-100 flex items-center gap-5 transform -rotate-2 translate-y-8 -translate-x-12 z-10 transition-all duration-300 hover:-rotate-2 hover:scale-105 hover:z-30 cursor-default">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold text-white shrink-0" style={{ background: "#2a9d8f" }}>IA</div>
-                      <div className="text-lg font-medium" style={{ color: "#1a3a5c" }}>L'ITID est spécialisé dans cela.</div>
-                    </div>
-                    <div className="absolute w-96 p-6 bg-[#1a3a5c] rounded-2xl shadow-xl flex items-center justify-end transform rotate-3 translate-y-28 translate-x-12 z-20 transition-all duration-300 hover:rotate-3 hover:scale-105 hover:z-30 cursor-default">
-                      <div className="text-lg font-medium text-white text-right">Comment prendre RDV ?</div>
-                    </div>
-                    <div className="absolute w-96 p-6 bg-white rounded-2xl shadow-2xl border border-gray-100 flex items-center gap-5 transform -rotate-1 translate-y-48 -translate-x-12 z-20 transition-all duration-300 hover:-rotate-1 hover:scale-105 hover:z-30 cursor-default">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold text-white shrink-0" style={{ background: "#2a9d8f" }}>IA</div>
-                      <div className="text-lg font-medium" style={{ color: "#1a3a5c" }}>Directement sur Doctolib !</div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* FORMATIONS SUMMARY */}
-              <section id="formations" className="relative py-12 overflow-hidden" style={{ background: "var(--background)" }}>
-                <div className="absolute top-10 left-10 md:left-20 text-[12rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-rotate-12 cursor-default z-0">📚</div>
-                <div className="absolute bottom-20 right-10 text-[14rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-translate-y-8 cursor-default z-0">🎓</div>
-
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
-                  <div className="order-2 md:order-1 relative h-[500px] flex items-center justify-center">
-                    <div className="absolute w-72 h-48 bg-[#1a3a5c] rounded-2xl shadow-xl border-4 border-white overflow-hidden transform -rotate-12 -translate-x-24 -translate-y-16 transition-all duration-300 hover:-rotate-12 hover:scale-110 hover:z-30 cursor-pointer">
-                      <img src="https://images.unsplash.com/photo-1758691462749-a95ce1bd7f96?w=600&h=380&fit=crop&auto=format&q=80" alt="video" className="w-full h-full object-cover opacity-80 transition-opacity hover:opacity-100" />
-                      <div className="absolute inset-0 flex items-center justify-center"><div className="w-14 h-14 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-2xl">▶</div></div>
-                    </div>
-                    <div className="absolute w-72 h-48 bg-[#1a3a5c] rounded-2xl shadow-xl border-4 border-white overflow-hidden transform rotate-12 translate-x-24 -translate-y-16 transition-all duration-300 hover:rotate-12 hover:scale-110 hover:z-30 cursor-pointer">
-                      <img src="https://images.unsplash.com/photo-1758691463620-188ca7c1a04f?w=600&h=380&fit=crop&auto=format&q=80" alt="video" className="w-full h-full object-cover opacity-80 transition-opacity hover:opacity-100" />
-                      <div className="absolute inset-0 flex items-center justify-center"><div className="w-14 h-14 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-2xl">▶</div></div>
-                    </div>
-                    <div className="absolute w-72 h-48 bg-[#1a3a5c] rounded-2xl shadow-xl border-4 border-white overflow-hidden transform -rotate-6 -translate-x-12 translate-y-16 z-10 transition-all duration-300 hover:-rotate-6 hover:scale-110 hover:z-30 cursor-pointer">
-                      <img src="https://images.unsplash.com/photo-1758691462749-a95ce1bd7f96?w=600&h=380&fit=crop&auto=format&q=80" alt="video" className="w-full h-full object-cover opacity-80 transition-opacity hover:opacity-100" />
-                      <div className="absolute inset-0 flex items-center justify-center"><div className="w-14 h-14 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-2xl">▶</div></div>
-                    </div>
-                    <div className="absolute w-72 h-48 bg-[#1a3a5c] rounded-2xl shadow-xl border-4 border-white overflow-hidden transform rotate-6 translate-x-12 translate-y-16 z-10 transition-all duration-300 hover:rotate-6 hover:scale-110 hover:z-30 cursor-pointer">
-                      <img src="https://images.unsplash.com/photo-1758691463620-188ca7c1a04f?w=600&h=380&fit=crop&auto=format&q=80" alt="video" className="w-full h-full object-cover opacity-80 transition-opacity hover:opacity-100" />
-                      <div className="absolute inset-0 flex items-center justify-center"><div className="w-14 h-14 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-2xl">▶</div></div>
-                    </div>
-                    <div className="absolute w-72 h-48 bg-[#1a3a5c] rounded-2xl shadow-2xl border-4 border-white overflow-hidden z-20 transition-all duration-300 hover:scale-110 hover:z-30 cursor-pointer">
-                      <img src={CATEGORIES_FORMATIONS[0].videos[0].img} alt="video" className="w-full h-full object-cover opacity-90 transition-opacity hover:opacity-100" />
-                      <div className="absolute inset-0 flex items-center justify-center"><div className="w-16 h-16 bg-[#2a9d8f]/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-3xl shadow-lg">▶</div></div>
-                    </div>
-                  </div>
-                  <div className="order-1 md:order-2">
-                    <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Catalogues de formations</div>
-                    <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Apprenez à votre rythme</h2>
-                    <p className="text-base leading-relaxed mb-8" style={{ color: "#6b7c93" }}>
-                      Explorez nos 3 catalogues complets, regroupant de multiples vidéos par catégorie pour les professionnels et le grand public.
-                    </p>
-                    <Link
-                      to="/formations"
-                      className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold transition-all hover:shadow-lg hover:-translate-y-0.5"
-                      style={{ background: "#2a9d8f", color: "#fff" }}
-                    >
-                      Accéder aux formations →
-                    </Link>
-                  </div>
-                </div>
-              </section>
-
-              {/* CHECKOUT MODAL */}
-              {checkoutVideo && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(15,36,64,0.7)", backdropFilter: "blur(4px)" }}>
-                  <div className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
-                    <button onClick={() => setCheckoutVideo(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors z-10">✕</button>
-
-                    <div className="p-6 border-b border-gray-100 bg-[#f0f7f6]">
-                      <div className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#2a9d8f" }}>Finaliser l'inscription</div>
-                      <h3 className="text-base font-semibold leading-snug" style={{ color: "#1a3a5c" }}>{checkoutVideo.title}</h3>
-                    </div>
-
-                    <div className="px-6 py-4 flex justify-between items-center text-sm font-semibold border-b border-gray-100">
-                      <span style={{ color: "#6b7c93" }}>Total à régler TTC</span>
-                      <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{checkoutVideo.price}</span>
-                    </div>
-
-                    <div className="p-6 space-y-4">
-                      {!isAuthenticated && (
-                        <>
-                          <div>
-                            <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Adresse e-mail</label>
-                            <input type="email" placeholder="votre@email.fr" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Création de mot de passe</label>
-                            <input type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                          </div>
-                        </>
-                      )}
-                      <div className="pt-2">
-                        <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Informations de paiement</label>
-                        <div className="relative">
-                          <input type="text" placeholder="Numéro de carte" className="w-full px-3 py-2.5 pl-10 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">💳</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 mt-3">
-                          <input type="text" placeholder="MM/AA" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                          <input type="text" placeholder="CVC" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => { alert("Paiement simulé avec succès ! Merci de votre inscription."); setCheckoutVideo(null); }}
-                        className="w-full py-3.5 mt-2 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 shadow-md"
-                        style={{ background: "#2a9d8f" }}
-                      >
-                        Payer {checkoutVideo.price}
-                      </button>
-
-                      <p className="text-center text-[10px] text-gray-400 mt-2">Paiement sécurisé. En cliquant sur "Payer", vous acceptez nos CGV.</p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <HeroPremium />
+              <ImmersionSection />
+              <FormationsPremium />
+              <ProjectsMasonry />
+              <EquipePanorama />
+              <StatsPremium />
             </>
           } />
 
-          <Route path="/pathologies" element={
-            <div className="pt-32 pb-12 min-h-screen" style={{ background: "var(--background)" }}>
-              <div className="max-w-7xl mx-auto px-6">
-                <Link
-                  to="/"
-                  className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
-                >
-                  ← Retour à l'accueil
-                </Link>
-                <div className="mb-8">
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Toutes nos pathologies traitées</h2>
-                  <p className="text-base leading-relaxed max-w-2xl mb-6" style={{ color: "#6b7c93" }}>
-                    Découvrez en détail les syndromes pris en charge par l'Institut du Traitement Interventionnel de la Douleur.
-                  </p>
-                  <input 
-                    type="text" 
-                    placeholder="Rechercher une pathologie (ex: lombaire, pelvienne)..." 
-                    value={pathoFilter}
-                    onChange={(e) => setPathoFilter(e.target.value)}
-                    className="w-full max-w-md px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2a9d8f]/50 bg-white"
-                  />
-                </div>
+          <Route path="/pathologies" element={<PathologiesPremium />} />
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {PATHOLOGIES.filter(p => p.title.toLowerCase().includes(pathoFilter.toLowerCase()) || p.desc.toLowerCase().includes(pathoFilter.toLowerCase())).map((p) => (
-                    <MedicalCard key={p.title} {...p} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          } />
-
-          <Route path="/traitements" element={
-            <div className="pt-32 pb-12 min-h-screen" style={{ background: "var(--background)" }}>
-              <div className="max-w-7xl mx-auto px-6">
-                <Link
-                  to="/"
-                  className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
-                >
-                  ← Retour à l'accueil
-                </Link>
-                <div className="mb-8">
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Tous nos traitements</h2>
-                  <p className="text-base leading-relaxed max-w-2xl mb-6" style={{ color: "#6b7c93" }}>
-                    Découvrez en détail les techniques interventionnelles guidées par imagerie proposées par l'ITID.
-                  </p>
-                  <input 
-                    type="text" 
-                    placeholder="Rechercher un traitement (ex: infiltration, hypnose)..." 
-                    value={traitFilter}
-                    onChange={(e) => setTraitFilter(e.target.value)}
-                    className="w-full max-w-md px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2a9d8f]/50 bg-white"
-                  />
-                </div>
-
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {TRAITEMENTS.filter(t => t.title.toLowerCase().includes(traitFilter.toLowerCase()) || t.desc.toLowerCase().includes(traitFilter.toLowerCase())).map((t) => (
-                    <TreatmentCard key={t.title} {...t} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          } />
+          <Route path="/traitements" element={<TraitementsPremium />} />
 
           <Route path="/equipe" element={
             <div className="pt-32 pb-12 min-h-screen" style={{ background: "var(--background)" }}>
@@ -1279,17 +790,16 @@ export default function App() {
                                   </div>
 
                                   {selectedSuggestedVideos.length > 0 && (
-                                    <button
+                                    <ShimmerButton
                                       onClick={() => {
                                         if (!isAuthenticated) { setShowAuthModal(true); return; }
                                         setCart([...cart, ...selectedSuggestedVideos]);
                                         setSelectedSuggestedVideos([]);
                                       }}
-                                      className="w-full py-4 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-lg flex items-center justify-center gap-2"
-                                      style={{ background: "#2a9d8f" }}
+                                      className="w-full py-4 rounded-xl shadow-lg"
                                     >
                                       🛒 Ajouter la sélection au panier ({selectedSuggestedVideos.length})
-                                    </button>
+                                    </ShimmerButton>
                                   )}
                                 </div>
                               ) : (
@@ -1613,11 +1123,11 @@ export default function App() {
                     </div>
                   </div>
                 )}
-              </>
-            } />
-          ))}
+                </>
+              } />
+            ))}
 
-          <Route path="/mon-profil" element={
+            <Route path="/mon-profil" element={
             <div className="pt-32 pb-24 min-h-screen" style={{ background: "var(--background)" }}>
               <div className="max-w-7xl mx-auto px-6">
                 <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}>
@@ -1785,68 +1295,21 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                {/* GALERIE ITID */}
-                <div className="mb-20">
+              </div>
+              
+              {/* GALERIE ITID - FULL WIDTH */}
+              <div className="mb-20 w-full px-4 md:px-8">
+                <div className="max-w-5xl mx-auto mb-10">
                   <div className="text-sm font-medium uppercase tracking-widest mb-3 text-center" style={{ color: "#2a9d8f" }}>En images</div>
-                  <h3 className="text-3xl font-bold mb-10 text-center" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Visitez l'ITID</h3>
-
-                  <div className="relative w-full overflow-hidden pb-6 group/carousel">
-                    <button
-                      onClick={() => {
-                        const container = carouselRef.current;
-                        if (container) {
-                          const firstChild = container.firstElementChild as HTMLElement;
-                          const scrollAmount = firstChild ? firstChild.offsetWidth + 24 : 374;
-                          if (container.scrollLeft <= 10) {
-                            container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
-                          } else {
-                            container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                          }
-                        }
-                      }}
-                      className="absolute left-2 md:left-4 top-1/2 -translate-y-[calc(50%+12px)] z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg text-[#1a3a5c] flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-lg font-bold"
-                      aria-label="Image précédente"
-                    >
-                      ❮
-                    </button>
-                    <button
-                      onClick={() => {
-                        const container = carouselRef.current;
-                        if (container) {
-                          const firstChild = container.firstElementChild as HTMLElement;
-                          const scrollAmount = firstChild ? firstChild.offsetWidth + 24 : 374;
-                          if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
-                            container.scrollTo({ left: 0, behavior: 'smooth' });
-                          } else {
-                            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                          }
-                        }
-                      }}
-                      className="absolute right-2 md:right-4 top-1/2 -translate-y-[calc(50%+12px)] z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg text-[#1a3a5c] flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-lg font-bold"
-                      aria-label="Image suivante"
-                    >
-                      ❯
-                    </button>
-
-                    <style>{`.hide-scroll::-webkit-scrollbar { display: none; }`}</style>
-                    <div
-                      ref={carouselRef}
-                      className="flex overflow-x-auto gap-6 snap-x snap-mandatory hide-scroll"
-                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                    >
-                      {[...ITID_IMAGES, ...ITID_IMAGES].map((imgSrc, idx) => (
-                        <div key={idx} onClick={() => setLightboxIndex(idx % ITID_IMAGES.length)} className="flex-none w-[80vw] sm:w-[350px] aspect-[4/3] rounded-3xl overflow-hidden shadow-md snap-center relative group cursor-pointer">
-                          <img src={`/image_itid/${imgSrc}`} alt={`ITID - Vue ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#1a3a5c]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                            <span className="text-white font-semibold text-sm translate-y-4 group-hover:translate-y-0 transition-transform duration-300 flex items-center gap-2">
-                              <span>🔍</span> Agrandir l'image
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <h3 className="text-3xl font-bold text-center" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Visitez l'ITID</h3>
                 </div>
+
+                <div className="w-full">
+                  <Carousel slides={VISITE_SLIDES} />
+                </div>
+              </div>
+
+              <div className="max-w-5xl mx-auto px-6">
 
                 <div className="p-10 md:p-12 rounded-3xl text-center relative overflow-hidden" style={{ background: "#1a3a5c" }}>
                   <div className="relative z-10 max-w-2xl mx-auto">
@@ -1859,17 +1322,25 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </div>
-          } />
-        </Routes>
+                </div>
+              } />
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
+        </div>
 
-        {/* RÉSEAUX */}
-        <section className="py-8" style={{ background: "#f0f7f6" }}>
-          <div className="max-w-5xl mx-auto px-6 text-center">
-            <div className="text-sm font-medium uppercase tracking-widest mb-1" style={{ color: "#2a9d8f" }}>Réseaux sociaux</div>
-            <h2 className="text-3xl font-bold mb-1" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Suivez l'ITID</h2>
-            <p className="text-sm mb-4" style={{ color: "#6b7c93" }}>Actualités médicales, conseils et informations sur nos traitements — directement sur vos plateformes.</p>
-            <div className="flex flex-wrap justify-center gap-3">
+        {/* --- SECTION CONTACT / FOOTER --- */}
+        <section className="relative py-20 overflow-hidden" style={{ background: "#0f2440" }}>
+          {/* Background Orbit */}
+          <div className="absolute inset-0 z-0 flex items-center justify-center opacity-40 pointer-events-none">
+            <OrbitingLogos className="scale-[1.5] md:scale-[2]" />
+          </div>
+          
+          <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+            <div className="text-sm font-bold uppercase tracking-widest mb-2" style={{ color: "#48d1c2" }}>Réseaux sociaux</div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white" style={{ fontFamily: "var(--font-display)" }}>Suivez l'ITID</h2>
+            <p className="text-base md:text-lg mb-8 text-gray-300 max-w-2xl mx-auto font-light">Actualités médicales, conseils et informations sur nos traitements — directement sur vos plateformes.</p>
+            <div className="flex flex-wrap justify-center gap-4">
               <a href="https://facebook.com/itid.france" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-85"
                 style={{ background: "#1877F2" }}>
@@ -1897,94 +1368,97 @@ export default function App() {
         {/* CONTACT */}
         {["/", "/a-propos"].includes(location.pathname) && (
           <section id="contact" className="py-12" style={{ background: "var(--background)" }}>
-          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-start">
-            <div>
-              <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Contact & RDV</div>
-              <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Nous contacter</h2>
-              <p className="text-base mb-8 leading-relaxed" style={{ color: "#6b7c93" }}>
-                La prise en charge à l'ITID nécessite une orientation par votre médecin traitant ou un spécialiste. N'hésitez pas à nous contacter pour toute question.
-              </p>
+            <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-start">
+              <div>
+                <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Contact & RDV</div>
+                <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Nous contacter</h2>
+                <p className="text-base mb-8 leading-relaxed" style={{ color: "#6b7c93" }}>
+                  La prise en charge à l'ITID nécessite une orientation par votre médecin traitant ou un spécialiste. N'hésitez pas à nous contacter pour toute question.
+                </p>
 
-              <div className="space-y-4 mb-8">
-                {[
-                  { icon: "📍", label: "Adresse", val: "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne" },
-                  { icon: "📞", label: "Téléphone", val: "03 51 53 20 26" },
-                  { icon: "🕒", label: "Horaires", val: "Lundi – Vendredi : 8h30 – 18h00\nSur rendez-vous uniquement" },
-                  { icon: "📅", label: "Prise de RDV", val: "Via Doctolib" },
-                ].map((c) => (
-                  <div key={c.label} className="flex gap-3 items-start">
-                    <span className="text-base shrink-0 mt-0.5">{c.icon}</span>
-                    <div>
-                      <div className="text-xs font-semibold mb-0.5" style={{ color: "#2a9d8f" }}>{c.label}</div>
-                      <div className="text-sm whitespace-pre-line" style={{ color: "#4a5568" }}>{c.val}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <a href="https://www.doctolib.fr" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold text-white transition-opacity hover:opacity-90"
-                style={{ background: "#2a9d8f" }}>
-                📅 Prendre RDV sur Doctolib
-              </a>
-            </div>
-
-            <div className="rounded-2xl p-8" style={{ background: "#fff", border: "1px solid var(--border)", boxShadow: "0 4px 24px rgba(26,58,92,0.08)" }}>
-              {sent ? (
-                <div className="text-center py-8">
-                  <div className="text-5xl mb-4">✅</div>
-                  <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Message envoyé !</h3>
-                  <p className="text-sm" style={{ color: "#6b7c93" }}>Nous vous répondrons dans les 24 heures ouvrées.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <h3 className="text-lg font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Envoyer un message</h3>
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Vous êtes</label>
-                    <select
-                      className="w-full px-3 py-2.5 rounded-xl text-sm outline-none cursor-pointer"
-                      style={{ background: "#f7f4ef", border: "1px solid var(--border)", color: "#1a3a5c" }}
-                      value={formData.category}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                    >
-                      <option value="Patient">Patient</option>
-                      <option value="Professionnel de santé">Professionnel de santé</option>
-                    </select>
-                  </div>
+                <div className="space-y-4 mb-8">
                   {[
-                    { name: "name" as const, label: "Nom complet", type: "text", placeholder: "Jean Dupont" },
-                    { name: "email" as const, label: "Email", type: "email", placeholder: "jean@exemple.fr" },
-                    { name: "phone" as const, label: "Téléphone", type: "tel", placeholder: "06 12 34 56 78" },
-                  ].map((f) => (
-                    <div key={f.name}>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>{f.label}</label>
-                      <input type={f.type} required placeholder={f.placeholder}
-                        className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                        style={{ background: "#f7f4ef", border: "1px solid var(--border)", color: "#1a3a5c" }}
-                        value={formData[f.name]}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, [f.name]: e.target.value }))}
-                      />
+                    { icon: "📍", label: "Adresse", val: "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne" },
+                    { icon: "📞", label: "Téléphone", val: "03 51 53 20 26" },
+                    { icon: "🕒", label: "Horaires", val: "Lundi – Vendredi : 8h30 – 18h00\nSur rendez-vous uniquement" },
+                    { icon: "📅", label: "Prise de RDV", val: "Via Doctolib" },
+                  ].map((c) => (
+                    <div key={c.label} className="flex gap-3 items-start">
+                      <span className="text-base shrink-0 mt-0.5">{c.icon}</span>
+                      <div>
+                        <div className="text-xs font-semibold mb-0.5" style={{ color: "#2a9d8f" }}>{c.label}</div>
+                        <div className="text-sm whitespace-pre-line" style={{ color: "#4a5568" }}>{c.val}</div>
+                      </div>
                     </div>
                   ))}
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Message</label>
-                    <textarea required rows={4} placeholder="Votre question ou motif de contact…"
-                      className="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none"
-                      style={{ background: "#f7f4ef", border: "1px solid var(--border)", color: "#1a3a5c" }}
-                      value={formData.message}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
-                    />
+                </div>
+
+                <a href="https://www.doctolib.fr" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold text-white transition-opacity hover:opacity-90"
+                  style={{ background: "#2a9d8f" }}>
+                  📅 Prendre RDV sur Doctolib
+                </a>
+              </div>
+
+              <div className="rounded-2xl p-8 relative overflow-hidden" style={{ background: "#0f2440", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 4px 24px rgba(0,0,0,0.2)" }}>
+                {sent ? (
+                  <div className="text-center py-8">
+                    <div className="text-5xl mb-4">✅</div>
+                    <h3 className="text-xl font-bold mb-2 text-white" style={{ fontFamily: "var(--font-display)" }}>Message envoyé !</h3>
+                    <p className="text-sm text-gray-300">Nous vous répondrons dans les 24 heures ouvrées.</p>
                   </div>
-                  <button type="submit" className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                    style={{ background: "#1a3a5c" }}>
-                    Envoyer
-                  </button>
-                  <p className="text-xs text-center" style={{ color: "#6b7c93" }}>Données protégées — RGPD</p>
-                </form>
-              )}
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+                    <h3 className="text-lg font-bold mb-4 text-white" style={{ fontFamily: "var(--font-display)" }}>Envoyer un message</h3>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1.5 text-gray-300">Vous êtes</label>
+                      <select
+                        className="w-full px-3 py-3 rounded-xl text-sm outline-none cursor-pointer bg-white/5 text-white border border-white/10 focus:border-[#48d1c2]"
+                        value={formData.category}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+                      >
+                        <option value="Patient" className="text-black">Patient</option>
+                        <option value="Professionnel de santé" className="text-black">Professionnel de santé</option>
+                      </select>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {[
+                        { name: "name" as const, label: "Nom complet", type: "text", icon: User },
+                        { name: "email" as const, label: "Email", type: "email", icon: Mail },
+                        { name: "phone" as const, label: "Téléphone", type: "tel", icon: Phone },
+                      ].map((f) => (
+                        <SpotlightInput
+                          key={f.name}
+                          label={f.label}
+                          type={f.type}
+                          icon={f.icon}
+                          required
+                          value={formData[f.name]}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, [f.name]: e.target.value }))}
+                        />
+                      ))}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold mb-1.5 text-gray-300">Message</label>
+                      <textarea required rows={4} placeholder="Votre question ou motif de contact…"
+                        className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none bg-white/5 text-white border border-white/10 focus:border-[#48d1c2] placeholder:text-gray-500 transition-colors"
+                        value={formData.message}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+                      />
+                    </div>
+                    
+                    <ShimmerButton type="submit" className="w-full py-4 mt-2 rounded-xl text-sm font-semibold">
+                      Envoyer
+                    </ShimmerButton>
+                    
+                    <p className="text-xs text-center text-gray-400">Données protégées — RGPD</p>
+                  </form>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
         )}
 
         {/* FOOTER */}
@@ -2037,6 +1511,7 @@ export default function App() {
         </footer>
 
         <ChatBot />
+        <CustomCursor />
 
         {/* LIGHTBOX GALERIE ITID */}
         {lightboxIndex !== null && (

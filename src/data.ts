@@ -38,19 +38,18 @@ export const TRAITEMENTS = [
 ];
 
 export const TEAM_ROLES = [
-  { role: "Médecins algologues", detail: "Spécialistes de l'évaluation et du traitement de la douleur. Ils incluent également des médecins en formation spécialisée, apportant expertise clinique et innovation dans chaque protocole de soins.", icon: "👨‍⚕️", img: doctorImg },
-  { role: "Neurologue", detail: "Collaborateur expert du système nerveux central et périphérique. Intervient spécifiquement sur les douleurs neuropathiques et les migraines complexes.", icon: "🧠", img: doctoreImg },
-  { role: "Neurologue", detail: "Collaborateur expert du système nerveux central et périphérique. Intervient spécifiquement sur les douleurs neuropathiques et les migraines complexes.", icon: "🧠", img: doctorImg },
-  { role: "Neurologue", detail: "Collaborateur expert du système nerveux central et périphérique. Intervient spécifiquement sur les douleurs neuropathiques et les migraines complexes.", icon: "🧠", img: doctoreImg },
-  { role: "Psychiatre", detail: "Un soutien psychologique fondamental, totalement intégré au parcours. Vous accompagne pour gérer l'impact émotionnel et cognitif de la douleur chronique.", icon: "💬", img: doctorImg },
-  { role: "Psychiatre", detail: "Un soutien psychologique fondamental, totalement intégré au parcours. Vous accompagne pour gérer l'impact émotionnel et cognitif de la douleur chronique.", icon: "💬", img: doctoreImg },
-  { role: "Psychologue", detail: "Un soutien psychologique fondamental, totalement intégré au parcours. Vous accompagne pour gérer l'impact émotionnel et cognitif de la douleur chronique.", icon: "💬", img: doctorImg },
-  { role: "Hypnothérapeute & Sophrologue", detail: "Partenaire dédié aux approches complémentaires non-médicamenteuses. Utilise la relaxation profonde pour modifier votre perception de la douleur.", icon: "🧘", img: doctoreImg },
-  { role: "Hypnothérapeute & Sophrologue", detail: "Partenaire dédié aux approches complémentaires non-médicamenteuses. Utilise la relaxation profonde pour modifier votre perception de la douleur.", icon: "🧘", img: doctorImg },
-  { role: "Gynécologue", detail: "Médecin spécialisé dans la prise en charge des douleurs pelviennes, de l'endométriose et des troubles fonctionnels associés.", icon: "🩺", img: doctoreImg },
-  { role: "Urologue", detail: "Médecin spécialisé dans la prise en charge des douleurs pelviennes, de l'endométriose et des troubles fonctionnels associés.", icon: "🩺", img: doctorImg },
-  { role: "Urologue", detail: "Médecin spécialisé dans la prise en charge des douleurs pelviennes, de l'endométriose et des troubles fonctionnels associés.", icon: "🩺", img: doctoreImg },
-  { role: "Infirmières spécialisées douleur", detail: "Véritables piliers du centre, elles sont présentes à chaque étape de votre suivi, assurent les soins techniques et garantissent un soutien continu.", icon: "💉", img: doctoreImg },
+  // Medecin
+  { category: "Medecin", role: "Médecin algologue", detail: "Spécialiste de l'évaluation et du traitement de la douleur. Ils incluent également des médecins en formation spécialisée, apportant expertise clinique et innovation dans chaque protocole de soins.", icon: "👨‍⚕️", img: doctorImg },
+  { category: "Medecin", role: "Neurologue", detail: "Collaborateur expert du système nerveux central et périphérique. Intervient spécifiquement sur les douleurs neuropathiques et les migraines complexes.", icon: "🧠", img: doctoreImg },
+  { category: "Medecin", role: "Psychiatre", detail: "Un soutien psychologique fondamental, totalement intégré au parcours. Vous accompagne pour gérer l'impact émotionnel et cognitif de la douleur chronique.", icon: "💬", img: doctorImg },
+  { category: "Medecin", role: "Gynécologue", detail: "Médecin spécialisé dans la prise en charge des douleurs pelviennes, de l'endométriose et des troubles fonctionnels associés.", icon: "🩺", img: doctoreImg },
+  { category: "Medecin", role: "Urologue", detail: "Médecin spécialisé dans la prise en charge des douleurs pelviennes, de l'endométriose et des troubles fonctionnels associés.", icon: "🩺", img: doctorImg },
+  // Infirmière & paramédical
+  { category: "Infirmière", role: "Infirmière spécialisée douleur", detail: "Véritables piliers du centre, elles sont présentes à chaque étape de votre suivi, assurent les soins techniques et garantissent un soutien continu.", icon: "💉", img: doctoreImg },
+  { category: "Infirmière", role: "Psychologue", detail: "Un soutien psychologique fondamental, totalement intégré au parcours. Vous accompagne pour gérer l'impact émotionnel et cognitif de la douleur chronique.", icon: "💬", img: doctorImg },
+  { category: "Infirmière", role: "Hypnothérapeute & Sophrologue", detail: "Partenaire dédié aux approches complémentaires non-médicamenteuses. Utilise la relaxation profonde pour modifier votre perception de la douleur.", icon: "🧘", img: doctoreImg },
+  // Secretaire
+  { category: "Secretaire", role: "Secrétaire médicale", detail: "Premier contact de votre parcours. Assure l'accueil, la coordination de vos rendez-vous pluridisciplinaires et l'accompagnement administratif.", icon: "📝", img: doctoreImg },
 ];
 
 export const PARCOURS = [
