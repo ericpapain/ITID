@@ -178,7 +178,12 @@ export function GooeyNav({
                       item.onClick();
                     } else if (item.href) {
                       if (item.href === '/') { window.scrollTo(0, 0); }
-                      navigate(item.href);
+                      const targetPath = item.href.split('#')[0];
+                      if (location.pathname !== targetPath) {
+                        import("../../store/transitionStore").then(({ useTransitionStore }) => {
+                          useTransitionStore.getState().startTransition(item.href!);
+                        });
+                      }
                     }
                   }}
                   aria-current={isActive ? "page" : undefined}

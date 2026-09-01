@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, PanInfo } from "framer-motion";
-import { Link } from "react-router-dom";
+import { TransitionLink } from "../ui/TransitionLink";
+import { BackgroundGradientAnimation } from "../animations/BackgroundGradientAnimation";
 
 const PROJECTS = [
   {
@@ -93,47 +94,49 @@ export function ProjectsMasonry() {
   };
 
   return (
-    <section className="relative py-32 bg-[#060d18] overflow-hidden" id="projets">
-      <div className="max-w-7xl mx-auto px-6 mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10 pointer-events-none">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass border border-[#48cae4]/30 text-white/80 pointer-events-auto">
-            <span className="w-2 h-2 rounded-full bg-[#48cae4]"></span>
-            <span className="text-xs font-bold tracking-widest uppercase">Galerie Interactive</span>
+    <section className="relative overflow-hidden" id="projets">
+      <BackgroundGradientAnimation className="py-32 bg-[#060d18]">
+        <div className="max-w-7xl mx-auto px-6 mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10 pointer-events-none">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass border border-[#48cae4]/30 text-white/80 pointer-events-auto">
+              <span className="w-2 h-2 rounded-full bg-[#48cae4]"></span>
+              <span className="text-xs font-bold tracking-widest uppercase">Galerie Interactive</span>
+            </div>
+            <h2 className="text-5xl md:text-7xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>
+              Cas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-[#48cae4]">Cliniques</span>
+            </h2>
           </div>
-          <h2 className="text-5xl md:text-7xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>
-            Cas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-[#48cae4]">Cliniques</span>
-          </h2>
-        </div>
-        <Link 
-          to="/pathologies" 
-          className="text-[#48cae4] hover:text-white transition-colors font-medium text-lg interactive inline-flex items-center gap-2 pointer-events-auto"
-        >
-          Découvrir plus <span className="text-2xl">→</span>
-        </Link>
-      </div>
-
-      <div className="relative w-full h-[500px] md:h-[650px]" ref={containerRef}>
-        {/* Helper instruction */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-5 pointer-events-none text-[10rem] md:text-[15rem] font-bold text-white tracking-widest" style={{ fontFamily: "var(--font-display)" }}>
-          DRAG
+          <TransitionLink 
+            to="/pathologies" 
+            className="text-[#48cae4] hover:text-white transition-colors font-medium text-lg interactive inline-flex items-center gap-2 pointer-events-auto"
+          >
+            Découvrir plus <span className="text-2xl">→</span>
+          </TransitionLink>
         </div>
 
-        <motion.div
-          drag="x"
-          dragElastic={0.1}
-          dragConstraints={{ left: -1600, right: 0 }}
-          onDrag={handleDrag}
-          onDragEnd={handleDragEnd}
-          style={{ x: springScroll }}
-          className="absolute left-[10%] top-0 flex gap-8 cursor-grab active:cursor-grabbing z-10 px-10"
-        >
-          {PROJECTS.map((item, idx) => (
-            <motion.div key={idx} style={{ skewX, scale }} className="pointer-events-none">
-              <ActiveSliderCard item={item} scrollX={springScroll} index={idx} />
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
+        <div className="relative w-full h-[500px] md:h-[650px]" ref={containerRef}>
+          {/* Helper instruction */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-5 pointer-events-none text-[10rem] md:text-[15rem] font-bold text-white tracking-widest" style={{ fontFamily: "var(--font-display)" }}>
+            DRAG
+          </div>
+
+          <motion.div
+            drag="x"
+            dragElastic={0.1}
+            dragConstraints={{ left: -1600, right: 0 }}
+            onDrag={handleDrag}
+            onDragEnd={handleDragEnd}
+            style={{ x: springScroll }}
+            className="absolute left-[10%] top-0 flex gap-8 cursor-grab active:cursor-grabbing z-10 px-10"
+          >
+            {PROJECTS.map((item, idx) => (
+              <motion.div key={idx} style={{ skewX, scale }} className="pointer-events-none">
+                <ActiveSliderCard item={item} scrollX={springScroll} index={idx} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </BackgroundGradientAnimation>
     </section>
   );
 }

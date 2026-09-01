@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Link } from "react-router-dom";
+import { TransitionLink } from "../ui/TransitionLink";
 import { CATEGORIES_FORMATIONS } from "../../data";
 import { useRef } from "react";
 import { BackgroundBoxes } from "../animations/BackgroundBoxes";
@@ -98,13 +98,13 @@ export function FormationsPremium() {
             Découvrez nos catalogues de formations vidéo en qualité 4K. Des programmes pointus conçus par nos experts algologues pour les professionnels de santé, et des modules pédagogiques pour le grand public.
           </p>
           
-          <Link
+          <TransitionLink
             to="/formations"
             className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full text-sm font-bold text-white transition-all shadow-[0_0_20px_rgba(42,157,143,0.3)] hover:shadow-[0_0_30px_rgba(42,157,143,0.5)] bg-[#2a9d8f] hover:bg-[#21867a] interactive group"
           >
             Accéder à l'Académie
             <span className="group-hover:translate-x-1 transition-transform">→</span>
-          </Link>
+          </TransitionLink>
         </motion.div>
 
       </div>

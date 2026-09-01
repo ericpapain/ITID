@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import logo from "./logos/logo ITID 3.png";
+import equipePhoto from "./images/equipebloc.jpg";
 import { Routes, Route, Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
@@ -18,10 +19,18 @@ import { FormationsPremium } from "./components/home/FormationsPremium";
 import { CustomCursor } from "./components/CustomCursor";
 import { Section3DWrapper } from "./components/animations/Section3DWrapper";
 import { ShimmerButton } from "./components/ui/ShimmerButton";
+import { TeamRingGallery } from "./components/ui/TeamRingGallery";
 import { OrbitingLogos } from "./components/animations/OrbitingLogos";
 import { SpotlightInput } from "./components/ui/SpotlightInput";
 import { Carousel, CarouselSlide } from "./components/ui/Carousel";
 import { GooeyNav } from "./components/ui/GooeyNav";
+import { TransitionOverlay } from "./components/animations/TransitionOverlay";
+import { TransitionLink } from "./components/ui/TransitionLink";
+import { BackgroundBeams } from "./components/animations/BackgroundBeams";
+import { GlowOrbs } from "./components/animations/GlowOrbs";
+import { SpotlightNew } from "./components/ui/SpotlightNew";
+import { FlickeringGrid } from "./components/animations/FlickeringGrid";
+import { AuroraBackground } from "./components/animations/AuroraBackground";
 import { User, Mail, Phone } from "lucide-react";
 import { PathologiesPremium } from "./components/pages/PathologiesPremium";
 import { TraitementsPremium } from "./components/pages/TraitementsPremium";
@@ -40,7 +49,7 @@ const BOT_RESPONSES: Record<string, string> = {
   default:
     "Bonjour, je suis l'assistant IA de l'ITID. Je peux vous orienter vers nos soins, nos formations ou vous aider à prendre rendez-vous sur Doctolib. Comment puis-je vous aider ?",
   douleur:
-    "L'ITID prend en charge les douleurs chroniques et aiguës : lombalgies, neuropathies, SDRC, migraines résistantes, douleurs pelviennes. Pour évaluer votre situation, une consultation d'évaluation avec un algologue est la première étape.",
+    "L'ITID prend en charge les douleurs chroniques et aiguà«s : lombalgies, neuropathies, SDRC, migraines résistantes, douleurs pelviennes. Pour évaluer votre situation, une consultation d'évaluation avec un algologue est la première étape.",
   rdv: "La prise de rendez-vous se fait via Doctolib. Vous pouvez également appeler le 03 51 53 20 26 du lundi au vendredi de 8h30 à 18h00. Le cabinet est situé au 25 avenue des Mailles, Saint-Julien-les-Villas, 10800 TROYES.",
   formation:
     "Nous proposons 3 formations vidéo : pour les professionnels de santé (290 €), le grand public (89 €) et les paramédicaux (149 €). Accès à vie et certificat inclus.",
@@ -153,7 +162,7 @@ function ChatBot() {
                   className="max-w-[82%] rounded-xl px-3 py-2 text-sm leading-relaxed"
                   style={m.role === "user"
                     ? { background: "#1a3a5c", color: "#fff" }
-                    : { background: "#fff", color: "#1a3a5c", border: "1px solid #e2ddd6" }}
+                    : { background: "#fff", color: "#f8fafc", border: "1px solid #e2ddd6" }}
                 >
                   {m.text}
                 </div>
@@ -161,8 +170,8 @@ function ChatBot() {
             ))}
             {typing && (
               <div className="flex justify-start">
-                <div className="rounded-xl px-4 py-2 text-sm" style={{ background: "#fff", border: "1px solid #e2ddd6", color: "#6b7c93" }}>
-                  <span className="animate-pulse">···</span>
+                <div className="rounded-xl px-4 py-2 text-sm" style={{ background: "#fff", border: "1px solid #e2ddd6", color: "#cbd5e1" }}>
+                  <span className="animate-pulse">Â·Â·Â·</span>
                 </div>
               </div>
             )}
@@ -180,7 +189,7 @@ function ChatBot() {
           <div className="flex gap-2 p-3" style={{ borderTop: "1px solid #e2ddd6" }}>
             <input
               className="flex-1 rounded-xl px-3 py-2 text-sm outline-none"
-              style={{ background: "#f7f4ef", border: "1px solid #d8d2c8", color: "#1a3a5c" }}
+              style={{ background: "#f7f4ef", border: "1px solid #d8d2c8", color: "#f8fafc" }}
               placeholder="Votre question…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -331,34 +340,34 @@ export default function App() {
           <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
-                <div className="w-12 h-12 rounded-full bg-[#f0f7f6] flex items-center justify-center text-xl">🔐</div>
-                <button onClick={() => setShowAuthModal(false)} className="text-[#6b7c93] hover:text-[#1a3a5c] text-xl font-bold">×</button>
+                <div className="w-12 h-12 rounded-full bg-[#f0f7f6] flex items-center justify-center text-xl">🔒</div>
+                <button onClick={() => setShowAuthModal(false)} className="text-[#cbd5e1] hover:text-[#f8fafc] text-xl font-bold">à—</button>
               </div>
 
-              <h2 className="text-2xl font-bold mb-2 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
+              <h2 className="text-2xl font-bold mb-2 text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>
                 {authMode === "login" ? "Connexion" : "Créer un compte"}
               </h2>
-              <p className="text-sm text-[#6b7c93] mb-8">
+              <p className="text-sm text-[#cbd5e1] mb-8">
                 {authMode === "login" ? "Connectez-vous pour accéder au catalogue de formations." : "Rejoignez-nous pour débloquer toutes les vidéos."}
               </p>
 
               <form onSubmit={(e) => { e.preventDefault(); setIsAuthenticated(true); setShowAuthModal(false); }} className="space-y-4">
                 <div className="flex bg-gray-100 p-1 rounded-xl mb-4">
-                  <button type="button" onClick={() => setUserRole("patient")} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "patient" ? "bg-white text-[#1a3a5c] shadow-sm" : "text-gray-500 hover:text-[#1a3a5c]"}`}>Patient</button>
-                  <button type="button" onClick={() => setUserRole("pro")} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "pro" ? "bg-white text-[#1a3a5c] shadow-sm" : "text-gray-500 hover:text-[#1a3a5c]"}`}>Pro de santé</button>
+                  <button type="button" onClick={() => setUserRole("patient")} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "patient" ? "bg-white text-[#f8fafc] shadow-sm" : "text-gray-500 hover:text-[#f8fafc]"}`}>Patient</button>
+                  <button type="button" onClick={() => setUserRole("pro")} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "pro" ? "bg-white text-[#f8fafc] shadow-sm" : "text-gray-500 hover:text-[#f8fafc]"}`}>Pro de santé</button>
                 </div>
                 {authMode === "register" && (
                   <div>
-                    <label className="block text-xs font-bold text-[#1a3a5c] mb-1">Nom complet</label>
+                    <label className="block text-xs font-bold text-[#f8fafc] mb-1">Nom complet</label>
                     <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder={userRole === "pro" ? "Dr. Dupont" : "Jean Dupont"} />
                   </div>
                 )}
                 <div>
-                  <label className="block text-xs font-bold text-[#1a3a5c] mb-1">Adresse E-mail</label>
+                  <label className="block text-xs font-bold text-[#f8fafc] mb-1">Adresse E-mail</label>
                   <input type="email" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder="email@exemple.com" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#1a3a5c] mb-1">Mot de passe</label>
+                  <label className="block text-xs font-bold text-[#f8fafc] mb-1">Mot de passe</label>
                   <input type="password" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder="••••••••" />
                 </div>
                 <ShimmerButton type="submit" className="w-full py-4 mt-4 rounded-xl">
@@ -368,7 +377,7 @@ export default function App() {
             </div>
 
             <div className="bg-gray-50 p-6 text-center border-t border-gray-100">
-              <span className="text-sm text-[#6b7c93]">
+              <span className="text-sm text-[#cbd5e1]">
                 {authMode === "login" ? "Vous n'avez pas de compte ?" : "Vous avez déjà un compte ?"}
               </span>
               <button
@@ -389,17 +398,17 @@ export default function App() {
             <div className="p-6 md:p-8 flex-1 overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
                 <div className="w-12 h-12 rounded-full bg-[#f0f7f6] flex items-center justify-center text-xl">🛒</div>
-                <button onClick={() => setShowCartModal(false)} className="text-[#6b7c93] hover:text-[#1a3a5c] text-xl font-bold">×</button>
+                <button onClick={() => setShowCartModal(false)} className="text-[#cbd5e1] hover:text-[#f8fafc] text-xl font-bold">à—</button>
               </div>
 
-              <h2 className="text-2xl font-bold mb-6 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
+              <h2 className="text-2xl font-bold mb-6 text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>
                 Mon Panier
               </h2>
 
               {cart.length === 0 ? (
                 <div className="text-center py-10">
-                  <p className="text-[#6b7c93] mb-4">Votre panier est vide.</p>
-                  <button onClick={() => setShowCartModal(false)} className="px-6 py-3 bg-gray-100 text-[#1a3a5c] font-bold rounded-xl hover:bg-gray-200 transition-colors">
+                  <p className="text-[#cbd5e1] mb-4">Votre panier est vide.</p>
+                  <button onClick={() => setShowCartModal(false)} className="px-6 py-3 bg-gray-100 text-[#f8fafc] font-bold rounded-xl hover:bg-gray-200 transition-colors">
                     Explorer les formations
                   </button>
                 </div>
@@ -409,12 +418,12 @@ export default function App() {
                     <div key={idx} className="flex items-center gap-4 p-4 border border-gray-100 rounded-xl bg-gray-50">
                       <img src={item.img} alt={item.title} className="w-20 h-14 object-cover rounded-lg shadow-sm" />
                       <div className="flex-1">
-                        <h4 className="font-bold text-[#1a3a5c] text-sm line-clamp-2">{item.title}</h4>
-                        <div className="text-xs text-[#6b7c93] mt-1">{item.duration}</div>
+                        <h4 className="font-bold text-[#f8fafc] text-sm line-clamp-2">{item.title}</h4>
+                        <div className="text-xs text-[#cbd5e1] mt-1">{item.duration}</div>
                       </div>
                       <div className="font-bold text-[#2a9d8f]">{item.price}</div>
                       <button onClick={() => setCart(cart.filter((_, i) => i !== idx))} className="text-gray-400 hover:text-red-500 p-2">
-                        🗑️
+                        🗑️
                       </button>
                     </div>
                   ))}
@@ -425,8 +434,8 @@ export default function App() {
             {cart.length > 0 && (
               <div className="bg-gray-50 p-6 md:p-8 border-t border-gray-100 shrink-0">
                 <div className="flex justify-between items-center mb-6">
-                  <span className="text-[#6b7c93] font-semibold">Total à régler</span>
-                  <span className="text-2xl font-bold text-[#1a3a5c]">
+                  <span className="text-[#cbd5e1] font-semibold">Total à régler</span>
+                  <span className="text-2xl font-bold text-[#f8fafc]">
                     {cart.reduce((acc, item) => {
                       const priceVal = parseFloat(item.price.replace(/[^0-9,.-]/g, '').replace(',', '.'));
                       return acc + (isNaN(priceVal) ? 0 : priceVal);
@@ -450,12 +459,12 @@ export default function App() {
 
             <div className="p-6 border-b border-gray-100 bg-[#f0f7f6]">
               <div className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#2a9d8f" }}>Finaliser la commande</div>
-              <h3 className="text-base font-semibold leading-snug" style={{ color: "#1a3a5c" }}>Achat de {cart.length} formation(s)</h3>
+              <h3 className="text-base font-semibold leading-snug" style={{ color: "#f8fafc" }}>Achat de {cart.length} formation(s)</h3>
             </div>
 
             <div className="px-6 py-4 flex justify-between items-center text-sm font-semibold border-b border-gray-100">
-              <span style={{ color: "#6b7c93" }}>Total à régler TTC</span>
-              <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
+              <span style={{ color: "#cbd5e1" }}>Total à régler TTC</span>
+              <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>
                 {cart.reduce((acc, item) => {
                   const priceVal = parseFloat(item.price.replace(/[^0-9,.-]/g, '').replace(',', '.'));
                   return acc + (isNaN(priceVal) ? 0 : priceVal);
@@ -465,7 +474,7 @@ export default function App() {
 
             <div className="p-6 space-y-4">
               <div className="pt-2">
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Informations de paiement</label>
+                <label className="block text-xs font-semibold mb-1.5" style={{ color: "#f8fafc" }}>Informations de paiement</label>
                 <div className="relative">
                   <input type="text" placeholder="Numéro de carte" className="w-full px-3 py-2.5 pl-10 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">💳</span>
@@ -500,6 +509,8 @@ export default function App() {
 
 
       <div className="min-h-screen" style={{ background: "var(--background)", color: "var(--foreground)", fontFamily: "Inter, system-ui, sans-serif" }}>
+        
+        <TransitionOverlay />
 
         {/* NAVBAR */}
         <header className="fixed top-0 left-0 right-0 z-40" style={{ background: "rgba(26,58,92,0.97)", backdropFilter: "blur(8px)" }}>
@@ -529,7 +540,7 @@ export default function App() {
                 {NAV_LINKS.map((l) => {
                   const isActive = l.href === location.pathname || (l.href === '/' && location.pathname === '/' && !location.hash);
                   return (
-                    <Link key={l.label} to={l.href}
+                    <TransitionLink key={l.label} to={l.href}
                       className={`text-base font-medium py-2 px-3 rounded-lg transition-colors ${isActive ? 'bg-white/10 text-white' : ''}`}
                       style={{ color: isActive ? "#fff" : "#c8dff0" }}
                       onClick={() => {
@@ -537,7 +548,7 @@ export default function App() {
                         setMenuOpen(false);
                       }}>
                       {l.label}
-                    </Link>
+                    </TransitionLink>
                   );
                 })}
               </div>
@@ -554,28 +565,6 @@ export default function App() {
         </header>
 
         <div className="relative w-full overflow-hidden flex-1">
-          <AnimatePresence mode="popLayout" initial={false} custom={direction}>
-            <motion.div
-              key={location.pathname}
-              custom={direction}
-              variants={{
-                initial: (direction: number) => ({
-                  x: direction > 0 ? "100%" : direction < 0 ? "-100%" : "0%",
-                }),
-                in: {
-                  x: 0,
-                  transition: { duration: 0.5, ease: [0.7, 0, 0.2, 1] }
-                },
-                out: (direction: number) => ({
-                  x: direction > 0 ? "-100%" : direction < 0 ? "100%" : "0%",
-                  transition: { duration: 0.5, ease: [0.7, 0, 0.2, 1] }
-                })
-              }}
-              initial="initial"
-              animate="in"
-              exit="out"
-              className="w-full"
-            >
               <Routes location={location}>
                 <Route path="/" element={
             <>
@@ -593,14 +582,15 @@ export default function App() {
           <Route path="/traitements" element={<TraitementsPremium />} />
 
           <Route path="/equipe" element={
-            <div className="pt-32 pb-12 min-h-screen" style={{ background: "var(--background)" }}>
-              <div className="max-w-7xl mx-auto px-6">
-                <Link
+            <div className="pt-32 pb-12 min-h-screen relative overflow-hidden" style={{ background: "var(--background)" }}>
+              <AuroraBackground className="absolute inset-0 border-none rounded-none opacity-50 pointer-events-none" />
+              <div className="relative z-10 max-w-7xl mx-auto px-6">
+                <TransitionLink
                   to="/"
                   className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
                 >
-                  ← Retour à l'accueil
-                </Link>
+                  ←  Retour à l'accueil
+                </TransitionLink>
                 <div className="mb-8">
                   <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>L'équipe ITID</h2>
                   <p className="text-base leading-relaxed max-w-2xl" style={{ color: "#6b7c93" }}>
@@ -626,24 +616,28 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8">
-                  {TEAM_ROLES.filter(t => teamFilter === "Tous" || t.role === teamFilter).map((t, i) => (
-                    <div key={i} className="flex relative items-center p-6 md:p-8 rounded-3xl overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100" style={{ background: i % 2 === 0 ? "linear-gradient(135deg, #f0f7f6 0%, #fff 100%)" : "linear-gradient(135deg, #f4f8fb 0%, #fff 100%)" }}>
-                      <div className="absolute left-0 bottom-0 w-32 md:w-48 h-[110%] transition-transform duration-500 group-hover:scale-105" style={{ transformOrigin: "bottom left" }}>
-                        <img src={t.img} alt="Doctor" className="w-full h-full object-contain object-bottom -ml-4" />
-                      </div>
-                      <div className="pl-28 md:pl-40 flex-1 relative z-10 py-4">
-                        <div className="w-14 h-14 rounded-full flex items-center justify-center text-3xl mb-4 bg-white shadow-sm border border-gray-100">
-                          {t.icon}
-                        </div>
-                        <div className="font-bold text-xl mb-3" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{t.role}</div>
-                        <div className="text-sm md:text-base leading-relaxed" style={{ color: "#6b7c93" }}>{t.detail}</div>
-                      </div>
-                      <div className="absolute -bottom-8 -right-4 text-9xl opacity-[0.04] transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none select-none z-0">
-                        {t.icon}
-                      </div>
-                    </div>
-                  ))}
+                <div className="w-full relative rounded-[32px] overflow-hidden shadow-lg mb-12 border border-black/5">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a3a5c]/90 via-[#1a3a5c]/20 to-transparent z-10 mix-blend-multiply"></div>
+                  <img src={equipePhoto} alt="L'équipe ITID" className="w-full h-[350px] md:h-[550px] object-cover object-center" />
+                  <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 z-20">
+                    <h3 className="text-3xl md:text-5xl font-bold text-white drop-shadow-lg mb-3" style={{ fontFamily: "var(--font-display)" }}>Une force unie</h3>
+                    <p className="text-white/95 text-base md:text-xl font-medium drop-shadow-md max-w-2xl leading-relaxed">
+                      L'excellence de nos soins repose sur la synergie de nos spécialistes. Une approche pluridisciplinaire au service de votre bien-être.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {["Medecin", "Infirmière", "Secretaire"].map((cat) => {
+                    const filteredRoles = TEAM_ROLES.filter(t => t.category === cat && (teamFilter === "Tous" || t.role === teamFilter));
+                    if (filteredRoles.length === 0) return null;
+
+                    const title = cat === "Medecin" ? "Équipe Médicale" : cat === "Infirmière" ? "Équipe Paramédicale" : "Secrétariat & Accueil";
+
+                    return (
+                      <TeamRingGallery key={cat} roles={filteredRoles} categoryTitle={title} />
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -653,24 +647,24 @@ export default function App() {
 
           {["/formations", "/formations/:categoryId"].map(path => (
             <Route key={path} path={path} element={
-              <>
-                <div className="pt-32 pb-12 min-h-screen" style={{ background: "var(--background)" }}>
+              <GlowOrbs>
+                <div className="pt-32 pb-12 min-h-screen">
                   <div className="max-w-7xl mx-auto px-6">
                     {!currentCategory ? (
                       <>
                         <div className="flex justify-between items-center mb-8">
-                          <Link
+                          <TransitionLink
                             to="/"
-                            className="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
+                            className="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}
                           >
-                            ← Retour à l'accueil
-                          </Link>
+                            ← Retour à l'accueil
+                          </TransitionLink>
 
                           {isAuthenticated && (
                             <div className="flex items-center gap-4">
                               <button
                                 onClick={() => navigate('/mon-profil')}
-                                className="flex items-center gap-2 text-sm font-bold text-[#1a3a5c] bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
+                                className="flex items-center gap-2 text-sm font-bold text-[#f8fafc] bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
                               >
                                 <span className="text-lg">👤</span> Mon Profil
                               </button>
@@ -690,20 +684,20 @@ export default function App() {
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                           <div>
                             <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Découverte</div>
-                            <h2 className="text-4xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Nos Formations</h2>
-                            <p className="text-sm mt-2" style={{ color: "#6b7c93" }}>Explorez nos catalogues complets ou trouvez une formation par zone anatomique.</p>
+                            <h2 className="text-4xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>Nos Formations</h2>
+                            <p className="text-sm mt-2" style={{ color: "#cbd5e1" }}>Explorez nos catalogues complets ou trouvez une formation par zone anatomique.</p>
                           </div>
 
                           <div className="flex bg-gray-100 p-1 rounded-xl shrink-0">
                             <button
                               onClick={() => setFormationMode("3d")}
-                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${formationMode === "3d" ? "bg-white text-[#1a3a5c] shadow-sm" : "text-[#6b7c93] hover:text-[#1a3a5c]"}`}
+                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${formationMode === "3d" ? "bg-white text-[#f8fafc] shadow-sm" : "text-[#cbd5e1] hover:text-[#f8fafc]"}`}
                             >
-                              🧍 Modèle 3D
+                              🧠 Modèle 3D
                             </button>
                             <button
                               onClick={() => setFormationMode("classic")}
-                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${formationMode === "classic" ? "bg-white text-[#1a3a5c] shadow-sm" : "text-[#6b7c93] hover:text-[#1a3a5c]"}`}
+                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${formationMode === "classic" ? "bg-white text-[#f8fafc] shadow-sm" : "text-[#cbd5e1] hover:text-[#f8fafc]"}`}
                             >
                               📚 Catalogue complet
                             </button>
@@ -722,20 +716,20 @@ export default function App() {
                                 <OrbitControls enablePan={true} minPolarAngle={Math.PI / 2} maxPolarAngle={Math.PI / 2} minDistance={2} maxDistance={8} />
                               </Canvas>
                               <div className="absolute top-6 left-6 pointer-events-none">
-                                <div className="text-[#1a3a5c] text-xl font-bold" style={{ fontFamily: "var(--font-display)" }}>Anatomie Interactive</div>
+                                <div className="text-[#f8fafc] text-xl font-bold" style={{ fontFamily: "var(--font-display)" }}>Anatomie Interactive</div>
                                 <div className="text-sm font-semibold mt-1" style={{ color: "#2a9d8f" }}>Faites pivoter et cliquez sur une zone</div>
                               </div>
                               <div className="absolute top-6 right-6">
                                 <label className="flex items-center gap-2 cursor-pointer bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 shadow-sm w-max transition-colors hover:bg-white">
                                   <input type="checkbox" checked={isMultiSelect} onChange={(e) => setIsMultiSelect(e.target.checked)} className="form-checkbox h-4 w-4 text-[#2a9d8f] rounded accent-[#2a9d8f]" />
-                                  <span className="text-xs font-bold text-[#1a3a5c]">Sélection multiple</span>
+                                  <span className="text-xs font-bold text-[#f8fafc]">Sélection multiple</span>
                                 </label>
                               </div>
                             </div>
 
                             <div className="lg:col-span-2 flex flex-col gap-4">
                               <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-2xl font-bold text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
+                                <h3 className="text-2xl font-bold text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>
                                   {selectedBodyPartsFr ? `Formations suggérées` : "Sélectionnez une zone"}
                                 </h3>
                               </div>
@@ -748,12 +742,12 @@ export default function App() {
                                   <select
                                     value={formationFilter}
                                     onChange={(e) => setFormationFilter(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold bg-white text-[#1a3a5c] focus:outline-none focus:border-[#2a9d8f] shadow-sm cursor-pointer"
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold bg-white text-[#f8fafc] focus:outline-none focus:border-[#2a9d8f] shadow-sm cursor-pointer"
                                   >
                                     <option value="Tous">Toutes les spécialités</option>
                                     <option value="Professionnel de santé">Médecins & Spécialistes</option>
                                     <option value="Grand public">Grand public</option>
-                                    <option value="Infirmier·ère / Kiné">Paramédical</option>
+                                    <option value="InfirmierÂ·ère / Kiné">Paramédical</option>
                                   </select>
                                 </div>
                               )}
@@ -768,8 +762,8 @@ export default function App() {
                                           <div className="flex gap-4">
                                             <img src={video.img} alt={video.title} className="w-24 h-20 object-cover rounded-xl shrink-0" />
                                             <div className="flex-1">
-                                              <h4 className="font-bold text-[#1a3a5c] text-sm mb-1">{video.title}</h4>
-                                              <p className="text-xs text-[#6b7c93] mb-2">{video.duration} • Focus : {selectedBodyPartsFr}</p>
+                                              <h4 className="font-bold text-[#f8fafc] text-sm mb-1">{video.title}</h4>
+                                              <p className="text-xs text-[#cbd5e1] mb-2">{video.duration} • Focus : {selectedBodyPartsFr}</p>
                                               <div className="text-[#2a9d8f] font-bold text-sm">{video.price}</div>
                                             </div>
                                             <div className="flex items-center">
@@ -803,7 +797,7 @@ export default function App() {
                                   )}
                                 </div>
                               ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-gray-200 rounded-3xl text-[#6b7c93] bg-gray-50/50">
+                                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-gray-200 rounded-3xl text-[#cbd5e1] bg-gray-50/50">
                                   <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-2xl mb-4 border border-gray-100">👆</div>
                                   <p className="text-sm font-medium">Interagissez avec le modèle 3D à gauche pour découvrir nos formations ciblées par zone anatomique.</p>
                                 </div>
@@ -817,12 +811,12 @@ export default function App() {
                               <select
                                 value={formationFilter}
                                 onChange={(e) => setFormationFilter(e.target.value)}
-                                className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold bg-white text-[#1a3a5c] focus:outline-none focus:border-[#2a9d8f] shadow-sm cursor-pointer"
+                                className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-semibold bg-white text-[#f8fafc] focus:outline-none focus:border-[#2a9d8f] shadow-sm cursor-pointer"
                               >
                                 <option value="Tous">Toutes les spécialités</option>
                                 <option value="Professionnel de santé">Médecins & Spécialistes</option>
                                 <option value="Grand public">Grand public</option>
-                                <option value="Infirmier·ère / Kiné">Paramédical</option>
+                                <option value="InfirmierÂ·ère / Kiné">Paramédical</option>
                               </select>
                             </div>
 
@@ -848,8 +842,8 @@ export default function App() {
                                         {cat.tag}
                                       </span>
                                     </div>
-                                    <h3 className="font-semibold text-2xl md:text-3xl mb-4 leading-snug transition-colors group-hover:text-[#2a9d8f]" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{cat.title}</h3>
-                                    <p className="text-base md:text-lg mb-8" style={{ color: "#6b7c93", lineHeight: 1.6 }}>{cat.desc}</p>
+                                    <h3 className="font-semibold text-2xl md:text-3xl mb-4 leading-snug transition-colors group-hover:text-[#2a9d8f]" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>{cat.title}</h3>
+                                    <p className="text-base md:text-lg mb-8" style={{ color: "#cbd5e1", lineHeight: 1.6 }}>{cat.desc}</p>
 
                                     <div>
                                       <button className="px-8 py-4 rounded-xl text-base font-bold text-white transition-opacity hover:opacity-90 inline-flex items-center gap-2 shadow-md" style={{ background: "#2a9d8f" }}>
@@ -870,12 +864,12 @@ export default function App() {
                             <div className="mb-10">
                               <button
                                 onClick={() => { setSelectedVideoDetail(null); navigate('/formations'); }}
-                                className="mb-6 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
+                                className="mb-6 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}
                               >
-                                ← Retour aux catalogues
+                                ← Retour aux catalogues
                               </button>
                               <div className="text-sm font-medium uppercase tracking-widest mb-2" style={{ color: "#2a9d8f" }}>Catalogue : {currentCategory.tag}</div>
-                              <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{currentCategory.title}</h2>
+                              <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>{currentCategory.title}</h2>
                               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold" style={{ background: "#e8f4f2", color: "#2a9d8f", border: "1px solid #b3ddd9" }}>
                                 {currentCategory.videos.length} vidéos de formation
                               </div>
@@ -891,8 +885,8 @@ export default function App() {
                                     </div>
                                   </div>
                                   <div className="p-4 flex flex-col flex-1">
-                                    <h4 className="font-semibold text-sm mb-3 group-hover:text-[#2a9d8f] transition-colors" style={{ color: "#1a3a5c", lineHeight: 1.4 }}>{vid.title}</h4>
-                                    <div className="text-xs mb-4" style={{ color: "#6b7c93" }}>⏱ {vid.duration} • {vid.subVideos?.length || 0} vidéos</div>
+                                    <h4 className="font-semibold text-sm mb-3 group-hover:text-[#2a9d8f] transition-colors" style={{ color: "#f8fafc", lineHeight: 1.4 }}>{vid.title}</h4>
+                                    <div className="text-xs mb-4" style={{ color: "#cbd5e1" }}>â± {vid.duration} • {vid.subVideos?.length || 0} vidéos</div>
 
                                     <div className="flex flex-col gap-2 mb-4 bg-gray-50 p-2 rounded-lg border border-gray-100">
                                       {vid.subVideos?.map((sv, idx) => (
@@ -905,7 +899,7 @@ export default function App() {
                                     </div>
 
                                     <div className="mt-auto flex items-center justify-between">
-                                      <span className="font-bold text-lg" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{vid.price}</span>
+                                      <span className="font-bold text-lg" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>{vid.price}</span>
                                       <button
                                         onClick={(e) => { e.stopPropagation(); setCheckoutVideo(vid); }}
                                         className="px-4 py-2 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90" style={{ background: "#2a9d8f" }}
@@ -922,9 +916,9 @@ export default function App() {
                           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
                             <button
                               onClick={() => setSelectedVideoDetail(null)}
-                              className="mb-6 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
+                              className="mb-6 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}
                             >
-                              ← Retour à la liste du catalogue
+                              ← Retour à la liste du catalogue
                             </button>
 
                             {/* Udemy Style Detail Layout */}
@@ -944,7 +938,7 @@ export default function App() {
                                   </div>
                                   <div className="flex flex-wrap items-center gap-6 text-sm">
                                     <div className="flex items-center gap-1">
-                                      <span className="text-[#f4c150]">⭐⭐⭐⭐⭐</span>
+                                      <span className="text-[#f4c150]">⭐⭐⭐⭐⭐</span>
                                       <span className="font-semibold text-white ml-1">4.8</span>
                                       <span className="text-[#8fb3d0]">(124 avis)</span>
                                     </div>
@@ -952,10 +946,10 @@ export default function App() {
                                       <span>👤</span> 1,250 participants
                                     </div>
                                     <div className="flex items-center gap-2 text-[#c8dff0]">
-                                      <span>⏱</span> {selectedVideoDetail.duration} de vidéo à la demande
+                                      <span>â±</span> {selectedVideoDetail.duration} de vidéo à la demande
                                     </div>
                                     <div className="flex items-center gap-2 text-[#c8dff0]">
-                                      <span>🌐</span> Français
+                                      <span>🌍</span> Français
                                     </div>
                                   </div>
                                 </div>
@@ -966,7 +960,7 @@ export default function App() {
                                 {/* Main Content (Left) */}
                                 <div className="flex-1 p-8 md:p-12">
                                   <div className="mb-12">
-                                    <h3 className="text-2xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Ce que vous apprendrez</h3>
+                                    <h3 className="text-2xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>Ce que vous apprendrez</h3>
                                     <div className="p-6 rounded-2xl grid md:grid-cols-2 gap-4" style={{ background: "#f8fafc", border: "1px solid #e2e8f0" }}>
                                       {[
                                         "Maîtriser les bases de l'évaluation clinique de la douleur.",
@@ -983,7 +977,7 @@ export default function App() {
                                   </div>
 
                                   <div className="mb-12">
-                                    <h3 className="text-2xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Description</h3>
+                                    <h3 className="text-2xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>Description</h3>
                                     <div className="text-sm leading-relaxed space-y-4" style={{ color: "#475569" }}>
                                       <p>Cette formation a été conçue pour répondre aux défis quotidiens rencontrés dans la prise en charge de la douleur chronique et aiguë. À travers des modules théoriques et des démonstrations pratiques, vous acquerrez des compétences directement applicables dans votre pratique.</p>
                                       <p>Le contenu est régulièrement mis à jour pour refléter les dernières avancées médicales et les protocoles établis par l'ITID. Vous aurez accès à des cas cliniques concrets, des quiz d'évaluation et des ressources téléchargeables.</p>
@@ -991,7 +985,7 @@ export default function App() {
                                   </div>
 
                                   <div>
-                                    <h3 className="text-2xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Contenu du cours</h3>
+                                    <h3 className="text-2xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>Contenu du cours</h3>
                                     <div className="text-sm font-medium mb-4 text-[#64748b]">
                                       {selectedVideoDetail.subVideos?.length || 0} vidéos • Durée totale : {selectedVideoDetail.duration}
                                     </div>
@@ -999,7 +993,7 @@ export default function App() {
                                       {selectedVideoDetail.subVideos?.map((section, idx) => (
                                         <div key={idx} onClick={() => alert(`Lecture de la vidéo : ${section.title}`)} className="flex items-center justify-between p-4 bg-white border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors cursor-pointer group">
                                           <div className="flex items-center gap-3">
-                                            <span className="text-[#6b7c93] group-hover:text-[#2a9d8f] transition-colors">▶</span>
+                                            <span className="text-[#cbd5e1] group-hover:text-[#2a9d8f] transition-colors">▶</span>
                                             <span className="font-medium group-hover:text-[#2a9d8f] transition-colors" style={{ color: "#1e293b" }}>{section.title}</span>
                                           </div>
                                           <span className="text-xs text-gray-400">{section.duration}</span>
@@ -1022,7 +1016,7 @@ export default function App() {
                                       <div className="absolute bottom-3 text-center w-full font-bold text-white text-sm bg-black/40 py-1">Playlist ({selectedVideoDetail.subVideos?.length || 0} vidéos)</div>
                                     </div>
 
-                                    <div className="text-4xl font-bold mb-6 text-center" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
+                                    <div className="text-4xl font-bold mb-6 text-center" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>
                                       {selectedVideoDetail.price}
                                     </div>
 
@@ -1036,14 +1030,14 @@ export default function App() {
                                     <p className="text-xs text-center text-gray-500 mb-8">Garantie satisfait ou remboursé de 30 jours</p>
 
                                     <div>
-                                      <h4 className="font-semibold text-sm mb-4" style={{ color: "#1a3a5c" }}>Ce cours comprend :</h4>
+                                      <h4 className="font-semibold text-sm mb-4" style={{ color: "#f8fafc" }}>Ce cours comprend :</h4>
                                       <div className="space-y-3">
                                         {[
                                           { icon: "📺", text: `${selectedVideoDetail.duration} de vidéo à la demande` },
                                           { icon: "📄", text: "5 articles et ressources téléchargeables" },
                                           { icon: "📱", text: "Accès sur mobiles et ordinateurs" },
-                                          { icon: "♾️", text: "Accès illimité à vie" },
-                                          { icon: "🏆", text: "Certificat de fin de formation" },
+                                          { icon: "♾️", text: "Accès illimité à vie" },
+                                          { icon: "ðŸ†", text: "Certificat de fin de formation" },
                                         ].map((inc, i) => (
                                           <div key={i} className="flex items-start gap-3 text-sm">
                                             <span className="text-[#64748b]">{inc.icon}</span>
@@ -1071,29 +1065,29 @@ export default function App() {
 
                       <div className="p-6 border-b border-gray-100 bg-[#f0f7f6]">
                         <div className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#2a9d8f" }}>Finaliser l'inscription</div>
-                        <h3 className="text-base font-semibold leading-snug" style={{ color: "#1a3a5c" }}>{checkoutVideo.title}</h3>
+                        <h3 className="text-base font-semibold leading-snug" style={{ color: "#f8fafc" }}>{checkoutVideo.title}</h3>
                       </div>
 
                       <div className="px-6 py-4 flex justify-between items-center text-sm font-semibold border-b border-gray-100">
-                        <span style={{ color: "#6b7c93" }}>Total à régler TTC</span>
-                        <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{checkoutVideo.price}</span>
+                        <span style={{ color: "#cbd5e1" }}>Total à régler TTC</span>
+                        <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>{checkoutVideo.price}</span>
                       </div>
 
                       <div className="p-6 space-y-4">
                         {!isAuthenticated && (
                           <>
                             <div>
-                              <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Adresse e-mail</label>
+                              <label className="block text-xs font-semibold mb-1.5" style={{ color: "#f8fafc" }}>Adresse e-mail</label>
                               <input type="email" placeholder="votre@email.fr" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Création de mot de passe</label>
+                              <label className="block text-xs font-semibold mb-1.5" style={{ color: "#f8fafc" }}>Création de mot de passe</label>
                               <input type="password" placeholder="••••••••" className="w-full px-3 py-2.5 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
                             </div>
                           </>
                         )}
                         <div className="pt-2">
-                          <label className="block text-xs font-semibold mb-1.5" style={{ color: "#1a3a5c" }}>Informations de paiement</label>
+                          <label className="block text-xs font-semibold mb-1.5" style={{ color: "#f8fafc" }}>Informations de paiement</label>
                           <div className="relative">
                             <input type="text" placeholder="Numéro de carte" className="w-full px-3 py-2.5 pl-10 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all" />
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">💳</span>
@@ -1123,15 +1117,15 @@ export default function App() {
                     </div>
                   </div>
                 )}
-                </>
+              </GlowOrbs>
               } />
             ))}
 
             <Route path="/mon-profil" element={
             <div className="pt-32 pb-24 min-h-screen" style={{ background: "var(--background)" }}>
               <div className="max-w-7xl mx-auto px-6">
-                <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}>
-                  ← Retour à l'accueil
+                <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}>
+                  ← Retour à l'accueil
                 </Link>
 
                 <div className="flex flex-col lg:flex-row gap-10">
@@ -1144,21 +1138,21 @@ export default function App() {
                         </div>
                       </div>
 
-                      <h2 className="text-2xl font-bold mb-1 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
+                      <h2 className="text-2xl font-bold mb-1 text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>
                         Dr. Martin
                       </h2>
-                      <p className="text-sm text-[#6b7c93] mb-6">martin@clinique-exemple.fr</p>
+                      <p className="text-sm text-[#cbd5e1] mb-6">martin@clinique-exemple.fr</p>
 
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-xs font-bold text-[#1a3a5c] mb-1">Profession</label>
+                          <label className="block text-xs font-bold text-[#f8fafc] mb-1">Profession</label>
                           <input type="text" disabled value="Médecin Algologue" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm text-gray-500 cursor-not-allowed" />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[#1a3a5c] mb-1">Mot de passe</label>
+                          <label className="block text-xs font-bold text-[#f8fafc] mb-1">Mot de passe</label>
                           <input type="password" disabled value="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm text-gray-500 cursor-not-allowed" />
                         </div>
-                        <button className="w-full py-3 mt-2 rounded-xl text-sm font-bold border border-gray-200 text-[#1a3a5c] hover:bg-gray-50 transition-colors">
+                        <button className="w-full py-3 mt-2 rounded-xl text-sm font-bold border border-gray-200 text-[#f8fafc] hover:bg-gray-50 transition-colors">
                           Modifier mes informations
                         </button>
                         <button onClick={() => { setIsAuthenticated(false); navigate('/'); }} className="w-full py-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">
@@ -1172,8 +1166,8 @@ export default function App() {
                   <div className="flex-1">
                     {selectedPurchasedVideo ? (
                       <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                        <button onClick={() => setSelectedPurchasedVideo(null)} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}>
-                          ← Retour à la bibliothèque
+                        <button onClick={() => setSelectedPurchasedVideo(null)} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}>
+                          ← Retour à la bibliothèque
                         </button>
 
                         <div className="bg-[#1a3a5c] rounded-3xl overflow-hidden shadow-2xl mb-8 relative">
@@ -1190,7 +1184,7 @@ export default function App() {
                         </div>
 
                         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-                          <h3 className="text-xl font-bold text-[#1a3a5c] mb-6" style={{ fontFamily: "var(--font-display)" }}>Contenu du cours</h3>
+                          <h3 className="text-xl font-bold text-[#f8fafc] mb-6" style={{ fontFamily: "var(--font-display)" }}>Contenu du cours</h3>
                           <div className="space-y-3">
                             {selectedPurchasedVideo.subVideos?.map((sub, idx) => (
                               <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-[#2a9d8f] hover:bg-[#f0f7f6] transition-all cursor-pointer group">
@@ -1199,11 +1193,11 @@ export default function App() {
                                     ▶
                                   </div>
                                   <div>
-                                    <h4 className="font-semibold text-sm text-[#1a3a5c]">{sub.title}</h4>
-                                    <span className="text-xs text-[#6b7c93]">Module {idx + 1}</span>
+                                    <h4 className="font-semibold text-sm text-[#f8fafc]">{sub.title}</h4>
+                                    <span className="text-xs text-[#cbd5e1]">Module {idx + 1}</span>
                                   </div>
                                 </div>
-                                <div className="text-xs font-semibold text-[#6b7c93]">{sub.duration}</div>
+                                <div className="text-xs font-semibold text-[#cbd5e1]">{sub.duration}</div>
                               </div>
                             ))}
                           </div>
@@ -1211,13 +1205,13 @@ export default function App() {
                       </div>
                     ) : (
                       <>
-                        <h2 className="text-3xl font-bold mb-8 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>Ma Bibliothèque ({purchasedFormations.length})</h2>
+                        <h2 className="text-3xl font-bold mb-8 text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>Ma Bibliothèque ({purchasedFormations.length})</h2>
 
                         {purchasedFormations.length === 0 ? (
                           <div className="bg-white p-12 rounded-3xl border border-gray-100 shadow-sm text-center flex flex-col items-center justify-center h-full min-h-[400px]">
                             <div className="w-20 h-20 rounded-full bg-[#f0f7f6] flex items-center justify-center text-4xl mb-6 shadow-inner">📚</div>
-                            <h3 className="text-xl font-bold text-[#1a3a5c] mb-2" style={{ fontFamily: "var(--font-display)" }}>Vous n'avez pas encore de formations</h3>
-                            <p className="text-sm text-[#6b7c93] mb-8 max-w-sm">Découvrez nos catalogues et commencez votre apprentissage dès aujourd'hui.</p>
+                            <h3 className="text-xl font-bold text-[#f8fafc] mb-2" style={{ fontFamily: "var(--font-display)" }}>Vous n'avez pas encore de formations</h3>
+                            <p className="text-sm text-[#cbd5e1] mb-8 max-w-sm">Découvrez nos catalogues et commencez votre apprentissage dès aujourd'hui.</p>
                             <button onClick={() => navigate('/formations')} className="px-8 py-4 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-lg" style={{ background: "#2a9d8f" }}>
                               Explorer les catalogues
                             </button>
@@ -1231,8 +1225,8 @@ export default function App() {
                                   <div className="absolute top-2 left-2 px-2 py-1 bg-green-500 text-white text-[10px] font-bold rounded-lg shadow-sm">Acquis</div>
                                 </div>
                                 <div className="p-4 flex flex-col flex-1">
-                                  <h4 className="font-semibold text-sm mb-2 text-[#1a3a5c]" style={{ lineHeight: 1.4 }}>{vid.title}</h4>
-                                  <div className="text-xs mb-4 text-[#6b7c93]">⏱ {vid.duration} • {vid.subVideos?.length || 0} modules</div>
+                                  <h4 className="font-semibold text-sm mb-2 text-[#f8fafc]" style={{ lineHeight: 1.4 }}>{vid.title}</h4>
+                                  <div className="text-xs mb-4 text-[#cbd5e1]">â± {vid.duration} • {vid.subVideos?.length || 0} modules</div>
 
                                   <div className="mt-auto">
                                     <div className="w-full bg-gray-100 rounded-full h-1.5 mb-3">
@@ -1256,10 +1250,12 @@ export default function App() {
           } />
 
           <Route path="/a-propos" element={
-            <div className="pt-32 pb-24 min-h-screen" style={{ background: "var(--background)" }}>
-              <div className="max-w-5xl mx-auto px-6">
+            <div className="pt-32 pb-24 min-h-screen relative overflow-hidden" style={{ background: "var(--background)" }}>
+              <FlickeringGrid colors={["#2a9d8f", "#1a3a5c"]} maxOpacity={0.3} squareSize={4} gridGap={8} />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,rgba(42,157,143,0.08),transparent_70%)]" />
+              <div className="relative z-10 max-w-5xl mx-auto px-6">
                 <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}>
-                  ← Retour à l'accueil
+                  ←  Retour à l'accueil
                 </Link>
 
                 <div className="mb-16">
@@ -1274,7 +1270,7 @@ export default function App() {
                   <div className="p-8 rounded-3xl border border-gray-100 shadow-sm bg-white">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-6" style={{ background: "#f0f7f6" }}>🩺</div>
                     <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Services Proposés</h3>
-                    <ul className="space-y-4 text-sm" style={{ color: "#6b7c93" }}>
+                    <ul className="space-y-4 text-sm" style={{ color: "#4a5568" }}>
                       <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Consultations pluridisciplinaires (Algologues, Neurologues, Psychiatres)</li>
                       <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Traitements interventionnels sous imagerie (Infiltrations, Cryoneurolyse...)</li>
                       <li className="flex items-start gap-3"><span className="text-[#2a9d8f] mt-1">✔</span> Parcours de soins personnalisés et suivi global</li>
@@ -1286,9 +1282,9 @@ export default function App() {
                   </div>
 
                   <div className="p-8 rounded-3xl border border-gray-100 shadow-sm bg-white">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-6" style={{ background: "#f0f7f6" }}>📍</div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-6" style={{ background: "#f0f7f6" }}>📍 </div>
                     <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Informations Utiles</h3>
-                    <div className="space-y-4 text-sm leading-relaxed" style={{ color: "#6b7c93" }}>
+                    <div className="space-y-4 text-sm leading-relaxed" style={{ color: "#4a5568" }}>
                       <p><strong>Adresse :</strong><br />Espace Médical de Spécialistes de Champagne<br />Troyes, Aube, France</p>
                       <p><strong>Heures d'ouverture :</strong><br />Lundi au Vendredi : 08h30 - 18h30<br />Fermé le week-end</p>
                       <p><strong>Contact :</strong><br />Tél : 03 51 53 20 26</p>
@@ -1322,12 +1318,10 @@ export default function App() {
                   </div>
                 </div>
               </div>
-                </div>
-              } />
-            </Routes>
-          </motion.div>
-        </AnimatePresence>
-        </div>
+            </div>
+          } />
+        </Routes>
+      </div>
 
         {/* --- SECTION CONTACT / FOOTER --- */}
         <section className="relative py-20 overflow-hidden" style={{ background: "#0f2440" }}>
@@ -1367,8 +1361,9 @@ export default function App() {
 
         {/* CONTACT */}
         {["/", "/a-propos"].includes(location.pathname) && (
-          <section id="contact" className="py-12" style={{ background: "var(--background)" }}>
-            <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-start">
+          <section id="contact" className="relative py-12 overflow-hidden" style={{ background: "var(--background)" }}>
+            <BackgroundBeams />
+            <div className="relative z-10 max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-start">
               <div>
                 <div className="text-sm font-medium uppercase tracking-widest mb-3" style={{ color: "#2a9d8f" }}>Contact & RDV</div>
                 <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>Nous contacter</h2>
@@ -1378,7 +1373,7 @@ export default function App() {
 
                 <div className="space-y-4 mb-8">
                   {[
-                    { icon: "📍", label: "Adresse", val: "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne" },
+                    { icon: "📍 ", label: "Adresse", val: "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne" },
                     { icon: "📞", label: "Téléphone", val: "03 51 53 20 26" },
                     { icon: "🕒", label: "Horaires", val: "Lundi – Vendredi : 8h30 – 18h00\nSur rendez-vous uniquement" },
                     { icon: "📅", label: "Prise de RDV", val: "Via Doctolib" },
@@ -1387,7 +1382,7 @@ export default function App() {
                       <span className="text-base shrink-0 mt-0.5">{c.icon}</span>
                       <div>
                         <div className="text-xs font-semibold mb-0.5" style={{ color: "#2a9d8f" }}>{c.label}</div>
-                        <div className="text-sm whitespace-pre-line" style={{ color: "#4a5568" }}>{c.val}</div>
+                        <div className="text-sm font-medium whitespace-pre-line" style={{ color: "#1a3a5c" }}>{c.val}</div>
                       </div>
                     </div>
                   ))}
@@ -1489,14 +1484,14 @@ export default function App() {
               }
             ].map((col) => (
               <div key={col.title}>
-                <Link to={col.link} className="block text-white text-sm font-semibold mb-3 hover:text-[#2a9d8f] transition-colors" style={{ fontFamily: "var(--font-display)" }}>{col.title}</Link>
+                <TransitionLink to={col.link} className="block text-white text-sm font-semibold mb-3 hover:text-[#2a9d8f] transition-colors" style={{ fontFamily: "var(--font-display)" }}>{col.title}</TransitionLink>
                 <ul className="space-y-2">
                   {col.links.map((l, idx) => (
                     <li key={idx}>
                       {typeof l === "string" ? (
-                        <Link to={col.link} className="text-xs transition-colors hover:text-white">{l}</Link>
+                        <TransitionLink to={col.link} className="text-xs transition-colors hover:text-white">{l}</TransitionLink>
                       ) : (
-                        <Link to={l.to} className="text-xs transition-colors hover:text-white">{l.label}</Link>
+                        <TransitionLink to={l.to} className="text-xs transition-colors hover:text-white">{l.label}</TransitionLink>
                       )}
                     </li>
                   ))}
@@ -1529,3 +1524,4 @@ export default function App() {
     </>
   );
 }
+

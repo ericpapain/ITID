@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform, animate, PanInfo, useAnimationFrame, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { TransitionLink } from "../ui/TransitionLink";
 import { PATHOLOGIES } from "../../data";
 import { MedicalCard } from "../Cards";
 import spineImg from "../../images/spine_isolated.png";
@@ -58,12 +58,12 @@ export function PathologiesPremium() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-30 w-full text-center">
         <div className="flex justify-between items-center mb-12">
-          <Link
+          <TransitionLink
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold transition-colors text-gray-400 hover:text-[#48cae4]"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}
           >
-            ← Retour à l'accueil
-          </Link>
+            ← Retour à l'accueil
+          </TransitionLink>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-[#48cae4]/30 text-white/80">
             <span className="w-2 h-2 rounded-full bg-[#48cae4] animate-pulse"></span>
             <span className="text-xs font-bold tracking-widest uppercase">Explorateur 3D</span>
@@ -210,3 +210,4 @@ function CarouselItem({ item, angle, radius, isActive, carouselRotation, index, 
     </motion.div>
   );
 }
+

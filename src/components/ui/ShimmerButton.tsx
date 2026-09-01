@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { TransitionLink } from "./TransitionLink";
 
 export interface ShimmerButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   as?: 'button' | 'a' | 'Link';
@@ -45,9 +46,9 @@ export function ShimmerButton({
 
   if (as === 'Link') {
     return (
-      <Link to={props.to || "#"} className={mergedClasses} onClick={props.onClick as any} style={props.style}>
+      <TransitionLink to={props.to || "#"} className={mergedClasses} onClick={props.onClick as any} style={props.style}>
         {innerContent}
-      </Link>
+      </TransitionLink>
     );
   }
 

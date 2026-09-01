@@ -1,8 +1,50 @@
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+﻿import { motion } from "framer-motion";
+import { TransitionLink } from "../ui/TransitionLink";
 import { useState } from "react";
 import { TreatmentCard } from "../Cards";
 import { TRAITEMENTS } from "../../data";
+import { CardFlip } from "../ui/CardFlip";
+import { ArrowRight } from "lucide-react";
+
+function TreatmentFrontFace({ title, img }: { title: string, img: string }) {
+  return (
+    <>
+      <div className="absolute inset-0 z-0 overflow-hidden rounded-[26px]">
+        <img src={img} alt={title} className="w-full h-full object-cover opacity-60 mix-blend-overlay transition-transform duration-700 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e] via-[#0c1a2e]/40 to-transparent" />
+      </div>
+      
+      <div className="relative z-10 flex flex-col h-full items-center justify-end pb-4">
+        <h3 className="text-3xl md:text-4xl font-bold tracking-tight text-white leading-snug drop-shadow-lg text-center px-2" style={{ fontFamily: "var(--font-display)" }}>
+          {title}
+        </h3>
+      </div>
+    </>
+  );
+}
+
+function TreatmentBackFace({ desc }: { desc: string }) {
+  return (
+    <>
+      <div>
+        <h3 className="text-xl font-semibold tracking-tight text-[#48cae4]">
+          En savoir plus
+        </h3>
+        <p className="mt-3 text-[15px] text-gray-300 leading-relaxed">
+          {desc}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="mt-auto flex w-full items-center justify-center gap-2 rounded-xl bg-[#48cae4]/20 border border-[#48cae4]/50 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgba(72,202,228,0.3)] transition-colors duration-200 hover:bg-[#48cae4]/40"
+      >
+        Prendre rendez-vous
+        <ArrowRight size={15} strokeWidth={2.25} />
+      </button>
+    </>
+  );
+}
 
 export function TraitementsPremium() {
   const [traitFilter, setTraitFilter] = useState("");
@@ -29,12 +71,12 @@ export function TraitementsPremium() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <Link
+        <TransitionLink
           to="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors text-gray-400 hover:text-[#48cae4]"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}
         >
-          ← Retour à l'accueil
-        </Link>
+          ← Retour à l'accueil
+        </TransitionLink>
         
         {/* Header Section */}
         <motion.div 
@@ -67,7 +109,7 @@ export function TraitementsPremium() {
               onChange={(e) => setTraitFilter(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-full border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#48cae4]/50 glass bg-white/5 text-white placeholder-gray-400 transition-all shadow-lg"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">🔍</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">🔒</span>
           </div>
         </motion.div>
 
@@ -84,7 +126,7 @@ export function TraitementsPremium() {
               }
             }
           }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           {filteredTraitements.map((t) => (
             <motion.div
@@ -94,7 +136,11 @@ export function TraitementsPremium() {
                 visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
               }}
             >
-              <TreatmentCard {...t} />
+              <CardFlip 
+                className="w-full h-[450px]" 
+                front={<TreatmentFrontFace title={t.title} img={t.img} />} 
+                back={<TreatmentBackFace desc={t.desc} />} 
+              />
             </motion.div>
           ))}
           
@@ -109,3 +155,4 @@ export function TraitementsPremium() {
     </div>
   );
 }
+
