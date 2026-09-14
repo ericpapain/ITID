@@ -10,13 +10,14 @@ import {
 } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTransitionStore } from "../../store/transitionStore";
 
 export type GooeyNavItem = { label: string; href?: string; onClick?: () => void };
 
 type Pos = { x: number; width: number };
 
-const LEAD_SPRING = { type: "spring", stiffness: 320, damping: 30, mass: 1 } as const;
-const TRAIL_SPRING = { type: "spring", stiffness: 120, damping: 17, mass: 1.1 } as const;
+const LEAD_SPRING = { type: "tween", ease: [0.16, 1, 0.3, 1], duration: 0.22 } as const;
+const TRAIL_SPRING = { type: "tween", ease: [0.22, 1, 0.36, 1], duration: 0.28 } as const;
 
 export function GooeyNav({
   items,
@@ -34,14 +35,33 @@ export function GooeyNav({
   const [positions, setPositions] = useState<Pos[]>([]);
   const [ready, setReady] = useState(false);
   
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Determine active index based on route
-  const active = Math.max(
-    0,
-    items.findIndex((l) => l.href && (l.href === location.pathname || (l.href === '/' && location.pathname === '/' && !location.hash)))
-  );
+  // Instant effective path
+  const currentPath = location.pathname;
+
+  // Active index state: ONLY updates when target index changes to prevent double-animation / back-and-forth jumps
+  const [activeIndex, setActiveIndex] = useState<number>(() => {
+    const initialPath = location.pathname;
+    const idx = items.findIndex((l) => {
+      if (!l.href) return false;
+      const targetPath = l.href.split('#')[0];
+      return targetPath === initialPath || (targetPath === '/' && initialPath === '/');
+    });
+    return idx !== -1 ? idx : 0;
+  });
+
+  useEffect(() => {
+    const idx = items.findIndex((l) => {
+      if (!l.href) return false;
+      const targetPath = l.href.split('#')[0];
+      return targetPath === currentPath || (targetPath === '/' && currentPath === '/');
+    });
+    if (idx !== -1 && idx !== activeIndex) {
+      setActiveIndex(idx);
+    }
+  }, [currentPath, items, activeIndex]);
 
   const measure = useCallback(() => {
     const base = gooRef.current;
@@ -80,7 +100,7 @@ export function GooeyNav({
     };
   }, [measure]);
 
-  const pos = positions[active] ?? { x: 0, width: 0 };
+  const pos = positions[activeIndex] ?? { x: 0, width: 0 };
 
   return (
     <div className={`relative ${className || ""}`}>
@@ -165,7 +185,7 @@ export function GooeyNav({
 
         <ul className="relative z-10 flex items-stretch">
           {items.map((item, i) => {
-            const isActive = i === active;
+            const isActive = i === activeIndex;
             return (
               <li key={item.label}>
                 <button
@@ -177,12 +197,12 @@ export function GooeyNav({
                     if (item.onClick) {
                       item.onClick();
                     } else if (item.href) {
-                      if (item.href === '/') { window.scrollTo(0, 0); }
                       const targetPath = item.href.split('#')[0];
                       if (location.pathname !== targetPath) {
-                        import("../../store/transitionStore").then(({ useTransitionStore }) => {
-                          useTransitionStore.getState().startTransition(item.href!);
-                        });
+                        navigate(item.href);
+                        window.scrollTo(0, 0);
+                      } else {
+                        window.scrollTo(0, 0);
                       }
                     }
                   }}

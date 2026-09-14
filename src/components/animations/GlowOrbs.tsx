@@ -1,10 +1,12 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 
 const orbs = [
-  { color: "#7c6cff", size: 220, x: "10%", y: "20%", duration: 16 },
-  { color: "#5b8cff", size: 260, x: "70%", y: "50%", duration: 20 },
-  { color: "#a78bfa", size: 180, x: "40%", y: "75%", duration: 18 },
+  { color: "#2a9d8f", size: 280, x: "10%", y: "20%", duration: 16 },
+  { color: "#48cae4", size: 320, x: "70%", y: "50%", duration: 20 },
+  { color: "#5b8cff", size: 240, x: "40%", y: "75%", duration: 18 },
 ];
 
 export function GlowOrbs({
@@ -17,11 +19,11 @@ export function GlowOrbs({
   return (
     <div
       className={cn(
-        "relative min-h-screen w-full overflow-hidden bg-[#060d18]",
+        "relative h-full w-full overflow-hidden",
         className
       )}
     >
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         {orbs.map((orb, i) => (
           <motion.div
             key={i}
@@ -32,7 +34,7 @@ export function GlowOrbs({
               left: orb.x,
               top: orb.y,
               backgroundColor: orb.color,
-              opacity: 0.15,
+              opacity: 0.35,
             }}
             animate={{
               x: [0, 30, -20, 0],
@@ -46,7 +48,7 @@ export function GlowOrbs({
           />
         ))}
       </div>
-      <div className="relative z-10 w-full flex-col">
+      <div className="relative z-10 flex h-full w-full flex-col">
         {children}
       </div>
     </div>

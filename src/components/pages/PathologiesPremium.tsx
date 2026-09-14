@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform, animate, PanInfo, useAnimationFrame, AnimatePresence } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
 import { PATHOLOGIES } from "../../data";
@@ -15,17 +15,13 @@ export function PathologiesPremium() {
   const angleStep = 360 / items.length;
   const radius = 500; // Distance from center
 
-  // Update active index based on rotation
+  // Update active index based on rotation (only when index actually changes)
   useEffect(() => {
-    return smoothRotation.onChange((v) => {
-      // Normalize rotation to 0-360
+    return smoothRotation.on("change", (v) => {
       let normalized = ((v % 360) + 360) % 360;
-      // Invert because dragging right (positive) rotates carousel right, meaning item on left comes to front
-      // Actually, if carousel rotates Y by +deg, it spins counter-clockwise from top.
-      // Easiest is just math.round
       let idx = Math.round((360 - normalized) / angleStep) % items.length;
       if (idx < 0) idx += items.length;
-      setActiveIdx(idx);
+      setActiveIdx(prev => (prev !== idx ? idx : prev));
     });
   }, [smoothRotation, angleStep, items.length]);
 
@@ -49,7 +45,7 @@ export function PathologiesPremium() {
   };
 
   return (
-    <div className="pt-32 pb-24 min-h-screen bg-[#060d18] text-white relative overflow-hidden flex flex-col items-center">
+    <div className="pt-32 pb-24 min-h-screen text-[#1a3a5c] relative overflow-hidden flex flex-col items-center">
       
       {/* Background Decor */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
@@ -64,19 +60,19 @@ export function PathologiesPremium() {
           >
             ← Retour à l'accueil
           </TransitionLink>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-[#48cae4]/30 text-white/80">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-[#1a3a5c]/20 text-[#1a3a5c]">
             <span className="w-2 h-2 rounded-full bg-[#48cae4] animate-pulse"></span>
             <span className="text-xs font-bold tracking-widest uppercase">Explorateur 3D</span>
           </div>
         </div>
         
-        <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+        <h2 className="text-5xl md:text-6xl font-bold mb-4 text-[#1a3a5c] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
           Cartographie des <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-[#48cae4]">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a9d8f] to-[#48cae4]">
             Pathologies
           </span>
         </h2>
-        <p className="text-gray-400 max-w-2xl mx-auto mb-4">Glissez de gauche à droite pour explorer le système nerveux et squelettique.</p>
+        <p className="text-gray-600 max-w-2xl mx-auto mb-4">Glissez de gauche à droite pour explorer le système nerveux et squelettique.</p>
       </div>
 
       {/* 3D Carousel Scene */}

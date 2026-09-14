@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
 import { CATEGORIES_FORMATIONS } from "../../data";
 import { useRef } from "react";
-import { BackgroundBoxes } from "../animations/BackgroundBoxes";
+import { AnimatedGridPattern } from "../animations/AnimatedGridPattern";
 
 export function FormationsPremium() {
   const ref = useRef(null);
@@ -16,9 +16,10 @@ export function FormationsPremium() {
   const y = useTransform(scrollYProgress, [0, 1], [100, -50]);
 
   return (
-    <section ref={ref} id="formations" className="relative overflow-hidden h-full">
-      <BackgroundBoxes className="py-24" rows={14} cols={22}>
-        {/* Background Decorative Elements */}
+    <section ref={ref} id="formations" className="relative overflow-hidden py-24 bg-[#0a1628]">
+      <AnimatedGridPattern cols={20} rows={12} litCount={20} />
+      
+      {/* Background Decorative Elements */}
         <div className="absolute top-10 left-10 md:left-20 text-[12rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-rotate-12 cursor-default z-0">📚</div>
       <div className="absolute bottom-20 right-10 text-[14rem] opacity-[0.03] transition-all duration-700 hover:opacity-10 hover:scale-110 hover:-translate-y-8 cursor-default z-0">🎓</div>
       
@@ -58,7 +59,7 @@ export function FormationsPremium() {
             whileInView={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             viewport={{ once: true }}
-            className="absolute w-80 h-56 rounded-2xl shadow-2xl border-2 border-white/30 overflow-hidden z-20 transition-transform duration-500 hover:scale-105 cursor-pointer glass-dark group"
+            className="absolute w-80 h-56 rounded-2xl shadow-2xl border-2 border-white/30 overflow-hidden z-20 transition-transform duration-500 cursor-pointer glass-dark group card-hover-highlight"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-transparent to-transparent z-10 opacity-80" />
             <img 
@@ -108,7 +109,6 @@ export function FormationsPremium() {
         </motion.div>
 
       </div>
-      </BackgroundBoxes>
     </section>
   );
 }

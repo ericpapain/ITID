@@ -26,9 +26,9 @@ const ICONS: OrbitIcon[] = [
   { Icon: MessageSquare, radius: 70, duration: 14, startAngle: 200, color: "text-[#2a9d8f]" },
   { Icon: Palette, radius: 110, duration: 20, startAngle: 90, reverse: true, color: "text-[#3bb5a6]" },
   { Icon: Database, radius: 110, duration: 20, startAngle: 270, reverse: true, color: "text-[#3bb5a6]" },
-  { Icon: Zap, radius: 150, duration: 26, startAngle: 0, color: "text-white" },
-  { Icon: Cloud, radius: 150, duration: 26, startAngle: 145, color: "text-white" },
-  { Icon: Puzzle, radius: 150, duration: 26, startAngle: 250, color: "text-white" },
+  { Icon: Zap, radius: 150, duration: 26, startAngle: 0, color: "text-[#2a9d8f]" },
+  { Icon: Cloud, radius: 150, duration: 26, startAngle: 145, color: "text-[#2a9d8f]" },
+  { Icon: Puzzle, radius: 150, duration: 26, startAngle: 250, color: "text-[#2a9d8f]" },
 ];
 
 function OrbitItem({ item }: { item: OrbitIcon }) {
@@ -41,7 +41,7 @@ function OrbitItem({ item }: { item: OrbitIcon }) {
       transition={{ duration, repeat: Infinity, ease: "linear" }}
     >
       <div
-        className="absolute flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0f2440] shadow-lg shadow-black/30 backdrop-blur-md"
+        className="absolute flex h-10 w-10 items-center justify-center rounded-full border border-[#2a9d8f]/20 bg-white/90 shadow-sm backdrop-blur-md"
         style={{ left: radius * 2 - 20, top: radius - 20 }}
       >
         <Icon className={`h-4 w-4 ${color}`} />

@@ -14,7 +14,7 @@ export function ImmersionSection() {
   const y2 = useTransform(scrollYProgress, [0, 1], ["10%", "-10%"]);
 
   return (
-    <section ref={ref} className="relative py-32 bg-[#0f2440] overflow-hidden">
+    <section ref={ref} className="relative py-16 bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f2] to-[#dcece9] overflow-hidden">
       {/* Background depth wash and particles */}
       <div
         className="pointer-events-none absolute inset-0 z-0"
@@ -24,7 +24,7 @@ export function ImmersionSection() {
         }}
       />
       <Particles className="z-0" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#2a9d8f]/20 to-transparent z-10" />
 
       <div className="relative max-w-7xl mx-auto px-6 z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">
@@ -36,14 +36,14 @@ export function ImmersionSection() {
             transition={{ duration: 1 }}
           >
             <div className="text-[#2a9d8f] text-sm font-bold tracking-widest uppercase">Approche Holistique</div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#1a3a5c] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
               Au-delà de la médecine,<br/>
-              <span className="text-gray-400 italic font-light">le bien-être profond.</span>
+              <span className="text-gray-500 italic font-light">le bien-être profond.</span>
             </h2>
-            <p className="text-lg text-gray-300 leading-relaxed font-light max-w-lg">
+            <p className="text-lg text-gray-600 leading-relaxed font-light max-w-lg">
               À l'ITID, nous croyons que l'apaisement de l'esprit est aussi crucial que le traitement du corps. Nos environnements sont conçus pour réduire le stress, inspirer le calme et favoriser la guérison.
             </p>
-            <ShimmerButton className="border border-white/30 bg-transparent text-white hover:bg-white hover:text-[#0f2440]">
+            <ShimmerButton className="border border-[#2a9d8f]/30 bg-transparent text-[#2a9d8f] hover:bg-[#2a9d8f] hover:text-white">
               Découvrir notre philosophie
             </ShimmerButton>
           </motion.div>

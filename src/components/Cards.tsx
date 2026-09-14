@@ -48,7 +48,7 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.1), inset 0 0 20px rgba(0,0,0,0.5), 0 25px 50px -12px rgba(0,0,0,0.7)",
         borderColor: color ? `${color}60` : 'rgba(255,255,255,0.3)'
       }}
-      className="relative flex flex-col rounded-3xl overflow-hidden group transition-all duration-300 border-2 bg-[#0a1628] h-full cursor-pointer hover:shadow-[0_0_40px_rgba(42,157,143,0.4)]"
+      className="relative flex flex-col rounded-3xl overflow-hidden group transition-all duration-300 border-2 bg-[#0a1628] h-full cursor-pointer card-hover-highlight hover:shadow-[0_0_40px_rgba(42,157,143,0.4)]"
     >
       {/* Spotlight Effect */}
       <motion.div
@@ -157,7 +157,7 @@ export const TreatmentCard = ({ num, title, desc, icon, img, imageHeight }: any)
         transformStyle: "preserve-3d",
         perspective: 1000
       }}
-      className="relative flex flex-col rounded-3xl overflow-hidden group transition-all duration-300 border border-white/10 bg-[#0a1628] glass h-full cursor-pointer shadow-lg hover:shadow-[0_0_40px_rgba(255,255,255,0.15)]"
+      className="relative flex flex-col rounded-3xl overflow-hidden group transition-all duration-300 border border-white/10 bg-[#0a1628] glass h-full cursor-pointer shadow-lg card-hover-highlight hover:shadow-[0_0_40px_rgba(72,209,194,0.4)]"
     >
       {/* Spotlight Effect */}
       <motion.div

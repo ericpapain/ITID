@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, PanInfo } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
-import { BackgroundGradientAnimation } from "../animations/BackgroundGradientAnimation";
+import { NoiseGradient } from "../ui/NoiseGradient";
 
 const PROJECTS = [
   {
@@ -38,7 +38,7 @@ function ActiveSliderCard({ item, scrollX, index }: { item: any, scrollX: any, i
   });
 
   return (
-    <div className="relative w-[300px] h-[450px] md:w-[400px] md:h-[600px] rounded-2xl overflow-hidden shrink-0 group pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+    <div className="relative w-[300px] h-[450px] md:w-[400px] md:h-[600px] rounded-2xl overflow-hidden shrink-0 group pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] card-hover-highlight hover:shadow-[0_0_40px_rgba(72,209,194,0.5)] transition-all duration-500">
       <div className="absolute inset-0 w-full h-full overflow-hidden rounded-2xl pointer-events-none">
         <motion.img 
           src={item.image} 
@@ -95,28 +95,31 @@ export function ProjectsMasonry() {
 
   return (
     <section className="relative overflow-hidden" id="projets">
-      <BackgroundGradientAnimation className="py-32 bg-[#060d18]">
+      <NoiseGradient className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f2] to-[#dcece9] opacity-80" />
+      </NoiseGradient>
+      
+      <div className="py-16 relative z-10">
         <div className="max-w-7xl mx-auto px-6 mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10 pointer-events-none">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass border border-[#48cae4]/30 text-white/80 pointer-events-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass border border-[#2a9d8f]/30 text-[#1a3a5c] pointer-events-auto shadow-sm">
               <span className="w-2 h-2 rounded-full bg-[#48cae4]"></span>
               <span className="text-xs font-bold tracking-widest uppercase">Galerie Interactive</span>
             </div>
-            <h2 className="text-5xl md:text-7xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>
-              Cas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-[#48cae4]">Cliniques</span>
+            <h2 className="text-5xl md:text-7xl font-bold text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
+              Cas <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a9d8f] to-[#48cae4]">Cliniques</span>
             </h2>
           </div>
           <TransitionLink 
             to="/pathologies" 
-            className="text-[#48cae4] hover:text-white transition-colors font-medium text-lg interactive inline-flex items-center gap-2 pointer-events-auto"
+            className="text-[#2a9d8f] hover:text-[#1a3a5c] transition-colors font-medium text-lg interactive inline-flex items-center gap-2 pointer-events-auto"
           >
             Découvrir plus <span className="text-2xl">→</span>
           </TransitionLink>
         </div>
 
         <div className="relative w-full h-[500px] md:h-[650px]" ref={containerRef}>
-          {/* Helper instruction */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-5 pointer-events-none text-[10rem] md:text-[15rem] font-bold text-white tracking-widest" style={{ fontFamily: "var(--font-display)" }}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-[0.03] pointer-events-none text-[10rem] md:text-[15rem] font-bold text-[#1a3a5c] tracking-widest" style={{ fontFamily: "var(--font-display)" }}>
             DRAG
           </div>
 
@@ -136,7 +139,7 @@ export function ProjectsMasonry() {
             ))}
           </motion.div>
         </div>
-      </BackgroundGradientAnimation>
+      </div>
     </section>
   );
 }

@@ -16,19 +16,19 @@
 }
 
 :root {
-  --background: #f7f4ef;
+  --background: #fdfdfc;
   --foreground: #1a3a5c;
   --card: #ffffff;
   --card-foreground: #1a3a5c;
   --primary: #1a3a5c;
-  --primary-foreground: #f7f4ef;
+  --primary-foreground: #fdfdfc;
   --secondary: #e8f4f2;
   --secondary-foreground: #1a3a5c;
-  --muted: #ede9e1;
+  --muted: #f2f0ec;
   --muted-foreground: #6b7c93;
   --accent: #2a9d8f;
   --accent-foreground: #ffffff;
-  --border: #d8d2c8;
+  --border: #e2e0da;
   --ring: #2a9d8f;
   --radius: 0.5rem;
 }
@@ -39,15 +39,15 @@
 
 html {
   scroll-behavior: smooth;
-  cursor: none; /* Hide cursor for custom cursor */
+  min-height: 100%;
 }
 
 /* Base Glassmorphism utility */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .glass-dark {
@@ -59,9 +59,14 @@ html {
 
 body {
   background-color: var(--background);
+  background-image: 
+    radial-gradient(circle at top left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.4) 30%, transparent 70%),
+    radial-gradient(circle at 15% 10%, rgba(250, 248, 245, 0.8) 0%, transparent 50%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--foreground);
   font-family: 'Inter', system-ui, sans-serif;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 4px 0px;
+  min-height: 100vh;
 }
 
 /* Hide scrollbar, show on hover */
@@ -108,4 +113,15 @@ body {
 
 .animate-shimmer {
   animation: shimmer 2s linear infinite;
+}
+
+/* Universal Card Hover Zoom & Highlight Effect */
+.card-hover-highlight {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease !important;
+}
+
+.card-hover-highlight:hover {
+  transform: translateY(-6px) scale(1.03) !important;
+  box-shadow: 0 20px 45px -10px rgba(42, 157, 143, 0.4), 0 0 30px rgba(72, 209, 194, 0.35) !important;
+  border-color: rgba(72, 209, 194, 0.6) !important;
 }

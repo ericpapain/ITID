@@ -1,10 +1,10 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
 import { useState } from "react";
-import { TreatmentCard } from "../Cards";
 import { TRAITEMENTS } from "../../data";
 import { CardFlip } from "../ui/CardFlip";
 import { ArrowRight } from "lucide-react";
+import { Particles } from "../animations/Particles";
 
 function TreatmentFrontFace({ title, img }: { title: string, img: string }) {
   return (
@@ -55,19 +55,17 @@ export function TraitementsPremium() {
   );
 
   return (
-    <div className="pt-32 pb-24 min-h-screen bg-[#0a1628] text-white relative overflow-hidden">
+    <div className="pt-32 pb-24 min-h-screen text-[#1a3a5c] relative overflow-hidden">
       
-      {/* YouTube Background Video */}
-      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none">
-        <iframe 
-          className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] -translate-x-1/2 -translate-y-1/2 opacity-70"
-          src="https://www.youtube.com/embed/ANZpsMEAVHc?autoplay=1&mute=1&controls=0&loop=1&playlist=ANZpsMEAVHc&showinfo=0&rel=0&modestbranding=1&playsinline=1" 
-          title="YouTube video player" 
-          frameBorder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        ></iframe>
-        {/* Overlay léger pour la lisibilité du texte et flou d'arrière-plan */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[4px]"></div>
+      {/* Interactive Particles Constellation Background */}
+      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+        <div 
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: "radial-gradient(120% 90% at 50% 0%, rgba(42,157,143,0.15), transparent 60%), radial-gradient(90% 80% at 50% 100%, rgba(72,209,194,0.10), transparent 65%)"
+          }}
+        />
+        <Particles quantity={180} connectDistance={120} repelRadius={140} />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -75,29 +73,24 @@ export function TraitementsPremium() {
           to="/"
           className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}
         >
-          ← Retour à l'accueil
+          ←  Retour à l'accueil
         </TransitionLink>
         
         {/* Header Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="mb-16 text-center max-w-3xl mx-auto"
-        >
+        <div className="mb-16 text-center max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 glass text-white/80">
             <span className="w-2 h-2 rounded-full bg-[#48cae4] animate-pulse"></span>
-            <span className="text-xs font-bold tracking-widest uppercase">Expertise Interventionnelle</span>
+            <span className="text-xs font-bold tracking-widest uppercase text-[#1a3a5c]">Expertise Interventionnelle</span>
           </div>
           
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 text-[#1a3a5c] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
             Tous nos <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-[#48cae4]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a5080] to-[#2a9d8f]">
               Traitements
             </span>
           </h2>
           
-          <p className="text-lg leading-relaxed text-gray-300 font-light mb-10">
+          <p className="text-lg leading-relaxed text-gray-600 font-light mb-10">
             Découvrez en détail les techniques interventionnelles guidées par imagerie proposées par l'ITID. Des solutions minimalement invasives pour votre soulagement.
           </p>
           
@@ -107,41 +100,22 @@ export function TraitementsPremium() {
               placeholder="Rechercher un traitement (ex: infiltration)..." 
               value={traitFilter}
               onChange={(e) => setTraitFilter(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-full border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#48cae4]/50 glass bg-white/5 text-white placeholder-gray-400 transition-all shadow-lg"
+              className="w-full pl-12 pr-4 py-4 rounded-full border border-[#1a3a5c]/20 focus:outline-none focus:ring-2 focus:ring-[#2a9d8f]/50 bg-white/70 text-[#1a3a5c] placeholder-gray-500 transition-all shadow-md"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">🔒</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">🔒</span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Grid Section */}
-        <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1
-              }
-            }
-          }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        >
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTraitements.map((t) => (
-            <motion.div
-              key={t.title}
-              variants={{
-                hidden: { opacity: 0, y: 50 },
-                visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
-              }}
-            >
+            <div key={t.title}>
               <CardFlip 
                 className="w-full h-[450px]" 
                 front={<TreatmentFrontFace title={t.title} img={t.img} />} 
                 back={<TreatmentBackFace desc={t.desc} />} 
               />
-            </motion.div>
+            </div>
           ))}
           
           {filteredTraitements.length === 0 && (
@@ -150,9 +124,8 @@ export function TraitementsPremium() {
               <p className="text-lg">Aucun traitement ne correspond à votre recherche.</p>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   );
 }
-

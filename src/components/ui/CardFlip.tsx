@@ -103,7 +103,7 @@ export function CardFlip({
       onClick={() => setClicked(!clicked)}
       onMouseLeave={onMouseLeave}
       onMouseMove={onMouseMove}
-      className={cn("group relative cursor-pointer", className)}
+      className={cn("group relative cursor-pointer card-hover-highlight", className)}
       style={{ perspective: 1600 }}
     >
       {/* ambient glow that lifts when the card is engaged */}

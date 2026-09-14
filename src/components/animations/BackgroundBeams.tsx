@@ -24,7 +24,7 @@ export function BackgroundBeams({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "absolute inset-0 h-full w-full overflow-hidden bg-gradient-to-br from-[#060d18] via-[#0f2440] to-[#060d18] z-0",
+        "absolute inset-0 h-full w-full overflow-hidden bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f2] to-[#dcece9] z-0",
         className
       )}
     >
@@ -36,9 +36,9 @@ export function BackgroundBeams({ className }: { className?: string }) {
       >
         <defs>
           <linearGradient id="beam-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#7c6cff" stopOpacity="0" />
-            <stop offset="50%" stopColor="#5b8cff" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#7c6cff" stopOpacity="0" />
+            <stop offset="0%" stopColor="#2a9d8f" stopOpacity="0" />
+            <stop offset="50%" stopColor="#48cae4" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#2a9d8f" stopOpacity="0" />
           </linearGradient>
         </defs>
         {paths.map((p, i) => (
@@ -55,7 +55,7 @@ export function BackgroundBeams({ className }: { className?: string }) {
           <motion.path
             key={`glow-${i}`}
             d={p.d}
-            stroke="#5b8cff"
+            stroke="#2a9d8f"
             strokeWidth={2}
             fill="none"
             strokeLinecap="round"
@@ -70,7 +70,7 @@ export function BackgroundBeams({ className }: { className?: string }) {
           />
         ))}
       </svg>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#060d18] via-transparent to-[#060d18] opacity-90" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#f0f7f6] via-transparent to-[#f0f7f6] opacity-90" />
     </div>
   );
 }

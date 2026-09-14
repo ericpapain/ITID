@@ -15,15 +15,15 @@ function hexToRgb(hex: string): RGB {
           .join("")
       : clean;
   const n = parseInt(full, 16);
-  if (Number.isNaN(n)) return { r: 124, g: 108, b: 255 };
+  if (Number.isNaN(n)) return { r: 42, g: 157, b: 143 };
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
 export function FlickeringGrid({
   squareSize = 3,
-  gridGap = 7,
-  colors = ["#7c6cff", "#5b8cff"],
-  maxOpacity = 0.42,
+  gridGap = 6,
+  colors = ["#2a9d8f", "#48cae4"],
+  maxOpacity = 0.65,
   className,
 }: {
   squareSize?: number;
@@ -78,7 +78,7 @@ export function FlickeringGrid({
         const d = hash(i * 15.147 + 1.37);
         const e = hash(i * 51.617 + 6.19);
         const o = i * 5;
-        cells[o] = Math.pow(a, 2.4);
+        cells[o] = Math.pow(a, 2.0); // Slightly brighter ceiling
         cells[o + 1] = b * TAU;
         cells[o + 2] = 0.22 + c * 0.7;
         cells[o + 3] = d * TAU;
@@ -87,8 +87,7 @@ export function FlickeringGrid({
     };
 
     let raf = 0;
-    const start =
-      typeof performance !== "undefined" ? performance.now() : 0;
+    const start = typeof performance !== "undefined" ? performance.now() : 0;
 
     const draw = (now: number) => {
       const t = (now - start) / 1000;
@@ -103,10 +102,10 @@ export function FlickeringGrid({
           const breathe = 0.5 + 0.5 * Math.sin(t * cells[o + 2] + cells[o + 1]);
           const spark = Math.pow(
             0.5 + 0.5 * Math.sin(t * 1.9 + cells[o + 3]),
-            9
+            8
           );
-          const op = ceiling * maxOpacity * (0.16 + 0.5 * breathe + 0.5 * spark);
-          if (op < 0.014) continue;
+          const op = ceiling * maxOpacity * (0.2 + 0.5 * breathe + 0.5 * spark);
+          if (op < 0.01) continue;
 
           const mix = cells[o + 4];
           const r = Math.round(c0.r + (c1.r - c0.r) * mix);
@@ -141,9 +140,9 @@ export function FlickeringGrid({
         className="h-full w-full"
         style={{
           maskImage:
-            "radial-gradient(ellipse 78% 82% at 50% 46%, #000 0%, #000 34%, rgba(0,0,0,0.35) 68%, transparent 88%)",
+            "radial-gradient(ellipse 85% 85% at 50% 46%, #000 0%, #000 40%, rgba(0,0,0,0.5) 75%, transparent 95%)",
           WebkitMaskImage:
-            "radial-gradient(ellipse 78% 82% at 50% 46%, #000 0%, #000 34%, rgba(0,0,0,0.35) 68%, transparent 88%)",
+            "radial-gradient(ellipse 85% 85% at 50% 46%, #000 0%, #000 40%, rgba(0,0,0,0.5) 75%, transparent 95%)",
         }}
       />
     </div>

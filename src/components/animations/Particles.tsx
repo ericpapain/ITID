@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { cn } from "../../lib/utils";
 
 /** Deterministic pseudo-random in [0,1); safe for SSR (no Math.random). */
 const seeded = (i: number) => Math.abs(Math.sin(i * 12.9898) * 43758.5453) % 1;
@@ -21,21 +22,25 @@ interface Dot {
 
 export interface ParticlesProps {
   className?: string;
+  /** Hard cap on particle count. Kept under 220 for 60fps. */
   quantity?: number;
+  /** Distance (px) under which two dots are wired together. */
   connectDistance?: number;
+  /** Radius (px) of the cursor's repulsion field. */
   repelRadius?: number;
+  /** Palette the dots are drawn from. */
   palette?: RGB[];
 }
 
 const DEFAULT_PALETTE: RGB[] = [
-  [42, 157, 143], // #2a9d8f (brand)
-  [72, 209, 194], // #48d1c2 (glow)
-  [255, 255, 255], // ice
+  [42, 157, 143], // emerald
+  [72, 209, 194], // teal
+  [72, 202, 228], // ice blue
 ];
 
 export function Particles({
   className,
-  quantity = 320, // Doublé
+  quantity = 160,
   connectDistance = 116,
   repelRadius = 130,
   palette = DEFAULT_PALETTE,
@@ -55,7 +60,7 @@ export function Particles({
     let dots: Dot[] = [];
     let t = 0;
 
-    const cap = Math.min(quantity, 440); // Cap augmenté pour autoriser x2
+    const cap = Math.min(quantity, 220);
 
     function build() {
       if (!canvas) return;
@@ -67,8 +72,9 @@ export function Particles({
       canvas.height = Math.round(height * dpr);
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const target = Math.floor((width * height) / 1300); // Densité doublée (diviseur divisé par 2)
-      const count = Math.max(56, Math.min(cap, target));
+      // Scale count to area so small cards stay airy, large stay full.
+      const target = Math.floor((width * height) / 2600);
+      const count = Math.max(28, Math.min(cap, target));
 
       dots = Array.from({ length: count }, (_, i) => {
         const speed = 0.12 + seeded(i + 3000) * 0.22;
@@ -98,7 +104,9 @@ export function Particles({
       const maxD2 = connectDistance * connectDistance;
       const repel2 = repelRadius * repelRadius;
 
+      // Advance + integrate forces.
       for (const p of dots) {
+        // Ease velocity back toward its gentle home drift.
         p.vx += (p.baseVx - p.vx) * 0.03;
         p.vy += (p.baseVy - p.vy) * 0.03;
 
@@ -114,6 +122,7 @@ export function Particles({
           }
         }
 
+        // Clamp speed so a fast cursor never flings dots.
         const sp = Math.hypot(p.vx, p.vy);
         const cap2 = 2.4;
         if (sp > cap2) {
@@ -124,12 +133,14 @@ export function Particles({
         p.x += p.vx;
         p.y += p.vy;
 
+        // Wrap around edges for an endless field.
         if (p.x < -20) p.x = width + 20;
         else if (p.x > width + 20) p.x = -20;
         if (p.y < -20) p.y = height + 20;
         else if (p.y > height + 20) p.y = -20;
       }
 
+      // Constellation links (drawn under the dots).
       ctx.lineWidth = 1;
       for (let i = 0; i < dots.length; i++) {
         const a = dots[i];
@@ -141,7 +152,7 @@ export function Particles({
           if (d2 > maxD2) continue;
           const d = Math.sqrt(d2);
           const alpha = (1 - d / connectDistance) * 0.38;
-          ctx.strokeStyle = `rgba(42,157,143,${alpha.toFixed(3)})`;
+          ctx.strokeStyle = `rgba(72,209,194,${alpha.toFixed(3)})`;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
@@ -149,19 +160,23 @@ export function Particles({
         }
       }
 
+      // Glowing dots, additive so overlaps bloom.
       ctx.globalCompositeOperation = "lighter";
       for (const p of dots) {
         const [r, g, bl] = p.color;
         const pulse = 0.72 + 0.28 * Math.sin(t * 0.03 + p.x * 0.01);
         const a = p.glow * pulse;
+        // soft halo
         ctx.fillStyle = `rgba(${r},${g},${bl},${(a * 0.16).toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
         ctx.fill();
+        // mid
         ctx.fillStyle = `rgba(${r},${g},${bl},${(a * 0.3).toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
         ctx.fill();
+        // bright core
         ctx.fillStyle = `rgba(${r},${g},${bl},${a.toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -197,9 +212,9 @@ export function Particles({
     <div
       onPointerMove={onMove}
       onPointerLeave={onLeave}
-      className={`absolute inset-0 ${className || ""}`}
+      className={cn("absolute inset-0 pointer-events-auto", className)}
     >
-      <canvas ref={canvasRef} className="h-full w-full pointer-events-none" />
+      <canvas ref={canvasRef} className="h-full w-full block" />
     </div>
   );
 }

@@ -70,7 +70,7 @@ export function SpotlightInput({
       onMouseMove={onMouseMove}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
-      className={`relative overflow-hidden rounded-xl bg-[#0f2440] p-px ${className}`}
+      className={`relative overflow-hidden rounded-xl bg-white/60 backdrop-blur-md p-px shadow-sm ${className}`}
     >
       <div className="pointer-events-none absolute inset-0 grid place-items-center overflow-hidden rounded-xl">
         <motion.div
@@ -83,7 +83,7 @@ export function SpotlightInput({
         />
       </div>
 
-      <div className="relative overflow-hidden rounded-[11px] bg-[#0f2440]">
+      <div className="relative overflow-hidden rounded-[11px] bg-white/60 backdrop-blur-md">
         <motion.div
           className="pointer-events-none absolute inset-0"
           style={{ background: idleGlow }}
@@ -101,7 +101,7 @@ export function SpotlightInput({
           {Icon && (
             <Icon
               aria-hidden
-              className={`pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors duration-300 ${focused ? "text-[#48d1c2]" : "text-gray-400"}`}
+              className={`pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors duration-300 ${focused ? "text-[#48d1c2]" : "text-gray-500"}`}
             />
           )}
           <motion.label
@@ -110,7 +110,7 @@ export function SpotlightInput({
             animate={{
               y: floated ? -9 : 6,
               scale: floated ? 0.78 : 1,
-              color: focused ? "#48d1c2" : "#9ca3af",
+              color: focused ? "#2a9d8f" : "#6b7280",
             }}
             transition={{ duration: 0.22, ease: EASE }}
             style={{ originX: 0 }}
@@ -126,7 +126,7 @@ export function SpotlightInput({
             onChange={onChange}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            className="w-full bg-transparent pt-2 text-sm text-white caret-[#48d1c2] outline-none placeholder:text-transparent"
+            className="w-full bg-transparent pt-2 text-sm text-[#1a3a5c] caret-[#48d1c2] outline-none placeholder:text-transparent"
           />
         </div>
       </div>

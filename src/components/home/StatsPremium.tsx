@@ -37,13 +37,9 @@ export function StatsPremium() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-[#d8d2c8]/50">
           {stats.map((stat, idx) => (
-            <motion.div 
+            <div 
               key={idx}
               className="text-center px-4 group"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
             >
               <div className="text-5xl md:text-6xl font-bold text-[#1a3a5c] mb-2 font-display group-hover:scale-110 transition-transform duration-300 transform-gpu" style={{ fontFamily: "var(--font-display)" }}>
                 <AnimatedCounter to={stat.value} suffix={stat.suffix} />
@@ -51,7 +47,7 @@ export function StatsPremium() {
               <div className="text-sm font-semibold text-[#6b7c93] uppercase tracking-wide">
                 {stat.label}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
