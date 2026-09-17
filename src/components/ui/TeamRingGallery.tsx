@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SpotlightNew } from "./SpotlightNew";
 import { CardFlip } from "./CardFlip";
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function TeamFrontFace({ role, category, icon, img }: any) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="absolute inset-0 z-0">
@@ -27,13 +29,13 @@ function TeamFrontFace({ role, category, icon, img }: any) {
 
         <div className="mt-auto mb-6">
           <h3 className="text-3xl md:text-4xl font-bold tracking-tight text-white leading-snug drop-shadow-lg" style={{ fontFamily: "var(--font-display)" }}>
-            {role}
+            {t(role)}
           </h3>
         </div>
 
         <div className="flex items-end justify-between pt-4 border-t border-white/20">
           <div className="flex items-center gap-2 text-sm font-medium text-[#48cae4] bg-[#48cae4]/10 px-4 py-2 rounded-full backdrop-blur-sm border border-[#48cae4]/30">
-            Cliquer pour les détails
+            {t('common.learnMore')}
             <ArrowRight size={15} strokeWidth={2} />
           </div>
         </div>
@@ -43,14 +45,15 @@ function TeamFrontFace({ role, category, icon, img }: any) {
 }
 
 function TeamBackFace({ detail }: any) {
+  const { t } = useTranslation();
   return (
     <>
       <div>
         <h3 className="text-xl font-semibold tracking-tight text-[#48cae4]">
-          Informations
+          {t('common.info', 'Informations')}
         </h3>
         <p className="mt-3 text-[15px] text-gray-300 leading-relaxed">
-          {detail}
+          {t(detail)}
         </p>
       </div>
 
@@ -58,7 +61,7 @@ function TeamBackFace({ detail }: any) {
         type="button"
         className="mt-auto flex w-full items-center justify-center gap-2 rounded-xl bg-[#48cae4]/20 border border-[#48cae4]/50 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgba(72,202,228,0.3)] transition-colors duration-200 hover:bg-[#48cae4]/40"
       >
-        Prendre rendez-vous
+        {t('buttons.bookAppointment')}
         <ArrowRight size={15} strokeWidth={2.25} />
       </button>
     </>
@@ -131,6 +134,8 @@ export function TeamRingGallery({ roles, categoryTitle }: { roles: Role[], categ
     ];
   }
 
+  const { t } = useTranslation();
+
   return (
     <>
       <SpotlightNew beams={beams as any} className="relative w-full flex flex-col items-center justify-center my-12 py-10">
@@ -139,7 +144,7 @@ export function TeamRingGallery({ roles, categoryTitle }: { roles: Role[], categ
             <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
               {categoryTitle}
             </h3>
-            <p className="text-[#6b7c93] text-sm uppercase tracking-widest font-bold">Faites glisser ou utilisez les flèches</p>
+            <p className="text-[#6b7c93] text-sm uppercase tracking-widest font-bold">{t('common.swipeOrArrows', 'Faites glisser ou utilisez les flèches')}</p>
           </div>
 
           <div

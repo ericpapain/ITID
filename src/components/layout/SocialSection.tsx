@@ -1,5 +1,6 @@
 import { OrbitingLogos } from "../animations/OrbitingLogos";
 import { FaFacebook, FaLinkedin, FaInstagram, FaYoutube } from "react-icons/fa";
+import { useTypewriter } from "../../hooks/useTypewriter";
 
 const SOCIAL_LINKS = [
   { href: "https://facebook.com/itid.france", label: "Facebook", icon: FaFacebook, bg: "#1877F2" },
@@ -9,6 +10,7 @@ const SOCIAL_LINKS = [
 ];
 
 export function SocialSection() {
+  const { displayedText, showCursor, ref: typeRef } = useTypewriter("Suivez l'ITID");
   return (
     <section className="relative py-10 overflow-hidden bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f2] to-[#dcece9]">
       {/* Background Orbit */}
@@ -20,8 +22,9 @@ export function SocialSection() {
         <div className="text-sm font-bold uppercase tracking-widest mb-2" style={{ color: "#2a9d8f" }}>
           Réseaux sociaux
         </div>
-        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
-          Suivez l'ITID
+        <h2 ref={typeRef} className="text-4xl md:text-5xl font-bold mb-4 text-[#1a3a5c] min-h-[1.2em]" style={{ fontFamily: "var(--font-display)" }}>
+          {displayedText}
+          <span className={`inline-block w-[3px] md:w-[4px] h-[0.9em] bg-[#1a3a5c] align-middle ml-1 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-75`} />
         </h2>
         <p className="text-base md:text-lg mb-8 text-gray-600 max-w-2xl mx-auto font-light">
           Actualités médicales, conseils et informations sur nos traitements — directement sur vos plateformes.

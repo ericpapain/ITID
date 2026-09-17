@@ -1,5 +1,6 @@
 import { ShimmerButton } from "../ui/ShimmerButton";
 import type { Video } from "../../data";
+import { useTranslation } from "react-i18next";
 
 interface CartModalProps {
   showCartModal: boolean;
@@ -10,6 +11,8 @@ interface CartModalProps {
 }
 
 export function CartModal({ showCartModal, setShowCartModal, cart, setCart, setShowCartCheckoutModal }: CartModalProps) {
+  const { t } = useTranslation();
+
   if (!showCartModal) return null;
 
   const total = cart.reduce((acc, item) => {
@@ -26,13 +29,13 @@ export function CartModal({ showCartModal, setShowCartModal, cart, setCart, setS
             <button onClick={() => setShowCartModal(false)} className="text-[#cbd5e1] hover:text-[#f8fafc] text-xl font-bold">×</button>
           </div>
 
-          <h2 className="text-2xl font-bold mb-6 text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>Mon Panier</h2>
+          <h2 className="text-2xl font-bold mb-6 text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>{t('cart.title')}</h2>
 
           {cart.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-[#cbd5e1] mb-4">Votre panier est vide.</p>
+              <p className="text-[#cbd5e1] mb-4">{t('cart.empty')}</p>
               <button onClick={() => setShowCartModal(false)} className="px-6 py-3 bg-gray-100 text-[#f8fafc] font-bold rounded-xl hover:bg-gray-200 transition-colors">
-                Explorer les formations
+                {t('cart.explore')}
               </button>
             </div>
           ) : (
@@ -57,14 +60,14 @@ export function CartModal({ showCartModal, setShowCartModal, cart, setCart, setS
         {cart.length > 0 && (
           <div className="bg-gray-50 p-6 md:p-8 border-t border-gray-100 shrink-0">
             <div className="flex justify-between items-center mb-6">
-              <span className="text-[#cbd5e1] font-semibold">Total à régler</span>
+              <span className="text-[#cbd5e1] font-semibold">{t('cart.total')}</span>
               <span className="text-2xl font-bold text-[#f8fafc]">{total} €</span>
             </div>
             <ShimmerButton
               onClick={() => { setShowCartModal(false); setShowCartCheckoutModal(true); }}
               className="w-full py-4 rounded-xl text-base shadow-lg"
             >
-              Passer la commande
+              {t('cart.checkout')}
             </ShimmerButton>
           </div>
         )}

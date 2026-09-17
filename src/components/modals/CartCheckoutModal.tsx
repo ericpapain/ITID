@@ -1,5 +1,6 @@
 import { ShimmerButton } from "../ui/ShimmerButton";
 import type { Video } from "../../data";
+import { useTranslation } from "react-i18next";
 
 interface CartCheckoutModalProps {
   showCartCheckoutModal: boolean;
@@ -16,6 +17,8 @@ export function CartCheckoutModal({
   setCart,
   setPurchasedFormations,
 }: CartCheckoutModalProps) {
+  const { t } = useTranslation();
+
   if (!showCartCheckoutModal) return null;
 
   const total = cart.reduce((acc, item) => {
@@ -35,15 +38,15 @@ export function CartCheckoutModal({
 
         <div className="p-6 border-b border-gray-100 bg-[#f0f7f6]">
           <div className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#2a9d8f" }}>
-            Finaliser la commande
+            {t('checkout.title')}
           </div>
           <h3 className="text-base font-semibold leading-snug" style={{ color: "#f8fafc" }}>
-            Achat de {cart.length} formation(s)
+            {t('checkout.subtitle', { count: cart.length })}
           </h3>
         </div>
 
         <div className="px-6 py-4 flex justify-between items-center text-sm font-semibold border-b border-gray-100">
-          <span style={{ color: "#cbd5e1" }}>Total à régler TTC</span>
+          <span style={{ color: "#cbd5e1" }}>{t('checkout.total')}</span>
           <span className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "#f8fafc" }}>
             {total} €
           </span>
@@ -52,12 +55,12 @@ export function CartCheckoutModal({
         <div className="p-6 space-y-4">
           <div className="pt-2">
             <label className="block text-xs font-semibold mb-1.5" style={{ color: "#f8fafc" }}>
-              Informations de paiement
+              {t('checkout.paymentInfo')}
             </label>
             <div className="relative">
               <input
                 type="text"
-                placeholder="Numéro de carte"
+                placeholder={t('checkout.cardNumber')}
                 className="w-full px-3 py-2.5 pl-10 rounded-xl text-sm outline-none border border-gray-200 bg-white focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">💳</span>
@@ -78,7 +81,7 @@ export function CartCheckoutModal({
 
           <ShimmerButton
             onClick={() => {
-              alert("Paiement validé avec succès !");
+              alert(t('checkout.success'));
               setPurchasedFormations((prev) => {
                 const newFormations = cart.filter((c) => !prev.some((p) => p.id === c.id));
                 return [...prev, ...newFormations];
@@ -88,11 +91,11 @@ export function CartCheckoutModal({
             }}
             className="w-full py-3.5 mt-2 rounded-xl shadow-md"
           >
-            Payer
+            {t('checkout.payBtn')}
           </ShimmerButton>
 
           <p className="text-center text-[10px] text-gray-400 mt-2">
-            Paiement sécurisé. En cliquant sur "Payer", vous acceptez nos CGV.
+            {t('checkout.secure')}
           </p>
         </div>
       </div>

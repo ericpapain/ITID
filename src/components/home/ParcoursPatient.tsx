@@ -1,47 +1,65 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { TimelineHorizontal } from "../ui/TimelineHorizontal";
-import { NoiseGradient } from "../ui/NoiseGradient";
+import { useTypewriter } from "../../hooks/useTypewriter";
+import parcoursVideo from "../../images/parcours-patient.mp4";
+import { PARCOURS } from "../../data";
+import { useTranslation } from "react-i18next";
 
 export function ParcoursPatient() {
+  const { t } = useTranslation();
+  const headerRef = useRef(null);
+  const isInView = useInView(headerRef, { once: true, margin: "-100px" });
+
+  // Utilise le hook que l'on a créé pour un effet parfait et centralisé
+  const { displayedText, showCursor, ref: typeRef } = useTypewriter(
+    "Votre parcours à l’ITID",
+    80,
+    400
+  );
+
   return (
     <section className="relative w-full py-8 overflow-hidden flex flex-col items-center justify-center">
-      {/* Background with same theme as Hero but without the full height lock */}
-      <NoiseGradient className="absolute inset-0 z-0">
-        <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f2] to-[#dcece9] opacity-80" />
-      </NoiseGradient>
+      {/* Background Video */}
+      <div className="absolute inset-0 z-0 overflow-hidden bg-[#0c1a2e]">
+        <video
+          src={parcoursVideo}
+          autoPlay
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-[#0c1a2e]/75 backdrop-blur-[2px]" />
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full flex flex-col items-center">
         {/* Header Section */}
-        <motion.div 
-          className="text-center mb-10"
+        <motion.div
+          ref={headerRef}
+          className="text-center mb-4"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <span className="inline-block py-1 px-3 rounded-full border border-[#2a9d8f]/30 bg-white/50 text-xs font-bold text-[#2a9d8f] tracking-widest uppercase mb-6 shadow-sm">
-            Parcours Patient
-          </span>
-          <h2 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1a3a5c] mb-6 leading-tight"
+          <h2
+            ref={typeRef}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 leading-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Votre parcours à l’ITID
+            {displayedText}
+            <span className={`inline-block w-[3px] md:w-[4px] h-[0.9em] bg-white align-middle ml-1 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-75`} />
           </h2>
         </motion.div>
 
         {/* Timeline Component */}
-        <motion.div 
-          className="w-full"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-        >
-          <div className="w-full">
-            <TimelineHorizontal />
-          </div>
-        </motion.div>
+        <div className="w-full">
+          <TimelineHorizontal milestones={PARCOURS.map(p => ({
+            date: `Étape ${p.step}`,
+            title: t(p.title),
+            description: t(p.desc)
+          }))} />
+        </div>
 
 
       </div>

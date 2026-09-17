@@ -1,4 +1,5 @@
 import { ShimmerButton } from "../ui/ShimmerButton";
+import { useTranslation } from "react-i18next";
 
 interface AuthModalProps {
   showAuthModal: boolean;
@@ -19,6 +20,8 @@ export function AuthModal({
   authMode,
   setAuthMode,
 }: AuthModalProps) {
+  const { t } = useTranslation();
+
   if (!showAuthModal) return null;
 
   return (
@@ -31,10 +34,10 @@ export function AuthModal({
           </div>
 
           <h2 className="text-2xl font-bold mb-2 text-[#f8fafc]" style={{ fontFamily: "var(--font-display)" }}>
-            {authMode === "login" ? "Connexion" : "Créer un compte"}
+            {authMode === "login" ? t('auth.loginTitle') : t('auth.registerTitle')}
           </h2>
           <p className="text-sm text-[#cbd5e1] mb-8">
-            {authMode === "login" ? "Connectez-vous pour accéder au catalogue de formations." : "Rejoignez-nous pour débloquer toutes les vidéos."}
+            {authMode === "login" ? t('auth.loginDesc') : t('auth.registerDesc')}
           </p>
 
           <form
@@ -47,46 +50,46 @@ export function AuthModal({
                 onClick={() => setUserRole("patient")}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "patient" ? "bg-white text-[#f8fafc] shadow-sm" : "text-gray-500 hover:text-[#f8fafc]"}`}
               >
-                Patient
+                {t('auth.patient')}
               </button>
               <button
                 type="button"
                 onClick={() => setUserRole("pro")}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${userRole === "pro" ? "bg-white text-[#f8fafc] shadow-sm" : "text-gray-500 hover:text-[#f8fafc]"}`}
               >
-                Pro de santé
+                {t('auth.pro')}
               </button>
             </div>
 
             {authMode === "register" && (
               <div>
-                <label className="block text-xs font-bold text-[#f8fafc] mb-1">Nom complet</label>
-                <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder={userRole === "pro" ? "Dr. Dupont" : "Jean Dupont"} />
+                <label className="block text-xs font-bold text-[#f8fafc] mb-1">{t('auth.fullName')}</label>
+                <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder={userRole === "pro" ? t('auth.placeholderPro') : t('auth.placeholderPatient')} />
               </div>
             )}
             <div>
-              <label className="block text-xs font-bold text-[#f8fafc] mb-1">Adresse E-mail</label>
+              <label className="block text-xs font-bold text-[#f8fafc] mb-1">{t('auth.email')}</label>
               <input type="email" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder="email@exemple.com" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-[#f8fafc] mb-1">Mot de passe</label>
+              <label className="block text-xs font-bold text-[#f8fafc] mb-1">{t('auth.password')}</label>
               <input type="password" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#2a9d8f]" placeholder="••••••••" />
             </div>
             <ShimmerButton type="submit" className="w-full py-4 mt-4 rounded-xl">
-              {authMode === "login" ? "Se connecter" : "S'inscrire maintenant"}
+              {authMode === "login" ? t('auth.loginBtn') : t('auth.registerBtn')}
             </ShimmerButton>
           </form>
         </div>
 
         <div className="bg-gray-50 p-6 text-center border-t border-gray-100">
           <span className="text-sm text-[#cbd5e1]">
-            {authMode === "login" ? "Vous n'avez pas de compte ?" : "Vous avez déjà un compte ?"}
+            {authMode === "login" ? t('auth.noAccount') : t('auth.hasAccount')}
           </span>
           <button
             onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
             className="ml-2 text-sm font-bold text-[#2a9d8f] hover:underline"
           >
-            {authMode === "login" ? "Créer un compte" : "Se connecter"}
+            {authMode === "login" ? t('auth.createAccount') : t('auth.loginLink')}
           </button>
         </div>
       </div>

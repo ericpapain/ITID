@@ -1,43 +1,50 @@
 import logo from "../../logos/logo ITID 3.png";
 import { TransitionLink } from "../ui/TransitionLink";
-
-const FOOTER_COLUMNS = [
-  {
-    title: "Pathologies",
-    link: "/pathologies",
-    links: ["Lombalgies & sciatiques", "Douleurs neuropathiques", "SDRC / Algodystrophie", "Douleurs pelviennes", "Migraines résistantes"],
-  },
-  {
-    title: "Traitements",
-    link: "/traitements",
-    links: ["Infiltrations", "Perfusions de lidocaïne", "Neuromodulation", "Cryoneurolyse", "Hypnose médicale"],
-  },
-  {
-    title: "Cabinet",
-    link: "/a-propos",
-    links: [
-      { label: "À propos de nous", to: "/a-propos" },
-      { label: "Équipe médicale", to: "/equipe" },
-      { label: "Formations vidéo", to: "/formations" },
-      { label: "Mentions légales", to: "/a-propos" },
-      { label: "Politique de confidentialité", to: "/a-propos" },
-    ],
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export function Footer() {
+  const { t } = useTranslation();
+
+  const FOOTER_COLUMNS = [
+    {
+      title: t("footer.col1.title"),
+      link: "/pathologies",
+      links: [t("footer.col1.l1"), t("footer.col1.l2"), t("footer.col1.l3"), t("footer.col1.l4"), t("footer.col1.l5")],
+    },
+    {
+      title: t("footer.col2.title"),
+      link: "/traitements",
+      links: [t("footer.col2.l1"), t("footer.col2.l2"), t("footer.col2.l3"), t("footer.col2.l4"), t("footer.col2.l5")],
+    },
+    {
+      title: t("footer.col3.title"),
+      link: "/a-propos",
+      links: [
+        { label: t("footer.col3.l1"), to: "/a-propos" },
+        // { label: t("footer.col3.l2"), to: "/equipe" },
+        { label: t("footer.col3.l3"), to: "/formations" },
+        { label: t("footer.col3.l4"), to: "/actualites" },
+        { label: t("footer.col3.l5"), to: "/a-propos" },
+        { label: t("footer.col3.l6"), to: "/a-propos" },
+      ],
+    },
+  ];
+
   return (
     <footer style={{ background: "#0f2440", color: "#8fb3d0" }}>
       <div className="max-w-7xl mx-auto px-6 py-12 grid sm:grid-cols-2 md:grid-cols-4 gap-8">
         <div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2.5 mb-3">
             <img src={logo} alt="ITID Logo" className="w-11 h-11 rounded-full object-contain" />
-            <span className="text-white font-semibold" style={{ fontFamily: "var(--font-display)" }}>ITID France</span>
+            <div className="flex flex-col justify-center">
+              <span className="text-white font-bold text-base leading-none tracking-wider" style={{ fontFamily: "var(--font-display)" }}>ITID</span>
+              <span className="text-[#48cae4] text-[9px] font-bold tracking-[0.2em] uppercase leading-none mt-0.5">France</span>
+            </div>
           </div>
           <p className="text-xs leading-relaxed mb-3">
-            Institut du Traitement Interventionnel de la Douleur — Troyes, Aube.
+            {t("footer.info.desc1")}
           </p>
-          <p className="text-xs" style={{ color: "#5a7a98" }}>Espace Médical de Spécialistes de Champagne</p>
+          <p className="text-xs" style={{ color: "#5a7a98" }}>{t("footer.info.desc2")}</p>
         </div>
 
         {FOOTER_COLUMNS.map((col) => (
@@ -68,8 +75,8 @@ export function Footer() {
         className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-2 text-xs"
         style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <span>© 2025 ITID France — Tous droits réservés</span>
-        <span style={{ color: "#5a7a98" }}>25 av. des Mailles, 10800 TROYES — 03 51 53 20 26</span>
+        <span>{t("footer.info.rights")}</span>
+        <span style={{ color: "#5a7a98" }}>{t("footer.info.address")}</span>
       </div>
     </footer>
   );

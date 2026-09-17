@@ -1,5 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 function AnimatedCounter({ from = 0, to, duration = 2, suffix = "" }: { from?: number; to: number; duration?: number; suffix?: string }) {
   const ref = useRef(null);
@@ -25,11 +26,12 @@ function AnimatedCounter({ from = 0, to, duration = 2, suffix = "" }: { from?: n
 }
 
 export function StatsPremium() {
+  const { t } = useTranslation();
   const stats = [
-    { value: 5000, suffix: "+", label: "Patients pris en charge" },
-    { value: 15, suffix: "", label: "Spécialistes dédiés" },
-    { value: 98, suffix: "%", label: "Taux de satisfaction" },
-    { value: 10, suffix: "+", label: "Protocoles innovants" },
+    { value: 5000, suffix: "+", label: t('stats.patients') },
+    { value: 15, suffix: "", label: t('stats.specialists') },
+    { value: 98, suffix: "%", label: t('stats.satisfaction') },
+    { value: 10, suffix: "+", label: t('stats.protocols') },
   ];
 
   return (
@@ -37,7 +39,7 @@ export function StatsPremium() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-[#d8d2c8]/50">
           {stats.map((stat, idx) => (
-            <div 
+            <div
               key={idx}
               className="text-center px-4 group"
             >

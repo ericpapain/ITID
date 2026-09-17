@@ -25,7 +25,8 @@ export function Face({
         transform: back ? "rotateY(180deg)" : undefined,
       }}
       className={cn(
-        "absolute inset-0 flex flex-col overflow-hidden rounded-[26px] border border-white/10 bg-[#0c1a2e]",
+        "absolute inset-0 flex flex-col overflow-hidden rounded-[26px] border border-white/10",
+        back ? "bg-gradient-to-br from-[#2a5080] to-[#1a3a5c]" : "bg-[#0c1a2e]",
         "shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_20px_50px_-24px_rgba(0,0,0,0.9)]",
         className
       )}

@@ -87,20 +87,24 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
             Accès strictement réservé
           </h2>
           <p className="text-lg mb-8" style={{ color: "#6b7c93" }}>
-            L'Assistant IA ITID est un outil d'aide au diagnostic exclusif aux professionnels de santé. Cet outil ne doit en aucun cas être utilisé pour l'autodiagnostic.
+            L'outil « Docteur j'ai une question » est un outil d'aide au diagnostic exclusif aux professionnels de santé. Cet outil ne doit en aucun cas être utilisé pour l'autodiagnostic.
           </p>
           <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-2xl mb-8">
             <p className="text-sm text-yellow-800 font-medium">
               Si vous êtes praticien, veuillez vous connecter avec un compte validé "Professionnel de santé" pour débloquer cette fonctionnalité.
             </p>
           </div>
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className="px-8 py-4 rounded-xl font-bold text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
-            style={{ background: "#2a9d8f" }}
-          >
-            {isAuthenticated ? "Modifier mon profil" : "Me connecter en tant que Pro"}
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              disabled
+              className="px-8 py-4 rounded-xl font-bold text-gray-500 bg-gray-200 border border-gray-300 cursor-not-allowed opacity-70 shadow-none select-none"
+            >
+              {isAuthenticated ? "Modifier mon profil" : "Me connecter en tant que Pro"}
+            </button>
+            <span className="text-sm font-medium text-[#6b7c93] bg-gray-100/90 px-4 py-3 rounded-xl border border-gray-200 shadow-sm">
+              ⏳ Cette fonctionnalité arrive bientôt
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -177,7 +181,7 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#2a9d8f]/10 flex items-center justify-center text-[#2a9d8f] text-xl font-bold">IA</div>
               <div>
-                <h2 className="font-bold text-[#1a3a5c] leading-tight">Assistant Clinique IA</h2>
+                <h2 className="font-bold text-[#1a3a5c] leading-tight">Docteur j'ai une question</h2>
                 <div className="text-[10px] uppercase font-bold text-[#2a9d8f] tracking-wider">Expertise Douleur Chronique</div>
               </div>
             </div>

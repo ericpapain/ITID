@@ -1,27 +1,45 @@
 import { useState } from "react";
 import { TransitionLink } from "../ui/TransitionLink";
+import { ShimmerButton } from "../ui/ShimmerButton";
 import { TeamRingGallery } from "../ui/TeamRingGallery";
 import { TEAM_ROLES } from "../../data";
 
 import equipepaintImg from "../../images/equipepaint.png";
 import equipePhoto from "../../images/equipebloc.jpg";
+import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export function EquipePage() {
+  const { t } = useTranslation();
   const [teamFilter, setTeamFilter] = useState("Tous");
+
+  const items = TEAM_ROLES.map(item => ({
+    ...item,
+    role: t(item.role),
+    detail: t(item.detail)
+  }));
 
   return (
     <div className="pt-32 pb-12 min-h-screen relative overflow-hidden text-[#1a3a5c]">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <img src={equipepaintImg} alt="Fond Equipe ITID" className="w-full h-full object-cover opacity-15 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/70 to-white/95" />
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#0c1a2e]">
+        <motion.img 
+          src={equipePhoto} 
+          alt="Fond Equipe ITID" 
+          initial={{ scale: 1 }}
+          animate={{ scale: 1.1 }}
+          transition={{ duration: 12, ease: "easeOut" }}
+          className="w-full h-full object-cover opacity-40 mix-blend-overlay" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/80 to-white/95" />
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <TransitionLink
+        <ShimmerButton
+          as="Link"
           to="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#6b7c93" }}
+          className="mb-8"
         >
-          ←  Retour à l'accueil
-        </TransitionLink>
+          ← Retour à l'accueil
+        </ShimmerButton>
         <div className="mb-8">
           <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>L'équipe ITID</h2>
           <p className="text-base leading-relaxed max-w-2xl text-gray-600">
@@ -36,7 +54,7 @@ export function EquipePage() {
             className="w-full px-5 py-3.5 rounded-xl border border-gray-200 text-sm font-semibold outline-none focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 transition-all appearance-none cursor-pointer bg-white"
             style={{ color: "#1a3a5c" }}
           >
-            {["Tous", ...Array.from(new Set(TEAM_ROLES.map(t => t.role)))].map(filter => (
+            {["Tous", ...Array.from(new Set(items.map(t => t.role)))].map(filter => (
               <option key={filter} value={filter}>{filter === "Tous" ? "Toutes les spécialités" : filter}</option>
             ))}
           </select>
@@ -60,7 +78,7 @@ export function EquipePage() {
 
         <div className="space-y-4">
           {["Medecin", "Infirmière", "Secretaire"].map((cat) => {
-            const filteredRoles = TEAM_ROLES.filter(t => t.category === cat && (teamFilter === "Tous" || t.role === teamFilter));
+            const filteredRoles = items.filter(t => t.category === cat && (teamFilter === "Tous" || t.role === teamFilter));
             if (filteredRoles.length === 0) return null;
 
             const title = cat === "Medecin" ? "Équipe Médicale" : cat === "Infirmière" ? "Équipe Paramédicale" : "Secrétariat & Accueil";

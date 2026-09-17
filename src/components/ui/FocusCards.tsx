@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { useTranslation } from "react-i18next";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -35,6 +36,7 @@ function FocusCard({
   onClick?: () => void;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const orbAColor = item.orbA || "rgba(42,157,143,0.6)";
   const orbBColor = item.orbB || "rgba(72,209,194,0.45)";
   const bgStyle = item.img
@@ -138,7 +140,7 @@ function FocusCard({
           >
             <p className="text-sm text-gray-200 leading-relaxed font-light">{item.meta}</p>
             <span className="inline-flex w-fit items-center gap-2 rounded-xl bg-[#2a9d8f] px-5 py-2.5 text-xs font-bold text-white shadow-lg transition-all group-hover:bg-[#21867a] group-hover:translate-x-1">
-              En savoir plus
+              {t('common.learnMore')}
               <ArrowRight className="h-4 w-4" />
             </span>
           </motion.div>

@@ -1,0 +1,690 @@
+{
+  "common": {
+    "seeMore": "Voir plus",
+    "learnMore": "En savoir plus",
+    "close": "Fermer",
+    "backHome": "Retour à l'accueil",
+    "backNews": "Retour aux actualités",
+    "backCatalog": "Retour aux catalogues",
+    "backCatalogList": "Retour à la liste du catalogue",
+    "backLibrary": "Retour à la bibliothèque",
+    "backInfo": "Retour aux infos",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "success": "Succès",
+    "noResult": "Aucun résultat",
+    "search": "Rechercher",
+    "searchCondition": "Rechercher une pathologie...",
+    "searchTreatment": "Rechercher un traitement...",
+    "select": "Sélectionner",
+    "chooseCondition": "Choisir une pathologie",
+    "chooseTreatment": "Choisir un traitement",
+    "all": "Tous",
+    "readMore": "Lire plus",
+    "read": "Lire",
+    "learnMoreWiki": "En savoir plus sur Wikipédia ↗",
+    "multiSelect": "Sélection multiple",
+    "suggestedFormations": "Formations suggérées",
+    "selectArea": "Sélectionnez une zone",
+    "zones": "Zones :",
+    "addToCart": "Ajouter la sélection au panier"
+  },
+  "buttons": {
+    "bookAppointment": "Prendre rendez-vous",
+    "contactUs": "Nous contacter",
+    "discover": "Découvrez",
+    "send": "Envoyer",
+    "cancel": "Annuler",
+    "validate": "Valider",
+    "retry": "Réessayer",
+    "login": "Se connecter",
+    "signup": "S'inscrire"
+  },
+  "filters": {
+    "allSpecialties": "Toutes les spécialités",
+    "healthcarePro": "Médecins & Spécialistes",
+    "public": "Grand public",
+    "paramedical": "Paramédical",
+    "medicalTeam": "Équipe Médicale",
+    "paramedicalTeam": "Équipe Paramédicale",
+    "secretariat": "Secrétariat & Accueil"
+  },
+  "nav": {
+    "home": "Accueil",
+    "pathologies": "Pathologies",
+    "treatments": "Traitements",
+    "news": "Actualités",
+    "team": "Équipe",
+    "training": "Formations",
+    "ai": "Docteur j'ai une question",
+    "about": "A propos de nous"
+  },
+  "pathologies": {
+    "lombalgie": {
+      "title": "Lombalgie chronique",
+      "desc": "Les douleurs lombaires persistantes, avec ou sans irradiation dans la jambe (sciatique ou cruralgie), peuvent être liées à l'arthrose, à une hernie discale, à un rétrécissement du canal lombaire (canal lombaire étroit) ou à d'autres atteintes de la colonne vertébrale.\n\nSelon la cause identifiée, plusieurs techniques interventionnelles peuvent être proposées, notamment des infiltrations rachidiennes guidées, des blocs diagnostiques ou des traitements ciblés des structures responsables de la douleur.\n\nUne évaluation spécialisée permet de déterminer les solutions les plus adaptées pour améliorer votre confort quotidien et votre mobilité."
+    },
+    "nevralgie_arnold": {
+      "title": "Névralgie d'Arnold",
+      "desc": "La névralgie d'Arnold se manifeste par des douleurs localisées à l'arrière du crâne, de la nuque et parfois du cuir chevelu. Ces douleurs peuvent être déclenchées ou aggravées par certains mouvements du cou.\n\nLorsque les traitements conventionnels ne suffisent pas, des solutions interventionnelles telles que les infiltrations ciblées ou la cryoneurolyse peuvent être proposées.\n\nL'objectif est de réduire durablement la douleur et d'améliorer la qualité de vie des patients souffrant de cette affection souvent invalidante."
+    },
+    "sdrc": {
+      "title": "Syndrome douloureux régional complexe (SDRC)",
+      "desc": "Le SDRC, anciennement appelé algodystrophie, est une douleur persistante qui survient généralement après un traumatisme, une intervention chirurgicale ou une immobilisation.\n\nCette pathologie peut s'accompagner :\n- d'une hypersensibilité importante ;\n- d'un gonflement du membre atteint ;\n- de troubles de la mobilité ;\n- de modifications de la température ou de la couleur de la peau.\n\nDans certaines situations, des techniques avancées de neuromodulation, comme la stimulation du ganglion dorsal, peuvent être envisagées après une évaluation spécialisée."
+    },
+    "endometriose": {
+      "title": "Endométriose et douleurs pelviennes chroniques",
+      "desc": "Les douleurs pelviennes chroniques associées à l'endométriose peuvent avoir un impact majeur sur la vie quotidienne, professionnelle et familiale.\n\nL'ITID travaille en collaboration avec les gynécologues et les équipes spécialisées afin de proposer une prise en charge globale.\n\nSelon chaque situation, des traitements interventionnels ciblés peuvent contribuer à diminuer l'intensité des douleurs, améliorer le confort et réduire le recours aux traitements médicamenteux."
+    },
+    "douleurs_articulaires": {
+      "title": "Douleurs articulaires (épaule, hanche, genou...)",
+      "desc": "Les douleurs articulaires peuvent être liées :\n- à l'arthrose ;\n- aux tendinites ;\n- aux lésions traumatiques ;\n- aux séquelles d'interventions chirurgicales.\n\nSelon l'origine de la douleur, différentes approches sont possibles, parmi lesquelles les infiltrations articulaires échoguidées ou radioguidées, ainsi que d'autres traitements spécialisés visant à restaurer la fonction articulaire et à réduire l'inflammation."
+    },
+    "fibromyalgie": {
+      "title": "Fibromyalgie",
+      "desc": "La fibromyalgie est une affection caractérisée par des douleurs diffuses et persistantes associées à une fatigue importante, des troubles du sommeil, des difficultés de concentration et parfois une hypersensibilité sensorielle.\n\nLa prise en charge repose sur une approche multidisciplinaire pouvant associer traitements médicamenteux, activité physique adaptée, accompagnement psychocorporel et, dans certaines situations, des techniques spécifiques comme certaines perfusions antalgiques.\n\nChaque plan thérapeutique est individualisé afin de tenir compte des besoins particuliers du patient."
+    },
+    "douleurs_neuropathiques": {
+      "title": "Douleurs neuropathiques",
+      "desc": "Les douleurs neuropathiques résultent d'une atteinte ou d'un dysfonctionnement du système nerveux.\n\nElles peuvent se manifester sous forme :\n- de brûlures ;\n- de décharges électriques ;\n- de fourmillements ;\n- d'engourdissements ;\n- d'hypersensibilité au toucher.\n\nCes douleurs peuvent être liées au diabète, à une chirurgie, à un traumatisme, à un zona ou à certaines atteintes neurologiques. Lorsque les traitements conventionnels sont insuffisants, des techniques spécialisées (rTMS, neuromodulation) peuvent être proposées."
+    },
+    "douleurs_post_op": {
+      "title": "Douleurs post-opératoires et post-traumatiques chroniques",
+      "desc": "Certaines douleurs persistent plusieurs mois après une chirurgie ou un traumatisme malgré la guérison des tissus.\n\nCes douleurs peuvent avoir une composante inflammatoire, neurologique ou mécanique nécessitant une prise en charge spécifique.\n\nAprès un bilan approfondi, plusieurs options thérapeutiques peuvent être envisagées : infiltrations ciblées, cryoneurolyse, radiofréquence ou autres traitements interventionnels adaptés à la situation clinique."
+    },
+    "migraine": {
+      "title": "Céphalées et migraines résistantes",
+      "desc": "Les céphalées chroniques et migraines résistantes aux traitements habituels peuvent entraîner une altération importante de la qualité de vie.\n\nUne consultation spécialisée permet d'identifier les facteurs déclenchants, d'évaluer les mécanismes en cause et de mettre en place une stratégie thérapeutique personnalisée.\n\nCertaines infiltrations ciblées ou techniques interventionnelles peuvent être proposées chez des patients sélectionnés afin de réduire la fréquence et l'intensité des crises."
+    }
+  },
+  "treatments": {
+    "t01": {
+      "title": "Infiltrations rachidiennes et épidurales",
+      "desc": "Les infiltrations rachidiennes et épidurales consistent à injecter un médicament anti-inflammatoire ou anesthésique à proximité des structures responsables de la douleur.\n\nCes techniques sont notamment utilisées dans :\n- les lombalgies ;\n- les sciatiques ;\n- les hernies discales ;\n- certaines douleurs cervicales.\n\nRéalisées sous contrôle radiologique ou échographique, elles permettent un traitement précis et sécurisé."
+    },
+    "t02": {
+      "title": "Infiltrations pour les douleurs articulaires",
+      "desc": "Les infiltrations articulaires constituent une option thérapeutique reconnue pour certaines douleurs de l'épaule, du genou, de la hanche ou d'autres articulations.\n\nElles peuvent réduire l'inflammation, soulager la douleur et favoriser la récupération fonctionnelle lorsque les traitements habituels se révèlent insuffisants."
+    },
+    "t03": {
+      "title": "Perfusions de lidocaïne",
+      "desc": "La perfusion de lidocaïne est utilisée dans certaines douleurs chroniques, notamment neuropathiques, lorsque les traitements médicamenteux conventionnels n'apportent pas un soulagement satisfaisant.\n\nRéalisée sous surveillance médicale, cette approche peut permettre une diminution significative de l'intensité douloureuse chez certains patients."
+    },
+    "t04": {
+      "title": "Stimulation du ganglion dorsal",
+      "desc": "Technique avancée de neuromodulation, la stimulation du ganglion dorsal agit sur des structures nerveuses impliquées dans la transmission de la douleur.\n\nElle est particulièrement étudiée dans certaines douleurs neuropathiques sévères et dans le syndrome douloureux régional complexe (SDRC)."
+    },
+    "t05": {
+      "title": "Cryoneurolyse",
+      "desc": "La cryoneurolyse consiste à appliquer un froid contrôlé sur un nerf identifié comme responsable de la douleur.\n\nCette technique mini-invasive vise à interrompre temporairement la transmission des signaux douloureux tout en préservant les structures environnantes.\n\nElle peut être proposée dans certaines douleurs chroniques localisées ou spasticités."
+    },
+    "t06": {
+      "title": "rTMS",
+      "desc": "La rTMS utilise des impulsions magnétiques non invasives appliquées au niveau du cerveau pour moduler certains circuits impliqués dans la perception de la douleur.\n\nCette technique innovante peut être proposée dans certaines douleurs chroniques résistantes aux traitements conventionnels."
+    },
+    "t07": {
+      "title": "Blocs anesthésiques périphériques",
+      "desc": "Les blocs anesthésiques périphériques permettent d'injecter un anesthésique local à proximité d'un nerf ou d'un groupe de nerfs.\n\nIls peuvent être utilisés à visée diagnostique ou thérapeutique afin d'identifier l'origine de certaines douleurs et d'apporter un soulagement parfois immédiat."
+    },
+    "t08": {
+      "title": "Radiofréquence",
+      "desc": "La radiofréquence est une technique qui utilise une énergie thermique contrôlée pour agir sur les fibres nerveuses responsables de certaines douleurs chroniques.\n\nElle est fréquemment utilisée dans les douleurs rachidiennes, articulaires ou liées à certaines atteintes nerveuses."
+    },
+    "t09": {
+      "title": "Toxine botulique",
+      "desc": "La toxine botulique peut être utilisée dans certaines douleurs musculaires, neuropathiques ou liées à une spasticité.\n\nSon administration est réalisée après une évaluation médicale précise afin d'identifier les patients susceptibles d'en tirer le meilleur bénéfice."
+    },
+    "t10": {
+      "title": "TENS",
+      "desc": "Le TENS est un dispositif portable qui délivre de faibles impulsions électriques à travers la peau.\n\nCette technique non invasive peut contribuer à diminuer certaines douleurs chroniques et constitue souvent un complément utile dans une prise en charge globale."
+    },
+    "t11": {
+      "title": "Cathéter péri-nerveux",
+      "desc": "Le cathéter péri-nerveux permet l'administration continue d'un anesthésique local à proximité d'un nerf sur plusieurs heures ou plusieurs jours.\n\nIl est particulièrement utile dans certaines douleurs post-opératoires complexes ou douleurs post-traumatiques sévères."
+    },
+    "t12": {
+      "title": "Patch de capsaïcine (Qutenza®)",
+      "desc": "Le patch de capsaïcine haute concentration est destiné au traitement de certaines douleurs neuropathiques localisées.\n\nSon application est réalisée au cabinet médical dans un environnement sécurisé et sous supervision spécialisée.\n\nLe traitement peut procurer un soulagement prolongé pendant plusieurs semaines ou plusieurs mois chez certains patients."
+    },
+    "t13": {
+      "title": "Hypnose par réalité virtuelle (HypnoVR)",
+      "desc": "L'HypnoVR associe les bénéfices de l'hypnose médicale aux technologies immersives de réalité virtuelle.\n\nCette approche innovante permet de réduire l'anxiété, d'améliorer le confort du patient et de participer à la gestion de certaines douleurs chroniques ou liées aux soins médicaux."
+    },
+    "t14": {
+      "title": "Stimulation médullaire",
+      "desc": "La stimulation médullaire est une technique de neuromodulation consistant à délivrer des impulsions électriques contrôlées au niveau de la moelle épinière.\n\nElle est réservée à certaines douleurs chroniques sévères et résistantes aux traitements conventionnels.\n\nAprès une phase d'évaluation, elle peut permettre une réduction significative de la douleur et une amélioration de la qualité de vie."
+    }
+  },
+  "team": {
+    "medecin_algologue": {
+      "role": "Médecin algologue",
+      "detail": "Spécialiste de l'évaluation et du traitement de la douleur. Ils incluent également des médecins en formation spécialisée, apportant expertise clinique et innovation dans chaque protocole de soins."
+    },
+    "neurologue": {
+      "role": "Neurologue",
+      "detail": "Collaborateur expert du système nerveux central et périphérique. Intervient spécifiquement sur les douleurs neuropathiques et les migraines complexes."
+    },
+    "psychiatre": {
+      "role": "Psychiatre",
+      "detail": "Un soutien psychologique fondamental, totalement intégré au parcours. Vous accompagne pour gérer l'impact émotionnel et cognitif de la douleur chronique."
+    },
+    "gynecologue": {
+      "role": "Gynécologue",
+      "detail": "Médecin spécialisé dans la prise en charge des douleurs pelviennes, de l'endométriose et des troubles fonctionnels associés."
+    },
+    "urologue": {
+      "role": "Urologue",
+      "detail": "Médecin spécialisé dans la prise en charge des douleurs pelviennes, de l'endométriose et des troubles fonctionnels associés."
+    },
+    "infirmiere_douleur": {
+      "role": "Infirmière spécialisée douleur",
+      "detail": "Véritables piliers du centre, elles sont présentes à chaque étape de votre suivi, assurent les soins techniques et garantissent un soutien continu."
+    },
+    "psychologue": {
+      "role": "Psychologue",
+      "detail": "Un soutien psychologique fondamental, totalement intégré au parcours. Vous accompagne pour gérer l'impact émotionnel et cognitif de la douleur chronique."
+    },
+    "hypno_sophro": {
+      "role": "Hypnothérapeute & Sophrologue",
+      "detail": "Partenaire dédié aux approches complémentaires non-médicamenteuses. Utilise la relaxation profonde pour modifier votre perception de la douleur."
+    },
+    "secretaire": {
+      "role": "Secrétaire médicale",
+      "detail": "Premier contact de votre parcours. Assure l'accueil, la coordination de vos rendez-vous pluridisciplinaires et l'accompagnement administratif."
+    }
+  },
+  "parcours": {
+    "step1": {
+      "title": "Orientation médicale",
+      "desc": "Adressé par votre médecin traitant ou un spécialiste."
+    },
+    "step2": {
+      "title": "Consultation d'évaluation",
+      "desc": "Bilan complet avec un médecin algologue."
+    },
+    "step3": {
+      "title": "Plan de traitement",
+      "desc": "Protocole personnalisé, co-construit avec l'équipe."
+    },
+    "step4": {
+      "title": "Suivi & réévaluation",
+      "desc": "Ajustements réguliers pour une prise en charge optimale."
+    }
+  },
+  "formations": {
+    "pro": {
+      "tag": "Professionnel de santé",
+      "title": "Douleur Chronique : Évaluation & Prise en Charge Interventionnelle",
+      "desc": "Découvrez notre parcours complet de formations vidéo à destination des médecins et spécialistes."
+    },
+    "public": {
+      "tag": "Grand public",
+      "title": "Comprendre et Mieux Vivre avec la Douleur Chronique",
+      "desc": "Modules pédagogiques pour vous aider à comprendre et apaiser votre douleur au quotidien."
+    },
+    "paramedical": {
+      "tag": "Infirmier·ère / Kiné",
+      "title": "Techniques d'Évaluation et Outils d'Accompagnement",
+      "desc": "Catalogue de formations sur le suivi et l'accompagnement thérapeutique."
+    }
+  },
+  "contact": {
+    "title": "Contact & RDV",
+    "subtitle": "Nous contacter",
+    "desc": "La prise en charge à l'ITID nécessite une orientation par votre médecin traitant ou un spécialiste. N'hésitez pas à nous contacter pour toute question.",
+    "form": {
+      "name": "Nom complet",
+      "email": "Adresse email",
+      "phone": "Téléphone",
+      "subject": "Motif du contact",
+      "options": {
+        "rdv": "Demande de rendez-vous",
+        "info": "Demande d'information",
+        "pro": "Contact professionnel",
+        "other": "Autre"
+      },
+      "message": "Votre message",
+      "placeholder": "Votre question ou motif de contact…",
+      "submit": "Envoyer le message",
+      "success": "Message envoyé avec succès !",
+      "sending": "Envoi en cours..."
+    },
+    "info": {
+      "address": "Adresse",
+      "address_val": "Hopitaux Privés de Metz - Hôpital Robert Schuman\nRue du Champ Montoy\n57070 Vantoux",
+      "phone": "Téléphone",
+      "email": "Email",
+      "hours": "Heures d'ouverture",
+      "hours_val": "Lundi - Vendredi: 8h30 - 18h00\nFermé le week-end et jours fériés"
+    }
+  },
+  "footer": {
+    "col1": {
+      "title": "Pathologies",
+      "l1": "Lombalgies & sciatiques",
+      "l2": "Douleurs neuropathiques",
+      "l3": "SDRC / Algodystrophie",
+      "l4": "Douleurs pelviennes",
+      "l5": "Migraines résistantes"
+    },
+    "col2": {
+      "title": "Traitements",
+      "l1": "Infiltrations",
+      "l2": "Perfusions de lidocaïne",
+      "l3": "Neuromodulation",
+      "l4": "Cryoneurolyse",
+      "l5": "Hypnose médicale"
+    },
+    "col3": {
+      "title": "Cabinet",
+      "l1": "À propos de nous",
+      "l2": "Équipe médicale",
+      "l3": "Formations vidéo",
+      "l4": "Actualités & Blog",
+      "l5": "Mentions légales",
+      "l6": "Politique de confidentialité"
+    },
+    "info": {
+      "desc1": "Institut du Traitement Interventionnel de la Douleur — Troyes, Aube.",
+      "desc2": "Espace Médical de Spécialistes de Champagne",
+      "rights": "© 2025 ITID France — Tous droits réservés",
+      "address": "25 av. des Mailles, 10800 TROYES — 03 51 53 20 26"
+    }
+  },
+  "about": {
+    "title": "À propos de l'ITID",
+    "desc": "L'Institut du Traitement Interventionnel de la Douleur (ITID) se consacre à l'amélioration de la qualité de vie des patients souffrant de douleurs chroniques grâce à des approches médicales innovantes, technologiques et humaines.",
+    "services": {
+      "title": "Services Proposés",
+      "consultations": "Consultations pluridisciplinaires (Algologues, Neurologues, Psychiatres)",
+      "treatments": "Traitements interventionnels sous imagerie (Infiltrations, Cryoneurolyse...)",
+      "pathway": "Parcours de soins personnalisés et suivi global",
+      "psychology": "Accompagnement psychologique et sophrologie",
+      "elearning": "Formations en ligne (E-learning) pour professionnels et patients",
+      "ai": "Assistant IA médical interactif disponible 24/7",
+      "3d": "Modélisation anatomique 3D pour l'évaluation des douleurs"
+    },
+    "info": {
+      "title": "Informations Utiles",
+      "clickMap": "Cliquer pour voir la carte 🗺️",
+      "addressTitle": "Adresse :",
+      "address": "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne",
+      "hoursTitle": "Heures d'ouverture :",
+      "hours": "Lundi au Vendredi : 08h30 - 18h30\nFermé le week-end",
+      "contactTitle": "Contact :",
+      "contact": "Tél : 03 51 53 20 26",
+      "mapHint": "💡 Cliquez sur la carte pour afficher la carte interactive",
+      "mapTitle": "Localisation ITID — Troyes",
+      "mapAddress": "25 avenue des Mailles, 10800 Saint-Julien-les-Villas (Troyes)",
+      "visit": "Visitez l'ITID"
+    },
+    "newsletter": {
+      "title": "Rejoignez notre Newsletter",
+      "desc": "Recevez nos dernières actualités médicales, conseils santé et informations sur les avancées de nos traitements.",
+      "placeholder": "Votre adresse e-mail",
+      "success": "Merci pour votre inscription !"
+    }
+  },
+  "profil": {
+    "profession": "Profession",
+    "painDoctor": "Médecin Algologue",
+    "password": "Mot de passe",
+    "editInfo": "Modifier mes informations",
+    "logout": "Se déconnecter",
+    "progress": "Progression: 0% • {{count}} modules",
+    "courseContent": "Contenu du cours",
+    "module": "Module",
+    "myLibrary": "Ma Bibliothèque ({{count}})",
+    "noFormations": "Vous n'avez pas encore de formations",
+    "discoverCatalog": "Découvrez nos catalogues et commencez votre apprentissage dès aujourd'hui.",
+    "exploreCatalog": "Explorer les catalogues",
+    "acquired": "Acquis",
+    "continueLearning": "Continuer l'apprentissage",
+    "modulesCount": "{{count}} modules"
+  },
+  "blog": {
+    "title": "Actualités & Avancées Médicales",
+    "subtitle": "Découvrez nos derniers articles, innovations thérapeutiques et conseils pour mieux vivre au quotidien avec la douleur chronique.",
+    "noArticles": "Aucun article trouvé dans cette catégorie pour le moment.",
+    "notFound": "Article introuvable",
+    "goFurther": "Pour aller plus loin",
+    "similarArticles": "Articles similaires",
+    "readArticle": "Lire l'article"
+  },
+  "hero": {
+    "title1": "L'Avenir du ",
+    "title2": "Traitement de la Douleur",
+    "subtitle": "Des protocoles interventionnels de pointe, guidés par imagerie, pour une prise en charge globale, innovante et humaine.",
+    "discoverExpertise": "Découvrir nos expertises",
+    "discover": "Découvrir"
+  },
+  "immersion": {
+    "title": "Au-delà de la médecine,\nle bien-être profond.",
+    "desc": "À l'ITID, nous croyons que l'apaisement de l'esprit est aussi crucial que le traitement du corps. Nos environnements sont conçus pour réduire le stress, inspirer le calme et favoriser la guérison.",
+    "discoverPhilosophy": "Découvrir notre philosophie"
+  },
+  "stats": {
+    "patients": "Patients pris en charge",
+    "specialists": "Spécialistes dédiés",
+    "satisfaction": "Taux de satisfaction",
+    "protocols": "Protocoles innovants"
+  },
+  "masonry": {
+    "title1": "Cas ",
+    "title2": "Cliniques",
+    "discoverMore": "Découvrir plus",
+    "p1": { "title": "Cas Clinique #1", "cat": "Infiltration lombaire" },
+    "p2": { "title": "Cas Clinique #2", "cat": "Radiofréquence" },
+    "p3": { "title": "Cas Clinique #3", "cat": "Douleur pelvienne" },
+    "p4": { "title": "Cas Clinique #4", "cat": "Bloc nerveux" },
+    "p5": { "title": "Innovation #5", "cat": "Réalité Virtuelle" },
+    "p6": { "title": "Cas Clinique #6", "cat": "Céphalées chroniques" },
+    "p7": { "title": "Cas Clinique #7", "cat": "Névralgie cervico-brachiale" },
+    "p8": { "title": "Cas Clinique #8", "cat": "SDRC Type 1" },
+    "p9": { "title": "Innovation #9", "cat": "Neuromodulation" }
+  },
+  "auth": {
+    "loginTitle": "Connexion",
+    "registerTitle": "Créer un compte",
+    "loginDesc": "Connectez-vous pour accéder au catalogue de formations.",
+    "registerDesc": "Rejoignez-nous pour débloquer toutes les vidéos.",
+    "patient": "Patient",
+    "pro": "Pro de santé",
+    "fullName": "Nom complet",
+    "placeholderPro": "Dr. Dupont",
+    "placeholderPatient": "Jean Dupont",
+    "email": "Adresse E-mail",
+    "password": "Mot de passe",
+    "loginBtn": "Se connecter",
+    "registerBtn": "S'inscrire maintenant",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "createAccount": "Créer un compte",
+    "loginLink": "Se connecter"
+  },
+  "cart": {
+    "title": "Mon Panier",
+    "empty": "Votre panier est vide.",
+    "explore": "Explorer les formations",
+    "total": "Total à régler",
+    "checkout": "Passer la commande"
+  },
+  "checkout": {
+    "title": "Finaliser la commande",
+    "subtitle": "Achat de {{count}} formation(s)",
+    "total": "Total à régler TTC",
+    "paymentInfo": "Informations de paiement",
+    "cardNumber": "Numéro de carte",
+    "payBtn": "Payer",
+    "success": "Paiement validé avec succès !",
+    "secure": "Paiement sécurisé. En cliquant sur \"Payer\", vous acceptez nos CGV."
+  },
+  "contact": {
+    "subtitle": "Contact & RDV",
+    "title": "Nous contacter",
+    "desc": "La prise en charge à l'ITID nécessite une orientation par votre médecin traitant ou un spécialiste. N'hésitez pas à nous contacter pour toute question.",
+    "address": "Adresse",
+    "addressVal": "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne",
+    "phone": "Téléphone",
+    "phoneVal": "03 51 53 20 26",
+    "hours": "Horaires",
+    "hoursVal": "Lundi – Vendredi : 8h30 – 18h00\nSur rendez-vous uniquement",
+    "appointment": "Prise de RDV",
+    "appointmentVal": "Via Doctolib",
+    "doctolibBtn": "📅 Prendre RDV sur Doctolib",
+    "sentTitle": "Message envoyé !",
+    "sentDesc": "Nous vous répondrons dans les 24 heures ouvrées.",
+    "formTitle": "Envoyer un message",
+    "youAre": "Vous êtes",
+    "patient": "Patient",
+    "pro": "Professionnel de santé",
+    "fullName": "Nom complet",
+    "email": "Email",
+    "phoneField": "Téléphone",
+    "message": "Message",
+    "messagePlaceholder": "Votre question ou motif de contact…",
+    "gdpr": "Données protégées — RGPD"
+  },
+  "blogData": {
+    "categories": {
+      "innovations": "Innovations Médicales",
+      "conseils": "Conseils Patients",
+      "traitements": "Nos Traitements",
+      "vie": "Vie du Centre"
+    },
+    "nouvelle-approche-neuromodulation": {
+      "title": "La Neuromodulation Médullaire : Une révolution silencieuse",
+      "summary": "Découvrez comment les implants de nouvelle génération transforment le quotidien des patients souffrant de douleurs neuropathiques réfractaires.",
+      "authorRole": "Neurochirurgien / Algologue",
+      "readTime": "5 min",
+      "sections": {
+        "s0": "Qu'est-ce que la neuromodulation médullaire ?",
+        "s1": "La stimulation médullaire est une technique chirurgicale consistant à implanter des électrodes au niveau de la moelle épinière. Ces électrodes délivrent de faibles impulsions électriques qui bloquent ou modifient le signal douloureux avant qu'il n'atteigne le cerveau.",
+        "s2": "Aujourd'hui, les nouveaux générateurs ajustent la stimulation en temps réel selon la position du patient. C'est une avancée majeure.",
+        "s3": "Pour qui est-ce indiqué ?",
+        "s4_0": "Syndromes Douloureux Régionaux Complexes (SDRC)",
+        "s4_1": "Douleurs neuropathiques périphériques persistantes",
+        "s4_2": "Lombosciatiques chroniques après chirurgie (FBSS)",
+        "s5": "À l'ITID, nous proposons une évaluation multidisciplinaire complète avant d'envisager cette solution, garantissant ainsi un taux de succès optimal pour nos patients."
+      }
+    },
+    "hypnose-gestion-douleur": {
+      "title": "L'Hypnose Médicale : Reprendre le contrôle sur sa douleur",
+      "summary": "Souvent perçue avec scepticisme, l'hypnose médicale est aujourd'hui une arme thérapeutique redoutable et validée scientifiquement contre la douleur chronique.",
+      "authorRole": "Psychologue / Hypnothérapeute",
+      "readTime": "4 min",
+      "sections": {
+        "s0": "Démystifier l'hypnose",
+        "s1": "L'hypnose médicale n'a rien à voir avec l'hypnose de spectacle. Il s'agit d'un état de conscience modifiée, naturel, que nous expérimentons tous (par exemple, lorsque nous sommes absorbés par un livre ou un film).",
+        "s2": "Dans le cadre de la douleur chronique, l'hypnose permet de modifier la perception du signal douloureux par le cerveau, diminuant ainsi son intensité et son impact émotionnel.",
+        "s3": "Les bénéfices concrets",
+        "s4_0": "Réduction de l'intensité douloureuse",
+        "s4_1": "Diminution de l'anxiété liée à la douleur anticipatoire",
+        "s4_2": "Amélioration de la qualité du sommeil",
+        "s4_3": "Réduction de la consommation d'antalgiques"
+      }
+    },
+    "alimentation-anti-inflammatoire": {
+      "title": "Nutrition et Douleur : L'assiette anti-inflammatoire",
+      "summary": "Ce que nous mangeons influence directement notre niveau d'inflammation corporelle. Guide pratique des aliments à privilégier pour soulager ses douleurs.",
+      "authorRole": "Médecin Nutritionniste",
+      "readTime": "6 min",
+      "sections": {
+        "s0": "Le lien entre intestin et inflammation",
+        "s1": "Notre microbiote intestinal joue un rôle clé dans la régulation de notre système immunitaire. Une flore intestinale déséquilibrée (dysbiose) peut favoriser une inflammation systémique de bas grade, exacerbant les douleurs chroniques existantes.",
+        "s2": "Les piliers de l'alimentation anti-inflammatoire",
+        "s3_0": "Oméga-3 (petits poissons gras, huile de noix, graines de lin)",
+        "s3_1": "Antioxydants (fruits rouges, légumes colorés, épices comme le curcuma)",
+        "s3_2": "Réduction des sucres raffinés et des aliments ultra-transformés",
+        "s3_3": "Hydratation optimale (eau, thé vert)",
+        "s4": "L'alimentation ne remplace pas un traitement médical, mais elle est le terrain sur lequel la guérison peut s'enraciner."
+      }
+    },
+    "inauguration-nouveau-plateau": {
+      "title": "Inauguration de notre nouveau plateau technique 4.0",
+      "summary": "L'ITID s'agrandit avec un tout nouveau bloc dédié aux interventions percutanées sous écho-guidage et fluoroscopie de pointe.",
+      "authorRole": "Directeur de l'ITID",
+      "readTime": "3 min",
+      "sections": {
+        "s0": "Nous sommes fiers d'annoncer l'ouverture officielle de notre nouveau plateau technique, pensé intégralement pour le confort et la sécurité de nos patients.",
+        "s1": "Cet espace de 250m² intègre des échographes de dernière génération dotés d'intelligence artificielle, permettant des infiltrations et des blocs nerveux avec une précision millimétrique inédite.",
+        "s2": "Un espace apaisant",
+        "s3": "Conçu avec les principes de l'architecture curative, le nouveau bloc diffuse de la lumière thérapeutique, une isolation acoustique optimale et offre un casque de réalité virtuelle pour la relaxation per-opératoire."
+      }
+    },
+    "tens-mode-d-emploi": {
+      "title": "Neurostimulation TENS : Comment bien l'utiliser chez soi ?",
+      "summary": "Le TENS est un dispositif fantastique, à condition de savoir s'en servir. Voici les erreurs communes à éviter et les réglages optimaux.",
+      "authorRole": "Infirmière Ressource Douleur",
+      "readTime": "5 min",
+      "sections": {
+        "s0": "Principe du Gate Control",
+        "s1": "Le TENS (Neurostimulation Électrique Transcutanée) utilise un courant électrique faible pour stimuler les nerfs via des électrodes placées sur la peau. En stimulant les fibres tactiles (grosses fibres), on \"ferme la porte\" au signal de la douleur (petites fibres).",
+        "s2": "Où placer les électrodes ?",
+        "s3": "La règle d'or : encadrer la zone douloureuse. Les électrodes ne doivent jamais se toucher et doivent être posées sur une peau propre, sèche, et non lésée.",
+        "s4_0": "Ne pas placer sur l'avant du cou (carotides)",
+        "s4_1": "Ne pas utiliser avec un pacemaker (sauf avis cardio strict)",
+        "s4_2": "Changer les électrodes dès qu'elles ne collent plus bien pour éviter les brûlures"
+      }
+    },
+    "realite-virtuelle-analgesie": {
+      "title": "L'analgésie par Réalité Virtuelle : Le futur est là",
+      "summary": "Comment l'immersion dans des univers apaisants générés par ordinateur parvient à diminuer la douleur ressentie pendant nos soins.",
+      "authorRole": "Neurochirurgien / Algologue",
+      "readTime": "4 min",
+      "sections": {
+        "s0": "La douleur est en grande partie une expérience cérébrale. En saturant les capacités d'attention du cerveau avec un environnement visuel et sonore immersif, la réalité virtuelle agit comme un analgésique puissant.",
+        "s1": "Utilisation à l'ITID",
+        "s2": "Nous utilisons les casques de réalité virtuelle thérapeutique lors d'actes potentiellement anxiogènes (infiltrations, pose de voies veineuses, radiofréquence). Les patients choisissent leur univers (plage, montagne, fond marin).",
+        "s3": "C'est impressionnant : certains patients sous réalité virtuelle ont une fréquence cardiaque qui diminue pendant le soin, au lieu d'augmenter."
+      }
+    }
+  },
+  "carousel": {
+    "accueil": {
+      "kicker": "Accueil",
+      "title": "Espace apaisant",
+      "description": "Dès votre arrivée, notre équipe vous accueille dans un environnement conçu pour réduire l'anxiété."
+    },
+    "salle": {
+      "kicker": "Consultation",
+      "title": "Salles modernes",
+      "description": "Des espaces de consultation équipés pour un diagnostic précis et une prise en charge optimale."
+    },
+    "itid1": {
+      "kicker": "Interventionnel",
+      "title": "Plateau technique",
+      "description": "Des équipements de pointe pour réaliser des infiltrations et interventions guidées par imagerie."
+    },
+    "ext": {
+      "kicker": "Environnement",
+      "title": "Cadre verdoyant",
+      "description": "Le centre est entouré d'espaces verts pour favoriser la sérénité et le calme des patients."
+    }
+  },
+  "chatbot": {
+    "default": "Bonjour, je suis l'assistant IA de l'ITID. Je peux vous orienter vers nos soins, nos formations ou vous aider à prendre rendez-vous sur Doctolib. Comment puis-je vous aider ?",
+    "douleur": "L'ITID prend en charge les douleurs chroniques et aiguës : lombalgies, neuropathies, SDRC, migraines résistantes, douleurs pelviennes. Pour évaluer votre situation, une consultation d'évaluation avec un algologue est la première étape.",
+    "rdv": "La prise de rendez-vous se fait via Doctolib. Vous pouvez également appeler le 03 51 53 20 26 du lundi au vendredi de 8h30 à 18h00. Le cabinet est situé au 25 avenue des Mailles, Saint-Julien-les-Villas, 10800 TROYES.",
+    "formation": "Nous proposons 3 formations vidéo : pour les professionnels de santé (290 €), le grand public (89 €) et les paramédicaux (149 €). Accès à vie et certificat inclus.",
+    "itid": "L'ITID (Institut du Traitement Interventionnel de la Douleur) est situé à Troyes, dans l'Espace Médical de Spécialistes de Champagne. Nous proposons des soins interventionnels de pointe pour toutes les formes de douleurs chroniques.",
+    "assistant": "Assistant ITID",
+    "online": "En ligne",
+    "q1": "Prendre RDV",
+    "q2": "Traitements",
+    "q3": "Formations"
+  },
+  "formations": {
+    "pro_titles": {
+      "v0": "Infiltration échoguidée lombaire",
+      "v1": "Neuromodulation sacrée avancée",
+      "v2": "Gestion des douleurs neuropathiques sévères",
+      "v3": "Radiofréquence pulsée du ganglion dorsal",
+      "v4": "Cryoneurolyse des nerfs périphériques",
+      "v5": "Échographie musculo-squelettique interventionnelle",
+      "v6": "Approches pharmacologiques complexes",
+      "v7": "Blocs sympathiques et prise en charge du SDRC"
+    },
+    "public_titles": {
+      "v0": "Comprendre l'origine de la douleur",
+      "v1": "Exercices d'étirement pour soulager le dos",
+      "v2": "Méditation et pleine conscience",
+      "v3": "Alimentation anti-inflammatoire",
+      "v4": "Améliorer son sommeil malgré la douleur",
+      "v5": "Gérer les crises douloureuses aiguës",
+      "v6": "L'impact psychologique de la douleur",
+      "v7": "Ergonomie au travail et à la maison"
+    },
+    "para_titles": {
+      "v0": "Outils d'évaluation de la douleur",
+      "v1": "Suivi post-opératoire des patients",
+      "v2": "Accompagnement psychologique de 1ère ligne",
+      "v3": "Rééducation douce et mobilisation",
+      "v4": "Éducation thérapeutique du patient",
+      "v5": "Dépistage des signaux d'alerte",
+      "v6": "Gestion des effets secondaires des traitements",
+      "v7": "Hypnose et relaxation en soins infirmiers"
+    },
+    "prefixes": {
+      "theory": "Théorie",
+      "practice": "Pratique",
+      "case": "Cas d'étude",
+      "qa": "Q&A",
+      "demo": "Démonstration",
+      "eval": "Évaluation"
+    },
+    "pro": {
+      "tag": "Professionnel de santé",
+      "title": "Masterclass : Techniques Interventionnelles",
+      "desc": "Formation avancée sur les techniques percutanées échoguidées et fluoroguidées, réservée aux médecins spécialisés."
+    },
+    "public": {
+      "tag": "Grand public",
+      "title": "Comprendre et Gérer sa Douleur au Quotidien",
+      "desc": "Un programme complet pour les patients souhaitant devenir acteurs de leur santé, basé sur les dernières avancées en neurosciences."
+    },
+    "para": {
+      "tag": "Infirmier·ère / Kiné",
+      "title": "Évaluation et Prise en charge Paramedicale",
+      "desc": "Outils pratiques d'évaluation, gestion des pompes intrathécales et accompagnement psychologique de 1ère ligne."
+    },
+    "video": "Vidéos"
+  },
+  "formationsPremium": {
+    "title": "L'Excellence\nà votre rythme",
+    "desc": "Découvrez nos catalogues de formations vidéo en qualité 4K. Des programmes pointus conçus par nos experts algologues pour les professionnels de santé, et des modules pédagogiques pour le grand public.",
+    "cta": "Accéder à l'Académie"
+  },
+  "formationsPage": {
+    "parts": {
+      "head": "Tête & Cou",
+      "spine": "Rachis",
+      "pelvis": "Bassin & Périnée",
+      "shoulder": "Épaules",
+      "arm": "Membres Supérieurs",
+      "leg": "Membres Inférieurs"
+    },
+    "myProfile": "Mon Profil",
+    "cart": "Panier",
+    "discovery": "Découverte",
+    "title": "Nos Formations",
+    "subtitle": "Explorez nos catalogues complets ou trouvez une formation par zone anatomique.",
+    "mode3D": "Modèle 3D",
+    "modeClassic": "Catalogue complet",
+    "interactiveAnatomy": "Anatomie Interactive",
+    "interactiveHint": "Faites pivoter et cliquez sur une zone",
+    "focus": "Focus :",
+    "emptyHint": "Interagissez avec le modèle 3D à gauche pour découvrir nos formations ciblées par zone anatomique.",
+    "discoverCatalog": "Découvrir le catalogue →",
+    "catalog": "Catalogue :",
+    "trainingVideos": "vidéos de formation",
+    "courseSub": "Maîtrisez les protocoles d'évaluation et de prise en charge avec cette formation spécialisée. Conçue par des experts de l'Institut du Traitement Interventionnel de la Douleur.",
+    "reviews": "avis",
+    "participants": "participants",
+    "onDemandVideo": "de vidéo à la demande",
+    "french": "Français",
+    "whatYouWillLearn": "Ce que vous apprendrez",
+    "learnItems": {
+      "item1": "Maîtriser les bases de l'évaluation clinique de la douleur.",
+      "item2": "Comprendre les mécanismes neurophysiologiques impliqués.",
+      "item3": "Identifier les indications des techniques interventionnelles.",
+      "item4": "Acquérir les bonnes pratiques d'accompagnement du patient."
+    },
+    "description": "Description",
+    "descPara1": "Cette formation a été conçue pour répondre aux défis quotidiens rencontrés dans la prise en charge de la douleur chronique et aiguë. À travers des modules théoriques et des démonstrations pratiques, vous acquerrez des compétences directement applicables dans votre pratique.",
+    "descPara2": "Le contenu est régulièrement mis à jour pour refléter les dernières avancées médicales et les protocoles établis par l'ITID. Vous aurez accès à des cas cliniques concrets, des quiz d'évaluation et des ressources téléchargeables.",
+    "courseContent": "Contenu du cours",
+    "videosCount": "vidéos",
+    "totalDuration": "Durée totale :",
+    "playingVideo": "Lecture de la vidéo :",
+    "playlist": "Playlist",
+    "guarantee": "Garantie satisfait ou remboursé de 30 jours",
+    "thisCourseIncludes": "Ce cours comprend :",
+    "features": {
+      "articles": "5 articles et ressources téléchargeables",
+      "devices": "Accès sur mobiles et ordinateurs",
+      "lifetime": "Accès illimité à vie",
+      "certificate": "Certificat de fin de formation"
+    }
+  }
+}

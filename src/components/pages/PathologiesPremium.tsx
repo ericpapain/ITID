@@ -1,17 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform, animate, PanInfo, useAnimationFrame, AnimatePresence } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
+import { ShimmerButton } from "../ui/ShimmerButton";
 import { PATHOLOGIES } from "../../data";
 import { MedicalCard } from "../Cards";
+import { ContentNavigator } from "../ui/ContentNavigator";
 import spineImg from "../../images/spine_isolated.png";
+import bgVideo from "../../images/pathologie-2.mp4";
+import { useTranslation } from "react-i18next";
 
 export function PathologiesPremium() {
+  const { t } = useTranslation();
   const [activeIdx, setActiveIdx] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const rotation = useMotionValue(0);
   const smoothRotation = useSpring(rotation, { stiffness: 50, damping: 20 });
-  const items = PATHOLOGIES.slice(0, 8); // Limit to 8 for a clean circle
+  const items = PATHOLOGIES.map(item => ({
+    ...item,
+    title: t(item.title),
+    desc: t(item.desc)
+  }));
   const angleStep = 360 / items.length;
   const radius = 500; // Distance from center
 
@@ -44,40 +53,67 @@ export function PathologiesPremium() {
     rotation.set(snappedRot);
   };
 
+  const handleSelect = (item: any, index: number) => {
+    const currentRot = rotation.get();
+    const targetAngle = -index * angleStep;
+    const diff = ((targetAngle - currentRot) % 360 + 360 + 180) % 360 - 180;
+    rotation.set(currentRot + diff);
+  };
+
   return (
     <div className="pt-32 pb-24 min-h-screen text-[#1a3a5c] relative overflow-hidden flex flex-col items-center">
       
       {/* Background Decor */}
-      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden bg-[#0c1a2e]">
+        <video 
+          src={bgVideo} 
+          autoPlay
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0c1a2e]/90 via-[#0c1a2e]/60 to-[#0c1a2e]/90" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#48cae4]/10 rounded-full blur-[150px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-30 w-full text-center">
-        <div className="flex justify-between items-center mb-12">
-          <TransitionLink
-            to="/"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#2a9d8f]" style={{ color: "#cbd5e1" }}
-          >
-            ← Retour à l'accueil
-          </TransitionLink>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-[#1a3a5c]/20 text-[#1a3a5c]">
-            <span className="w-2 h-2 rounded-full bg-[#48cae4] animate-pulse"></span>
-            <span className="text-xs font-bold tracking-widest uppercase">Explorateur 3D</span>
+      {/* Barre supérieure unifiée : Retour (gauche), Titre (centre), Sélecteur (droite) */}
+      <div className="max-w-7xl mx-auto px-6 w-full relative z-50 mb-8">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+          {/* Gauche : Bouton retour */}
+          <div className="w-full lg:w-auto flex justify-start">
+            <ShimmerButton
+              as="Link"
+              to="/"
+            >
+              ← Retour à l'accueil
+            </ShimmerButton>
+          </div>
+
+          {/* Centre : Titre Cartographie des Pathologies */}
+          <div className="text-center flex-1">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+              Cartographie des{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a9d8f] to-[#48cae4]">
+                Pathologies
+              </span>
+            </h2>
+          </div>
+
+          {/* Droite : Menu déroulant de choix */}
+          <div className="w-full lg:w-72 xl:w-80 text-left">
+            <ContentNavigator 
+              items={items} 
+              placeholder="Choisir une pathologie" 
+              onSelect={handleSelect} 
+              theme="dark" 
+            />
           </div>
         </div>
-        
-        <h2 className="text-5xl md:text-6xl font-bold mb-4 text-[#1a3a5c] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
-          Cartographie des <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a9d8f] to-[#48cae4]">
-            Pathologies
-          </span>
-        </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto mb-4">Glissez de gauche à droite pour explorer le système nerveux et squelettique.</p>
       </div>
 
-      {/* 3D Carousel Scene */}
+      {/* 3D Carousel Scene avec z-20 pour que les cartes soient toujours au premier plan */}
       <div 
-        className="relative flex-1 w-full flex items-center justify-center mt-10 perspective-[2000px]"
+        className="relative z-20 flex-1 w-full flex items-center justify-center mt-6 perspective-[2000px]"
         style={{ perspective: "2000px" }}
       >
         <motion.div 
@@ -115,7 +151,7 @@ export function PathologiesPremium() {
              <img 
               src={spineImg} 
               alt="Spine Hologram" 
-              className="h-[800px] w-auto object-contain opacity-90"
+              className="h-[1200px] w-auto object-contain opacity-70 drop-shadow-[0_0_50px_rgba(72,209,194,0.3)]"
             />
           </motion.div>
           {items.map((item, i) => {
@@ -150,12 +186,16 @@ export function PathologiesPremium() {
             <motion.div
               layoutId={`card-${selectedItem.title}`}
               initial={{ scale: 0.8, y: 50, opacity: 0 }}
-              animate={{ scale: 1.05, y: 0, opacity: 1 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.8, y: 50, opacity: 0 }}
-              className="w-[600px] h-[850px] max-w-[95vw] max-h-[90vh] overflow-y-auto pointer-events-auto"
+              className="w-[900px] h-[85vh] max-w-[95vw] pointer-events-auto flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              <MedicalCard {...selectedItem} color="#4ade80" imageHeight="h-96" />
+              <MedicalCard 
+                {...selectedItem} 
+                isDetail={true} 
+                onClose={() => setSelectedItem(null)} 
+              />
             </motion.div>
           </motion.div>
         )}
@@ -186,7 +226,7 @@ function CarouselItem({ item, angle, radius, isActive, carouselRotation, index, 
   const opacity = useTransform(carouselRotation, (v: number) => {
     const worldAngle = ((v + angle) % 360 + 360) % 360;
     let diff = Math.min(worldAngle, 360 - worldAngle); 
-    return 1 - (diff / 180) * 0.8; // 1 at front, 0.2 at back
+    return 1 - (diff / 180) * 0.4; // 1 at front, 0.6 at back
   });
 
   return (
@@ -198,9 +238,9 @@ function CarouselItem({ item, angle, radius, isActive, carouselRotation, index, 
         transformStyle: "preserve-3d",
         zIndex: isActive ? 40 : 20
       }}
-      className="w-[320px] pointer-events-auto"
+      className={`w-[280px] pointer-events-auto transition-all duration-500 ${isActive ? 'scale-105 drop-shadow-[0_0_30px_rgba(72,209,194,0.4)]' : ''}`}
     >
-      <motion.div style={{ rotateY, scale, opacity }} className="relative">
+      <motion.div style={{ rotateY, scale, opacity }} className="relative h-full">
         <MedicalCard {...item} color="#4ade80" />
       </motion.div>
     </motion.div>

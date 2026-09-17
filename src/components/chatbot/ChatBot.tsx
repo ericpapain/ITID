@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { BOT_RESPONSES, getBotReply } from "../../constants/chatbot";
 import type { Message } from "../../types";
+import { useTranslation } from "react-i18next";
 
 export function ChatBot() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "bot", text: BOT_RESPONSES.default },
+    { role: "bot", text: t('chatbot.default') },
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -14,6 +15,19 @@ export function ChatBot() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
+
+  const getBotReply = (msg: string): string => {
+    const lower = msg.toLowerCase();
+    if (lower.includes("douleur") || lower.includes("mal") || lower.includes("souffr") || lower.includes("sciatique") || lower.includes("pain") || lower.includes("hurt") || lower.includes("ache"))
+      return t('chatbot.douleur');
+    if (lower.includes("rdv") || lower.includes("rendez") || lower.includes("doctolib") || lower.includes("appel") || lower.includes("téléphone") || lower.includes("appointment") || lower.includes("book") || lower.includes("call"))
+      return t('chatbot.rdv');
+    if (lower.includes("formation") || lower.includes("video") || lower.includes("cours") || lower.includes("course") || lower.includes("training"))
+      return t('chatbot.formation');
+    if (lower.includes("itid") || lower.includes("institut") || lower.includes("troyes") || lower.includes("adresse") || lower.includes("address") || lower.includes("location"))
+      return t('chatbot.itid');
+    return t('chatbot.default');
+  };
 
   const send = (text?: string) => {
     const msg = (text ?? input).trim();
@@ -39,8 +53,8 @@ export function ChatBot() {
               IA
             </div>
             <div className="flex-1">
-              <div className="text-white font-semibold text-sm" style={{ fontFamily: "var(--font-display)" }}>Assistant ITID</div>
-              <div className="text-xs" style={{ color: "#8fb3d0" }}>Réponse en quelques secondes</div>
+              <div className="text-white font-semibold text-sm" style={{ fontFamily: "var(--font-display)" }}>{t("chatbot.assistant", "Assistant ITID")}</div>
+              <div className="text-xs" style={{ color: "#8fb3d0" }}>{t("chatbot.online", "En ligne")}</div>
             </div>
             <button onClick={() => setOpen(false)} className="text-white opacity-60 hover:opacity-100 text-lg leading-none">✕</button>
           </div>
@@ -52,7 +66,7 @@ export function ChatBot() {
                   className="max-w-[82%] rounded-xl px-3 py-2 text-sm leading-relaxed"
                   style={m.role === "user"
                     ? { background: "#1a3a5c", color: "#fff" }
-                    : { background: "#fff", color: "#f8fafc", border: "1px solid #e2ddd6" }}
+                    : { background: "#fff", color: "#334155", border: "1px solid #e2ddd6" }}
                 >
                   {m.text}
                 </div>
@@ -69,7 +83,7 @@ export function ChatBot() {
           </div>
 
           <div className="px-3 py-2 flex gap-2 overflow-x-auto" style={{ borderTop: "1px solid #e2ddd6" }}>
-            {["Prendre RDV", "Traitements", "Formations"].map((q) => (
+            {[t("chatbot.q1", "Prendre RDV"), t("chatbot.q2", "Traitements"), t("chatbot.q3", "Formations")].map((q) => (
               <button key={q} onClick={() => send(q)} className="shrink-0 px-2 py-1 rounded-full text-xs font-medium" style={{ background: "#e8f4f2", color: "#2a9d8f", border: "1px solid #b3ddd9" }}>
                 {q}
               </button>
@@ -80,7 +94,7 @@ export function ChatBot() {
             <input
               className="flex-1 rounded-xl px-3 py-2 text-sm outline-none"
               style={{ background: "#f7f4ef", border: "1px solid #d8d2c8", color: "#f8fafc" }}
-              placeholder="Votre question…"
+              placeholder={t('contact.messagePlaceholder')}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send()}

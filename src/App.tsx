@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 
 import { useFormationState } from "./hooks/useFormationState";
+import { useDynamicFavicon } from "./hooks/useDynamicFavicon";
 
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
@@ -23,14 +24,26 @@ import { EquipePanorama } from "./components/home/EquipePanorama";
 
 import { PathologiesPremium } from "./components/pages/PathologiesPremium";
 import { TraitementsPremium } from "./components/pages/TraitementsPremium";
-import { EquipePage } from "./components/pages/EquipePage";
+// import { EquipePage } from "./components/pages/EquipePage";
 import { FormationsPage } from "./components/pages/FormationsPage";
 import { ProfilPage } from "./components/pages/ProfilPage";
 import { AProposPage } from "./components/pages/AProposPage";
 import { AssistantIA } from "./components/AssistantIA";
+import React, { Suspense } from "react";
+
+const BlogPage = React.lazy(() => import("./components/pages/BlogPage"));
+const BlogPostPage = React.lazy(() => import("./components/pages/BlogPostPage"));
+
+// Composant de chargement pour le suspense
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[#0c1a2e]">
+    <div className="w-12 h-12 border-4 border-[#48cae4]/30 border-t-[#48cae4] rounded-full animate-spin"></div>
+  </div>
+);
 
 function AppContent() {
   const location = useLocation();
+  useDynamicFavicon();
   const [menuOpen, setMenuOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -98,7 +111,10 @@ function AppContent() {
             />
             <Route path="/pathologies" element={<PathologiesPremium />} />
             <Route path="/traitements" element={<TraitementsPremium />} />
-            <Route path="/equipe" element={<EquipePage />} />
+            {/* Page Équipe en attente de finalisation des informations */}
+            {/* <Route path="/equipe" element={<EquipePage />} /> */}
+            <Route path="/actualites" element={<Suspense fallback={<PageLoader />}><BlogPage /></Suspense>} />
+            <Route path="/actualites/:id" element={<Suspense fallback={<PageLoader />}><BlogPostPage /></Suspense>} />
             <Route
               path="/ia"
               element={

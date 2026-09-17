@@ -1,0 +1,690 @@
+{
+  "common": {
+    "seeMore": "See more",
+    "learnMore": "Learn more",
+    "close": "Close",
+    "backHome": "Back to Home",
+    "backNews": "Back to News",
+    "backCatalog": "Back to Catalogs",
+    "backCatalogList": "Back to Catalog List",
+    "backLibrary": "Back to Library",
+    "backInfo": "Back to Info",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "noResult": "No results",
+    "search": "Search",
+    "searchCondition": "Search for a condition...",
+    "searchTreatment": "Search for a treatment...",
+    "select": "Select",
+    "chooseCondition": "Choose a condition",
+    "chooseTreatment": "Choose a treatment",
+    "all": "All",
+    "readMore": "Read more",
+    "read": "Read",
+    "learnMoreWiki": "Learn more on Wikipedia ↗",
+    "multiSelect": "Multi-selection",
+    "suggestedFormations": "Suggested Training",
+    "selectArea": "Select an area",
+    "zones": "Zones:",
+    "addToCart": "Add selection to cart"
+  },
+  "buttons": {
+    "bookAppointment": "Book an appointment",
+    "contactUs": "Contact us",
+    "discover": "Discover",
+    "send": "Send",
+    "cancel": "Cancel",
+    "validate": "Validate",
+    "retry": "Retry",
+    "login": "Login",
+    "signup": "Sign up"
+  },
+  "filters": {
+    "allSpecialties": "All specialties",
+    "healthcarePro": "Physicians & Specialists",
+    "public": "General public",
+    "paramedical": "Paramedical",
+    "medicalTeam": "Medical Team",
+    "paramedicalTeam": "Paramedical Team",
+    "secretariat": "Secretariat & Reception"
+  },
+  "nav": {
+    "home": "Home",
+    "pathologies": "Conditions",
+    "treatments": "Treatments",
+    "news": "News",
+    "team": "Team",
+    "training": "Training",
+    "ai": "Doctor, I have a question",
+    "about": "About us"
+  },
+  "pathologies": {
+    "lombalgie": {
+      "title": "Chronic Low Back Pain",
+      "desc": "Persistent lower back pain, with or without radiating pain in the leg (sciatica or cruralgia), can be related to osteoarthritis, a herniated disc, narrowing of the lumbar canal (spinal stenosis), or other spinal conditions.\n\nDepending on the identified cause, several interventional techniques may be proposed, including image-guided spinal injections, diagnostic blocks, or targeted treatments of the pain-generating structures.\n\nA specialized evaluation will determine the most suitable solutions to improve your daily comfort and mobility."
+    },
+    "nevralgie_arnold": {
+      "title": "Occipital Neuralgia",
+      "desc": "Occipital neuralgia manifests as pain localized at the back of the skull, the nape of the neck, and sometimes the scalp. This pain can be triggered or aggravated by certain neck movements.\n\nWhen conventional treatments are insufficient, interventional solutions such as targeted injections or cryoneurolysis can be proposed.\n\nThe goal is to durably reduce pain and improve the quality of life for patients suffering from this often debilitating condition."
+    },
+    "sdrc": {
+      "title": "Complex Regional Pain Syndrome (CRPS)",
+      "desc": "CRPS, formerly known as reflex sympathetic dystrophy (RSD), is persistent pain that typically occurs after a trauma, surgery, or immobilization.\n\nThis condition may be accompanied by:\n- significant hypersensitivity;\n- swelling of the affected limb;\n- mobility issues;\n- changes in skin temperature or color.\n\nIn some situations, advanced neuromodulation techniques, such as dorsal root ganglion stimulation, may be considered following a specialized evaluation."
+    },
+    "endometriose": {
+      "title": "Endometriosis and Chronic Pelvic Pain",
+      "desc": "Chronic pelvic pain associated with endometriosis can have a major impact on daily, professional, and family life.\n\nITID works collaboratively with gynecologists and specialized teams to offer comprehensive care.\n\nDepending on each situation, targeted interventional treatments can help decrease pain intensity, improve comfort, and reduce reliance on pharmacological treatments."
+    },
+    "douleurs_articulaires": {
+      "title": "Joint Pain (Shoulder, Hip, Knee...)",
+      "desc": "Joint pain can be related to:\n- osteoarthritis;\n- tendinitis;\n- traumatic injuries;\n- consequences of surgical interventions.\n\nDepending on the origin of the pain, different approaches are possible, including ultrasound-guided or fluoroscopy-guided joint injections, as well as other specialized treatments aimed at restoring joint function and reducing inflammation."
+    },
+    "fibromyalgie": {
+      "title": "Fibromyalgia",
+      "desc": "Fibromyalgia is a condition characterized by widespread and persistent pain associated with significant fatigue, sleep disturbances, concentration difficulties, and sometimes sensory hypersensitivity.\n\nManagement relies on a multidisciplinary approach that may combine pharmacological treatments, adapted physical activity, mind-body support, and, in certain situations, specific techniques such as analgesic infusions.\n\nEach therapeutic plan is individualized to address the specific needs of the patient."
+    },
+    "douleurs_neuropathiques": {
+      "title": "Neuropathic Pain",
+      "desc": "Neuropathic pain results from damage or dysfunction of the nervous system.\n\nIt can manifest as:\n- burning sensations;\n- electric shocks;\n- tingling;\n- numbness;\n- hypersensitivity to touch.\n\nThese pains can be linked to diabetes, surgery, trauma, shingles, or certain neurological conditions. When conventional treatments are insufficient, specialized techniques (rTMS, neuromodulation) can be proposed."
+    },
+    "douleurs_post_op": {
+      "title": "Chronic Post-operative and Post-traumatic Pain",
+      "desc": "Some pain persists for months after surgery or trauma despite tissue healing.\n\nThese pains can have inflammatory, neurological, or mechanical components requiring specific management.\n\nAfter a thorough assessment, several therapeutic options can be considered: targeted injections, cryoneurolysis, radiofrequency, or other interventional treatments tailored to the clinical situation."
+    },
+    "migraine": {
+      "title": "Refractory Headaches and Migraines",
+      "desc": "Chronic headaches and migraines resistant to usual treatments can significantly impair quality of life.\n\nA specialized consultation helps identify trigger factors, evaluate underlying mechanisms, and establish a personalized therapeutic strategy.\n\nCertain targeted injections or interventional techniques may be offered to selected patients to reduce the frequency and intensity of attacks."
+    }
+  },
+  "treatments": {
+    "t01": {
+      "title": "Spinal and Epidural Injections",
+      "desc": "Spinal and epidural injections involve injecting an anti-inflammatory or anesthetic medication near the structures responsible for the pain.\n\nThese techniques are particularly used in:\n- lower back pain;\n- sciatica;\n- herniated discs;\n- certain cervical pains.\n\nPerformed under radiological or ultrasound guidance, they provide precise and safe treatment."
+    },
+    "t02": {
+      "title": "Injections for Joint Pain",
+      "desc": "Joint injections are a recognized therapeutic option for certain shoulder, knee, hip, or other joint pains.\n\nThey can reduce inflammation, relieve pain, and promote functional recovery when standard treatments prove insufficient."
+    },
+    "t03": {
+      "title": "Lidocaine Infusions",
+      "desc": "Lidocaine infusion is used in certain chronic pains, particularly neuropathic ones, when conventional drug treatments do not provide satisfactory relief.\n\nPerformed under medical supervision, this approach can lead to a significant decrease in pain intensity in some patients."
+    },
+    "t04": {
+      "title": "Dorsal Root Ganglion Stimulation",
+      "desc": "An advanced neuromodulation technique, dorsal root ganglion stimulation acts on nervous structures involved in pain transmission.\n\nIt is particularly studied in certain severe neuropathic pains and in Complex Regional Pain Syndrome (CRPS)."
+    },
+    "t05": {
+      "title": "Cryoneurolysis",
+      "desc": "Cryoneurolysis involves applying controlled cold to a nerve identified as responsible for the pain.\n\nThis minimally invasive technique aims to temporarily interrupt the transmission of pain signals while preserving surrounding structures.\n\nIt can be proposed for certain localized chronic pains or spasticity."
+    },
+    "t06": {
+      "title": "rTMS",
+      "desc": "rTMS uses non-invasive magnetic pulses applied to the brain to modulate certain circuits involved in pain perception.\n\nThis innovative technique can be offered for certain chronic pains resistant to conventional treatments."
+    },
+    "t07": {
+      "title": "Peripheral Nerve Blocks",
+      "desc": "Peripheral nerve blocks allow the injection of a local anesthetic near a nerve or a group of nerves.\n\nThey can be used for diagnostic or therapeutic purposes to identify the origin of certain pains and sometimes provide immediate relief."
+    },
+    "t08": {
+      "title": "Radiofrequency",
+      "desc": "Radiofrequency is a technique that uses controlled thermal energy to act on nerve fibers responsible for certain chronic pains.\n\nIt is frequently used in spinal, joint, or nerve-related pain."
+    },
+    "t09": {
+      "title": "Botulinum Toxin",
+      "desc": "Botulinum toxin can be used in certain muscular, neuropathic, or spasticity-related pains.\n\nIts administration is performed after precise medical evaluation to identify patients likely to benefit most from it."
+    },
+    "t10": {
+      "title": "TENS",
+      "desc": "TENS is a portable device that delivers weak electrical impulses through the skin.\n\nThis non-invasive technique can help reduce certain chronic pains and is often a useful adjunct in comprehensive pain management."
+    },
+    "t11": {
+      "title": "Perineural Catheter",
+      "desc": "A perineural catheter allows the continuous administration of a local anesthetic near a nerve over several hours or days.\n\nIt is particularly useful in certain complex post-operative or severe post-traumatic pains."
+    },
+    "t12": {
+      "title": "Capsaicin Patch (Qutenza®)",
+      "desc": "The high-concentration capsaicin patch is intended for the treatment of certain localized neuropathic pains.\n\nIts application is performed at the medical office in a safe environment under specialized supervision.\n\nThe treatment can provide prolonged relief for several weeks or months in some patients."
+    },
+    "t13": {
+      "title": "Virtual Reality Hypnosis (HypnoVR)",
+      "desc": "HypnoVR combines the benefits of medical hypnosis with immersive virtual reality technologies.\n\nThis innovative approach helps reduce anxiety, improve patient comfort, and assist in managing certain chronic pains or procedure-related anxiety."
+    },
+    "t14": {
+      "title": "Spinal Cord Stimulation",
+      "desc": "Spinal cord stimulation is a neuromodulation technique consisting of delivering controlled electrical impulses to the spinal cord.\n\nIt is reserved for certain severe chronic pains resistant to conventional treatments.\n\nAfter an evaluation phase, it can lead to a significant reduction in pain and an improvement in quality of life."
+    }
+  },
+  "team": {
+    "medecin_algologue": {
+      "role": "Pain Medicine Specialist",
+      "detail": "Specialist in pain evaluation and treatment. This also includes physicians in specialized training, bringing clinical expertise and innovation to each care protocol."
+    },
+    "neurologue": {
+      "role": "Neurologist",
+      "detail": "Expert collaborator for the central and peripheral nervous system. Intervenes specifically in neuropathic pain and complex migraines."
+    },
+    "psychiatre": {
+      "role": "Psychiatrist",
+      "detail": "Fundamental psychological support, fully integrated into the care pathway. Accompanies you to manage the emotional and cognitive impact of chronic pain."
+    },
+    "gynecologue": {
+      "role": "Gynecologist",
+      "detail": "Physician specializing in the management of pelvic pain, endometriosis, and associated functional disorders."
+    },
+    "urologue": {
+      "role": "Urologist",
+      "detail": "Physician specializing in the management of pelvic pain, endometriosis, and associated functional disorders."
+    },
+    "infirmiere_douleur": {
+      "role": "Specialized Pain Nurse",
+      "detail": "True pillars of the center, they are present at every stage of your follow-up, provide technical care, and ensure continuous support."
+    },
+    "psychologue": {
+      "role": "Psychologist",
+      "detail": "Fundamental psychological support, fully integrated into the care pathway. Accompanies you to manage the emotional and cognitive impact of chronic pain."
+    },
+    "hypno_sophro": {
+      "role": "Hypnotherapist & Sophrologist",
+      "detail": "Dedicated partner for non-pharmacological complementary approaches. Uses deep relaxation to alter your perception of pain."
+    },
+    "secretaire": {
+      "role": "Medical Secretary",
+      "detail": "First contact in your journey. Handles reception, coordination of multidisciplinary appointments, and administrative support."
+    }
+  },
+  "parcours": {
+    "step1": {
+      "title": "Medical Referral",
+      "desc": "Referred by your primary care physician or a specialist."
+    },
+    "step2": {
+      "title": "Evaluation Consultation",
+      "desc": "Comprehensive assessment with a pain medicine specialist."
+    },
+    "step3": {
+      "title": "Treatment Plan",
+      "desc": "Personalized protocol, co-constructed with the team."
+    },
+    "step4": {
+      "title": "Follow-up & Re-evaluation",
+      "desc": "Regular adjustments for optimal care."
+    }
+  },
+  "formations": {
+    "pro": {
+      "tag": "Healthcare Professional",
+      "title": "Chronic Pain: Evaluation & Interventional Management",
+      "desc": "Discover our comprehensive video training program for physicians and specialists."
+    },
+    "public": {
+      "tag": "General Public",
+      "title": "Understanding and Living Better with Chronic Pain",
+      "desc": "Educational modules to help you understand and alleviate your daily pain."
+    },
+    "paramedical": {
+      "tag": "Nurse / Physiotherapist",
+      "title": "Evaluation Techniques and Support Tools",
+      "desc": "Training catalog on follow-up and therapeutic support."
+    }
+  },
+  "contact": {
+    "title": "Contact & Appointments",
+    "subtitle": "Contact us",
+    "desc": "Care at ITID requires a referral from your primary care physician or a specialist. Feel free to contact us with any questions.",
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone",
+      "subject": "Reason for contact",
+      "options": {
+        "rdv": "Appointment Request",
+        "info": "Information Request",
+        "pro": "Professional Contact",
+        "other": "Other"
+      },
+      "message": "Your message",
+      "placeholder": "Your question or reason for contact…",
+      "submit": "Send Message",
+      "success": "Message sent successfully!",
+      "sending": "Sending..."
+    },
+    "info": {
+      "address": "Address",
+      "address_val": "Hopitaux Privés de Metz - Hôpital Robert Schuman\nRue du Champ Montoy\n57070 Vantoux",
+      "phone": "Phone",
+      "email": "Email",
+      "hours": "Opening Hours",
+      "hours_val": "Monday - Friday: 8:30 AM - 6:00 PM\nClosed weekends and public holidays"
+    }
+  },
+  "footer": {
+    "col1": {
+      "title": "Conditions",
+      "l1": "Lower back pain & sciatica",
+      "l2": "Neuropathic pain",
+      "l3": "CRPS / Algodystrophy",
+      "l4": "Pelvic pain",
+      "l5": "Refractory migraines"
+    },
+    "col2": {
+      "title": "Treatments",
+      "l1": "Injections",
+      "l2": "Lidocaine infusions",
+      "l3": "Neuromodulation",
+      "l4": "Cryoneurolysis",
+      "l5": "Medical hypnosis"
+    },
+    "col3": {
+      "title": "Practice",
+      "l1": "About us",
+      "l2": "Medical team",
+      "l3": "Video training",
+      "l4": "News & Blog",
+      "l5": "Legal notice",
+      "l6": "Privacy policy"
+    },
+    "info": {
+      "desc1": "Institute for Interventional Pain Treatment — Troyes, Aube.",
+      "desc2": "Medical Space of Champagne Specialists",
+      "rights": "© 2025 ITID France — All rights reserved",
+      "address": "25 av. des Mailles, 10800 TROYES — 03 51 53 20 26"
+    }
+  },
+  "about": {
+    "title": "About ITID",
+    "desc": "The Institute for Interventional Pain Treatment (ITID) is dedicated to improving the quality of life of patients suffering from chronic pain through innovative, technological, and compassionate medical approaches.",
+    "services": {
+      "title": "Services Offered",
+      "consultations": "Multidisciplinary consultations (Pain Specialists, Neurologists, Psychiatrists)",
+      "treatments": "Image-guided interventional treatments (Injections, Cryoneurolysis...)",
+      "pathway": "Personalized care pathways and comprehensive follow-up",
+      "psychology": "Psychological support and sophrology",
+      "elearning": "Online training (E-learning) for professionals and patients",
+      "ai": "Interactive medical AI assistant available 24/7",
+      "3d": "3D anatomical modeling for pain assessment"
+    },
+    "info": {
+      "title": "Useful Information",
+      "clickMap": "Click to view map 🗺️",
+      "addressTitle": "Address:",
+      "address": "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne",
+      "hoursTitle": "Opening Hours:",
+      "hours": "Monday to Friday: 08:30 AM - 06:30 PM\nClosed on weekends",
+      "contactTitle": "Contact:",
+      "contact": "Phone: 03 51 53 20 26",
+      "mapHint": "💡 Click on the map to display the interactive map",
+      "mapTitle": "Location ITID — Troyes",
+      "mapAddress": "25 avenue des Mailles, 10800 Saint-Julien-les-Villas (Troyes)",
+      "visit": "Visit ITID"
+    },
+    "newsletter": {
+      "title": "Join our Newsletter",
+      "desc": "Receive our latest medical news, health tips, and information on treatment advancements.",
+      "placeholder": "Your email address",
+      "success": "Thank you for subscribing!"
+    }
+  },
+  "profil": {
+    "profession": "Profession",
+    "painDoctor": "Pain Medicine Specialist",
+    "password": "Password",
+    "editInfo": "Edit my information",
+    "logout": "Log out",
+    "progress": "Progress: 0% • {{count}} modules",
+    "courseContent": "Course Content",
+    "module": "Module",
+    "myLibrary": "My Library ({{count}})",
+    "noFormations": "You don't have any training yet",
+    "discoverCatalog": "Discover our catalogs and start your learning today.",
+    "exploreCatalog": "Explore catalogs",
+    "acquired": "Acquired",
+    "continueLearning": "Continue learning",
+    "modulesCount": "{{count}} modules"
+  },
+  "blog": {
+    "title": "Medical News & Advancements",
+    "subtitle": "Discover our latest articles, therapeutic innovations, and advice on living better with chronic pain every day.",
+    "noArticles": "No articles found in this category at the moment.",
+    "notFound": "Article not found",
+    "goFurther": "To go further",
+    "similarArticles": "Similar articles",
+    "readArticle": "Read article"
+  },
+  "hero": {
+    "title1": "The Future of ",
+    "title2": "Pain Treatment",
+    "subtitle": "State-of-the-art interventional protocols, guided by imaging, for comprehensive, innovative, and human care.",
+    "discoverExpertise": "Discover our expertise",
+    "discover": "Discover"
+  },
+  "immersion": {
+    "title": "Beyond medicine,\nprofound well-being.",
+    "desc": "At ITID, we believe that calming the mind is as crucial as treating the body. Our environments are designed to reduce stress, inspire calmness, and promote healing.",
+    "discoverPhilosophy": "Discover our philosophy"
+  },
+  "stats": {
+    "patients": "Patients treated",
+    "specialists": "Dedicated specialists",
+    "satisfaction": "Satisfaction rate",
+    "protocols": "Innovative protocols"
+  },
+  "masonry": {
+    "title1": "Clinical ",
+    "title2": "Cases",
+    "discoverMore": "Discover more",
+    "p1": { "title": "Clinical Case #1", "cat": "Lumbar Infiltration" },
+    "p2": { "title": "Clinical Case #2", "cat": "Radiofrequency" },
+    "p3": { "title": "Clinical Case #3", "cat": "Pelvic Pain" },
+    "p4": { "title": "Clinical Case #4", "cat": "Nerve Block" },
+    "p5": { "title": "Innovation #5", "cat": "Virtual Reality" },
+    "p6": { "title": "Clinical Case #6", "cat": "Chronic Headaches" },
+    "p7": { "title": "Clinical Case #7", "cat": "Cervicobrachial Neuralgia" },
+    "p8": { "title": "Clinical Case #8", "cat": "CRPS Type 1" },
+    "p9": { "title": "Innovation #9", "cat": "Neuromodulation" }
+  },
+  "auth": {
+    "loginTitle": "Login",
+    "registerTitle": "Create an account",
+    "loginDesc": "Log in to access the training catalog.",
+    "registerDesc": "Join us to unlock all videos.",
+    "patient": "Patient",
+    "pro": "Healthcare Pro",
+    "fullName": "Full name",
+    "placeholderPro": "Dr. Smith",
+    "placeholderPatient": "John Smith",
+    "email": "Email address",
+    "password": "Password",
+    "loginBtn": "Log in",
+    "registerBtn": "Sign up now",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "createAccount": "Create an account",
+    "loginLink": "Log in"
+  },
+  "cart": {
+    "title": "My Cart",
+    "empty": "Your cart is empty.",
+    "explore": "Explore courses",
+    "total": "Total to pay",
+    "checkout": "Proceed to checkout"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Purchase of {{count}} course(s)",
+    "total": "Total to pay (incl. VAT)",
+    "paymentInfo": "Payment information",
+    "cardNumber": "Card number",
+    "payBtn": "Pay",
+    "success": "Payment successfully validated!",
+    "secure": "Secure payment. By clicking \"Pay\", you agree to our Terms and Conditions."
+  },
+  "contact": {
+    "subtitle": "Contact & Appointment",
+    "title": "Contact us",
+    "desc": "Treatment at ITID requires a referral from your primary care physician or a specialist. Feel free to contact us with any questions.",
+    "address": "Address",
+    "addressVal": "25 avenue des Mailles\nSaint-Julien-les-Villas — 10800 TROYES\nEspace Médical de Spécialistes de Champagne",
+    "phone": "Phone",
+    "phoneVal": "03 51 53 20 26",
+    "hours": "Hours",
+    "hoursVal": "Monday – Friday: 8:30 AM – 6:00 PM\nBy appointment only",
+    "appointment": "Appointments",
+    "appointmentVal": "Via Doctolib",
+    "doctolibBtn": "📅 Book on Doctolib",
+    "sentTitle": "Message sent!",
+    "sentDesc": "We will reply within 24 business hours.",
+    "formTitle": "Send a message",
+    "youAre": "You are",
+    "patient": "Patient",
+    "pro": "Healthcare professional",
+    "fullName": "Full name",
+    "email": "Email",
+    "phoneField": "Phone",
+    "message": "Message",
+    "messagePlaceholder": "Your question or reason for contacting us…",
+    "gdpr": "Data protected — GDPR compliant"
+  },
+  "blogData": {
+    "categories": {
+      "innovations": "Medical Innovations",
+      "conseils": "Patient Advice",
+      "traitements": "Our Treatments",
+      "vie": "Center Life"
+    },
+    "nouvelle-approche-neuromodulation": {
+      "title": "Spinal Cord Stimulation: A Silent Revolution",
+      "summary": "Discover how next-generation implants are transforming the daily lives of patients suffering from refractory neuropathic pain.",
+      "authorRole": "Neurosurgeon / Algologist",
+      "readTime": "5 min",
+      "sections": {
+        "s0": "What is spinal cord stimulation?",
+        "s1": "Spinal cord stimulation is a surgical technique involving the implantation of electrodes in the spinal cord. These electrodes deliver weak electrical impulses that block or modify the pain signal before it reaches the brain.",
+        "s2": "Today, new generators adjust stimulation in real-time based on the patient's position. This is a major breakthrough.",
+        "s3": "Who is it for?",
+        "s4_0": "Complex Regional Pain Syndrome (CRPS)",
+        "s4_1": "Persistent peripheral neuropathic pain",
+        "s4_2": "Failed Back Surgery Syndrome (FBSS)",
+        "s5": "At ITID, we offer a comprehensive multidisciplinary evaluation before considering this solution, ensuring an optimal success rate for our patients."
+      }
+    },
+    "hypnose-gestion-douleur": {
+      "title": "Medical Hypnosis: Regaining Control Over Your Pain",
+      "summary": "Often viewed with skepticism, medical hypnosis is now a formidable and scientifically validated therapeutic weapon against chronic pain.",
+      "authorRole": "Psychologist / Hypnotherapist",
+      "readTime": "4 min",
+      "sections": {
+        "s0": "Demystifying hypnosis",
+        "s1": "Medical hypnosis has nothing to do with stage hypnosis. It is a natural modified state of consciousness that we all experience (for example, when we are absorbed in a book or a movie).",
+        "s2": "In the context of chronic pain, hypnosis alters the brain's perception of the pain signal, thereby decreasing its intensity and emotional impact.",
+        "s3": "Concrete benefits",
+        "s4_0": "Reduction of pain intensity",
+        "s4_1": "Decrease in anxiety related to anticipatory pain",
+        "s4_2": "Improvement of sleep quality",
+        "s4_3": "Reduction of analgesic consumption"
+      }
+    },
+    "alimentation-anti-inflammatoire": {
+      "title": "Nutrition and Pain: The Anti-inflammatory Plate",
+      "summary": "What we eat directly affects our body's level of inflammation. A practical guide to foods to prioritize for pain relief.",
+      "authorRole": "Nutritionist Doctor",
+      "readTime": "6 min",
+      "sections": {
+        "s0": "The link between gut and inflammation",
+        "s1": "Our gut microbiota plays a key role in regulating our immune system. An imbalanced intestinal flora (dysbiosis) can promote low-grade systemic inflammation, exacerbating existing chronic pain.",
+        "s2": "The pillars of the anti-inflammatory diet",
+        "s3_0": "Omega-3 (small fatty fish, walnut oil, flax seeds)",
+        "s3_1": "Antioxidants (red fruits, colorful vegetables, spices like turmeric)",
+        "s3_2": "Reduction of refined sugars and ultra-processed foods",
+        "s3_3": "Optimal hydration (water, green tea)",
+        "s4": "Diet does not replace medical treatment, but it is the ground on which healing can take root."
+      }
+    },
+    "inauguration-nouveau-plateau": {
+      "title": "Inauguration of our new 4.0 technical platform",
+      "summary": "ITID is expanding with a brand new block dedicated to percutaneous interventions under state-of-the-art ultrasound guidance and fluoroscopy.",
+      "authorRole": "ITID Director",
+      "readTime": "3 min",
+      "sections": {
+        "s0": "We are proud to announce the official opening of our new technical platform, designed entirely for the comfort and safety of our patients.",
+        "s1": "This 250sqm space incorporates latest-generation ultrasound machines with artificial intelligence, allowing for infiltrations and nerve blocks with unprecedented millimeter precision.",
+        "s2": "A soothing space",
+        "s3": "Designed with the principles of curative architecture, the new block diffuses therapeutic light, optimal acoustic insulation, and offers a virtual reality headset for perioperative relaxation."
+      }
+    },
+    "tens-mode-d-emploi": {
+      "title": "TENS Neurostimulation: How to use it properly at home?",
+      "summary": "TENS is a fantastic device, provided you know how to use it. Here are common mistakes to avoid and optimal settings.",
+      "authorRole": "Pain Resource Nurse",
+      "readTime": "5 min",
+      "sections": {
+        "s0": "Gate Control Principle",
+        "s1": "TENS (Transcutaneous Electrical Nerve Stimulation) uses a weak electrical current to stimulate nerves via electrodes placed on the skin. By stimulating tactile fibers (large fibers), it \"closes the gate\" to the pain signal (small fibers).",
+        "s2": "Where to place the electrodes?",
+        "s3": "The golden rule: surround the painful area. Electrodes must never touch each other and must be placed on clean, dry, unbroken skin.",
+        "s4_0": "Do not place on the front of the neck (carotids)",
+        "s4_1": "Do not use with a pacemaker (unless strict cardiology advice)",
+        "s4_2": "Change electrodes as soon as they no longer stick well to avoid burns"
+      }
+    },
+    "realite-virtuelle-analgesie": {
+      "title": "Virtual Reality Analgesia: The Future is Here",
+      "summary": "How immersion in computer-generated soothing universes manages to decrease the pain felt during our care.",
+      "authorRole": "Neurosurgeon / Algologist",
+      "readTime": "4 min",
+      "sections": {
+        "s0": "Pain is largely a cerebral experience. By saturating the brain's attention capabilities with an immersive visual and auditory environment, virtual reality acts as a powerful analgesic.",
+        "s1": "Use at ITID",
+        "s2": "We use therapeutic virtual reality headsets during potentially anxiety-provoking procedures (infiltrations, IV placement, radiofrequency). Patients choose their universe (beach, mountain, seabed).",
+        "s3": "It's impressive: some patients under virtual reality have a heart rate that decreases during care, instead of increasing."
+      }
+    }
+  },
+  "carousel": {
+    "accueil": {
+      "kicker": "Reception",
+      "title": "Soothing Space",
+      "description": "Upon your arrival, our team welcomes you in an environment designed to reduce anxiety."
+    },
+    "salle": {
+      "kicker": "Consultation",
+      "title": "Modern Rooms",
+      "description": "Consultation spaces equipped for precise diagnosis and optimal care."
+    },
+    "itid1": {
+      "kicker": "Interventional",
+      "title": "Technical Platform",
+      "description": "State-of-the-art equipment to perform infiltrations and image-guided interventions."
+    },
+    "ext": {
+      "kicker": "Environment",
+      "title": "Green Setting",
+      "description": "The center is surrounded by green spaces to promote serenity and calm for patients."
+    }
+  },
+  "chatbot": {
+    "default": "Hello, I am the ITID AI assistant. I can guide you to our treatments, our courses, or help you make an appointment on Doctolib. How can I help you?",
+    "douleur": "ITID treats chronic and acute pain: back pain, neuropathies, CRPS, resistant migraines, pelvic pain. To assess your situation, an evaluation consultation with an algologist is the first step.",
+    "rdv": "Appointments are made via Doctolib. You can also call +33 3 51 53 20 26 from Monday to Friday from 8:30 AM to 6:00 PM. The clinic is located at 25 avenue des Mailles, Saint-Julien-les-Villas, 10800 TROYES.",
+    "formation": "We offer 3 video courses: for healthcare professionals (290 €), the general public (89 €), and paramedics (149 €). Lifetime access and certificate included.",
+    "itid": "ITID (Institute for Interventional Pain Treatment) is located in Troyes, in the Champagne Medical Specialists Space. We offer state-of-the-art interventional care for all forms of chronic pain.",
+    "assistant": "ITID Assistant",
+    "online": "Online",
+    "q1": "Book an Appt",
+    "q2": "Treatments",
+    "q3": "Courses"
+  },
+  "formations": {
+    "pro_titles": {
+      "v0": "Lumbar ultrasound-guided infiltration",
+      "v1": "Advanced sacral neuromodulation",
+      "v2": "Management of severe neuropathic pain",
+      "v3": "Pulsed radiofrequency of the dorsal root ganglion",
+      "v4": "Cryoneurolysis of peripheral nerves",
+      "v5": "Interventional musculoskeletal ultrasound",
+      "v6": "Complex pharmacological approaches",
+      "v7": "Sympathetic blocks and CRPS management"
+    },
+    "public_titles": {
+      "v0": "Understanding the origin of pain",
+      "v1": "Stretching exercises to relieve back pain",
+      "v2": "Meditation and mindfulness",
+      "v3": "Anti-inflammatory diet",
+      "v4": "Improving sleep despite pain",
+      "v5": "Managing acute painful episodes",
+      "v6": "The psychological impact of pain",
+      "v7": "Ergonomics at work and at home"
+    },
+    "para_titles": {
+      "v0": "Pain assessment tools",
+      "v1": "Post-operative patient monitoring",
+      "v2": "First-line psychological support",
+      "v3": "Gentle rehabilitation and mobilization",
+      "v4": "Therapeutic patient education",
+      "v5": "Screening for warning signs",
+      "v6": "Management of treatment side effects",
+      "v7": "Hypnosis and relaxation in nursing care"
+    },
+    "prefixes": {
+      "theory": "Theory",
+      "practice": "Practice",
+      "case": "Case study",
+      "qa": "Q&A",
+      "demo": "Demonstration",
+      "eval": "Evaluation"
+    },
+    "pro": {
+      "tag": "Healthcare professional",
+      "title": "Masterclass: Interventional Techniques",
+      "desc": "Advanced training on ultrasound and fluoroscopy-guided percutaneous techniques, reserved for specialized physicians."
+    },
+    "public": {
+      "tag": "General public",
+      "title": "Understanding and Managing Your Pain Daily",
+      "desc": "A comprehensive program for patients wishing to take charge of their health, based on the latest advances in neuroscience."
+    },
+    "para": {
+      "tag": "Nurse / Physiotherapist",
+      "title": "Paramedical Assessment and Care",
+      "desc": "Practical assessment tools, management of intrathecal pumps, and first-line psychological support."
+    },
+    "video": "Video"
+  },
+  "formationsPremium": {
+    "title": "Excellence\nat your own pace",
+    "desc": "Discover our 4K video training catalogs. Advanced programs designed by our algologist experts for healthcare professionals, and educational modules for the general public.",
+    "cta": "Access the Academy"
+  },
+  "formationsPage": {
+    "parts": {
+      "head": "Head & Neck",
+      "spine": "Spine",
+      "pelvis": "Pelvis & Perineum",
+      "shoulder": "Shoulders",
+      "arm": "Upper Limbs",
+      "leg": "Lower Limbs"
+    },
+    "myProfile": "My Profile",
+    "cart": "Cart",
+    "discovery": "Discovery",
+    "title": "Our Courses",
+    "subtitle": "Explore our complete catalogs or find a course by anatomical zone.",
+    "mode3D": "3D Model",
+    "modeClassic": "Complete Catalog",
+    "interactiveAnatomy": "Interactive Anatomy",
+    "interactiveHint": "Rotate and click on an area",
+    "focus": "Focus :",
+    "emptyHint": "Interact with the 3D model on the left to discover our targeted courses by anatomical zone.",
+    "discoverCatalog": "Discover the catalog →",
+    "catalog": "Catalog :",
+    "trainingVideos": "training videos",
+    "courseSub": "Master the assessment and management protocols with this specialized training. Designed by experts from the Interventional Pain Treatment Institute.",
+    "reviews": "reviews",
+    "participants": "participants",
+    "onDemandVideo": "of on-demand video",
+    "french": "French",
+    "whatYouWillLearn": "What you will learn",
+    "learnItems": {
+      "item1": "Master the basics of clinical pain assessment.",
+      "item2": "Understand the neurophysiological mechanisms involved.",
+      "item3": "Identify indications for interventional techniques.",
+      "item4": "Acquire good practices for patient support."
+    },
+    "description": "Description",
+    "descPara1": "This training has been designed to meet the daily challenges encountered in the management of chronic and acute pain. Through theoretical modules and practical demonstrations, you will acquire skills that are directly applicable in your practice.",
+    "descPara2": "The content is regularly updated to reflect the latest medical advances and the protocols established by the ITID. You will have access to real clinical cases, evaluation quizzes, and downloadable resources.",
+    "courseContent": "Course content",
+    "videosCount": "videos",
+    "totalDuration": "Total duration :",
+    "playingVideo": "Playing video :",
+    "playlist": "Playlist",
+    "guarantee": "30-day money-back guarantee",
+    "thisCourseIncludes": "This course includes:",
+    "features": {
+      "articles": "5 articles and downloadable resources",
+      "devices": "Access on mobile and TV",
+      "lifetime": "Full lifetime access",
+      "certificate": "Certificate of completion"
+    }
+  }
+}

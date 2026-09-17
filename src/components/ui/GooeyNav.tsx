@@ -12,7 +12,32 @@ import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTransitionStore } from "../../store/transitionStore";
 
-export type GooeyNavItem = { label: string; href?: string; onClick?: () => void };
+export type GooeyNavItem = { 
+  id?: string;
+  label: string; 
+  href?: string; 
+  onClick?: () => void;
+  width?: number;
+};
+
+const DEFAULT_ITEM_WIDTHS: Record<string, number> = {
+  "nav.home": 82,
+  "/": 82,
+  "nav.pathologies": 112,
+  "/pathologies": 112,
+  "nav.treatments": 112,
+  "/traitements": 112,
+  "nav.training": 104,
+  "/formations": 104,
+  "nav.ai": 204,
+  "/ia": 204,
+  "nav.about": 134,
+  "/a-propos": 134,
+  "nav.contact": 128,
+  "contact": 128,
+  "nav.news": 98,
+  "/actualites": 98,
+};
 
 type Pos = { x: number; width: number };
 
@@ -186,8 +211,15 @@ export function GooeyNav({
         <ul className="relative z-10 flex items-stretch">
           {items.map((item, i) => {
             const isActive = i === activeIndex;
+            const itemWidth = item.width || (item.id && DEFAULT_ITEM_WIDTHS[item.id]) || (item.href && DEFAULT_ITEM_WIDTHS[item.href]);
+            const itemKey = item.id || item.href || i;
+
             return (
-              <li key={item.label}>
+              <li 
+                key={itemKey}
+                style={itemWidth ? { width: `${itemWidth}px` } : undefined}
+                className="flex-shrink-0 flex items-stretch justify-center"
+              >
                 <button
                   type="button"
                   ref={(el) => {
@@ -207,7 +239,8 @@ export function GooeyNav({
                     }
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold transition-colors duration-300 outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${isActive ? "text-white" : "text-[#8fb3d0] hover:text-white"}`}
+                  style={itemWidth ? { width: `${itemWidth}px` } : undefined}
+                  className={`relative w-full whitespace-nowrap rounded-full px-2 py-2.5 text-[13px] font-semibold transition-colors duration-300 outline-none flex items-center justify-center text-center focus-visible:ring-2 focus-visible:ring-white/40 ${isActive ? "text-white" : "text-[#8fb3d0] hover:text-white"}`}
                 >
                   {item.label}
                 </button>
