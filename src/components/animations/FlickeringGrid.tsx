@@ -115,8 +115,22 @@ export function FlickeringGrid({
           ctx.fillRect(Math.round(x * step), Math.round(y * step), sq, sq);
         }
       }
-      raf = requestAnimationFrame(draw);
+      if (isVisible) {
+        raf = requestAnimationFrame(draw);
+      }
     };
+
+    let isVisible = true;
+    const io = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(draw);
+      } else {
+        cancelAnimationFrame(raf);
+      }
+    }, { threshold: 0.05 });
+    io.observe(canvas);
 
     setup();
     raf = requestAnimationFrame(draw);
@@ -127,6 +141,7 @@ export function FlickeringGrid({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
     };
   }, [squareSize, gridGap, maxOpacity, colorKey]);
 

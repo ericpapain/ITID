@@ -18,6 +18,8 @@ function TreatmentFrontFace({ title, desc, img }: { title: string; desc: string;
         <img
           src={img}
           alt={title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover opacity-60 mix-blend-overlay transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e] via-[#0c1a2e]/60 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
@@ -119,6 +121,7 @@ export function TraitementsPremium() {
           loop
           muted
           playsInline
+          preload="metadata"
           className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
         />
         <div

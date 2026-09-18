@@ -184,8 +184,22 @@ export function Particles({
       }
       ctx.globalCompositeOperation = "source-over";
 
-      raf = requestAnimationFrame(step);
+      if (isVisible) {
+        raf = requestAnimationFrame(step);
+      }
     }
+
+    let isVisible = true;
+    const io = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(step);
+      } else {
+        cancelAnimationFrame(raf);
+      }
+    }, { threshold: 0.05 });
+    io.observe(canvas);
 
     build();
     step();
@@ -195,6 +209,7 @@ export function Particles({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
     };
   }, [quantity, connectDistance, repelRadius, palette]);
 

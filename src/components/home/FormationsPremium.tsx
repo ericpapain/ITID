@@ -43,6 +43,8 @@ export function FormationsPremium() {
             <img
               src="https://images.unsplash.com/photo-1758691462749-a95ce1bd7f96?w=600&h=380&fit=crop&auto=format&q=80"
               alt="video"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover opacity-60 mix-blend-overlay"
             />
           </motion.div>
@@ -55,6 +57,8 @@ export function FormationsPremium() {
             <img
               src="https://images.unsplash.com/photo-1758691463620-188ca7c1a04f?w=600&h=380&fit=crop&auto=format&q=80"
               alt="video"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover opacity-60 mix-blend-overlay"
             />
           </motion.div>
@@ -70,6 +74,8 @@ export function FormationsPremium() {
             <img
               src={CATEGORIES_FORMATIONS[0].videos[0].img}
               alt="video main"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
             <div className="absolute inset-0 flex items-center justify-center z-20">

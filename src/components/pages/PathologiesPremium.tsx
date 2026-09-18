@@ -81,6 +81,7 @@ export function PathologiesPremium() {
           loop
           muted
           playsInline
+          preload="metadata"
           className="absolute inset-0 w-full h-full object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0c1a2e]/90 via-[#0c1a2e]/60 to-[#0c1a2e]/90" />

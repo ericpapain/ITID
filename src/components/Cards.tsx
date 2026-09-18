@@ -55,7 +55,7 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
 
         {/* Grande Image Centrale */}
         <div className="w-full h-72 md:h-96 shrink-0 relative overflow-hidden">
-          <img alt={title} className="w-full h-full object-cover" src={img || doctorImg} />
+          <img alt={title} loading="lazy" decoding="async" className="w-full h-full object-cover" src={img || doctorImg} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] to-transparent opacity-90"></div>
           
           {/* Titre superposé */}
@@ -120,7 +120,7 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         className={`w-full ${imageHeight || 'h-72'} shrink-0 relative overflow-hidden`}
         style={{ transform: "translateZ(30px)" }}
       >
-        <img alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" src={img || doctorImg} />
+        <img alt={title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" src={img || doctorImg} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         <motion.div 
           className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-white shadow-lg border border-gray-200 transform group-hover:scale-110 transition-transform duration-300" 
@@ -212,7 +212,7 @@ export const TreatmentCard = ({ num, title, desc, icon, img, imageHeight }: any)
         className={`w-full ${imageHeight || 'h-48'} shrink-0 relative overflow-hidden`}
         style={{ transform: "translateZ(30px)" }}
       >
-        <img alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-70 group-hover:opacity-100" src={img || doctoreImg} />
+        <img alt={title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-70 group-hover:opacity-100" src={img || doctoreImg} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/80 to-transparent"></div>
         <motion.div 
           className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-white/10 backdrop-blur-md shadow-lg border border-white/20 transform group-hover:scale-110 transition-transform duration-300" 

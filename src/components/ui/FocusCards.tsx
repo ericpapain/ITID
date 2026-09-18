@@ -79,6 +79,8 @@ function FocusCard({
           <img
             src={item.img}
             alt={item.title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover opacity-60 mix-blend-overlay transition-transform duration-700 group-hover:scale-105"
           />
         )}

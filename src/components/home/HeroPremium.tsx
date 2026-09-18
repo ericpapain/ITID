@@ -92,6 +92,7 @@ export function HeroPremium() {
               loop
               muted
               playsInline
+              preload="auto"
               className="absolute top-1/2 left-1/2 w-full h-full object-cover -translate-x-1/2 -translate-y-1/2 opacity-60"
             />
           </motion.div>

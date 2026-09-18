@@ -17,7 +17,7 @@ Voici comment découper et présenter votre proposition commerciale (devis) éta
 ## 🎨 Phase 2 : Direction Artistique et UI Design (Environ 25% du prix)
 *Le client paie pour l'esthétique et l'image de marque.*
 
-*   **Création de la maquette (Figma) :** Design complet de la page d'accueil et d'une page interne type (ex: Traitements).
+*   **Création de la maquette (UI Design) :** Design complet de la page d'accueil et d'une page interne type (ex: Traitements).
 *   **Identité visuelle :** Choix de la palette de couleurs (ex: Bleu marine & Vert émeraude pour le médical), typographies modernes, sélection iconographique.
 *   **Aller-retours de validation :** 2 sessions de retouches incluses pour s'assurer que le design plaît parfaitement au client.
 *   **Livrable :** Maquettes interactives validées.

@@ -104,7 +104,7 @@ export function Carousel({
               transition={{ type: "spring", stiffness: 220, damping: 30, mass: 0.9 }}
             >
               {slide.image && (
-                <img src={slide.image} alt={slide.title} className="absolute inset-0 w-full h-full object-cover opacity-50" />
+                <img src={slide.image} alt={slide.title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover opacity-50" />
               )}
               
               {/* Fine grid texture */}

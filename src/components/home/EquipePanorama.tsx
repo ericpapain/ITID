@@ -44,6 +44,7 @@ export function EquipePanorama() {
           loop
           muted
           playsInline
+          preload="none"
           className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
         />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-[#2a9d8f]/10 rounded-full blur-[160px]" />

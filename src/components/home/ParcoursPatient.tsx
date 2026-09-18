@@ -38,6 +38,7 @@ export function ParcoursPatient() {
           loop
           muted
           playsInline
+          preload="none"
           className="absolute inset-0 w-full h-full object-cover opacity-80"
         />
         <div className="absolute inset-0 bg-[#0c1a2e]/75 backdrop-blur-[2px]" />

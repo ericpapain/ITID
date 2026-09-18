@@ -19,6 +19,8 @@ function ActiveSliderCard({ item, scrollX, index }: { item: any, scrollX: any, i
         <motion.img
           src={item.image}
           alt={item.title}
+          loading="lazy"
+          decoding="async"
           style={{ x: parallax }}
           className="absolute inset-0 w-[130%] h-full max-w-none object-cover opacity-100 transition-opacity duration-700"
         />
@@ -162,6 +164,7 @@ export function ProjectsMasonry() {
           loop
           muted
           playsInline
+          preload="none"
           className="absolute inset-0 w-full h-full object-cover opacity-100"
         />
         <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />

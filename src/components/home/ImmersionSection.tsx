@@ -64,16 +64,20 @@ export function ImmersionSection() {
             <motion.div style={{ y: y1 }} className="h-[80%] mt-[20%] rounded-2xl overflow-hidden shadow-2xl relative group">
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <img
-                src="https://images.unsplash.com/photo-1436891620584-47fd0e565afb?q=80&w=1000&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1436891620584-47fd0e565afb?q=80&w=800&auto=format&fit=crop"
                 alt="Waterfall Serenity"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-700"
               />
             </motion.div>
             <motion.div style={{ y: y2 }} className="h-[90%] rounded-2xl overflow-hidden shadow-2xl relative group">
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <img
-                src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1000&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=800&auto=format&fit=crop"
                 alt="Nature Calm"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-700"
               />
             </motion.div>

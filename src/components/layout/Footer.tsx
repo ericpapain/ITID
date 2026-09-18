@@ -35,7 +35,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-12 grid sm:grid-cols-2 md:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2.5 mb-3">
-            <img src={logo} alt="ITID Logo" className="w-11 h-11 rounded-full object-contain" />
+            <img src={logo} alt="ITID Logo" loading="lazy" decoding="async" className="w-11 h-11 rounded-full object-contain" />
             <div className="flex flex-col justify-center">
               <span className="text-white font-bold text-base leading-none tracking-wider" style={{ fontFamily: "var(--font-display)" }}>ITID</span>
               <span className="text-[#48cae4] text-[9px] font-bold tracking-[0.2em] uppercase leading-none mt-0.5">France</span>
