@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TEAM_ROLES } from "../../data";
 import { Plus, X, Sparkles } from "lucide-react";
 import equipepaintImg from "../../images/equipepaint.png";
 import videoFond from "../../images/ITID-VIDEO-fond.mp4";
 import { useTypewriter } from "../../hooks/useTypewriter";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 
 const CATEGORIES = [
@@ -15,9 +16,18 @@ const CATEGORIES = [
 
 export function EquipePanorama() {
   const { t } = useTranslation();
-  const { displayedText, showCursor, ref: typeRef } = useTypewriter("Une Équipe Pluridisciplinaire");
+  const isMobile = useIsMobile();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const teamTitle = t("team.title", "Une Équipe Pluridisciplinaire");
+  const { displayedText, showCursor, ref: typeRef } = useTypewriter(teamTitle);
   const [selectedCategory, setSelectedCategory] = useState<typeof CATEGORIES[0] | null>(null);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isMobile && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isMobile]);
 
   const activeRoles = selectedCategory
     ? TEAM_ROLES.filter((item) => item.category === selectedCategory.id)
@@ -28,8 +38,10 @@ export function EquipePanorama() {
       {/* Background Parallax & Glow */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <video
+          ref={videoRef}
           src={videoFond}
-          autoPlay
+          autoPlay={!isMobile}
+          loop
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
@@ -55,8 +67,8 @@ export function EquipePanorama() {
             </span>
             <span className={`inline-block w-[4px] md:w-[6px] h-[0.9em] bg-[#1a3a5c] align-middle ml-2 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-75`} />
           </h2>
-          <p className="mt-4 text-gray-600 text-base max-w-xl mx-auto font-light">
-            Cliquez sur le bouton « Découvrir » d'une pile pour ouvrir sa fiche détaillée.
+          <p className="mt-4 text-gray-600 text-sm sm:text-base max-w-xl mx-auto font-light">
+            {t("team.subtitle", "Cliquez sur le bouton « Découvrir » d'une pile pour ouvrir sa fiche détaillée.")}
           </p>
         </motion.div>
 
@@ -78,7 +90,7 @@ export function EquipePanorama() {
                         {t(cat.titleKey, cat.title)}
                       </h3>
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30">
-                        {roles.length} {roles.length > 1 ? "membres" : "membre"}
+                        {roles.length > 1 ? t("team.members_other", { count: roles.length }) : t("team.members_one", { count: roles.length })}
                       </span>
                     </div>
                   </div>
@@ -89,7 +101,7 @@ export function EquipePanorama() {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg interactive bg-[#2a9d8f] text-white hover:bg-[#21867a] shadow-[0_0_20px_rgba(42,157,143,0.4)]"
                   >
                     <Plus className="w-4 h-4" />
-                    Découvrir ({roles.length})
+                    {t("team.discoverCount", { count: roles.length, defaultValue: `Découvrir (${roles.length})` })}
                   </button>
                 </div>
 
@@ -129,7 +141,7 @@ export function EquipePanorama() {
                           </span>
                           {idx === 0 && (
                             <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30">
-                              Sommet de pile
+                              {t("team.topOfStack", "Sommet de pile")}
                             </span>
                           )}
                         </div>
@@ -178,7 +190,7 @@ export function EquipePanorama() {
                       {t(selectedCategory.titleKey, selectedCategory.title)}
                     </h3>
                     <p className="text-xs text-[#2a9d8f] font-semibold mt-1">
-                      {selectedCategory.badge} engagés pour votre parcours de soins
+                      {selectedCategory.badge} {t("team.committed", "engagés pour votre parcours de soins")}
                     </p>
                   </div>
                 </div>
@@ -186,6 +198,7 @@ export function EquipePanorama() {
                 <button
                   type="button"
                   onClick={() => setSelectedCategory(null)}
+                  aria-label={t("common.close", "Fermer")}
                   className="w-10 h-10 rounded-full bg-black/5 hover:bg-black/10 text-[#1a3a5c] flex items-center justify-center transition-colors text-xl font-bold"
                 >
                   <X className="w-5 h-5" />
@@ -206,7 +219,7 @@ export function EquipePanorama() {
                         {item.icon}
                       </span>
                       <span className="text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full bg-[#2a9d8f]/10 text-[#2a9d8f] border border-[#2a9d8f]/30">
-                        Pôle ITID
+                        {t("team.pole", "Pôle ITID")}
                       </span>
                     </div>
 

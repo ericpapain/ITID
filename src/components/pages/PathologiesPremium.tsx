@@ -8,9 +8,12 @@ import { ContentNavigator } from "../ui/ContentNavigator";
 import spineImg from "../../images/spine_isolated.png";
 import bgVideo from "../../images/pathologie-2.mp4";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 export function PathologiesPremium() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -22,7 +25,13 @@ export function PathologiesPremium() {
     desc: t(item.desc)
   }));
   const angleStep = 360 / items.length;
-  const radius = 500; // Distance from center
+  const radius = isMobile ? 240 : 500; // Distance from center
+
+  useEffect(() => {
+    if (isMobile && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isMobile]);
 
   // Update active index based on rotation (only when index actually changes)
   useEffect(() => {
@@ -66,8 +75,10 @@ export function PathologiesPremium() {
       {/* Background Decor */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden bg-[#0c1a2e]">
         <video 
+          ref={videoRef}
           src={bgVideo} 
-          autoPlay
+          autoPlay={!isMobile}
+          loop
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-60"
@@ -77,7 +88,7 @@ export function PathologiesPremium() {
       </div>
 
       {/* Barre supérieure unifiée : Retour (gauche), Titre (centre), Sélecteur (droite) */}
-      <div className="max-w-7xl mx-auto px-6 w-full relative z-50 mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full relative z-50 mb-8">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           {/* Gauche : Bouton retour */}
           <div className="w-full lg:w-auto flex justify-start">
@@ -85,16 +96,16 @@ export function PathologiesPremium() {
               as="Link"
               to="/"
             >
-              ← Retour à l'accueil
+              ← {t('common.backHome', "Retour à l'accueil")}
             </ShimmerButton>
           </div>
 
           {/* Centre : Titre Cartographie des Pathologies */}
           <div className="text-center flex-1">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
-              Cartographie des{" "}
+              {t('pathologies.mappingTitle', 'Cartographie des')}{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a9d8f] to-[#48cae4]">
-                Pathologies
+                {t('pathologies.mappingHighlight', 'Pathologies')}
               </span>
             </h2>
           </div>
@@ -103,7 +114,7 @@ export function PathologiesPremium() {
           <div className="w-full lg:w-72 xl:w-80 text-left">
             <ContentNavigator 
               items={items} 
-              placeholder="Choisir une pathologie" 
+              placeholder={t('common.chooseCondition', 'Choisir une pathologie')} 
               onSelect={handleSelect} 
               theme="dark" 
             />
@@ -238,7 +249,7 @@ function CarouselItem({ item, angle, radius, isActive, carouselRotation, index, 
         transformStyle: "preserve-3d",
         zIndex: isActive ? 40 : 20
       }}
-      className={`w-[280px] pointer-events-auto transition-all duration-500 ${isActive ? 'scale-105 drop-shadow-[0_0_30px_rgba(72,209,194,0.4)]' : ''}`}
+      className={`w-[240px] sm:w-[280px] pointer-events-auto transition-all duration-500 ${isActive ? 'scale-105 drop-shadow-[0_0_30px_rgba(72,209,194,0.4)]' : ''}`}
     >
       <motion.div style={{ rotateY, scale, opacity }} className="relative h-full">
         <MedicalCard {...item} color="#4ade80" />

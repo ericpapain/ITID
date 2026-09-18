@@ -27,7 +27,13 @@
     "suggestedFormations": "Suggested Training",
     "selectArea": "Select an area",
     "zones": "Zones:",
-    "addToCart": "Add selection to cart"
+    "addToCart": "Add selection to cart",
+    "comingSoon": "Coming soon",
+    "menu": "Menu",
+    "language": "Language",
+    "details": "Details",
+    "escOrClickToClose": "Press Esc or click outside to close",
+    "discover": "Discover"
   },
   "buttons": {
     "bookAppointment": "Book an appointment",
@@ -60,6 +66,8 @@
     "about": "About us"
   },
   "pathologies": {
+    "mappingTitle": "Mapping of",
+    "mappingHighlight": "Conditions",
     "lombalgie": {
       "title": "Chronic Low Back Pain",
       "desc": "Persistent lower back pain, with or without radiating pain in the leg (sciatica or cruralgia), can be related to osteoarthritis, a herniated disc, narrowing of the lumbar canal (spinal stenosis), or other spinal conditions.\n\nDepending on the identified cause, several interventional techniques may be proposed, including image-guided spinal injections, diagnostic blocks, or targeted treatments of the pain-generating structures.\n\nA specialized evaluation will determine the most suitable solutions to improve your daily comfort and mobility."
@@ -98,6 +106,9 @@
     }
   },
   "treatments": {
+    "allOur": "All our",
+    "title": "Treatments",
+    "subtitle": "Discover in detail the image-guided interventional techniques offered by ITID. Minimally invasive solutions for your relief.",
     "t01": {
       "title": "Spinal and Epidural Injections",
       "desc": "Spinal and epidural injections involve injecting an anti-inflammatory or anesthetic medication near the structures responsible for the pain.\n\nThese techniques are particularly used in:\n- lower back pain;\n- sciatica;\n- herniated discs;\n- certain cervical pains.\n\nPerformed under radiological or ultrasound guidance, they provide precise and safe treatment."
@@ -156,6 +167,14 @@
     }
   },
   "team": {
+    "title": "A Multidisciplinary Team",
+    "subtitle": "Click on the \"Discover\" button of a stack to open its detailed profile.",
+    "topOfStack": "Top of stack",
+    "pole": "ITID Department",
+    "committed": "committed to your care journey",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members",
+    "discoverCount": "Discover ({{count}})",
     "medecin_algologue": {
       "role": "Pain Medicine Specialist",
       "detail": "Specialist in pain evaluation and treatment. This also includes physicians in specialized training, bringing clinical expertise and innovation to each care protocol."
@@ -194,6 +213,8 @@
     }
   },
   "parcours": {
+    "heading": "Your care journey at ITID",
+    "step": "Step {{step}}",
     "step1": {
       "title": "Medical Referral",
       "desc": "Referred by your primary care physician or a specialist."
@@ -686,5 +707,31 @@
       "lifetime": "Full lifetime access",
       "certificate": "Certificate of completion"
     }
+  },
+  "formationsPage": {
+    "backHome": "Back to Home",
+    "teaserBadge": "ITID Academy • In Development",
+    "titleMain": "The Training Academy",
+    "titleHighlight": "Is Coming Very Soon",
+    "description": "Our ITID doctors and specialists are finalizing a comprehensive curriculum of medical masterclasses, guided intervention videos, and immersive clinical cases.",
+    "emailPlaceholder": "Your professional email address",
+    "notifyMe": "Notify me at launch",
+    "successMessage": "Thank you! You will receive early access news as soon as the Academy opens.",
+    "openingDate": "Expected opening late 2026",
+    "clinicalCert": "Clinical certifications",
+    "contributeTitle": "Are you a physician or speaker wishing to contribute?",
+    "contributeDesc": "ITID actively collaborates with pain physicians, surgeons, and researchers to enrich its educational modules.",
+    "contactPole": "Contact the training department"
+  },
+  "ia": {
+    "lockedTitle": "Strictly Restricted Access",
+    "lockedDesc": "The \"Doctor, I have a question\" tool is a clinical decision support tool reserved exclusively for healthcare professionals. This tool must not be used for self-diagnosis under any circumstances.",
+    "lockedNotice": "If you are a medical practitioner, please log in with a verified \"Healthcare Professional\" account to access this feature.",
+    "btnEditProfile": "Edit my profile",
+    "btnLoginPro": "Log in as Healthcare Pro",
+    "comingSoonBadge": "⏳ This feature is coming soon",
+    "disclaimer": "This AI assistant is a clinical decision support tool. It in no way replaces the judgment and expertise of the physician.",
+    "rotateHint": "Rotate 3D model to locate pain ↺",
+    "welcomePro": "Hello Doctor. I am the ITID AI assistant specializing in the diagnosis and referral of chronic pain. Please describe your patient's clinical case, symptoms, and pain history so I can suggest diagnostic pathways, relevant additional tests, or the appropriate specialist on our platform."
   }
 }

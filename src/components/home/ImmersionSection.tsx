@@ -60,7 +60,7 @@ export function ImmersionSection() {
             </ShimmerButton>
           </motion.div>
 
-          <div className="w-full lg:w-1/2 h-[600px] relative grid grid-cols-2 gap-4">
+          <div className="w-full lg:w-1/2 h-[340px] sm:h-[420px] lg:h-[600px] relative grid grid-cols-2 gap-3 sm:gap-4">
             <motion.div style={{ y: y1 }} className="h-[80%] mt-[20%] rounded-2xl overflow-hidden shadow-2xl relative group">
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <img

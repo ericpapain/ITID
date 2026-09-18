@@ -37,7 +37,7 @@ export function StatsPremium() {
   return (
     <section className="py-24 bg-[#f7f4ef] relative border-y border-[#d8d2c8]">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-[#d8d2c8]/50">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 md:gap-8 md:divide-x md:divide-[#d8d2c8]/50">
           {stats.map((stat, idx) => (
             <div
               key={idx}

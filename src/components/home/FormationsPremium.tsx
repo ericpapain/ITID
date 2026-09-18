@@ -109,7 +109,7 @@ export function FormationsPremium() {
             as="Link"
             to="/formations"
           >
-            {t('formationsPremium.cta')} <span className="text-xs bg-white/20 px-2.5 py-0.5 rounded-full font-medium ml-2">Arrive bientôt</span>
+            {t('formationsPremium.cta')} <span className="text-xs bg-white/20 px-2.5 py-0.5 rounded-full font-medium ml-2">{t('common.comingSoon', 'Arrive bientôt')}</span>
           </ShimmerButton>
         </motion.div>
 

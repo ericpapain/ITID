@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "../../lib/utils";
+import { useTranslation } from "react-i18next";
 
 export interface Milestone {
   date: string;
@@ -25,8 +26,8 @@ const DEFAULT_MILESTONES: Milestone[] = [
   },
   {
     date: "Étape 04",
-    title: "Suivi et réévaluation",
-    description: "Les résultats sont régulièrement évalués afin d’adapter les traitements et maintenir la coordination avec vos différents médecins.",
+    title: "Suivi & réévaluation continue",
+    description: "Des consultations régulières permettent d’ajuster les soins et de mesurer l’amélioration de votre confort de vie.",
   },
 ];
 
@@ -45,6 +46,7 @@ export function TimelineHorizontal({
   milestones?: Milestone[];
   className?: string;
 }) {
+  const { t } = useTranslation();
   const steps = milestones.slice(0, 4);
   const [activeStep, setActiveStep] = useState(0);
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
@@ -276,7 +278,7 @@ export function TimelineHorizontal({
                     "text-[10px] px-2 py-0.5 rounded-full",
                     isActive ? "bg-white/20 text-white font-semibold" : "text-[#48cae4] bg-white/10"
                   )}>
-                    Détails ⤢
+                    {t('common.details', 'Détails')} ⤢
                   </span>
                 </div>
                 <h3 className="text-base font-bold text-white mb-1.5 leading-snug">
@@ -303,14 +305,14 @@ export function TimelineHorizontal({
           onClick={() => setSelectedMilestone(null)}
         >
           <div
-            className="relative w-full max-w-xl rounded-3xl border-2 border-[#48d1c2] bg-[#0c1a2e] p-7 md:p-10 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_50px_rgba(72,209,194,0.3)] text-left transform transition-all duration-300 scale-100"
+            className="relative w-full max-w-xl rounded-3xl border-2 border-[#48d1c2] bg-[#0c1a2e] p-6 sm:p-7 md:p-10 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_50px_rgba(72,209,194,0.3)] text-left transform transition-all duration-300 scale-100 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Bouton fermeture */}
             <button
               onClick={() => setSelectedMilestone(null)}
               className="absolute top-5 right-5 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors text-lg"
-              aria-label="Fermer"
+              aria-label={t('common.close', 'Fermer')}
             >
               ✕
             </button>
@@ -332,15 +334,15 @@ export function TimelineHorizontal({
             </p>
 
             {/* Pied de modal avec bouton de fermeture */}
-            <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between">
-              <span className="text-xs text-slate-400">
-                Appuyez sur Échap ou cliquez à l'extérieur pour fermer
+            <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs text-slate-400 text-center sm:text-left">
+                {t('common.escOrClickToClose', "Appuyez sur Échap ou cliquez à l'extérieur pour fermer")}
               </span>
               <button
                 onClick={() => setSelectedMilestone(null)}
-                className="px-6 py-2.5 rounded-full bg-[#2a9d8f] hover:bg-[#48d1c2] text-white font-semibold text-sm transition-colors shadow-lg"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#2a9d8f] hover:bg-[#48d1c2] text-white font-semibold text-sm transition-colors shadow-lg"
               >
-                Fermer
+                {t('common.close', 'Fermer')}
               </button>
             </div>
           </div>

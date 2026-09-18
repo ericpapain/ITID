@@ -27,7 +27,13 @@
     "suggestedFormations": "Formations suggérées",
     "selectArea": "Sélectionnez une zone",
     "zones": "Zones :",
-    "addToCart": "Ajouter la sélection au panier"
+    "addToCart": "Ajouter la sélection au panier",
+    "comingSoon": "Arrive bientôt",
+    "menu": "Menu",
+    "language": "Langue",
+    "details": "Détails",
+    "escOrClickToClose": "Appuyez sur Échap ou cliquez à l'extérieur pour fermer",
+    "discover": "Découvrir"
   },
   "buttons": {
     "bookAppointment": "Prendre rendez-vous",
@@ -60,6 +66,8 @@
     "about": "A propos de nous"
   },
   "pathologies": {
+    "mappingTitle": "Cartographie des",
+    "mappingHighlight": "Pathologies",
     "lombalgie": {
       "title": "Lombalgie chronique",
       "desc": "Les douleurs lombaires persistantes, avec ou sans irradiation dans la jambe (sciatique ou cruralgie), peuvent être liées à l'arthrose, à une hernie discale, à un rétrécissement du canal lombaire (canal lombaire étroit) ou à d'autres atteintes de la colonne vertébrale.\n\nSelon la cause identifiée, plusieurs techniques interventionnelles peuvent être proposées, notamment des infiltrations rachidiennes guidées, des blocs diagnostiques ou des traitements ciblés des structures responsables de la douleur.\n\nUne évaluation spécialisée permet de déterminer les solutions les plus adaptées pour améliorer votre confort quotidien et votre mobilité."
@@ -98,6 +106,9 @@
     }
   },
   "treatments": {
+    "allOur": "Tous nos",
+    "title": "Traitements",
+    "subtitle": "Découvrez en détail les techniques interventionnelles guidées par imagerie proposées par l'ITID. Des solutions minimalement invasives pour votre soulagement.",
     "t01": {
       "title": "Infiltrations rachidiennes et épidurales",
       "desc": "Les infiltrations rachidiennes et épidurales consistent à injecter un médicament anti-inflammatoire ou anesthésique à proximité des structures responsables de la douleur.\n\nCes techniques sont notamment utilisées dans :\n- les lombalgies ;\n- les sciatiques ;\n- les hernies discales ;\n- certaines douleurs cervicales.\n\nRéalisées sous contrôle radiologique ou échographique, elles permettent un traitement précis et sécurisé."
@@ -156,6 +167,14 @@
     }
   },
   "team": {
+    "title": "Une Équipe Pluridisciplinaire",
+    "subtitle": "Cliquez sur le bouton « Découvrir » d'une pile pour ouvrir sa fiche détaillée.",
+    "topOfStack": "Sommet de pile",
+    "pole": "Pôle ITID",
+    "committed": "engagés pour votre parcours de soins",
+    "members_one": "{{count}} membre",
+    "members_other": "{{count}} membres",
+    "discoverCount": "Découvrir ({{count}})",
     "medecin_algologue": {
       "role": "Médecin algologue",
       "detail": "Spécialiste de l'évaluation et du traitement de la douleur. Ils incluent également des médecins en formation spécialisée, apportant expertise clinique et innovation dans chaque protocole de soins."
@@ -194,6 +213,8 @@
     }
   },
   "parcours": {
+    "heading": "Votre parcours à l’ITID",
+    "step": "Étape {{step}}",
     "step1": {
       "title": "Orientation médicale",
       "desc": "Adressé par votre médecin traitant ou un spécialiste."
@@ -686,5 +707,31 @@
       "lifetime": "Accès illimité à vie",
       "certificate": "Certificat de fin de formation"
     }
+  },
+  "formationsPage": {
+    "backHome": "Retour à l'accueil",
+    "teaserBadge": "ITID Academy • En cours de création",
+    "titleMain": "L'Académie de Formation",
+    "titleHighlight": "Arrive Très Bientôt",
+    "description": "Nos médecins et spécialistes ITID finalisent actuellement un cursus complet de masterclasses médicales, vidéos d'interventions guidées et cas cliniques immersifs.",
+    "emailPlaceholder": "Votre adresse email professionnelle",
+    "notifyMe": "M'avertir du lancement",
+    "successMessage": "Merci ! Vous serez informé(e) en avant-première dès l'ouverture de l'Académie.",
+    "openingDate": "Ouverture prévue fin 2026",
+    "clinicalCert": "Certifications cliniques",
+    "contributeTitle": "Vous êtes médecin ou intervenant et souhaitez contribuer ?",
+    "contributeDesc": "L'ITID collabore activement avec les praticiens algologues, chirurgiens et chercheurs pour enrichir ses modules pédagogiques.",
+    "contactPole": "Contacter le pôle formation"
+  },
+  "ia": {
+    "lockedTitle": "Accès strictement réservé",
+    "lockedDesc": "L'outil « Docteur j'ai une question » est un outil d'aide au diagnostic exclusif aux professionnels de santé. Cet outil ne doit en aucun cas être utilisé pour l'autodiagnostic.",
+    "lockedNotice": "Si vous êtes praticien, veuillez vous connecter avec un compte validé \"Professionnel de santé\" pour débloquer cette fonctionnalité.",
+    "btnEditProfile": "Modifier mon profil",
+    "btnLoginPro": "Me connecter en tant que Pro",
+    "comingSoonBadge": "⏳ Cette fonctionnalité arrive bientôt",
+    "disclaimer": "Cet assistant IA est un outil d'aide à la décision clinique. Il ne remplace en aucun cas le jugement et l'expertise du médecin.",
+    "rotateHint": "Faites pivoter pour localiser la douleur ↺",
+    "welcomePro": "Bonjour Docteur. Je suis l'assistant IA de l'ITID spécialisé dans le diagnostic et l'orientation des douleurs chroniques. Décrivez-moi le cas clinique de votre patient, ses symptômes et l'historique de sa douleur pour que je puisse vous proposer des pistes diagnostiques, des examens complémentaires pertinents ou le spécialiste adapté sur la plateforme."
   }
 }

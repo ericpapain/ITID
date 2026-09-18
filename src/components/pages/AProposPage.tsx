@@ -58,9 +58,9 @@ export function AProposPage() {
                   </div>
                   <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{t('about.info.title')}</h3>
                   <div className="space-y-4 text-sm leading-relaxed" style={{ color: "#4a5568" }}>
-                    <p><strong>{t('about.info.addressTitle')}</strong><br />25 avenue des Mailles<br />Saint-Julien-les-Villas — 10800 TROYES<br />Espace Médical de Spécialistes de Champagne</p>
-                    <p><strong>{t('about.info.hoursTitle')}</strong><br />Lundi au Vendredi : 08h30 - 18h30<br />Fermé le week-end</p>
-                    <p><strong>{t('about.info.contactTitle')}</strong><br />Tél : 03 51 53 20 26</p>
+                    <p><strong>{t('about.info.addressTitle')}</strong><br /><span className="whitespace-pre-line">{t('about.info.address')}</span></p>
+                    <p><strong>{t('about.info.hoursTitle')}</strong><br /><span className="whitespace-pre-line">{t('about.info.hours')}</span></p>
+                    <p><strong>{t('about.info.contactTitle')}</strong><br /><span className="whitespace-pre-line">{t('about.info.contact')}</span></p>
                   </div>
                 </div>
                 <div className="text-[11px] text-gray-400 font-medium mt-4">

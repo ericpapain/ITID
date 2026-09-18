@@ -4,6 +4,7 @@ import { TransitionLink } from "../ui/TransitionLink";
 import { ShimmerButton } from "../ui/ShimmerButton";
 import videoIntervention from "../../images/video-intervention.mp4";
 import { useTypewriter } from "../../hooks/useTypewriter";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 
 function ActiveSliderCard({ item, scrollX, index }: { item: any, scrollX: any, index: number }) {
@@ -86,10 +87,18 @@ export function ProjectsMasonry() {
     }
   ];
 
+  const isMobile = useIsMobile();
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { displayedText, showCursor, ref: typeRef } = useTypewriter(t('masonry.title1') + t('masonry.title2'));
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollX = useMotionValue(0);
   const springScroll = useSpring(scrollX, { stiffness: 100, damping: 20 });
+
+  useEffect(() => {
+    if (isMobile && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isMobile]);
 
   // Velocity-based skew effect
   const skewX = useTransform(springScroll, (v) => {
@@ -147,8 +156,10 @@ export function ProjectsMasonry() {
       {/* Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-gray-100">
         <video
+          ref={videoRef}
           src={videoIntervention}
-          autoPlay
+          autoPlay={!isMobile}
+          loop
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-100"

@@ -3,8 +3,10 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { HumanModel } from "./three/HumanModel";
 import { useAnatomyStore } from "../store/anatomyStore";
+import { useTranslation } from "react-i18next";
 
 export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { isAuthenticated: boolean; userRole: string; setShowAuthModal: (v: boolean) => void }) {
+  const { t } = useTranslation();
   const selectedBodyPart = useAnatomyStore(state => state.selectedBodyPart);
   const isMultiSelect = useAnatomyStore(state => state.isMultiSelect);
   const setIsMultiSelect = useAnatomyStore(state => state.setIsMultiSelect);
@@ -17,10 +19,10 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
   useEffect(() => {
     if (isAuthenticated && userRole === "pro" && messages.length === 0) {
       setMessages([
-        { role: "ia", text: "Bonjour Docteur. Je suis l'assistant IA de l'ITID spécialisé dans le diagnostic et l'orientation des douleurs chroniques. Décrivez-moi le cas clinique de votre patient, ses symptômes et l'historique de sa douleur pour que je puisse vous proposer des pistes diagnostiques, des examens complémentaires pertinents ou le spécialiste adapté sur la plateforme." }
+        { role: "ia", text: t("ia.welcomePro", "Bonjour Docteur. Je suis l'assistant IA de l'ITID spécialisé dans le diagnostic et l'orientation des douleurs chroniques. Décrivez-moi le cas clinique de votre patient, ses symptômes et l'historique de sa douleur pour que je puisse vous proposer des pistes diagnostiques, des examens complémentaires pertinents ou le spécialiste adapté sur la plateforme.") }
       ]);
     }
-  }, [isAuthenticated, userRole, messages.length]);
+  }, [isAuthenticated, userRole, messages.length, t]);
 
   useEffect(() => {
     if (selectedBodyPart && !isMultiSelect && isAuthenticated && userRole === "pro") {
@@ -79,19 +81,19 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
   if (!isAuthenticated || userRole !== "pro") {
     return (
       <div className="pt-32 pb-24 min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--background)" }}>
-        <div className="max-w-xl text-center px-6">
+        <div className="max-w-xl text-center px-4 sm:px-6">
           <div className="w-24 h-24 mx-auto mb-8 bg-[#1a3a5c] rounded-full flex items-center justify-center shadow-xl">
             <span className="text-5xl text-white">🔒</span>
           </div>
-          <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
-            Accès strictement réservé
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>
+            {t("ia.lockedTitle", "Accès strictement réservé")}
           </h2>
-          <p className="text-lg mb-8" style={{ color: "#6b7c93" }}>
-            L'outil « Docteur j'ai une question » est un outil d'aide au diagnostic exclusif aux professionnels de santé. Cet outil ne doit en aucun cas être utilisé pour l'autodiagnostic.
+          <p className="text-base sm:text-lg mb-8" style={{ color: "#6b7c93" }}>
+            {t("ia.lockedDesc", "L'outil « Docteur j'ai une question » est un outil d'aide au diagnostic exclusif aux professionnels de santé. Cet outil ne doit en aucun cas être utilisé pour l'autodiagnostic.")}
           </p>
           <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-2xl mb-8">
             <p className="text-sm text-yellow-800 font-medium">
-              Si vous êtes praticien, veuillez vous connecter avec un compte validé "Professionnel de santé" pour débloquer cette fonctionnalité.
+              {t("ia.lockedNotice", "Si vous êtes praticien, veuillez vous connecter avec un compte validé \"Professionnel de santé\" pour débloquer cette fonctionnalité.")}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -99,10 +101,10 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
               disabled
               className="px-8 py-4 rounded-xl font-bold text-gray-500 bg-gray-200 border border-gray-300 cursor-not-allowed opacity-70 shadow-none select-none"
             >
-              {isAuthenticated ? "Modifier mon profil" : "Me connecter en tant que Pro"}
+              {isAuthenticated ? t("ia.btnEditProfile", "Modifier mon profil") : t("ia.btnLoginPro", "Me connecter en tant que Pro")}
             </button>
             <span className="text-sm font-medium text-[#6b7c93] bg-gray-100/90 px-4 py-3 rounded-xl border border-gray-200 shadow-sm">
-              ⏳ Cette fonctionnalité arrive bientôt
+              {t("ia.comingSoonBadge", "⏳ Cette fonctionnalité arrive bientôt")}
             </span>
           </div>
         </div>
@@ -113,8 +115,8 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
   return (
     <div className="pt-24 min-h-screen flex flex-col" style={{ background: "var(--background)" }}>
       {/* Disclaimer Banner */}
-      <div className="w-full bg-[#1a3a5c] text-white py-3 px-6 text-center text-xs sm:text-sm font-medium z-10 shadow-md">
-        <span className="mr-2">⚠️</span> <strong>Avertissement :</strong> Cet assistant IA est un outil d'aide à la décision clinique. Il ne remplace en aucun cas le jugement et l'expertise du médecin.
+      <div className="w-full bg-[#1a3a5c] text-white py-3 px-4 sm:px-6 text-center text-xs sm:text-sm font-medium z-10 shadow-md">
+        <span className="mr-2">⚠️</span> <strong>{t("common.warning", "Avertissement")} :</strong> {t("ia.disclaimer", "Cet assistant IA est un outil d'aide à la décision clinique. Il ne remplace en aucun cas le jugement et l'expertise du médecin.")}
       </div>
 
       <div className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full">
@@ -137,7 +139,7 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
           </Canvas>
           <div className="absolute bottom-6 left-6 right-6 pointer-events-none flex flex-col items-center gap-3">
             <div className="bg-white/80 backdrop-blur px-4 py-2 rounded-full shadow-lg border border-gray-200 text-xs text-[#1a3a5c] font-medium pointer-events-auto text-center flex items-center gap-3">
-              <span>Faites pivoter pour localiser la douleur ↺</span>
+              <span>{t("ia.rotateHint", "Faites pivoter pour localiser la douleur ↺")}</span>
               <div className="w-[1px] h-4 bg-gray-300 mx-1" />
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
@@ -146,7 +148,7 @@ export function AssistantIA({ isAuthenticated, userRole, setShowAuthModal }: { i
                   onChange={(e) => setIsMultiSelect(e.target.checked)} 
                   className="rounded text-[#2a9d8f] focus:ring-[#2a9d8f]"
                 />
-                Sélection multiple
+                {t("common.multiSelect", "Sélection multiple")}
               </label>
             </div>
             {isMultiSelect && selectedBodyParts.length > 0 && (
