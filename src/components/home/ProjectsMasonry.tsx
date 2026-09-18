@@ -161,7 +161,6 @@ export function ProjectsMasonry() {
           ref={videoRef}
           src={videoIntervention}
           autoPlay={!isMobile}
-          loop
           muted
           playsInline
           preload="none"

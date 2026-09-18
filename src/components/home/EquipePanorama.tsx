@@ -41,7 +41,6 @@ export function EquipePanorama() {
           ref={videoRef}
           src={videoFond}
           autoPlay={!isMobile}
-          loop
           muted
           playsInline
           preload="none"

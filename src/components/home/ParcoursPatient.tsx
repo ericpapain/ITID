@@ -35,7 +35,6 @@ export function ParcoursPatient() {
           ref={videoRef}
           src={parcoursVideo}
           autoPlay={!isMobile}
-          loop
           muted
           playsInline
           preload="none"

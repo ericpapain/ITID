@@ -78,7 +78,6 @@ export function PathologiesPremium() {
           ref={videoRef}
           src={bgVideo} 
           autoPlay={!isMobile}
-          loop
           muted
           playsInline
           preload="metadata"
