@@ -12,7 +12,7 @@ import { useIsMobile } from "../../hooks/useIsMobile";
 
 export function PathologiesPremium() {
   const { t } = useTranslation();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(1024);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -25,7 +25,7 @@ export function PathologiesPremium() {
     desc: t(item.desc)
   }));
   const angleStep = 360 / items.length;
-  const radius = isMobile ? 240 : 500; // Distance from center
+  const radius = 500; // Distance from center on desktop
 
   useEffect(() => {
     if (isMobile && videoRef.current) {
@@ -33,19 +33,20 @@ export function PathologiesPremium() {
     }
   }, [isMobile]);
 
-  // Update active index based on rotation (only when index actually changes)
+  // Update active index based on rotation (only on desktop when index actually changes)
   useEffect(() => {
+    if (isMobile) return;
     return smoothRotation.on("change", (v) => {
       let normalized = ((v % 360) + 360) % 360;
       let idx = Math.round((360 - normalized) / angleStep) % items.length;
       if (idx < 0) idx += items.length;
       setActiveIdx(prev => (prev !== idx ? idx : prev));
     });
-  }, [smoothRotation, angleStep, items.length]);
+  }, [smoothRotation, angleStep, items.length, isMobile]);
 
   useAnimationFrame((t, delta) => {
-    if (!isDragging) {
-      // Rotation très lente et continue
+    // Only spin slowly on desktop when not dragging
+    if (!isMobile && !isDragging) {
       rotation.set(rotation.get() - delta * 0.005);
     }
   });
@@ -63,10 +64,19 @@ export function PathologiesPremium() {
   };
 
   const handleSelect = (item: any, index: number) => {
-    const currentRot = rotation.get();
-    const targetAngle = -index * angleStep;
-    const diff = ((targetAngle - currentRot) % 360 + 360 + 180) % 360 - 180;
-    rotation.set(currentRot + diff);
+    if (isMobile) {
+      // Sur mobile : défilement doux vers la carte cliquable dans la liste
+      const targetEl = document.getElementById(`pathology-card-${index}`);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      setSelectedItem(item);
+    } else {
+      const currentRot = rotation.get();
+      const targetAngle = -index * angleStep;
+      const diff = ((targetAngle - currentRot) % 360 + 360 + 180) % 360 - 180;
+      rotation.set(currentRot + diff);
+    }
   };
 
   return (
@@ -122,9 +132,98 @@ export function PathologiesPremium() {
         </div>
       </div>
 
-      {/* 3D Carousel Scene avec z-20 pour que les cartes soient toujours au premier plan */}
+      {/* ========================================================= */}
+      {/* 1. VERSION MOBILE : Cartes cliquables sur toute la longueur */}
+      {/*    (Défilement naturel au fur et à mesure du scroll)      */}
+      {/* ========================================================= */}
+      <div className="lg:hidden w-full max-w-xl mx-auto px-4 sm:px-6 relative z-20 flex flex-col gap-4 mt-2 mb-8">
+        <div className="text-center text-xs text-cyan-200/90 mb-1 flex items-center justify-center gap-2 bg-white/5 py-1.5 px-3.5 rounded-full border border-white/10 w-fit mx-auto backdrop-blur-md">
+          <span className="w-2 h-2 rounded-full bg-[#48cae4] animate-pulse" />
+          <span>{t("pathologies.mobileHint", "Appuyez sur une carte pour voir tous les détails")}</span>
+        </div>
+
+        {items.map((item, index) => (
+          <motion.article
+            key={item.title}
+            id={`pathology-card-${index}`}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-30px" }}
+            transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25) }}
+            onClick={() => setSelectedItem(item)}
+            className="group relative overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-[#10243e]/95 via-[#0d1c31]/95 to-[#091524]/95 backdrop-blur-md p-4 sm:p-5 shadow-xl transition-all duration-300 hover:border-[#48cae4]/60 active:scale-[0.98] cursor-pointer"
+          >
+            {/* Liseré lumineux coloré en haut */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-1"
+              style={{ backgroundColor: item.color || '#48cae4' }}
+            />
+
+            <div className="flex items-start gap-3.5 sm:gap-4">
+              {/* Image miniature avec badge icône */}
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-xl overflow-hidden border border-white/15 shadow-md">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-1 right-1 w-7 h-7 rounded-lg bg-black/80 backdrop-blur-sm flex items-center justify-center text-sm border border-white/20">
+                  {item.icon}
+                </div>
+              </div>
+
+              {/* Titre et extrait */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span 
+                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border"
+                    style={{
+                      color: item.color || '#48cae4',
+                      borderColor: `${item.color || '#48cae4'}40`,
+                      backgroundColor: `${item.color || '#48cae4'}15`
+                    }}
+                  >
+                    Pathologie #{String(index + 1).padStart(2, '0')}
+                  </span>
+                </div>
+
+                <h3
+                  className="text-lg sm:text-xl font-bold text-white leading-snug group-hover:text-[#48cae4] transition-colors"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  {item.title}
+                </h3>
+
+                <p className="mt-1 text-xs sm:text-sm text-gray-300 leading-relaxed line-clamp-2 font-light">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+
+            {/* Pied de carte avec incitation au clic */}
+            <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+              <span className="text-gray-400 font-light">
+                {t("pathologies.touchToDiscover", "Détails & prise en charge")}
+              </span>
+              <span 
+                className="font-semibold flex items-center gap-1 transition-transform group-hover:translate-x-1"
+                style={{ color: item.color || '#48cae4' }}
+              >
+                {t("common.seeMore", "En savoir plus")} <span>→</span>
+              </span>
+            </div>
+          </motion.article>
+        ))}
+      </div>
+
+      {/* ========================================================= */}
+      {/* 2. VERSION DESKTOP : Scène 3D avec carrousel rotatif     */}
+      {/* ========================================================= */}
       <div 
-        className="relative z-20 flex-1 w-full flex items-center justify-center mt-6 perspective-[2000px]"
+        className="hidden lg:flex relative z-20 flex-1 w-full items-center justify-center mt-6 perspective-[2000px]"
         style={{ perspective: "2000px" }}
       >
         <motion.div 
@@ -191,15 +290,15 @@ export function PathologiesPremium() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-md"
             onClick={() => setSelectedItem(null)}
           >
             <motion.div
               layoutId={`card-${selectedItem.title}`}
-              initial={{ scale: 0.8, y: 50, opacity: 0 }}
+              initial={{ scale: 0.85, y: 30, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.8, y: 50, opacity: 0 }}
-              className="w-[900px] h-[85vh] max-w-[95vw] pointer-events-auto flex flex-col"
+              exit={{ scale: 0.85, y: 30, opacity: 0 }}
+              className="w-[900px] h-[88vh] max-h-[900px] max-w-[96vw] sm:max-w-[90vw] pointer-events-auto flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <MedicalCard 

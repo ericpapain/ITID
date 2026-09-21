@@ -54,24 +54,24 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         </button>
 
         {/* Grande Image Centrale */}
-        <div className="w-full h-72 md:h-96 shrink-0 relative overflow-hidden">
+        <div className="w-full h-52 sm:h-72 md:h-96 shrink-0 relative overflow-hidden">
           <img alt={title} loading="lazy" decoding="async" className="w-full h-full object-cover" src={img || doctorImg} />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] to-transparent opacity-90"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/40 to-transparent opacity-95"></div>
           
           {/* Titre superposé */}
-          <div className="absolute bottom-6 left-8 right-8 flex items-end gap-6">
-            <div className="w-20 h-20 shrink-0 rounded-full flex items-center justify-center text-5xl bg-white/10 backdrop-blur-md shadow-lg border border-white/20">
+          <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-8 sm:right-8 flex items-center sm:items-end gap-3 sm:gap-6">
+            <div className="w-12 h-12 sm:w-20 sm:h-20 shrink-0 rounded-2xl flex items-center justify-center text-3xl sm:text-5xl bg-white/10 backdrop-blur-md shadow-lg border border-white/20">
               {icon}
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-2" style={{ fontFamily: "var(--font-display)" }}>
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-bold text-white mb-1 sm:mb-2 leading-tight" style={{ fontFamily: "var(--font-display)" }}>
               {title}
             </h2>
           </div>
         </div>
         
         {/* Description Complète */}
-        <div className="p-8 md:p-12 overflow-y-auto flex-1">
-          <div className="text-lg md:text-xl leading-relaxed md:leading-loose text-gray-200 whitespace-pre-line">
+        <div className="p-5 sm:p-8 md:p-12 overflow-y-auto flex-1">
+          <div className="text-base sm:text-lg md:text-xl leading-relaxed md:leading-loose text-gray-200 whitespace-pre-line">
             {desc}
           </div>
 
