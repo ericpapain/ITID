@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShimmerButton } from "../ui/ShimmerButton";
 import { Carousel } from "../ui/Carousel";
@@ -8,6 +9,36 @@ import { useTranslation } from "react-i18next";
 
 export function AProposPage() {
   const { t } = useTranslation();
+  const [nlEmail, setNlEmail] = useState("");
+  const [nlLoading, setNlLoading] = useState(false);
+  const [nlSuccess, setNlSuccess] = useState(false);
+  const [nlError, setNlError] = useState<string | null>(null);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nlEmail || nlLoading) return;
+
+    setNlLoading(true);
+    setNlError(null);
+
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: nlEmail, source: "a-propos" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Une erreur est survenue.");
+      }
+      setNlSuccess(true);
+      setNlEmail("");
+    } catch (err: any) {
+      setNlError(err.message || "Erreur de connexion. Veuillez réessayer.");
+    } finally {
+      setNlLoading(false);
+    }
+  };
 
   return (
     <div className="pt-32 pb-24 min-h-screen relative overflow-hidden" style={{ background: "var(--background)" }}>
@@ -121,11 +152,36 @@ export function AProposPage() {
         <div className="p-10 md:p-12 rounded-3xl text-center relative overflow-hidden" style={{ background: "#1a3a5c" }}>
           <div className="relative z-10 max-w-2xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-display)" }}>{t('about.newsletter.title')}</h3>
-            <p className="text-sm mb-8" style={{ color: "#8fb3d0" }}>{t('about.newsletter.desc')}</p>
-            <form className="flex flex-col sm:flex-row gap-3" onSubmit={(e) => { e.preventDefault(); alert(t('about.newsletter.success')); }}>
-              <input type="email" placeholder={t('about.newsletter.placeholder')} required className="flex-1 px-5 py-3 rounded-xl outline-none border-2 border-transparent focus:border-[#2a9d8f] transition-all bg-white text-sm" style={{ color: "#1a3a5c" }} />
-              <button type="submit" className="px-8 py-3 rounded-xl font-bold text-white transition-opacity hover:opacity-90 whitespace-nowrap" style={{ background: "#2a9d8f" }}>{t('buttons.signup')}</button>
-            </form>
+            {nlSuccess ? (
+              <div className="p-4 bg-[#2a9d8f]/20 border border-[#2a9d8f] text-white rounded-xl text-sm font-semibold">
+                ✅ {t('about.newsletter.success', 'Merci ! Votre inscription a bien été confirmée.')}
+              </div>
+            ) : (
+              <form className="flex flex-col sm:flex-row gap-3" onSubmit={handleNewsletterSubmit}>
+                <input
+                  type="email"
+                  value={nlEmail}
+                  onChange={(e) => setNlEmail(e.target.value)}
+                  placeholder={t('about.newsletter.placeholder')}
+                  required
+                  disabled={nlLoading}
+                  className="flex-1 px-5 py-3 rounded-xl outline-none border-2 border-transparent focus:border-[#2a9d8f] transition-all bg-white text-sm"
+                  style={{ color: "#1a3a5c" }}
+                />
+                <button
+                  type="submit"
+                  disabled={nlLoading}
+                  className="px-8 py-3 rounded-xl font-bold text-white transition-opacity hover:opacity-90 whitespace-nowrap flex items-center justify-center gap-2"
+                  style={{ background: "#2a9d8f" }}
+                >
+                  {nlLoading ? 'Envoi...' : t('buttons.signup')}
+                </button>
+              </form>
+            )}
+
+            {nlError && (
+              <p className="text-xs text-red-300 mt-3">{nlError}</p>
+            )}
           </div>
         </div>
       </div>

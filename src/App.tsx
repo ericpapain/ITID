@@ -45,6 +45,7 @@ const AssistantIA = React.lazy(() =>
 );
 const BlogPage = React.lazy(() => import("./components/pages/BlogPage"));
 const BlogPostPage = React.lazy(() => import("./components/pages/BlogPostPage"));
+const AdminApp = React.lazy(() => import("./admin/AdminApp"));
 
 // Clean loader for route transitions
 const PageLoader = () => (
@@ -56,6 +57,18 @@ const PageLoader = () => (
 function AppContent() {
   const location = useLocation();
   useDynamicFavicon();
+
+  // Route dédiée Back-Office Administrateur isolée du frontend public
+  if (location.pathname.startsWith("/admin")) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/admin/*" element={<AdminApp />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 

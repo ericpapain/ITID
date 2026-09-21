@@ -18,11 +18,30 @@ export function FormationsPage({}: FormationsPageProps) {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim() || !email) {
+    if (!email.trim() || loading) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), source: "formations" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Erreur lors de l'enregistrement");
+      }
       setIsSubscribed(true);
+    } catch (err: any) {
+      setError(err.message || "Erreur de connexion.");
+    } finally {
+      setLoading(false);
     }
   };
 

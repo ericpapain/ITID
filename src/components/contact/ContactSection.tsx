@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export function ContactSection() {
   const { t } = useTranslation();
-  const { formData, setFormData, sent, handleSubmit } = useContactForm();
+  const { formData, setFormData, sent, loading, error, handleSubmit } = useContactForm();
 
   return (
     <section id="contact" className="relative py-12 overflow-hidden" style={{ background: "var(--background)" }}>
@@ -66,6 +66,25 @@ export function ContactSection() {
               <h3 className="text-lg font-bold mb-4 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
                 {t('contact.formTitle')}
               </h3>
+
+              {error && (
+                <div className="p-3 text-xs bg-red-100 border border-red-300 text-red-700 rounded-xl">
+                  {error}
+                </div>
+              )}
+
+              {/* Champ Honeypot invisible pour stopper les robots */}
+              <input
+                type="text"
+                name="_website_hp"
+                value={formData._website_hp || ""}
+                onChange={(e) => setFormData((prev) => ({ ...prev, _website_hp: e.target.value }))}
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+              />
+
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/80">{t('contact.youAre')}</label>
                 <select
@@ -108,8 +127,19 @@ export function ContactSection() {
                 />
               </div>
 
-              <ShimmerButton type="submit" className="w-full py-4 mt-2 rounded-xl text-sm font-semibold">
-                {t('buttons.send')}
+              <ShimmerButton
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 mt-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    <span>Envoi en cours...</span>
+                  </>
+                ) : (
+                  t('buttons.send')
+                )}
               </ShimmerButton>
 
               <p className="text-xs text-center text-gray-500 mt-2">{t('contact.gdpr')}</p>
