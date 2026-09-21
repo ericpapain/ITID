@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"VITE,API\" -c \"cyan.bold,green.bold\" \"vite --host 0.0.0.0\" \"tsx server/index.ts\"",
+    "dev:front": "vite --host 0.0.0.0",
+    "dev:api": "tsx server/index.ts",
     "server": "tsx server/index.ts",
     "start": "tsx server/index.ts",
     "build": "vite build",
@@ -51,6 +53,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "concurrently": "^10.0.5",
     "oxfmt": "^0.2.0",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.23.15",

@@ -42,7 +42,7 @@ if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
 
   // Toutes les autres requêtes mènent vers index.html (Routing SPA)
-  app.get('*', (req, res, next) => {
+  app.use((req, res, next) => {
     if (req.path.startsWith('/api')) {
       return next();
     }
