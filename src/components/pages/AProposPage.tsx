@@ -27,7 +27,13 @@ export function AProposPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: nlEmail, source: "a-propos" }),
       });
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error("Réponse inattendue du serveur.");
+      }
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Une erreur est survenue.");
       }

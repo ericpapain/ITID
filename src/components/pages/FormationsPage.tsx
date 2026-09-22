@@ -33,7 +33,13 @@ export function FormationsPage({}: FormationsPageProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), source: "formations" }),
       });
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error("Réponse inattendue du serveur.");
+      }
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Erreur lors de l'enregistrement");
       }

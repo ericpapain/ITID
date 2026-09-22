@@ -58,7 +58,13 @@ export function useContactForm(): UseContactFormReturn {
         }),
       });
 
-      const data = await response.json();
+      const rawText = await response.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error("Le serveur a renvoyé une réponse inattendue. Veuillez vérifier la configuration de l'API.");
+      }
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || "Une erreur est survenue lors de l'envoi.");
