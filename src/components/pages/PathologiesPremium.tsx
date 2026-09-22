@@ -28,10 +28,11 @@ export function PathologiesPremium() {
   const radius = 500; // Distance from center on desktop
 
   useEffect(() => {
-    if (isMobile && videoRef.current) {
-      videoRef.current.pause();
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
     }
-  }, [isMobile]);
+  }, []);
 
   // Update active index based on rotation (only on desktop when index actually changes)
   useEffect(() => {
@@ -87,10 +88,10 @@ export function PathologiesPremium() {
         <video 
           ref={videoRef}
           src={bgVideo} 
-          autoPlay={!isMobile}
+          autoPlay
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0c1a2e]/90 via-[#0c1a2e]/60 to-[#0c1a2e]/90" />

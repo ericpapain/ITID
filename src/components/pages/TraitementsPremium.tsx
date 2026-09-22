@@ -90,10 +90,11 @@ export function TraitementsPremium() {
   const [highlightedTitle, setHighlightedTitle] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isMobile && videoRef.current) {
-      videoRef.current.pause();
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
     }
-  }, [isMobile]);
+  }, []);
 
   const handleSelect = (item: any) => {
     setHighlightedTitle(item.title);
@@ -117,10 +118,10 @@ export function TraitementsPremium() {
         <video
           ref={videoRef}
           src={bgVideo}
-          autoPlay={!isMobile}
+          autoPlay
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
         />
         <div

@@ -22,10 +22,11 @@ export function ParcoursPatient() {
   );
 
   useEffect(() => {
-    if (isMobile && videoRef.current) {
-      videoRef.current.pause();
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
     }
-  }, [isMobile]);
+  }, []);
 
   return (
     <section className="relative w-full py-8 overflow-hidden flex flex-col items-center justify-center">
@@ -34,10 +35,10 @@ export function ParcoursPatient() {
         <video
           ref={videoRef}
           src={parcoursVideo}
-          autoPlay={!isMobile}
+          autoPlay
           muted
           playsInline
-          preload="none"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-80"
         />
         <div className="absolute inset-0 bg-[#0c1a2e]/75 backdrop-blur-[2px]" />

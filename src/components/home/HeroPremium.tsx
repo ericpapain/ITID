@@ -23,6 +23,14 @@ export function HeroPremium() {
   const [displayedText1, setDisplayedText1] = useState("");
   const [displayedText2, setDisplayedText2] = useState("");
   const [showCursor, setShowCursor] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     const cursorInterval = setInterval(() => {
@@ -87,6 +95,7 @@ export function HeroPremium() {
             className="absolute inset-0 z-0 overflow-hidden pointer-events-none mix-blend-multiply opacity-70"
           >
             <video
+              ref={videoRef}
               src={videoFond}
               autoPlay
               loop

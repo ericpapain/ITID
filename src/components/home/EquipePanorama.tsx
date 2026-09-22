@@ -24,10 +24,11 @@ export function EquipePanorama() {
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isMobile && videoRef.current) {
-      videoRef.current.pause();
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
     }
-  }, [isMobile]);
+  }, []);
 
   const activeRoles = selectedCategory
     ? TEAM_ROLES.filter((item) => item.category === selectedCategory.id)
@@ -40,10 +41,10 @@ export function EquipePanorama() {
         <video
           ref={videoRef}
           src={videoFond}
-          autoPlay={!isMobile}
+          autoPlay
           muted
           playsInline
-          preload="none"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
         />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-[#2a9d8f]/10 rounded-full blur-[160px]" />

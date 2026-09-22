@@ -97,10 +97,11 @@ export function ProjectsMasonry() {
   const springScroll = useSpring(scrollX, { stiffness: 100, damping: 20 });
 
   useEffect(() => {
-    if (isMobile && videoRef.current) {
-      videoRef.current.pause();
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {});
     }
-  }, [isMobile]);
+  }, []);
 
   // Velocity-based skew effect
   const skewX = useTransform(springScroll, (v) => {
@@ -160,10 +161,10 @@ export function ProjectsMasonry() {
         <video
           ref={videoRef}
           src={videoIntervention}
-          autoPlay={!isMobile}
+          autoPlay
           muted
           playsInline
-          preload="none"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-100"
         />
         <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
