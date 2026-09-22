@@ -56,7 +56,7 @@ export function Navbar({ menuOpen, setMenuOpen }: NavbarProps) {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 border-b border-white/10"
+        className="fixed top-0 left-0 right-0 z-[100] border-b border-white/10"
         style={{
           background: "rgba(12, 26, 46, 0.95)",
           backdropFilter: "blur(12px)",
@@ -146,24 +146,24 @@ export function Navbar({ menuOpen, setMenuOpen }: NavbarProps) {
       {menuOpen && (
         <div
           id="mobile-navigation-drawer"
-          className="fixed inset-0 z-40 xl:hidden"
+          className="fixed inset-0 z-[90] xl:hidden"
           role="dialog"
           aria-modal="true"
         >
           {/* Dark Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
             onClick={() => setMenuOpen(false)}
             aria-hidden="true"
           />
 
           {/* Drawer Menu Content */}
           <div
-            className="fixed top-20 md:top-24 left-0 right-0 max-h-[calc(100vh-5rem)] md:max-h-[calc(100vh-6rem)] overflow-y-auto px-6 py-6 flex flex-col gap-5 border-b border-white/10 shadow-2xl"
+            className="fixed top-20 md:top-24 left-0 right-0 max-h-[calc(100vh-5rem)] md:max-h-[calc(100vh-6rem)] overflow-y-auto px-6 py-6 flex flex-col gap-5 border-b border-white/10 shadow-2xl z-[95]"
             style={{
-              background: "linear-gradient(180deg, rgba(12,26,46,0.98) 0%, rgba(18,38,68,0.98) 100%)",
-              backdropFilter: "blur(16px)",
-              WebkitBackdropFilter: "blur(16px)",
+              background: "linear-gradient(180deg, rgba(12,26,46,0.99) 0%, rgba(15,32,58,0.99) 100%)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
             }}
           >
             {/* Nav Links */}
