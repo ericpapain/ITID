@@ -86,9 +86,9 @@ export function ContactSection() {
               />
 
               <div>
-                <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/80">{t('contact.youAre')}</label>
+                <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/85">{t('contact.youAre')}</label>
                 <select
-                  className="w-full px-3 py-3 rounded-xl text-sm outline-none cursor-pointer bg-white/60 text-[#1a3a5c] border border-[#2a9d8f]/20 focus:border-[#48d1c2] shadow-sm backdrop-blur-md"
+                  className="w-full px-3.5 py-3 rounded-xl text-sm outline-none cursor-pointer bg-white text-[#1a3a5c] font-medium border border-slate-300 focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 shadow-sm transition-all"
                   value={formData.category}
                   onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
                 >
@@ -116,12 +116,12 @@ export function ContactSection() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/80">{t('contact.message')}</label>
+                <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/85">{t('contact.message')}</label>
                 <textarea
                   required
                   rows={4}
                   placeholder={t('contact.messagePlaceholder')}
-                  className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none bg-white/60 text-[#1a3a5c] border border-[#2a9d8f]/20 focus:border-[#48d1c2] placeholder:text-gray-400 transition-colors shadow-sm backdrop-blur-md"
+                  className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none bg-white text-[#1a3a5c] font-medium border border-slate-300 focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 placeholder:text-slate-400 shadow-sm transition-all"
                   value={formData.message}
                   onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
                 />
