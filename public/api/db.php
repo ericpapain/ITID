@@ -8,8 +8,11 @@ function getItidConfig(): array {
     static $config = null;
     if ($config === null) {
         $configFile = __DIR__ . '/config.php';
+        $sampleFile = __DIR__ . '/config.sample.php';
         if (file_exists($configFile)) {
             $config = require $configFile;
+        } elseif (file_exists($sampleFile)) {
+            $config = require $sampleFile;
         } else {
             $config = [];
         }
