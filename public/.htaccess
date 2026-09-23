@@ -18,6 +18,17 @@
   # Rediriger les requêtes API vers les scripts PHP natifs Hostinger
   RewriteRule ^api/contact/?$ api/contact/index.php [L,QSA]
   RewriteRule ^api/newsletter/subscribe/?$ api/newsletter/subscribe/index.php [L,QSA]
+  RewriteRule ^api/auth/login/?$ api/auth/login/index.php [L,QSA]
+
+  # Admin Messages
+  RewriteRule ^api/admin/messages/export/csv/?$ api/admin/messages/index.php?export=csv [L,QSA]
+  RewriteRule ^api/admin/messages/([0-9]+)/status/?$ api/admin/messages/index.php?id=$1&action=status [L,QSA]
+  RewriteRule ^api/admin/messages/?$ api/admin/messages/index.php [L,QSA]
+
+  # Admin Newsletter
+  RewriteRule ^api/admin/newsletter/subscribers/export/csv/?$ api/admin/newsletter/subscribers/index.php?export=csv [L,QSA]
+  RewriteRule ^api/admin/newsletter/subscribers/([0-9]+)/unsubscribe/?$ api/admin/newsletter/subscribers/index.php?id=$1&action=unsubscribe [L,QSA]
+  RewriteRule ^api/admin/newsletter/subscribers/?$ api/admin/newsletter/subscribers/index.php [L,QSA]
 
   # Si la requête correspond à un fichier réel (ex: .js, .css, .jpg, .mp4), le servir directement
   RewriteCond %{REQUEST_FILENAME} -f [OR]

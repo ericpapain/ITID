@@ -4,13 +4,11 @@
 // Reçoit les formulaires de contact, enregistre en BDD et envoie par mail
 // ======================================================================
 
-// En-têtes CORS et JSON
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
-// Répondre aux requêtes preflight OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     echo json_encode(['status' => 'ok']);
@@ -23,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Lecture et décodage du flux JSON
+require_once __DIR__ . '/../db.php';
+
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
 
@@ -49,7 +48,6 @@ $message = isset($data['message']) ? trim((string)$data['message']) : '';
 $metadata = isset($data['metadata']) && is_array($data['metadata']) ? $data['metadata'] : [];
 $category = isset($metadata['category']) ? trim(strip_tags((string)$metadata['category'])) : 'Patient';
 
-// Validation minimale
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Veuillez saisir une adresse email valide.']);
@@ -62,29 +60,21 @@ if (empty($message)) {
     exit;
 }
 
-// Destinataire principal
-$recipientEmail = 'contact@itid-france.com';
+$config = getItidConfig();
+$recipientEmail = $config['admin_email'] ?? 'contact@itid-france.com';
 
 // ----------------------------------------------------------------------
-// 1. Sauvegarde optionnelle en base de données MySQL (si dispo)
+// 1. Sauvegarde systématique en base de données (SQLite ou MySQL)
 // ----------------------------------------------------------------------
+$insertedId = null;
+$dbError = null;
+
 try {
-    // Tenter de lire les variables d'environnement si présentes
-    $dbHost = getenv('DB_HOST') ?: 'localhost';
-    $dbName = getenv('DB_NAME') ?: 'itid_france';
-    $dbUser = getenv('DB_USER') ?: 'root';
-    $dbPass = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '';
-
-    // Essai de connexion silencieuse
-    $pdo = new PDO("mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4", $dbUser, $dbPass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
-        PDO::ATTR_TIMEOUT => 2,
-    ]);
-
+    $pdo = getItidDb();
     $stmt = $pdo->prepare("
         INSERT INTO contact_messages 
-          (form_name, name, email, phone, subject, message, metadata, ip_hash, status, email_sent)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'unread', 0)
+          (form_name, name, email, phone, subject, message, metadata, status, email_sent, ip_hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'unread', 0, ?)
     ");
     $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
     $ipHash = hash('sha256', (string)$clientIp);
@@ -95,11 +85,13 @@ try {
         $phone ?: null,
         $subject ?: null,
         $message,
-        !empty($metadata) ? json_encode($metadata) : null,
+        !empty($metadata) ? json_encode($metadata, JSON_UNESCAPED_UNICODE) : null,
         $ipHash,
     ]);
+    $insertedId = (int)$pdo->lastInsertId();
 } catch (Exception $e) {
-    // La BDD n'est pas bloquante, on continue vers l'envoi email
+    $dbError = $e->getMessage();
+    error_log("ITID Contact DB Insert Error: " . $dbError);
 }
 
 // ----------------------------------------------------------------------
@@ -159,7 +151,6 @@ $htmlContent = "
 </html>
 ";
 
-// En-têtes RFC standards pour un taux d'arrivée optimal en boîte de réception
 $headers = [];
 $headers[] = 'MIME-Version: 1.0';
 $headers[] = 'Content-type: text/html; charset=UTF-8';
@@ -169,12 +160,19 @@ $headers[] = 'X-Mailer: PHP/' . phpversion();
 
 $mailSent = @mail($recipientEmail, '=?UTF-8?B?' . base64_encode($subject) . '?=', $htmlContent, implode("\r\n", $headers));
 
-// ----------------------------------------------------------------------
-// 3. Réponse JSON au client React
-// ----------------------------------------------------------------------
+// Si l'email a été envoyé et qu'on a un id en base, on met à jour email_sent
+if ($mailSent && $insertedId) {
+    try {
+        $pdo = getItidDb();
+        $up = $pdo->prepare("UPDATE contact_messages SET email_sent = 1 WHERE id = ?");
+        $up->execute([$insertedId]);
+    } catch (Exception $e) {}
+}
+
 http_response_code(200);
 echo json_encode([
     'success' => true,
     'message' => 'Votre message a été transmis avec succès à l\'équipe médicale de l\'ITID.',
-    'email_sent' => (bool)$mailSent
+    'email_sent' => (bool)$mailSent,
+    'id' => $insertedId,
 ]);

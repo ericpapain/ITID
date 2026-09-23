@@ -1,0 +1,6 @@
+# Protection stricte des fichiers de base de données et données locales
+Require all denied
+<IfModule !mod_authz_core.c>
+  Order deny,allow
+  Deny from all
+</IfModule>

@@ -20,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+require_once __DIR__ . '/../../db.php';
+
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
 
@@ -37,35 +39,40 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-// Optionnel : sauvegarde en base MySQL si configurée
+$firstName = isset($data['firstName']) ? trim(strip_tags((string)$data['firstName'])) : null;
+$token = bin2hex(random_bytes(24));
+
 try {
-    $dbHost = getenv('DB_HOST') ?: 'localhost';
-    $dbName = getenv('DB_NAME') ?: 'itid_france';
-    $dbUser = getenv('DB_USER') ?: 'root';
-    $dbPass = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '';
+    $pdo = getItidDb();
+    
+    // Vérifier si l'abonné existe déjà
+    $chk = $pdo->prepare("SELECT id, status FROM newsletter_subscribers WHERE email = ?");
+    $chk->execute([$email]);
+    $existing = $chk->fetch();
 
-    $pdo = new PDO("mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4", $dbUser, $dbPass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
-        PDO::ATTR_TIMEOUT => 2,
-    ]);
-
-    $token = bin2hex(random_bytes(24));
-    $stmt = $pdo->prepare("
-        INSERT INTO newsletter_subscribers (email, status, unsubscribe_token, consent_at)
-        VALUES (?, 'active', ?, NOW())
-        ON DUPLICATE KEY UPDATE status = 'active'
-    ");
-    $stmt->execute([$email, $token]);
+    if ($existing) {
+        $up = $pdo->prepare("UPDATE newsletter_subscribers SET status = 'subscribed', consent_at = CURRENT_TIMESTAMP WHERE id = ?");
+        $up->execute([$existing['id']]);
+    } else {
+        $ins = $pdo->prepare("
+            INSERT INTO newsletter_subscribers (email, first_name, status, source, unsubscribe_token, consent_at)
+            VALUES (?, ?, 'subscribed', 'website', ?, CURRENT_TIMESTAMP)
+        ");
+        $ins->execute([$email, $firstName, $token]);
+    }
 } catch (Exception $e) {
-    // Non bloquant
+    error_log("ITID Newsletter DB error: " . $e->getMessage());
 }
 
-// Notification interne optionnelle
+$config = getItidConfig();
+$adminEmail = $config['admin_email'] ?? 'contact@itid-france.com';
+
+// Notification interne
 @mail(
-    'contact@itid-france.com',
+    $adminEmail,
     '=?UTF-8?B?' . base64_encode('Nouvelle inscription à la newsletter ITID') . '?=',
     "Nouvelle inscription à la newsletter ITID France :\n\nEmail : {$email}\nDate : " . date('d/m/Y à H:i'),
-    "From: ITID France <contact@itid-france.com>\r\nContent-type: text/plain; charset=UTF-8"
+    "From: ITID France <{$adminEmail}>\r\nContent-type: text/plain; charset=UTF-8"
 );
 
 http_response_code(200);
