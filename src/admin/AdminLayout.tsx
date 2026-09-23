@@ -26,6 +26,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const navItems = [
     { label: "Tableau de bord", path: "/admin/dashboard", icon: "📊" },
+    { label: "Visiteurs & Analytics", path: "/admin/analytics", icon: "📈" },
     { label: "Messages & Leads", path: "/admin/messages", icon: "✉️" },
     { label: "Newsletter & Abonnés", path: "/admin/newsletter", icon: "📬" },
     { label: "Éditeur de Pages (CMS)", path: "/admin/pages", icon: "📑" },

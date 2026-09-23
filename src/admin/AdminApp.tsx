@@ -7,6 +7,7 @@ import AdminMessages from "./AdminMessages";
 import AdminNewsletter from "./AdminNewsletter";
 import AdminPagesEditor from "./AdminPagesEditor";
 import AdminMediaLibrary from "./AdminMediaLibrary";
+import AdminAnalytics from "./AdminAnalytics";
 
 export default function AdminApp() {
   return (
@@ -17,6 +18,14 @@ export default function AdminApp() {
         element={
           <AdminLayout>
             <AdminDashboard />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="analytics"
+        element={
+          <AdminLayout>
+            <AdminAnalytics />
           </AdminLayout>
         }
       />

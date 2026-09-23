@@ -30,6 +30,15 @@
   RewriteRule ^api/admin/newsletter/subscribers/([0-9]+)/unsubscribe/?$ api/admin/newsletter/subscribers/index.php?id=$1&action=unsubscribe [L,QSA]
   RewriteRule ^api/admin/newsletter/subscribers/?$ api/admin/newsletter/subscribers/index.php [L,QSA]
 
+  # Analytics Tracking Public
+  RewriteRule ^api/analytics/track/?$ api/analytics/track/index.php [L,QSA]
+
+  # Analytics Admin
+  RewriteRule ^api/admin/analytics/export/csv/?$ api/admin/analytics/index.php?endpoint=export [L,QSA]
+  RewriteRule ^api/admin/analytics/visitors/([0-9]+)/?$ api/admin/analytics/index.php?endpoint=visitor_detail&id=$1 [L,QSA]
+  RewriteRule ^api/admin/analytics/([a-zA-Z0-9_\-]+)/?$ api/admin/analytics/index.php?endpoint=$1 [L,QSA]
+  RewriteRule ^api/admin/analytics/?$ api/admin/analytics/index.php?endpoint=overview [L,QSA]
+
   # Si la requête correspond à un fichier réel (ex: .js, .css, .jpg, .mp4), le servir directement
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

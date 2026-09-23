@@ -92,4 +92,25 @@ router.get('/admin/newsletter/subscribers/export/csv', requireAdminAuth, exportS
 // Édition de contenus CMS
 router.put('/content/:section', requireAdminAuth, updateContentSection);
 
+// Analytics
+import {
+  handleTrack,
+  getAnalyticsOverview,
+  getAnalyticsTimeseries,
+  getAnalyticsTopPages,
+  getAnalyticsGeo,
+  getAnalyticsDevices,
+  getAnalyticsVisitors,
+  getVisitorDetail,
+} from '../controllers/analyticsController';
+
+router.post('/analytics/track', handleTrack);
+router.get('/admin/analytics/overview', requireAdminAuth, getAnalyticsOverview);
+router.get('/admin/analytics/timeseries', requireAdminAuth, getAnalyticsTimeseries);
+router.get('/admin/analytics/top-pages', requireAdminAuth, getAnalyticsTopPages);
+router.get('/admin/analytics/geo', requireAdminAuth, getAnalyticsGeo);
+router.get('/admin/analytics/devices', requireAdminAuth, getAnalyticsDevices);
+router.get('/admin/analytics/visitors', requireAdminAuth, getAnalyticsVisitors);
+router.get('/admin/analytics/visitors/:id', requireAdminAuth, getVisitorDetail);
+
 export default router;

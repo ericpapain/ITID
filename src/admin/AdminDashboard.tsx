@@ -7,19 +7,23 @@ export default function AdminDashboard() {
     totalMessages: 0,
     unreadMessages: 0,
     totalSubscribers: 0,
+    visitorsToday: 0,
+    activeNow: 0,
     loading: true,
   });
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [msgRes, subRes] = await Promise.all([
+        const [msgRes, subRes, analyticsRes] = await Promise.all([
           fetch("/api/admin/messages?limit=1", { headers: getAuthHeaders() }),
           fetch("/api/admin/newsletter/subscribers?limit=1", { headers: getAuthHeaders() }),
+          fetch("/api/admin/analytics/overview", { headers: getAuthHeaders() }),
         ]);
 
         const msgData = msgRes.ok ? await msgRes.json() : null;
         const subData = subRes.ok ? await subRes.json() : null;
+        const analyticsData = analyticsRes.ok ? await analyticsRes.json() : null;
 
         // Fetch unread count
         const unreadRes = await fetch("/api/admin/messages?status=unread&limit=1", { headers: getAuthHeaders() });
@@ -29,6 +33,8 @@ export default function AdminDashboard() {
           totalMessages: msgData?.pagination?.total || 0,
           unreadMessages: unreadData?.pagination?.total || 0,
           totalSubscribers: subData?.pagination?.total || 0,
+          visitorsToday: analyticsData?.kpis?.visitors_today || 0,
+          activeNow: analyticsData?.kpis?.active_now || 0,
           loading: false,
         });
       } catch (e) {
@@ -50,10 +56,24 @@ export default function AdminDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="p-6 rounded-2xl bg-[#0c1a2e] border border-slate-800 shadow-lg relative overflow-hidden">
-          <div className="text-xs font-bold text-[#2a9d8f] uppercase tracking-wider mb-2">Messages non lus</div>
-          <div className="text-3xl font-extrabold text-white mb-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="p-5 rounded-2xl bg-[#0c1a2e] border border-cyan-500/30 shadow-lg relative overflow-hidden">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Audience & Visiteurs</span>
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          </div>
+          <div className="text-2xl font-extrabold text-white mb-0.5">
+            {stats.loading ? "..." : `${stats.visitorsToday} auj.`}
+          </div>
+          <div className="text-[11px] text-emerald-400 font-semibold">{stats.activeNow} actif(s) en direct</div>
+          <Link to="/admin/analytics" className="inline-block mt-3 text-xs font-semibold text-[#48cae4] hover:underline">
+            Voir les analyses →
+          </Link>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-[#0c1a2e] border border-slate-800 shadow-lg relative overflow-hidden">
+          <div className="text-[11px] font-bold text-[#2a9d8f] uppercase tracking-wider mb-2">Messages non lus</div>
+          <div className="text-2xl font-extrabold text-white mb-0.5">
             {stats.loading ? "..." : stats.unreadMessages}
           </div>
           <div className="text-xs text-slate-400">Demandes en attente de traitement</div>

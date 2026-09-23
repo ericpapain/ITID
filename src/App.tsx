@@ -4,6 +4,7 @@ import React, { Suspense } from "react";
 
 import { useFormationState } from "./hooks/useFormationState";
 import { useDynamicFavicon } from "./hooks/useDynamicFavicon";
+import { useVisitorTracker } from "./hooks/useVisitorTracker";
 
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
@@ -57,6 +58,7 @@ const PageLoader = () => (
 function AppContent() {
   const location = useLocation();
   useDynamicFavicon();
+  useVisitorTracker();
 
   // Route dédiée Back-Office Administrateur isolée du frontend public
   if (location.pathname.startsWith("/admin")) {
