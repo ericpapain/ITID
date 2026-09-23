@@ -58,9 +58,8 @@ $screenWidth = isset($body['screen_width']) ? (int)$body['screen_width'] : null;
 $screenHeight = isset($body['screen_height']) ? (int)$body['screen_height'] : null;
 $language = isset($body['language']) ? substr(trim((string)$body['language']), 0, 10) : 'fr';
 
-$pdo = getItidDb();
-
 try {
+    $pdo = getItidDb();
     // ------------------------------------------------------------------
     // 1. Gestion du Visiteur (find or create)
     // ------------------------------------------------------------------
@@ -238,7 +237,7 @@ try {
     }
 
     echo json_encode(['success' => true]);
-} catch (Exception $e) {
+} catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

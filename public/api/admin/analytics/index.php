@@ -15,7 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/../../db.php';
-$pdo = getItidDb();
+
+try {
+    $pdo = getItidDb();
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Erreur base de données : ' . $e->getMessage()]);
+    exit;
+}
 
 // Détermination de l'action / sous-endpoint
 $endpoint = $_GET['endpoint'] ?? 'overview';
