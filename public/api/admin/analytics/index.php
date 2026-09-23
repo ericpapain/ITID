@@ -224,13 +224,13 @@ if ($endpoint === 'top-pages') {
             FROM page_views
             GROUP BY page_path
             ORDER BY views DESC
-            LIMIT 15
+            LIMIT 50
         ";
         $stmt = $pdo->query($sql);
         $pages = $stmt->fetchAll();
 
         echo json_encode(['success' => true, 'data' => $pages]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -251,7 +251,7 @@ if ($endpoint === 'geo') {
             WHERE country IS NOT NULL AND country != ''
             GROUP BY country, country_code
             ORDER BY visitors DESC
-            LIMIT 10
+            LIMIT 50
         ")->fetchAll();
 
         foreach ($countries as &$c) {
@@ -265,7 +265,7 @@ if ($endpoint === 'geo') {
             WHERE city IS NOT NULL AND city != '' AND city != 'Inconnue'
             GROUP BY city, country
             ORDER BY visitors DESC
-            LIMIT 10
+            LIMIT 50
         ")->fetchAll();
 
         echo json_encode([
@@ -273,7 +273,7 @@ if ($endpoint === 'geo') {
             'countries' => $countries,
             'cities' => $cities,
         ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -336,34 +336,34 @@ if ($endpoint === 'devices') {
 // 7. LISTE DES VISITEURS (Tableau paginé & filtrable)
 // ----------------------------------------------------------------------
 if ($endpoint === 'visitors') {
-    $page = max(1, (int)($_GET['page'] ?? 1));
-    $limit = min(100, max(1, (int)($_GET['limit'] ?? 20)));
-    $offset = ($page - 1) * limit;
-
-    $search = trim((string)($_GET['search'] ?? ''));
-    $countryFilter = trim((string)($_GET['country'] ?? ''));
-    $deviceFilter = trim((string)($_GET['device'] ?? ''));
-
-    $where = ["1=1"];
-    $params = [];
-
-    if ($search !== '') {
-        $where[] = "(v.visitor_token LIKE ? OR v.last_ip_address LIKE ? OR v.city LIKE ?)";
-        $like = '%' . $search . '%';
-        $params[] = $like; $params[] = $like; $params[] = $like;
-    }
-    if ($countryFilter !== '') {
-        $where[] = "v.country = ?";
-        $params[] = $countryFilter;
-    }
-    if ($deviceFilter !== '') {
-        $where[] = "v.device_type = ?";
-        $params[] = $deviceFilter;
-    }
-
-    $whereSql = implode(' AND ', $where);
-
     try {
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $limit = min(100, max(1, (int)($_GET['limit'] ?? 50)));
+        $offset = ($page - 1) * $limit;
+
+        $search = trim((string)($_GET['search'] ?? ''));
+        $countryFilter = trim((string)($_GET['country'] ?? ''));
+        $deviceFilter = trim((string)($_GET['device'] ?? ''));
+
+        $where = ["1=1"];
+        $params = [];
+
+        if ($search !== '') {
+            $where[] = "(v.visitor_token LIKE ? OR v.last_ip_address LIKE ? OR v.city LIKE ?)";
+            $like = '%' . $search . '%';
+            $params[] = $like; $params[] = $like; $params[] = $like;
+        }
+        if ($countryFilter !== '') {
+            $where[] = "v.country = ?";
+            $params[] = $countryFilter;
+        }
+        if ($deviceFilter !== '') {
+            $where[] = "v.device_type = ?";
+            $params[] = $deviceFilter;
+        }
+
+        $whereSql = implode(' AND ', $where);
+
         $countStmt = $pdo->prepare("SELECT COUNT(*) FROM visitors v WHERE {$whereSql}");
         $countStmt->execute($params);
         $total = (int)$countStmt->fetchColumn();
@@ -391,7 +391,7 @@ if ($endpoint === 'visitors') {
                 'totalPages' => ceil($total / $limit) ?: 1,
             ]
         ]);
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }

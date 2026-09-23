@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PATCH' || (isset($_GET['action']) && $_GET['
 // ----------------------------------------------------------------------
 $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = min(100, max(1, (int)($_GET['limit'] ?? 20)));
-$offset = ($page - 1) * limit;
+$offset = ($page - 1) * $limit;
 
 $statusFilter = isset($_GET['status']) ? trim((string)$_GET['status']) : '';
 $search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';

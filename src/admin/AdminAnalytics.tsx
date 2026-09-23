@@ -183,7 +183,7 @@ export default function AdminAnalytics() {
 
   const fetchVisitors = async () => {
     try {
-      let url = `/api/admin/analytics/visitors?limit=25`;
+      let url = `/api/admin/analytics/visitors?limit=50`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
       if (countryFilter) url += `&country=${encodeURIComponent(countryFilter)}`;
       if (deviceFilter) url += `&device=${encodeURIComponent(deviceFilter)}`;
@@ -468,14 +468,14 @@ export default function AdminAnalytics() {
           </h2>
           <p className="text-xs text-slate-400 mb-4">Volume de vues et durée moyenne passée sur chaque page</p>
 
-          <div className="overflow-x-auto">
+          <div className="max-h-[290px] overflow-y-auto overflow-x-auto border border-slate-800/80 rounded-xl admin-scrollbar">
             <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-400">
-                  <th className="py-2.5 px-3 font-semibold">Page</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">Vues</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">Visiteurs</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">Temps moy.</th>
+              <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-slate-800 shadow-sm">
+                <tr className="text-slate-400">
+                  <th className="py-2.5 px-3 font-semibold bg-[#0a1628]">Page</th>
+                  <th className="py-2.5 px-3 font-semibold text-right bg-[#0a1628]">Vues</th>
+                  <th className="py-2.5 px-3 font-semibold text-right bg-[#0a1628]">Visiteurs</th>
+                  <th className="py-2.5 px-3 font-semibold text-right bg-[#0a1628]">Temps moy.</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-slate-300">
@@ -518,17 +518,17 @@ export default function AdminAnalytics() {
               {/* Pays */}
               <div>
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Top Pays</h3>
-                <div className="space-y-2">
+                <div className="max-h-[240px] overflow-y-auto pr-1.5 space-y-2 admin-scrollbar">
                   {geoData.countries.length === 0 ? (
                     <div className="text-xs text-slate-500 py-3">Aucune donnée pays</div>
                   ) : (
-                    geoData.countries.slice(0, 5).map((c, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-800/40">
-                        <span className="font-medium text-white flex items-center gap-1.5">
+                    geoData.countries.map((c, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-800/40 hover:bg-slate-800/60 transition-colors">
+                        <span className="font-medium text-white flex items-center gap-1.5 truncate max-w-[160px]" title={c.country || "Inconnu"}>
                           <span className="text-sm">📍</span>
-                          <span>{c.country || "Inconnu"}</span>
+                          <span className="truncate">{c.country || "Inconnu"}</span>
                         </span>
-                        <div className="text-right">
+                        <div className="text-right shrink-0">
                           <span className="font-bold text-cyan-400">{c.visitors}</span>
                           <span className="text-[10px] text-slate-500 ml-1">({c.percentage}%)</span>
                         </div>
@@ -541,16 +541,21 @@ export default function AdminAnalytics() {
               {/* Villes */}
               <div>
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Top Villes</h3>
-                <div className="space-y-2">
+                <div className="max-h-[240px] overflow-y-auto pr-1.5 space-y-2 admin-scrollbar">
                   {geoData.cities.length === 0 ? (
                     <div className="text-xs text-slate-500 py-3">Aucune donnée ville</div>
                   ) : (
-                    geoData.cities.slice(0, 5).map((v, i) => (
-                      <div key={i} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-800/40">
-                        <span className="font-medium text-white truncate max-w-[100px]" title={v.city}>
-                          {v.city || "Inconnue"}
+                    geoData.cities.map((v, i) => (
+                      <div key={i} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-800/40 hover:bg-slate-800/60 transition-colors">
+                        <span className="font-medium text-white truncate max-w-[160px] flex items-center gap-1" title={`${v.city || "Inconnue"}${v.country ? ` (${v.country})` : ""}`}>
+                          <span className="truncate">{v.city || "Inconnue"}</span>
+                          {v.country && (
+                            <span className="text-slate-400 font-normal text-[10px] shrink-0">
+                              ({v.country})
+                            </span>
+                          )}
                         </span>
-                        <span className="font-bold text-[#2a9d8f]">{v.visitors}</span>
+                        <span className="font-bold text-[#2a9d8f] shrink-0 ml-1">{v.visitors}</span>
                       </div>
                     ))
                   )}
@@ -584,6 +589,11 @@ export default function AdminAnalytics() {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span>👥</span>
               <span>Historique Récent des Visiteurs</span>
+              {visitors.length > 0 && (
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-cyan-400">
+                  {visitors.length} {visitors.length > 5 ? "(défilement actif)" : ""}
+                </span>
+              )}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
               Consultez le parcours de navigation individuel et la chronologie de chaque visiteur
@@ -621,26 +631,39 @@ export default function AdminAnalytics() {
         </div>
 
         {/* Tableau */}
-        <div className="overflow-x-auto">
+        <div className="max-h-[340px] overflow-y-auto overflow-x-auto border border-slate-800/80 rounded-xl admin-scrollbar">
           <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-800 text-slate-400">
-                <th className="py-3 px-3 font-semibold">Dernière visite</th>
-                <th className="py-3 px-3 font-semibold">Visiteur</th>
-                <th className="py-3 px-3 font-semibold">Localisation</th>
-                <th className="py-3 px-3 font-semibold">IP</th>
-                <th className="py-3 px-3 font-semibold">Appareil / Nav.</th>
-                <th className="py-3 px-3 font-semibold text-center">Sessions</th>
-                <th className="py-3 px-3 font-semibold text-center">Pages</th>
-                <th className="py-3 px-3 font-semibold text-right">Temps total</th>
-                <th className="py-3 px-3 font-semibold text-right">Action</th>
+            <thead className="sticky top-0 bg-[#0a1628] z-10 border-b border-slate-800 shadow-sm">
+              <tr className="text-slate-400">
+                <th className="py-3 px-3 font-semibold bg-[#0a1628]">Dernière visite</th>
+                <th className="py-3 px-3 font-semibold bg-[#0a1628]">Visiteur</th>
+                <th className="py-3 px-3 font-semibold bg-[#0a1628]">Localisation</th>
+                <th className="py-3 px-3 font-semibold bg-[#0a1628]">IP</th>
+                <th className="py-3 px-3 font-semibold bg-[#0a1628]">Appareil / Nav.</th>
+                <th className="py-3 px-3 font-semibold text-center bg-[#0a1628]">Sessions</th>
+                <th className="py-3 px-3 font-semibold text-center bg-[#0a1628]">Pages</th>
+                <th className="py-3 px-3 font-semibold text-right bg-[#0a1628]">Temps total</th>
+                <th className="py-3 px-3 font-semibold text-right bg-[#0a1628]">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
               {visitors.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-500">
-                    Aucun visiteur trouvé.
+                  <td colSpan={9} className="py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-slate-400">
+                      <Users className="w-8 h-8 text-slate-600 mb-2" />
+                      <p className="text-sm font-medium text-slate-300">Aucun visiteur trouvé</p>
+                      <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                        Les visites apparaîtront automatiquement dès que des internautes naviguent sur le site.
+                      </p>
+                      <button
+                        onClick={fetchVisitors}
+                        className="mt-3 px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Actualiser la liste</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
