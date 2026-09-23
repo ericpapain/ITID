@@ -16,6 +16,7 @@ export interface UseContactFormReturn {
   loading: boolean;
   error: string | null;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
+  resetForm: () => void;
 }
 
 export function useContactForm(): UseContactFormReturn {
@@ -78,5 +79,19 @@ export function useContactForm(): UseContactFormReturn {
     }
   };
 
-  return { formData, setFormData, sent, loading, error, handleSubmit };
+  const resetForm = () => {
+    setFormData({
+      category: "Patient",
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+      _website_hp: "",
+    });
+    setSent(false);
+    setError(null);
+    setLoading(false);
+  };
+
+  return { formData, setFormData, sent, loading, error, handleSubmit, resetForm };
 }

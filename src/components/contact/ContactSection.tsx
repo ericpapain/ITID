@@ -1,4 +1,4 @@
-import { User, Mail, Phone } from "lucide-react";
+import { User, Mail, Phone, RotateCcw } from "lucide-react";
 import { SpotlightInput } from "../ui/SpotlightInput";
 import { ShimmerButton } from "../ui/ShimmerButton";
 import { BackgroundBeams } from "../animations/BackgroundBeams";
@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export function ContactSection() {
   const { t } = useTranslation();
-  const { formData, setFormData, sent, loading, error, handleSubmit } = useContactForm();
+  const { formData, setFormData, sent, loading, error, handleSubmit, resetForm } = useContactForm();
 
   return (
     <section id="contact" className="relative py-12 overflow-hidden" style={{ background: "var(--background)" }}>
@@ -54,12 +54,25 @@ export function ContactSection() {
 
         <div className="rounded-2xl p-8 relative overflow-hidden bg-[#e8f4f2]/80 backdrop-blur-xl border border-[#2a9d8f]/30 shadow-xl">
           {sent ? (
-            <div className="text-center py-8">
-              <div className="text-5xl mb-4">✅</div>
-              <h3 className="text-xl font-bold mb-2 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
+            <div className="text-center py-10 px-4">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100/90 border border-emerald-300 flex items-center justify-center text-3xl shadow-sm">
+                ✅
+              </div>
+              <h3 className="text-2xl font-bold mb-2 text-[#1a3a5c]" style={{ fontFamily: "var(--font-display)" }}>
                 {t('contact.sentTitle')}
               </h3>
-              <p className="text-sm text-gray-600">{t('contact.sentDesc')}</p>
+              <p className="text-sm text-gray-600 mb-8 max-w-sm mx-auto leading-relaxed">
+                {t('contact.sentDesc')}
+              </p>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold text-white transition-all shadow-md hover:shadow-lg hover:opacity-95 active:scale-95 cursor-pointer"
+                style={{ background: "#2a9d8f" }}
+              >
+                <RotateCcw className="w-4 h-4" />
+                {t('contact.sendNew')}
+              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
