@@ -25,8 +25,39 @@ export function ContactSection() {
           </p>
 
           <div className="space-y-4 mb-8">
+            <div className="flex gap-3 items-start">
+              <span className="text-base shrink-0 mt-0.5">📍</span>
+              <div>
+                <div className="text-xs font-semibold mb-2" style={{ color: "#2a9d8f" }}>{t('contact.address')}</div>
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-sm font-bold" style={{ color: "#1a3a5c" }}>ITID-France</div>
+                    <a href="https://maps.google.com/?q=25+Avenue+des+Mailles,+10800+Saint-Julien-les-Villas" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline whitespace-pre-line block" style={{ color: "#1a3a5c" }}>
+                      25 Avenue des Mailles, 10800 Saint-Julien-les-Villas
+                    </a>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold" style={{ color: "#1a3a5c" }}>Polyclinique Montier la Celle</div>
+                    <a href="https://maps.google.com/?q=17+Rue+Charles+Baltet,+10120+Saint-André-les-Vergers" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline whitespace-pre-line block" style={{ color: "#1a3a5c" }}>
+                      17 Rue Charles Baltet, 10120 Saint-André-les-Vergers
+                    </a>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold flex items-center gap-1" style={{ color: "#1a3a5c" }}>
+                      Clinique Paul Picquet 
+                      <a href="https://www.elsan.care/fr/clinique-paul-picquet" target="_blank" rel="noopener noreferrer" className="text-xs text-[#2a9d8f] hover:underline">
+                        (Site Web)
+                      </a>
+                    </div>
+                    <a href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x47ef1aa6e14374df:0x3eabf289bc82f0ab?sa=X&ved=1t:8290&ictx=111" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline whitespace-pre-line block" style={{ color: "#1a3a5c" }}>
+                      12 Rue Pierre Castets, 89100 Sens
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {[
-              { icon: "📍 ", label: t('contact.address'), val: t('contact.addressVal') },
               { icon: "📞", label: t('contact.phone'), val: t('contact.phoneVal') },
               { icon: "🕒", label: t('contact.hours'), val: t('contact.hoursVal') },
               { icon: "📅", label: t('contact.appointment'), val: t('contact.appointmentVal') },
