@@ -43,10 +43,9 @@ export function ContactSection() {
                     </a>
                   </div>
                   <div>
-                    <div className="text-sm font-bold flex items-center gap-1" style={{ color: "#1a3a5c" }}>
-                      Clinique Paul Picquet 
-                      <a href="https://www.elsan.care/fr/clinique-paul-picquet" target="_blank" rel="noopener noreferrer" className="text-xs text-[#2a9d8f] hover:underline">
-                        (Site Web)
+                    <div className="text-sm font-bold" style={{ color: "#1a3a5c" }}>
+                      <a href="https://www.elsan.care/fr/clinique-paul-picquet" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                        Clinique Paul Picquet
                       </a>
                     </div>
                     <a href="https://www.google.com/maps/place//data=!4m2!3m1!1s0x47ef1aa6e14374df:0x3eabf289bc82f0ab?sa=X&ved=1t:8290&ictx=111" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline whitespace-pre-line block" style={{ color: "#1a3a5c" }}>
