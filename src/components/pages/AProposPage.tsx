@@ -13,6 +13,28 @@ export function AProposPage() {
   const [nlLoading, setNlLoading] = useState(false);
   const [nlSuccess, setNlSuccess] = useState(false);
   const [nlError, setNlError] = useState<string | null>(null);
+  const [selectedMapIndex, setSelectedMapIndex] = useState(0);
+
+  const locations = [
+    {
+      name: "ITID-France (Troyes)",
+      address: "25 Avenue des Mailles\n10800 Saint-Julien-les-Villas",
+      embed: "https://maps.google.com/maps?q=25%20Avenue%20des%20Mailles,+10800+Saint-Julien-les-Villas&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      link: "https://maps.google.com/?q=25+Avenue+des+Mailles,+10800+Saint-Julien-les-Villas"
+    },
+    {
+      name: "Polyclinique Montier la Celle",
+      address: "17 Rue Charles Baltet\n10120 Saint-André-les-Vergers",
+      embed: "https://maps.google.com/maps?q=17%20Rue%20Charles%20Baltet,+10120+Saint-André-les-Vergers&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      link: "https://maps.google.com/?q=17+Rue+Charles+Baltet,+10120+Saint-André-les-Vergers"
+    },
+    {
+      name: "Clinique Paul Picquet",
+      address: "12 Rue Pierre Castets\n89100 Sens",
+      embed: "https://maps.google.com/maps?q=12%20Rue%20Pierre%20Castets,+89100+Sens&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      link: "https://www.google.com/maps/place//data=!4m2!3m1!1s0x47ef1aa6e14374df:0x3eabf289bc82f0ab?sa=X&ved=1t:8290&ictx=111"
+    }
+  ];
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,18 +112,26 @@ export function AProposPage() {
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style={{ background: "#f0f7f6" }}>📍</div>
                     <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#2a9d8f]/10 text-[#2a9d8f] flex items-center gap-1 group-hover:bg-[#2a9d8f] group-hover:text-white transition-all">
-                      {t('about.info.clickMap')}
+                      Cliquer sur une adresse pour la carte 🗺️
                     </span>
                   </div>
                   <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{t('about.info.title')}</h3>
-                  <div className="space-y-4 text-sm leading-relaxed" style={{ color: "#4a5568" }}>
-                    <p><strong>{t('about.info.addressTitle')}</strong><br /><span className="whitespace-pre-line">{t('about.info.address')}</span></p>
-                    <p><strong>{t('about.info.hoursTitle')}</strong><br /><span className="whitespace-pre-line">{t('about.info.hours')}</span></p>
-                    <p><strong>{t('about.info.contactTitle')}</strong><br /><span className="whitespace-pre-line">{t('about.info.contact')}</span></p>
+                  
+                  <div className="space-y-4">
+                    {locations.map((loc, idx) => (
+                      <div 
+                        key={idx} 
+                        className="p-3 -mx-3 rounded-xl hover:bg-gray-50 cursor-pointer border border-transparent hover:border-gray-100 transition-colors"
+                        onClick={() => setSelectedMapIndex(idx)}
+                      >
+                        <div className="text-sm font-bold" style={{ color: "#1a3a5c" }}>{loc.name}</div>
+                        <div className="text-xs mt-1 whitespace-pre-line" style={{ color: "#4a5568" }}>{loc.address}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div className="text-[11px] text-gray-400 font-medium mt-4">
-                  {t('about.info.mapHint')}
+                  💡 Cliquez sur une adresse pour afficher sa carte interactive
                 </div>
               </div>
             }
@@ -110,26 +140,39 @@ export function AProposPage() {
                 <div className="flex items-center justify-between mb-3 px-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">🗺️</span>
-                    <span className="text-sm font-bold text-[#1a3a5c]">{t('about.info.mapTitle')}</span>
+                    <span className="text-sm font-bold text-[#1a3a5c] truncate max-w-[180px]">{locations[selectedMapIndex].name}</span>
                   </div>
                   <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 cursor-pointer">
                     ← {t('common.backInfo')}
                   </span>
                 </div>
-                <div className="w-full flex-1 rounded-2xl overflow-hidden border border-gray-200 min-h-[280px]">
+                
+                <a 
+                  href={locations[selectedMapIndex].link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full flex-1 rounded-2xl overflow-hidden border border-gray-200 min-h-[280px] block relative group/map"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <iframe
-                    title="Google Maps ITID Troyes"
+                    title={`Google Maps ${locations[selectedMapIndex].name}`}
                     width="100%"
                     height="100%"
-                    style={{ border: 0, minHeight: "280px" }}
+                    style={{ border: 0, minHeight: "280px", pointerEvents: "none" }}
                     loading="lazy"
                     allowFullScreen
                     referrerPolicy="no-referrer-when-downgrade"
-                    src="https://maps.google.com/maps?q=25%20avenue%20des%20Mailles%20Saint-Julien-les-Villas%2010800%20TROYES&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                    src={locations[selectedMapIndex].embed}
                   />
-                </div>
-                <div className="mt-2 text-center text-[11px] text-gray-500 font-medium">
-                  {t('about.info.mapAddress')}
+                  <div className="absolute inset-0 bg-black/0 group-hover/map:bg-black/10 transition-colors flex items-center justify-center">
+                     <span className="opacity-0 group-hover/map:opacity-100 bg-white px-4 py-2 rounded-full text-sm font-bold shadow-lg transition-opacity text-[#1a3a5c] transform scale-95 group-hover/map:scale-100 duration-200">
+                       Ouvrir dans Google Maps ↗
+                     </span>
+                  </div>
+                </a>
+
+                <div className="mt-2 text-center text-[11px] text-gray-500 font-medium whitespace-pre-line">
+                  {locations[selectedMapIndex].address.replace('\n', ', ')}
                 </div>
               </div>
             }
