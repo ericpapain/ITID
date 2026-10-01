@@ -46,6 +46,7 @@
 
   # Backup & Diagnostic Base de Données
   RewriteRule ^api/admin/backup/?$ api/admin/backup/index.php [L,QSA]
+  RewriteRule ^api/admin/seed_analytics/?$ api/admin/seed_analytics.php [L,QSA]
 
   # Si la requête correspond à un fichier réel (ex: .js, .css, .jpg, .mp4), le servir directement
   RewriteCond %{REQUEST_FILENAME} -f [OR]

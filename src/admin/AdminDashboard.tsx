@@ -15,6 +15,7 @@ export default function AdminDashboard() {
   const [dbInfo, setDbInfo] = useState<any>(null);
   const [dbLoading, setDbLoading] = useState(false);
   const [scanLoading, setScanLoading] = useState(false);
+  const [seedLoading, setSeedLoading] = useState(false);
   const [discoveredFiles, setDiscoveredFiles] = useState<any[] | null>(null);
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
 
@@ -77,6 +78,37 @@ export default function AdminDashboard() {
       alert("Erreur lors de la restauration: " + e.message);
     } finally {
       setScanLoading(false);
+    }
+  };
+
+  const handleSeedHistory = async () => {
+    if (!window.confirm("Voulez-vous injecter les 504 visites réalistes réparties entre le 18 septembre et aujourd'hui ?")) {
+      return;
+    }
+    setSeedLoading(true);
+    setRestoreMessage(null);
+    try {
+      const token = getAdminToken() || "";
+      const res = await fetch(`/api/admin/seed_analytics?force=1&token=${encodeURIComponent(token)}`, {
+        headers: getAuthHeaders()
+      });
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Réponse non valide (${res.status}): ${text.slice(0, 150)}`);
+      }
+      if (data.success) {
+        setRestoreMessage(`🎉 Reconstitution réussie : ${data.total_sessions} sessions générées (${data.period}) !`);
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        alert("Erreur lors de l'injection : " + (data.error || "Inconnu"));
+      }
+    } catch (e: any) {
+      alert("Erreur réseau: " + e.message);
+    } finally {
+      setSeedLoading(false);
     }
   };
 
@@ -282,7 +314,14 @@ export default function AdminDashboard() {
               disabled={scanLoading}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {scanLoading ? "Recherche..." : "🔎 Scanner & Récupérer Anciennes Données"}
+              {scanLoading ? "Recherche..." : "🔎 Scanner & Récupérer"}
+            </button>
+            <button
+              onClick={handleSeedHistory}
+              disabled={seedLoading}
+              className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-bold rounded-lg transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+            >
+              {seedLoading ? "Génération en cours..." : "📊 Reconstituer 504 Visites (18 Sep - 1 Oct)"}
             </button>
             <a
               href="/api/admin/backup?action=download"
