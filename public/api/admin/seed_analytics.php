@@ -54,22 +54,26 @@ if ($existingCount > 50 && !isset($_GET['force'])) {
     exit;
 }
 
-// Distribution journalière exacte dont la somme fait 504
+// Distribution journalière exacte demandée (Total = 504) :
+// - Aujourd'hui (1er Oct) : 230
+// - Hier (30 Sep) : 78
+// - Avant-hier (29 Sep) : 63
+// - Du 18 au 28 Sep : 133 répartis
 $dailyPlan = [
-    '2026-09-18' => 31,
-    '2026-09-19' => 28,
-    '2026-09-20' => 34,
-    '2026-09-21' => 42,
-    '2026-09-22' => 45,
-    '2026-09-23' => 39,
-    '2026-09-24' => 38,
-    '2026-09-25' => 41,
-    '2026-09-26' => 29,
-    '2026-09-27' => 33,
-    '2026-09-28' => 47,
-    '2026-09-29' => 44,
-    '2026-09-30' => 35,
-    '2026-10-01' => 18,
+    '2026-09-18' => 11,
+    '2026-09-19' => 10,
+    '2026-09-20' => 12,
+    '2026-09-21' => 14,
+    '2026-09-22' => 13,
+    '2026-09-23' => 11,
+    '2026-09-24' => 12,
+    '2026-09-25' => 15,
+    '2026-09-26' => 9,
+    '2026-09-27' => 12,
+    '2026-09-28' => 14,
+    '2026-09-29' => 63, // Avant-hier
+    '2026-09-30' => 78, // Hier
+    '2026-10-01' => 230, // Aujourd'hui
 ];
 
 // Pool de données réalistes
@@ -127,23 +131,36 @@ $createdVisitors = [];
 
 foreach ($dailyPlan as $dateStr => $sessionCount) {
     for ($i = 0; $i < $sessionCount; $i++) {
-        // Horaires organiques (pics 9h-12h et 14h-19h)
-        $hourSeed = mt_rand(1, 100);
-        if ($hourSeed <= 10) {
-            $hour = mt_rand(0, 7); // Nuit
-        } elseif ($hourSeed <= 45) {
-            $hour = mt_rand(8, 12); // Matin pic
-        } elseif ($hourSeed <= 65) {
-            $hour = mt_rand(13, 14); // Déjeuner
-        } elseif ($hourSeed <= 95) {
-            $hour = mt_rand(15, 20); // Après-midi / Soirée
+        if ($dateStr === '2026-10-01') {
+            if ($i >= 226) {
+                // Sessions actives en direct (dernières 3 minutes)
+                $startedAt = date('Y-m-d H:i:s', time() - mt_rand(30, 180));
+            } else {
+                $hour = mt_rand(7, 19);
+                $minute = mt_rand(0, 59);
+                $second = mt_rand(0, 59);
+                $timeStr = sprintf("%02d:%02d:%02d", $hour, $minute, $second);
+                $startedAt = "{$dateStr} {$timeStr}";
+            }
         } else {
-            $hour = mt_rand(21, 23); // Nuit tard
+            // Horaires organiques des jours passés (pics 9h-12h et 14h-19h)
+            $hourSeed = mt_rand(1, 100);
+            if ($hourSeed <= 10) {
+                $hour = mt_rand(0, 7); // Nuit
+            } elseif ($hourSeed <= 45) {
+                $hour = mt_rand(8, 12); // Matin pic
+            } elseif ($hourSeed <= 65) {
+                $hour = mt_rand(13, 14); // Déjeuner
+            } elseif ($hourSeed <= 95) {
+                $hour = mt_rand(15, 20); // Après-midi / Soirée
+            } else {
+                $hour = mt_rand(21, 23); // Nuit tard
+            }
+            $minute = mt_rand(0, 59);
+            $second = mt_rand(0, 59);
+            $timeStr = sprintf("%02d:%02d:%02d", $hour, $minute, $second);
+            $startedAt = "{$dateStr} {$timeStr}";
         }
-        $minute = mt_rand(0, 59);
-        $second = mt_rand(0, 59);
-        $timeStr = sprintf("%02d:%02d:%02d", $hour, $minute, $second);
-        $startedAt = "{$dateStr} {$timeStr}";
 
         $geo = pickWeighted($geoPool);
         $dev = pickWeighted($devicePool);
