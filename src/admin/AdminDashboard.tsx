@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getAuthHeaders } from "./auth";
+import { getAuthHeaders, getAdminToken } from "./auth";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
