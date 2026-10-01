@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ======================================================================
 // ITID France — API Sauvegarde & Diagnostic de la Base de Données
 // Endpoint : GET /api/admin/backup?action=info|download
@@ -141,5 +141,127 @@ if ($action === "restore" && $_SERVER["REQUEST_METHOD"] === "POST") {
     exit;
 }
 
+// ====================================================================
+// 4. SCAN : Rechercher toutes les bases SQLite sur le serveur
+// ====================================================================
+if ($action === "scan") {
+    try {
+        $docRoot = $_SERVER["DOCUMENT_ROOT"] ?? "";
+        $searchDirs = array_unique(array_filter([
+            __DIR__ . "/../../data",
+            __DIR__ . "/../..",
+            $docRoot . "/api/data",
+            $docRoot . "/api",
+            $docRoot . "/data",
+            $docRoot,
+            dirname(rtrim($docRoot, "/\\")) . "/itid_data",
+            dirname(rtrim($docRoot, "/\\")) . "/private/itid_data",
+            dirname(rtrim($docRoot, "/\\")) . "/public_html/api/data",
+            sys_get_temp_dir() . "/itid_data",
+            sys_get_temp_dir()
+        ]));
+
+        $foundFiles = [];
+        foreach ($searchDirs as $dir) {
+            if (!is_dir($dir)) continue;
+            $files = @scandir($dir);
+            if (!$files) continue;
+            foreach ($files as $f) {
+                if ($f === "." || $f === "..") continue;
+                if (preg_match('/\.(sqlite|sqlite3|db)(\.bak.*)?$/i', $f) || strpos($f, 'itid') !== false) {
+                    $full = $dir . '/' . $f;
+                    if (is_file($full)) {
+                        $size = filesize($full);
+                        $mtime = date("Y-m-d H:i:s", filemtime($full));
+                        $rowCounts = [];
+                        $isValid = false;
+                        try {
+                            $checkPdo = new PDO("sqlite:" . $full);
+                            $checkPdo->setAttribute(PDO::ATTR_TIMEOUT, 2);
+                            $tables = $checkPdo->query("SELECT name FROM sqlite_master WHERE type='table'")->fetchAll(PDO::FETCH_COLUMN);
+                            if (!empty($tables)) {
+                                $isValid = true;
+                                foreach (["visitors", "contact_messages", "visitor_sessions", "newsletter_subscribers"] as $t) {
+                                    try {
+                                        $rowCounts[$t] = (int)$checkPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                                    } catch (Throwable $e) {}
+                                }
+                            }
+                            $checkPdo = null;
+                        } catch (Throwable $e) {}
+
+                        $foundFiles[] = [
+                            "path" => $full,
+                            "filename" => $f,
+                            "directory" => $dir,
+                            "size_kb" => round($size / 1024, 2),
+                            "modified" => $mtime,
+                            "is_valid_sqlite" => $isValid,
+                            "counts" => $rowCounts
+                        ];
+                    }
+                }
+            }
+        }
+
+        echo json_encode(["success" => true, "found" => $foundFiles], JSON_UNESCAPED_UNICODE);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ====================================================================
+// 5. RESTORE_DISCOVERED : Restaurer une base trouvée par scan
+// ====================================================================
+if ($action === "restore_discovered" && $_SERVER["REQUEST_METHOD"] === "POST") {
+    try {
+        $input = json_decode(file_get_contents("php://input"), true);
+        $sourcePath = $input["path"] ?? "";
+
+        if (!$sourcePath || !file_exists($sourcePath)) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Fichier source introuvable."]);
+            exit;
+        }
+
+        $pdo = getItidDb();
+        $stmt = $pdo->query("PRAGMA database_list");
+        $dbList = $stmt->fetchAll();
+        $sqlitePath = $dbList[0]["file"] ?? "";
+        $pdo = null;
+
+        if (!$sqlitePath) {
+            http_response_code(500);
+            echo json_encode(["success" => false, "error" => "Chemin DB cible inconnu."]);
+            exit;
+        }
+
+        $backupPath = $sqlitePath . ".bak_before_restore_" . date("Ymd_His");
+        if (file_exists($sqlitePath)) {
+            copy($sqlitePath, $backupPath);
+        }
+
+        if (!copy($sourcePath, $sqlitePath)) {
+            http_response_code(500);
+            echo json_encode(["success" => false, "error" => "Échec de la restauration."]);
+            exit;
+        }
+
+        echo json_encode([
+            "success" => true,
+            "message" => "Base de données restaurée avec succès depuis " . basename($sourcePath),
+            "source" => $sourcePath,
+            "target" => $sqlitePath
+        ], JSON_UNESCAPED_UNICODE);
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    }
+    exit;
+}
+
 http_response_code(400);
-echo json_encode(["success" => false, "error" => "Action inconnue. Disponible : info, download, restore"]);
+echo json_encode(["success" => false, "error" => "Action inconnue. Disponible : info, download, restore, scan, restore_discovered"]);
+

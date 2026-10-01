@@ -14,6 +14,55 @@ export default function AdminDashboard() {
 
   const [dbInfo, setDbInfo] = useState<any>(null);
   const [dbLoading, setDbLoading] = useState(false);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [discoveredFiles, setDiscoveredFiles] = useState<any[] | null>(null);
+  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
+
+  const handleScan = async () => {
+    setScanLoading(true);
+    setRestoreMessage(null);
+    try {
+      const res = await fetch("/api/admin/backup?action=scan", { headers: getAuthHeaders() });
+      const data = await res.json();
+      if (data.success && data.found) {
+        setDiscoveredFiles(data.found);
+      } else {
+        alert("Erreur lors du scan : " + (data.error || "Inconnu"));
+      }
+    } catch (e: any) {
+      alert("Erreur réseau lors du scan: " + e.message);
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  const handleRestoreDiscovered = async (path: string, filename: string) => {
+    if (!window.confirm(`Voulez-vous vraiment restaurer les données depuis le fichier :\n${filename} ?\n\nUne sauvegarde de secours de la base actuelle sera conservée.`)) {
+      return;
+    }
+    setScanLoading(true);
+    try {
+      const res = await fetch("/api/admin/backup?action=restore_discovered", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify({ path })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRestoreMessage(`✅ ${data.message}`);
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        alert("Erreur de restauration : " + (data.error || "Inconnu"));
+      }
+    } catch (e: any) {
+      alert("Erreur lors de la restauration: " + e.message);
+    } finally {
+      setScanLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchStats() {
@@ -176,7 +225,7 @@ export default function AdminDashboard() {
       <div className="p-6 rounded-2xl border border-amber-500/30 bg-[#0c1a2e] shadow-lg">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>🛡️</span> Persistance & Sauvegarde de la Base de Données
+            <span>🛡️</span> Persistance & Récupération de la Base de Données
           </h3>
           <div className="flex gap-2 flex-wrap">
             <button
@@ -193,15 +242,21 @@ export default function AdminDashboard() {
                 }
               }}
               disabled={dbLoading}
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
             >
               {dbLoading ? "Chargement..." : "🔍 Diagnostic DB"}
+            </button>
+            <button
+              onClick={handleScan}
+              disabled={scanLoading}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {scanLoading ? "Recherche..." : "🔎 Scanner & Récupérer Anciennes Données"}
             </button>
             <a
               href="/api/admin/backup?action=download"
               className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-colors"
               onClick={(e) => {
-                // Ajouter le header Authorization via fetch puis déclencher le download
                 e.preventDefault();
                 fetch("/api/admin/backup?action=download", { headers: getAuthHeaders() })
                   .then(async (res) => {
@@ -222,10 +277,55 @@ export default function AdminDashboard() {
         </div>
 
         <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-          <strong className="text-amber-400">Important :</strong> À chaque déploiement (push Git + upload FTP), seuls les fichiers PHP et JS sont mis à jour.
-          La base de données est stockée dans un dossier séparé hors du webroot et n'est jamais écrasée.
-          Téléchargez un backup avant tout déploiement majeur.
+          <strong className="text-amber-400">Persistance active :</strong> La base SQLite est hébergée hors du dossier webroot (`itid_data`) pour éviter tout effacement lors des déploiements.
+          Si des anciennes données manquent, cliquez sur <strong className="text-indigo-400">"Scanner & Récupérer Anciennes Données"</strong> pour les retrouver sur le serveur et les réinjecter immédiatement.
         </p>
+
+        {restoreMessage && (
+          <div className="mb-4 p-3.5 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-medium">
+            {restoreMessage}
+          </div>
+        )}
+
+        {/* Liste des bases trouvées par le scanner */}
+        {discoveredFiles && (
+          <div className="mb-4 p-4 bg-slate-900/90 border border-indigo-500/40 rounded-xl">
+            <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-3">
+              📦 Fichiers Base de Données Trouvés sur le Serveur ({discoveredFiles.length})
+            </h4>
+            {discoveredFiles.length === 0 ? (
+              <p className="text-xs text-slate-400">Aucun autre fichier SQLite détecté sur le serveur.</p>
+            ) : (
+              <div className="space-y-3">
+                {discoveredFiles.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-slate-800/80 rounded-lg border border-slate-700 text-xs flex-wrap gap-2">
+                    <div className="space-y-1">
+                      <div className="font-bold text-white flex items-center gap-2">
+                        <span>📄 {item.filename}</span>
+                        <span className="text-slate-400 text-[11px]">({item.size_kb} Ko — Modifié : {item.modified})</span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 break-all">{item.path}</div>
+                      {item.counts && Object.keys(item.counts).length > 0 && (
+                        <div className="flex gap-3 text-[11px] text-emerald-400 font-medium pt-1">
+                          {Object.entries(item.counts).map(([tbl, cnt]) => (
+                            <span key={tbl}>{tbl}: <strong>{String(cnt)}</strong></span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleRestoreDiscovered(item.path, item.filename)}
+                      disabled={scanLoading}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                    >
+                      🔄 Restaurer cette base
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {dbInfo && (
           <div className="mt-3 p-4 bg-slate-900 rounded-xl text-xs font-mono space-y-2">
