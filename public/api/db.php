@@ -214,8 +214,6 @@ function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
     }
 }
 
-}
-
 function initSqliteTables(PDO $pdo): void {
     $queries = [
         "CREATE TABLE IF NOT EXISTS contact_messages (
