@@ -115,12 +115,18 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Title */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Tableau de bord Général</h1>
-        <p className="text-sm text-slate-400">
-          Vue d'ensemble des interactions patients, abonnés newsletter et gestion des contenus ITID.
-        </p>
+      {/* Title & Status */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Tableau de bord Général</h1>
+          <p className="text-sm text-slate-400">
+            Vue d'ensemble des interactions patients, abonnés newsletter et gestion des contenus ITID.
+          </p>
+        </div>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Persistance des données active
+        </div>
       </div>
 
       {/* KPI Cards */}
