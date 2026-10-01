@@ -55,22 +55,65 @@ function getItidDb(): PDO {
     }
 
     // 2. Mode SQLite (Autonome, zéro configuration)
-    $dataDir = __DIR__ . '/data';
-    if (!is_dir($dataDir)) {
-        @mkdir($dataDir, 0777, true);
-        @chmod($dataDir, 0777);
-    }
+    // ============================================================
+    // STRATÉGIE DE PERSISTANCE :
+    //   Priorité 1 : Dossier parent de public/ (hors webroot Hostinger)
+    //                => /home/uXXXXXX/domains/itid-france.com/itid_data/
+    //                => Ce dossier N'EST PAS écrasé lors d'un déploiement FTP.
+    //   Priorité 2 : Chemin explicite défini dans config.php (sqlite_path)
+    //   Priorité 3 : public/api/data/ (fallback local uniquement)
+    //   Priorité 4 : sys_get_temp_dir() (dernier recours — non persistant)
+    // ============================================================
+    $config = getItidConfig();
 
-    // Si le dossier data local n'est pas inscriptible, repli sur le dossier temporaire système
-    if (!is_writable($dataDir)) {
-        $dataDir = sys_get_temp_dir() . '/itid_data';
-        if (!is_dir($dataDir)) {
-            @mkdir($dataDir, 0777, true);
-            @chmod($dataDir, 0777);
+    // Priorité 0 : Chemin explicite dans config.php
+    $explicitPath = $config['sqlite_path'] ?? null;
+    if ($explicitPath && is_writable(dirname($explicitPath))) {
+        $sqliteFile = $explicitPath;
+    } else {
+        // Priorité 1 : Remonter hors du webroot (Hostinger : /public_html/../)
+        // Sur Hostinger, __DIR__ ressemble à : /home/uXXXXXX/domains/itid-france.com/public_html/api/data
+        // On remonte 3 niveaux pour sortir de public_html
+        $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+        $candidateDirs = [];
+
+        if (!empty($docRoot)) {
+            // Dossier frère de public_html, hors du webroot
+            $parentOfPublic = dirname(rtrim($docRoot, '/\\'));
+            $candidateDirs[] = $parentOfPublic . '/itid_data';
+            $candidateDirs[] = $parentOfPublic . '/private/itid_data';
         }
+
+        // Remonter depuis __FILE__ en dehors de public_html
+        $apiDir = __DIR__; // .../public_html/api/data
+        $candidateDirs[] = dirname(dirname(dirname(dirname($apiDir)))) . '/itid_data';
+
+        // Priorité 2 : public/api/data/ (maintenu pour compatibilité)
+        $candidateDirs[] = __DIR__;
+
+        $dataDir = null;
+        foreach ($candidateDirs as $dir) {
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0750, true);
+            }
+            if (is_dir($dir) && is_writable($dir)) {
+                $dataDir = $dir;
+                break;
+            }
+        }
+
+        // Priorité 3 : Dossier temporaire système (non persistant — dernier recours)
+        if ($dataDir === null) {
+            $dataDir = sys_get_temp_dir() . '/itid_data';
+            if (!is_dir($dataDir)) {
+                @mkdir($dataDir, 0777, true);
+            }
+            error_log('ITID WARNING: SQLite stored in temp dir — data will NOT persist across server reboots!');
+        }
+
+        $sqliteFile = $dataDir . '/itid.sqlite';
     }
 
-    $sqliteFile = $dataDir . '/itid.sqlite';
     $pdo = new PDO("sqlite:" . $sqliteFile, null, null, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -84,6 +127,7 @@ function getItidDb(): PDO {
 
     initSqliteTables($pdo);
     return $pdo;
+
 }
 
 function initSqliteTables(PDO $pdo): void {
@@ -202,6 +246,7 @@ function initSqliteTables(PDO $pdo): void {
             error_log("ITID initSqliteTables error: " . $t->getMessage());
         }
     }
+    seedAdminUserIfEmpty($pdo);
 }
 
 function initMysqlTables(PDO $pdo): void {
@@ -326,4 +371,22 @@ function initMysqlTables(PDO $pdo): void {
             error_log("ITID initMysqlTables error: " . $t->getMessage());
         }
     }
+    seedAdminUserIfEmpty($pdo);
 }
+
+function seedAdminUserIfEmpty(PDO $pdo): void {
+    try {
+        $count = (int)$pdo->query("SELECT COUNT(*) FROM admin_users")->fetchColumn();
+        if ($count === 0) {
+            $config = getItidConfig();
+            $adminEmail = strtolower(trim($config['admin_user'] ?? $config['admin_email'] ?? 'contact@itid-france.com'));
+            $adminPass = $config['admin_pass'] ?? 'AdminItid2026!';
+            $hash = password_hash($adminPass, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("INSERT INTO admin_users (email, password_hash, role) VALUES (?, ?, 'superadmin')");
+            $stmt->execute([$adminEmail, $hash]);
+        }
+    } catch (Throwable $t) {
+        error_log("seedAdminUserIfEmpty error: " . $t->getMessage());
+    }
+}
+

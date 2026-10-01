@@ -12,6 +12,11 @@
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+  # Transmettre l'en-tête Authorization à PHP sur Apache / LiteSpeed (Hostinger)
+  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+  RewriteCond %{HTTP:Authorization} ^(.*)
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
   # Ne pas réécrire index.html
   RewriteRule ^index\.html$ - [L]
 
@@ -38,6 +43,9 @@
   RewriteRule ^api/admin/analytics/visitors/([0-9]+)/?$ api/admin/analytics/index.php?endpoint=visitor_detail&id=$1 [L,QSA]
   RewriteRule ^api/admin/analytics/([a-zA-Z0-9_\-]+)/?$ api/admin/analytics/index.php?endpoint=$1 [L,QSA]
   RewriteRule ^api/admin/analytics/?$ api/admin/analytics/index.php?endpoint=overview [L,QSA]
+
+  # Backup & Diagnostic Base de Données
+  RewriteRule ^api/admin/backup/?$ api/admin/backup/index.php [L,QSA]
 
   # Si la requête correspond à un fichier réel (ex: .js, .css, .jpg, .mp4), le servir directement
   RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -84,3 +92,27 @@
     Header set Expires 0
   </Files>
 </IfModule>
+
+# ----------------------------------------------------------------------
+# Sécurité : Bloquer l'accès direct aux fichiers sensibles et bases de données
+# ----------------------------------------------------------------------
+<FilesMatch "\.(sqlite|db|env|log|sql|md|yml|yaml)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<FilesMatch "^(config|config\.sample|db|auth_check)\.php$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+

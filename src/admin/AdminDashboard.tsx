@@ -12,6 +12,9 @@ export default function AdminDashboard() {
     loading: true,
   });
 
+  const [dbInfo, setDbInfo] = useState<any>(null);
+  const [dbLoading, setDbLoading] = useState(false);
+
   useEffect(() => {
     async function fetchStats() {
       try {
@@ -167,6 +170,95 @@ export default function AdminDashboard() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Panneau Sauvegarde & Persistance BDD */}
+      <div className="p-6 rounded-2xl border border-amber-500/30 bg-[#0c1a2e] shadow-lg">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <span>🛡️</span> Persistance & Sauvegarde de la Base de Données
+          </h3>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={async () => {
+                setDbLoading(true);
+                try {
+                  const res = await fetch("/api/admin/backup?action=info", { headers: getAuthHeaders() });
+                  const data = await res.json();
+                  setDbInfo(data);
+                } catch (e) {
+                  setDbInfo({ error: "Impossible de joindre l'API backup." });
+                } finally {
+                  setDbLoading(false);
+                }
+              }}
+              disabled={dbLoading}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+            >
+              {dbLoading ? "Chargement..." : "🔍 Diagnostic DB"}
+            </button>
+            <a
+              href="/api/admin/backup?action=download"
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-colors"
+              onClick={(e) => {
+                // Ajouter le header Authorization via fetch puis déclencher le download
+                e.preventDefault();
+                fetch("/api/admin/backup?action=download", { headers: getAuthHeaders() })
+                  .then(async (res) => {
+                    if (!res.ok) { alert("Erreur lors du backup."); return; }
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `itid_backup_${new Date().toISOString().slice(0,19).replace(/[:T]/g,"_")}.sqlite`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  });
+              }}
+            >
+              ⬇️ Télécharger Backup SQLite
+            </a>
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+          <strong className="text-amber-400">Important :</strong> À chaque déploiement (push Git + upload FTP), seuls les fichiers PHP et JS sont mis à jour.
+          La base de données est stockée dans un dossier séparé hors du webroot et n'est jamais écrasée.
+          Téléchargez un backup avant tout déploiement majeur.
+        </p>
+
+        {dbInfo && (
+          <div className="mt-3 p-4 bg-slate-900 rounded-xl text-xs font-mono space-y-2">
+            {dbInfo.error ? (
+              <div className="text-red-400">❌ {dbInfo.error}</div>
+            ) : (
+              <>
+                <div className={`font-semibold text-sm mb-2 ${dbInfo.is_in_webroot ? "text-red-400" : "text-emerald-400"}`}>
+                  {dbInfo.is_in_webroot ? "⚠️" : "✅"} {dbInfo.status}
+                </div>
+                <div className="text-slate-300"><span className="text-slate-500">Driver :</span> {dbInfo.driver}</div>
+                {dbInfo.sqlite_path && (
+                  <div className="text-slate-300 break-all"><span className="text-slate-500">Chemin DB :</span> {dbInfo.sqlite_path}</div>
+                )}
+                {dbInfo.file_size_kb !== undefined && (
+                  <div className="text-slate-300"><span className="text-slate-500">Taille :</span> {dbInfo.file_size_kb} Ko</div>
+                )}
+                {dbInfo.file_modified && (
+                  <div className="text-slate-300"><span className="text-slate-500">Dernière modif :</span> {dbInfo.file_modified}</div>
+                )}
+                {dbInfo.record_counts && (
+                  <div className="mt-2 pt-2 border-t border-slate-700 grid grid-cols-2 sm:grid-cols-3 gap-1">
+                    {Object.entries(dbInfo.record_counts).map(([table, count]) => (
+                      <div key={table} className="text-slate-300">
+                        <span className="text-slate-500">{table}:</span> <span className="text-white font-bold">{String(count)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
