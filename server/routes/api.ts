@@ -47,6 +47,17 @@ const newsletterLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 tentatives maximum par IP
+  message: {
+    success: false,
+    error: 'Trop de tentatives de connexion échouées. Veuillez patienter 15 minutes.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // -------------------------------------------------------------
 // Routes Publiques
 // -------------------------------------------------------------
@@ -61,8 +72,8 @@ router.get('/newsletter/unsubscribe', handleUnsubscribe);
 // Déclencheur automatique de campagne newsletter (protégé par x-cron-secret)
 router.post('/newsletter/trigger-campaign', handleTriggerCampaign);
 
-// Authentification Administrateur
-router.post('/auth/login', handleAdminLogin);
+// Authentification Administrateur avec limitation de débit anti brute-force
+router.post('/auth/login', loginLimiter, handleAdminLogin);
 
 // Contenus dynamiques publics (FR/EN)
 router.get('/content', getAllContent);

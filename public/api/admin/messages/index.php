@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+require_once __DIR__ . '/../../auth_check.php';
+$currentUser = requireAdminAuth();
+
 require_once __DIR__ . '/../../db.php';
 $pdo = getItidDb();
 

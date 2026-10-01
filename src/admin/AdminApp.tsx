@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { getAdminToken } from "./auth";
 import AdminLogin from "./AdminLogin";
 import AdminLayout from "./AdminLayout";
 import AdminDashboard from "./AdminDashboard";
@@ -9,59 +10,91 @@ import AdminPagesEditor from "./AdminPagesEditor";
 import AdminMediaLibrary from "./AdminMediaLibrary";
 import AdminAnalytics from "./AdminAnalytics";
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const token = getAdminToken();
+  if (!token) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return <>{children}</>;
+}
+
 export default function AdminApp() {
+  const token = getAdminToken();
+
   return (
     <Routes>
-      <Route path="login" element={<AdminLogin />} />
+      <Route
+        path="login"
+        element={token ? <Navigate to="/admin/dashboard" replace /> : <AdminLogin />}
+      />
       <Route
         path="dashboard"
         element={
-          <AdminLayout>
-            <AdminDashboard />
-          </AdminLayout>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminDashboard />
+            </AdminLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="analytics"
         element={
-          <AdminLayout>
-            <AdminAnalytics />
-          </AdminLayout>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminAnalytics />
+            </AdminLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="messages"
         element={
-          <AdminLayout>
-            <AdminMessages />
-          </AdminLayout>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminMessages />
+            </AdminLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="newsletter"
         element={
-          <AdminLayout>
-            <AdminNewsletter />
-          </AdminLayout>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminNewsletter />
+            </AdminLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="pages"
         element={
-          <AdminLayout>
-            <AdminPagesEditor />
-          </AdminLayout>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminPagesEditor />
+            </AdminLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="media"
         element={
-          <AdminLayout>
-            <AdminMediaLibrary />
-          </AdminLayout>
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminMediaLibrary />
+            </AdminLayout>
+          </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route
+        index
+        element={<Navigate to={token ? "/admin/dashboard" : "/admin/login"} replace />}
+      />
+      <Route
+        path="*"
+        element={<Navigate to={token ? "/admin/dashboard" : "/admin/login"} replace />}
+      />
     </Routes>
   );
 }

@@ -12,7 +12,7 @@ export async function handleAdminLogin(req: Request, res: Response) {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ success: false, error: 'Email et mot de passe requis.' });
+      return res.status(400).json({ success: false, error: 'Identifiants requis.' });
     }
 
     const cleanEmail = String(email).toLowerCase().trim();
@@ -56,10 +56,10 @@ export async function handleAdminLogin(req: Request, res: Response) {
 
     return res.status(401).json({
       success: false,
-      error: 'Identifiants invalides. Vérifiez l\'adresse email et le mot de passe.',
+      error: 'Identifiants incorrects.',
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: 'Erreur interne du serveur.' });
   }
 }
 

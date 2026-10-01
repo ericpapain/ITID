@@ -5,8 +5,8 @@ import logo from "../logos/logo ITID 3.png";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("contact@itid-france.com");
-  const [password, setPassword] = useState("AdminItid2026!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,37 +21,20 @@ export default function AdminLogin() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setAdminSession(data.token, data.user);
-          navigate("/admin/dashboard");
-          return;
-        } else {
-          throw new Error(data.error || "Identifiants invalides");
-        }
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data?.success && data?.token) {
+        setAdminSession(data.token, data.user);
+        navigate("/admin/dashboard", { replace: true });
+        return;
       } else {
-        const data = await res.json().catch(() => null);
-        if (data && data.error) {
-          throw new Error(data.error);
-        }
-        throw new Error("Erreur de réponse du serveur.");
+        throw new Error(data?.error || "Identifiants incorrects.");
       }
     } catch (apiErr: any) {
-      // Repli immédiat en mode développement local si le serveur Express n'est pas démarré
-      if (email.trim().toLowerCase() === "contact@itid-france.com" && password === "AdminItid2026!") {
-        setAdminSession("dev_local_token_mock_session", {
-          id: 1,
-          email: "contact@itid-france.com",
-          role: "superadmin",
-        });
-        navigate("/admin/dashboard");
-        return;
-      }
-      setError(apiErr.message || "Erreur de connexion au serveur.");
+      setError(apiErr.message || "Identifiants incorrects.");
     } finally {
       setLoading(false);
     }
@@ -70,7 +53,7 @@ export default function AdminLogin() {
         </div>
 
         {error && (
-          <div className="mb-6 p-3.5 bg-red-950/60 border border-red-500/40 rounded-xl text-red-300 text-xs text-center">
+          <div className="mb-6 p-3.5 bg-red-950/60 border border-red-500/40 rounded-xl text-red-300 text-xs text-center font-medium">
             {error}
           </div>
         )}
@@ -81,10 +64,11 @@ export default function AdminLogin() {
             <input
               type="email"
               required
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-[#2a9d8f] transition-colors"
-              placeholder="admin@itid-france.com"
+              placeholder="Votre adresse email"
             />
           </div>
 
@@ -93,6 +77,7 @@ export default function AdminLogin() {
             <input
               type="password"
               required
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-[#2a9d8f] transition-colors"
@@ -103,7 +88,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-2 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_20px_rgba(42,157,143,0.3)] flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 mt-2 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_20px_rgba(42,157,143,0.3)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
           >
             {loading ? (
               <>
