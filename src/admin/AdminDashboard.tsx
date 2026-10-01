@@ -22,15 +22,24 @@ export default function AdminDashboard() {
     setScanLoading(true);
     setRestoreMessage(null);
     try {
-      const res = await fetch("/api/admin/backup?action=scan", { headers: getAuthHeaders() });
-      const data = await res.json();
+      const token = getAdminToken() || "";
+      const res = await fetch(`/api/admin/backup?action=scan&token=${encodeURIComponent(token)}`, {
+        headers: getAuthHeaders()
+      });
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Réponse non valide du serveur (${res.status}): ${text.slice(0, 150)}`);
+      }
       if (data.success && data.found) {
         setDiscoveredFiles(data.found);
       } else {
         alert("Erreur lors du scan : " + (data.error || "Inconnu"));
       }
     } catch (e: any) {
-      alert("Erreur réseau lors du scan: " + e.message);
+      alert("Erreur lors du scan: " + e.message);
     } finally {
       setScanLoading(false);
     }
@@ -42,7 +51,8 @@ export default function AdminDashboard() {
     }
     setScanLoading(true);
     try {
-      const res = await fetch("/api/admin/backup?action=restore_discovered", {
+      const token = getAdminToken() || "";
+      const res = await fetch(`/api/admin/backup?action=restore_discovered&token=${encodeURIComponent(token)}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +60,13 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({ path })
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Réponse non valide (${res.status}): ${text.slice(0, 150)}`);
+      }
       if (data.success) {
         setRestoreMessage(`✅ ${data.message}`);
         setTimeout(() => window.location.reload(), 1200);
@@ -232,11 +248,20 @@ export default function AdminDashboard() {
               onClick={async () => {
                 setDbLoading(true);
                 try {
-                  const res = await fetch("/api/admin/backup?action=info", { headers: getAuthHeaders() });
-                  const data = await res.json();
+                  const token = getAdminToken() || "";
+                  const res = await fetch(`/api/admin/backup?action=info&token=${encodeURIComponent(token)}`, {
+                    headers: getAuthHeaders()
+                  });
+                  const text = await res.text();
+                  let data: any;
+                  try {
+                    data = JSON.parse(text);
+                  } catch {
+                    throw new Error(`Erreur serveur (${res.status}): ${text.slice(0, 150)}`);
+                  }
                   setDbInfo(data);
-                } catch (e) {
-                  setDbInfo({ error: "Impossible de joindre l'API backup." });
+                } catch (e: any) {
+                  setDbInfo({ error: e.message || "Impossible de joindre l'API backup." });
                 } finally {
                   setDbLoading(false);
                 }
@@ -255,12 +280,17 @@ export default function AdminDashboard() {
             </button>
             <a
               href="/api/admin/backup?action=download"
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-colors"
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
-                fetch("/api/admin/backup?action=download", { headers: getAuthHeaders() })
+                const token = getAdminToken() || "";
+                fetch(`/api/admin/backup?action=download&token=${encodeURIComponent(token)}`, { headers: getAuthHeaders() })
                   .then(async (res) => {
-                    if (!res.ok) { alert("Erreur lors du backup."); return; }
+                    if (!res.ok) {
+                      const text = await res.text().catch(() => "");
+                      alert("Erreur lors du backup : " + (text.slice(0, 150) || `HTTP ${res.status}`));
+                      return;
+                    }
                     const blob = await res.blob();
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
@@ -268,7 +298,8 @@ export default function AdminDashboard() {
                     a.download = `itid_backup_${new Date().toISOString().slice(0,19).replace(/[:T]/g,"_")}.sqlite`;
                     a.click();
                     URL.revokeObjectURL(url);
-                  });
+                  })
+                  .catch((err) => alert("Erreur réseau: " + err.message));
               }}
             >
               ⬇️ Télécharger Backup SQLite

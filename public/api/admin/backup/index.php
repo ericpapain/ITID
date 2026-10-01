@@ -1,24 +1,36 @@
 <?php
 // ======================================================================
 // ITID France — API Sauvegarde & Diagnostic de la Base de Données
-// Endpoint : GET /api/admin/backup?action=info|download
-//            POST /api/admin/backup?action=restore (multipart file)
+// Endpoint : GET /api/admin/backup?action=info|download|scan
+//            POST /api/admin/backup?action=restore|restore_discovered
 // ======================================================================
+
+ob_start();
+error_reporting(0);
+ini_set('display_errors', '0');
 
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Admin-Token");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    ob_clean();
     http_response_code(200);
     echo json_encode(["status" => "ok"]);
     exit;
 }
 
-require_once __DIR__ . "/../../auth_check.php";
-$currentUser = requireAdminAuth();
-require_once __DIR__ . "/../../db.php";
+try {
+    require_once __DIR__ . "/../../auth_check.php";
+    $currentUser = requireAdminAuth();
+    require_once __DIR__ . "/../../db.php";
+} catch (Throwable $initErr) {
+    ob_clean();
+    http_response_code(500);
+    echo json_encode(["success" => false, "error" => "Erreur d'initialisation : " . $initErr->getMessage()]);
+    exit;
+}
 
 $action = $_GET["action"] ?? "info";
 
@@ -84,6 +96,7 @@ if ($action === "download") {
         }
         try { $pdo->exec("PRAGMA wal_checkpoint(FULL);"); } catch (Throwable $e) {}
         $filename = "itid_backup_" . date("Ymd_His") . ".sqlite";
+        if (ob_get_length()) ob_end_clean();
         header("Content-Type: application/octet-stream");
         header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
         header("Content-Length: " . filesize($sqlitePath));

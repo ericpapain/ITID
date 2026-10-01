@@ -45,10 +45,23 @@ function verifyAdminToken(?string $authHeader): ?array {
 }
 
 function requireAdminAuth(): array {
-    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? null;
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? null;
     if (!$authHeader && function_exists('apache_request_headers')) {
         $headers = apache_request_headers();
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? null;
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? $headers['X-Admin-Token'] ?? null;
+    }
+    if (!$authHeader && function_exists('getallheaders')) {
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? $headers['X-Admin-Token'] ?? null;
+    }
+    if (!$authHeader && !empty($_GET['token'])) {
+        $authHeader = 'Bearer ' . $_GET['token'];
+    }
+    if (!$authHeader && !empty($_POST['token'])) {
+        $authHeader = 'Bearer ' . $_POST['token'];
+    }
+    if (!$authHeader && !empty($_COOKIE['itid_token'])) {
+        $authHeader = 'Bearer ' . $_COOKIE['itid_token'];
     }
 
     $user = verifyAdminToken($authHeader);
