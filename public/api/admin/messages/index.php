@@ -6,7 +6,7 @@
 
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PATCH, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -52,7 +52,39 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 }
 
 // ----------------------------------------------------------------------
-// 2. Modification de Statut (PATCH ou POST avec action=status)
+// 2. Suppression de Message (DELETE ou POST avec action=delete)
+// ----------------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['action']) && $_GET['action'] === 'delete')) {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    if (!$id) {
+        $raw = file_get_contents('php://input');
+        $body = json_decode($raw, true) ?: [];
+        $id = (int)($body['id'] ?? 0);
+    }
+
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Identifiant manquant pour la suppression.']);
+        exit;
+    }
+
+    try {
+        $stmt = $pdo->prepare("DELETE FROM contact_messages WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Message supprimé avec succès.',
+            'id' => $id,
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
+
+// ----------------------------------------------------------------------
+// 3. Modification de Statut (PATCH ou POST avec action=status)
 // ----------------------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'PATCH' || (isset($_GET['action']) && $_GET['action'] === 'status')) {
     $raw = file_get_contents('php://input');

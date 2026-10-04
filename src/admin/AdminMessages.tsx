@@ -134,6 +134,31 @@ export default function AdminMessages() {
     }
   };
 
+  const deleteMessage = async (id: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce message de la base de données ?")) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/messages?id=${id}&action=delete`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== id));
+        if (selectedMessage && selectedMessage.id === id) {
+          setSelectedMessage(null);
+        }
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "Erreur lors de la suppression.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erreur de communication avec le serveur.");
+    }
+  };
+
   const openMessage = (m: ContactMessage) => {
     setSelectedMessage(m);
     if (m.status === "unread") {
@@ -332,21 +357,33 @@ export default function AdminMessages() {
                       })}
                     </td>
                     <td className="p-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                      {m.status !== "archived" ? (
+                      <div className="flex items-center justify-end gap-2">
+                        {m.status !== "archived" ? (
+                          <button
+                            onClick={() => updateStatus(m.id, "archived")}
+                            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg cursor-pointer transition-colors"
+                            title="Archiver"
+                          >
+                            Archiver
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => updateStatus(m.id, "read")}
+                            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg cursor-pointer transition-colors"
+                            title="Désarchiver"
+                          >
+                            Désarchiver
+                          </button>
+                        )}
                         <button
-                          onClick={() => updateStatus(m.id, "archived")}
-                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg cursor-pointer"
+                          onClick={(e) => deleteMessage(m.id, e)}
+                          className="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-[11px] rounded-lg cursor-pointer transition-colors flex items-center gap-1"
+                          title="Supprimer définitivement"
                         >
-                          Archiver
+                          <span>🗑️</span>
+                          <span className="hidden sm:inline">Supprimer</span>
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => updateStatus(m.id, "read")}
-                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg cursor-pointer"
-                        >
-                          Désarchiver
-                        </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -436,22 +473,28 @@ export default function AdminMessages() {
             </div>
 
             <div className="pt-4 border-t border-slate-800 flex items-center justify-between mt-4">
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 {selectedMessage.status === "unread" ? (
                   <button
                     onClick={() => updateStatus(selectedMessage.id, "read")}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg"
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg text-slate-200"
                   >
                     Marquer comme lu
                   </button>
                 ) : (
                   <button
                     onClick={() => updateStatus(selectedMessage.id, "unread")}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg"
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg text-slate-200"
                   >
                     Marquer comme non lu
                   </button>
                 )}
+                <button
+                  onClick={() => deleteMessage(selectedMessage.id)}
+                  className="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <span>🗑️</span> Supprimer ce message
+                </button>
               </div>
 
               <a
