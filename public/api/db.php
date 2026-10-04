@@ -437,7 +437,7 @@ function initSqliteTables(PDO $pdo): void {
         }
     }
     seedAdminUserIfEmpty($pdo);
-    seedCmsIfEmpty($pdo);
+    seedCmsIfEmptySafe($pdo);
 }
 
 function initMysqlTables(PDO $pdo): void {
@@ -553,6 +553,116 @@ function initMysqlTables(PDO $pdo): void {
             page_url VARCHAR(255) NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS cms_pathologies (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            slug VARCHAR(191) NOT NULL UNIQUE,
+            title_fr VARCHAR(255) NOT NULL,
+            title_en VARCHAR(255) NOT NULL,
+            icon VARCHAR(50) DEFAULT '🦴',
+            color VARCHAR(50) DEFAULT '#48d1c2',
+            short_desc_fr TEXT NOT NULL,
+            short_desc_en TEXT NOT NULL,
+            card_image VARCHAR(500) NOT NULL,
+            hero_gallery_json TEXT NOT NULL,
+            section1_title_fr VARCHAR(255),
+            section1_title_en VARCHAR(255),
+            section1_text_fr TEXT,
+            section1_text_en TEXT,
+            section1_image VARCHAR(500),
+            section2_title_fr VARCHAR(255),
+            section2_title_en VARCHAR(255),
+            section2_text_fr TEXT,
+            section2_text_en TEXT,
+            section2_image VARCHAR(500),
+            section3_title_fr VARCHAR(255),
+            section3_title_en VARCHAR(255),
+            section3_text_fr TEXT,
+            section3_text_en TEXT,
+            section3_image VARCHAR(500),
+            section4_title_fr VARCHAR(255),
+            section4_title_en VARCHAR(255),
+            section4_text_fr TEXT,
+            section4_text_en TEXT,
+            section4_image VARCHAR(500),
+            wikipedia_url VARCHAR(500),
+            display_order INT DEFAULT 0,
+            is_active TINYINT(1) DEFAULT 1,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS cms_traitements (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            slug VARCHAR(191) NOT NULL UNIQUE,
+            num VARCHAR(20) DEFAULT '01',
+            icon VARCHAR(50) DEFAULT '💉',
+            title_fr VARCHAR(255) NOT NULL,
+            title_en VARCHAR(255) NOT NULL,
+            desc_front_fr TEXT NOT NULL,
+            desc_front_en TEXT NOT NULL,
+            desc_back_fr TEXT NOT NULL,
+            desc_back_en TEXT NOT NULL,
+            card_image VARCHAR(500) NOT NULL,
+            hero_gallery_json TEXT NOT NULL,
+            section1_title_fr VARCHAR(255),
+            section1_title_en VARCHAR(255),
+            section1_text_fr TEXT,
+            section1_text_en TEXT,
+            section1_image VARCHAR(500),
+            section2_title_fr VARCHAR(255),
+            section2_title_en VARCHAR(255),
+            section2_text_fr TEXT,
+            section2_text_en TEXT,
+            section2_image VARCHAR(500),
+            section3_title_fr VARCHAR(255),
+            section3_title_en VARCHAR(255),
+            section3_text_fr TEXT,
+            section3_text_en TEXT,
+            section3_image VARCHAR(500),
+            section4_title_fr VARCHAR(255),
+            section4_title_en VARCHAR(255),
+            section4_text_fr TEXT,
+            section4_text_en TEXT,
+            section4_image VARCHAR(500),
+            cta_text_fr VARCHAR(255) DEFAULT 'Prendre rendez-vous',
+            cta_text_en VARCHAR(255) DEFAULT 'Book Appointment',
+            cta_url VARCHAR(500) DEFAULT '#contact',
+            display_order INT DEFAULT 0,
+            is_active TINYINT(1) DEFAULT 1,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS cms_articles (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            slug VARCHAR(191) NOT NULL UNIQUE,
+            title_fr VARCHAR(255) NOT NULL,
+            title_en VARCHAR(255) NOT NULL,
+            summary_fr TEXT NOT NULL,
+            summary_en TEXT NOT NULL,
+            content_fr LONGTEXT NOT NULL,
+            content_en LONGTEXT NOT NULL,
+            category VARCHAR(100) NOT NULL,
+            author VARCHAR(100),
+            author_role_fr VARCHAR(255),
+            author_role_en VARCHAR(255),
+            date_published VARCHAR(50) NOT NULL,
+            read_time_fr VARCHAR(50) NOT NULL,
+            read_time_en VARCHAR(50) NOT NULL,
+            cover_image VARCHAR(500) NOT NULL,
+            gallery_images_json TEXT NOT NULL,
+            is_published TINYINT(1) DEFAULT 1,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS cms_pages_content (
+            page_key VARCHAR(50) PRIMARY KEY,
+            content_fr LONGTEXT NOT NULL,
+            content_en LONGTEXT NOT NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ];
 
     foreach ($queries as $sql) {
@@ -563,6 +673,7 @@ function initMysqlTables(PDO $pdo): void {
         }
     }
     seedAdminUserIfEmpty($pdo);
+    seedCmsIfEmptySafe($pdo);
 }
 
 function seedAdminUserIfEmpty(PDO $pdo): void {
@@ -578,6 +689,22 @@ function seedAdminUserIfEmpty(PDO $pdo): void {
         }
     } catch (Throwable $t) {
         error_log("seedAdminUserIfEmpty error: " . $t->getMessage());
+    }
+}
+
+function seedCmsIfEmptySafe(PDO $pdo): void {
+    try {
+        if (!function_exists('seedCmsIfEmpty')) {
+            $seedFile = __DIR__ . '/admin/seed_cms.php';
+            if (file_exists($seedFile)) {
+                require_once $seedFile;
+            }
+        }
+        if (function_exists('seedCmsIfEmpty')) {
+            seedCmsIfEmpty($pdo);
+        }
+    } catch (Throwable $t) {
+        error_log("seedCmsIfEmptySafe error: " . $t->getMessage());
     }
 }
 
