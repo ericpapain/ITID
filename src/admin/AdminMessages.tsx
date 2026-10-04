@@ -21,6 +21,7 @@ export default function AdminMessages() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [subjectFilter, setSubjectFilter] = useState<string>("");
+  const [profileFilter, setProfileFilter] = useState<string>("");
   const [search, setSearch] = useState<string>("");
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
@@ -52,6 +53,28 @@ export default function AdminMessages() {
     fetchMessages();
   };
 
+  const getProfile = (m: ContactMessage): string => {
+    if (m.metadata) {
+      if (typeof m.metadata === "object" && m.metadata.category) {
+        return m.metadata.category;
+      }
+      if (typeof m.metadata === "string") {
+        try {
+          const parsed = JSON.parse(m.metadata);
+          if (parsed.category) return parsed.category;
+        } catch {}
+      }
+    }
+    const sub = (m.subject || "").toLowerCase();
+    if (sub.includes("professionnel") || sub.includes("confraternel") || sub.includes("médecin") || sub.includes("pro")) {
+      return "Professionnel de santé";
+    }
+    if (m.form_name && m.form_name.includes("pro")) {
+      return "Professionnel de santé";
+    }
+    return "Patient";
+  };
+
   const getSubjectBadge = (subject: string | null) => {
     const s = subject || "";
     if (s.includes("urgent") || s.includes("Urgent") || s.includes("🚨")) {
@@ -79,10 +102,16 @@ export default function AdminMessages() {
   };
 
   const filteredMessages = messages.filter((m) => {
-    if (!subjectFilter) return true;
-    const sub = (m.subject || "").toLowerCase();
-    const filterKey = subjectFilter.toLowerCase();
-    return sub.includes(filterKey);
+    if (subjectFilter) {
+      const sub = (m.subject || "").toLowerCase();
+      if (!sub.includes(subjectFilter.toLowerCase())) return false;
+    }
+    if (profileFilter) {
+      const prof = getProfile(m).toLowerCase();
+      if (profileFilter === "pro" && !prof.includes("pro")) return false;
+      if (profileFilter === "patient" && prof.includes("pro")) return false;
+    }
+    return true;
   });
 
   const updateStatus = async (id: number, newStatus: "unread" | "read" | "archived") => {
@@ -151,6 +180,20 @@ export default function AdminMessages() {
         </form>
 
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          {/* Dropdown Filtre par Profil */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-slate-400 whitespace-nowrap">Profil :</span>
+            <select
+              value={profileFilter}
+              onChange={(e) => setProfileFilter(e.target.value)}
+              className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#2a9d8f] cursor-pointer"
+            >
+              <option value="">Tous les profils</option>
+              <option value="patient">👤 Patients uniquement</option>
+              <option value="pro">🩺 Pros de santé uniquement</option>
+            </select>
+          </div>
+
           {/* Dropdown Filtre par Objet */}
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-slate-400 whitespace-nowrap">Objet :</span>
@@ -210,6 +253,7 @@ export default function AdminMessages() {
               <thead className="bg-[#081322] text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
                 <tr>
                   <th className="p-4">Expéditeur</th>
+                  <th className="p-4">Profil</th>
                   <th className="p-4">Objet / Motif</th>
                   <th className="p-4">Aperçu Message</th>
                   <th className="p-4">Email Hostinger</th>
@@ -219,24 +263,39 @@ export default function AdminMessages() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {filteredMessages.map((m) => (
-                  <tr
-                    key={m.id}
-                    onClick={() => openMessage(m)}
-                    className={`hover:bg-slate-800/40 cursor-pointer transition-colors ${
-                      m.status === "unread" ? "bg-[#2a9d8f]/5 font-semibold text-white" : ""
-                    }`}
-                  >
-                    <td className="p-4 whitespace-nowrap">
-                      <div className="font-semibold text-white">{m.name || "Visiteur"}</div>
-                      <div className="text-[11px] text-slate-400">{m.email}</div>
-                      {m.phone && <div className="text-[10px] text-slate-500">{m.phone}</div>}
-                    </td>
-                    <td className="p-4 whitespace-nowrap max-w-xs">
-                      <span className={`inline-block px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${getSubjectBadge(m.subject)} truncate max-w-[220px]`}>
-                        {m.subject || "Demande générale"}
-                      </span>
-                    </td>
+                {filteredMessages.map((m) => {
+                  const prof = getProfile(m);
+                  const isPro = prof.toLowerCase().includes("pro");
+
+                  return (
+                    <tr
+                      key={m.id}
+                      onClick={() => openMessage(m)}
+                      className={`hover:bg-slate-800/40 cursor-pointer transition-colors ${
+                        m.status === "unread" ? "bg-[#2a9d8f]/5 font-semibold text-white" : ""
+                      }`}
+                    >
+                      <td className="p-4 whitespace-nowrap">
+                        <div className="font-semibold text-white">{m.name || "Visiteur"}</div>
+                        <div className="text-[11px] text-slate-400">{m.email}</div>
+                        {m.phone && <div className="text-[10px] text-slate-500">{m.phone}</div>}
+                      </td>
+                      <td className="p-4 whitespace-nowrap">
+                        {isPro ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            <span>🩺</span> Pro de santé
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                            <span>👤</span> Patient
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4 whitespace-nowrap max-w-xs">
+                        <span className={`inline-block px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${getSubjectBadge(m.subject)} truncate max-w-[220px]`}>
+                          {m.subject || "Demande générale"}
+                        </span>
+                      </td>
                     <td className="p-4 max-w-xs truncate">
                       <div className="text-[11px] text-slate-300 truncate">{m.message}</div>
                     </td>
@@ -290,8 +349,9 @@ export default function AdminMessages() {
                       )}
                     </td>
                   </tr>
-                ))}
-              </tbody>
+                );
+              })}
+            </tbody>
             </table>
           </div>
         )}
@@ -319,10 +379,24 @@ export default function AdminMessages() {
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-xs">
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 grid grid-cols-2 gap-3">
+              <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <div>
                   <div className="text-slate-500">Expéditeur</div>
                   <div className="font-semibold text-white">{selectedMessage.name || "Visiteur"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">Profil</div>
+                  <div className="font-semibold text-white mt-0.5">
+                    {getProfile(selectedMessage).toLowerCase().includes("pro") ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        🩺 Pro de santé
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                        👤 Patient
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <div className="text-slate-500">Email</div>
@@ -337,6 +411,10 @@ export default function AdminMessages() {
                 <div>
                   <div className="text-slate-500">Date de réception</div>
                   <div className="text-white">{new Date(selectedMessage.created_at).toLocaleString("fr-FR")}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">Statut Envoi</div>
+                  <div className="text-white">{selectedMessage.email_sent ? "✓ Envoyé par email" : "Enregistré en BDD"}</div>
                 </div>
               </div>
 
