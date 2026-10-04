@@ -136,7 +136,7 @@ export function TraitementsPremium() {
 
       <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 relative z-10">
         {/* Barre supérieure : Retour (gauche) & Sélecteur (droite) */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 relative z-20">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 relative z-50">
           <div className="w-full sm:w-auto flex justify-start">
             <ShimmerButton as="Link" to="/">
               ← {t("common.backHome", "Retour à l'accueil")}

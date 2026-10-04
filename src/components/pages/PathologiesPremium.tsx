@@ -99,7 +99,7 @@ export function PathologiesPremium() {
       </div>
 
       {/* Barre supérieure unifiée : Retour (gauche), Titre (centre), Sélecteur (droite) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full relative z-20 mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full relative z-50 mb-8">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           {/* Gauche : Bouton retour */}
           <div className="w-full lg:w-auto flex justify-start">
@@ -137,7 +137,7 @@ export function PathologiesPremium() {
       {/* 1. VERSION MOBILE : Cartes cliquables sur toute la longueur */}
       {/*    (Défilement naturel au fur et à mesure du scroll)      */}
       {/* ========================================================= */}
-      <div className="lg:hidden w-full max-w-xl mx-auto px-4 sm:px-6 relative z-20 flex flex-col gap-4 mt-2 mb-8">
+      <div className="lg:hidden w-full max-w-xl mx-auto px-4 sm:px-6 relative z-10 flex flex-col gap-4 mt-2 mb-8">
         <div className="text-center text-xs text-cyan-200/90 mb-1 flex items-center justify-center gap-2 bg-white/5 py-1.5 px-3.5 rounded-full border border-white/10 w-fit mx-auto backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-[#48cae4] animate-pulse" />
           <span>{t("pathologies.mobileHint", "Appuyez sur une carte pour voir tous les détails")}</span>
@@ -224,11 +224,11 @@ export function PathologiesPremium() {
       {/* 2. VERSION DESKTOP : Scène 3D avec carrousel rotatif     */}
       {/* ========================================================= */}
       <div 
-        className="hidden lg:flex relative z-20 flex-1 w-full items-center justify-center mt-6 perspective-[2000px]"
+        className="hidden lg:flex relative z-10 flex-1 w-full items-center justify-center mt-6 perspective-[2000px]"
         style={{ perspective: "2000px" }}
       >
         <motion.div 
-          className="absolute inset-0 z-50 cursor-grab active:cursor-grabbing"
+          className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing"
           drag="x"
           dragElastic={0.1}
           onDragStart={() => setIsDragging(true)}

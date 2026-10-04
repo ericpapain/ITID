@@ -94,7 +94,7 @@ export function ContentNavigator({ items, placeholder, onSelect, theme = 'dark' 
   const isDark = theme === 'dark';
 
   return (
-    <div className="relative w-full max-w-md mx-auto z-40" ref={containerRef}>
+    <div className={`relative w-full max-w-md mx-auto ${isOpen ? 'z-[60]' : 'z-40'}`} ref={containerRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -120,7 +120,7 @@ export function ContentNavigator({ items, placeholder, onSelect, theme = 'dark' 
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className={`absolute top-full left-0 right-0 mt-3 rounded-2xl shadow-2xl border overflow-hidden backdrop-blur-xl ${
+            className={`absolute top-full left-0 right-0 mt-3 rounded-2xl shadow-2xl border overflow-hidden backdrop-blur-xl z-[100] ${
               isDark ? 'bg-[#0a1628]/95 border-white/20' : 'bg-white/95 border-[#1a3a5c]/20'
             }`}
           >
