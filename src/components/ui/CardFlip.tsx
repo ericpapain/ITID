@@ -101,7 +101,13 @@ export function CardFlip({
   return (
     <div
       ref={ref}
-      onClick={() => setClicked(!clicked)}
+      onClick={(e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("a, button, input, textarea, select, [role='button']")) {
+          return;
+        }
+        setClicked(!clicked);
+      }}
       onMouseLeave={onMouseLeave}
       onMouseMove={onMouseMove}
       className={cn("group relative cursor-pointer card-hover-highlight", className)}

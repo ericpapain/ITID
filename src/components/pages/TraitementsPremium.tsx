@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
 import { ShimmerButton } from "../ui/ShimmerButton";
@@ -45,14 +45,22 @@ function TreatmentFrontFace({ title, desc, img }: { title: string; desc: string;
 
 function TreatmentBackFace({ desc, slug }: { desc: string; slug?: string }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const handleBook = () => {
+  const handleBook = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const contactSection = document.getElementById("contact");
     if (contactSection) {
       contactSection.scrollIntoView({ behavior: "smooth" });
     } else {
       window.location.href = "/#contact";
     }
+  };
+
+  const handleReadDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const targetSlug = slug || "infiltrations-rachidiennes";
+    navigate(`/traitements/${targetSlug}`);
   };
 
   return (
@@ -66,16 +74,17 @@ function TreatmentBackFace({ desc, slug }: { desc: string; slug?: string }) {
         </p>
       </div>
 
-      <div className="mt-auto flex flex-col gap-2">
-        <Link
-          to={`/traitements/${slug || 'infiltrations-rachidiennes'}`}
-          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group"
+      <div className="mt-auto flex flex-col gap-2 relative z-30">
+        <button
+          type="button"
+          onClick={handleReadDetails}
+          className="flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer"
         >
           <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
             {t("common.readFullFile", "Lire la fiche détaillée")} 
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            <ArrowRight size={14} className="ml-1" />
           </div>
-        </Link>
+        </button>
 
         <button
           type="button"
