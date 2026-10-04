@@ -766,5 +766,43 @@
     "disclaimer": "This AI assistant is a clinical decision support tool. It in no way replaces the judgment and expertise of the physician.",
     "rotateHint": "Rotate 3D model to locate pain ↺",
     "welcomePro": "Hello Doctor. I am the ITID AI assistant specializing in the diagnosis and referral of chronic pain. Please describe your patient's clinical case, symptoms, and pain history so I can suggest diagnostic pathways, relevant additional tests, or the appropriate specialist on our platform."
+  },
+  "contact": {
+    "subtitle": "CONTACT & APPOINTMENTS",
+    "title": "Contact Us",
+    "desc": "Care at ITID requires a referral from your treating physician or specialist. Please feel free to contact us with any questions.",
+    "address": "Consultation & Procedure Locations",
+    "phone": "Phone",
+    "phoneVal": "+33 3 51 53 20 26",
+    "hours": "Opening Hours",
+    "hoursVal": "Monday - Friday: 8:30 AM – 6:00 PM",
+    "appointment": "Appointments",
+    "appointmentVal": "Doctolib or Medical Reception Desk",
+    "doctolibBtn": "Book on Doctolib",
+    "sentTitle": "Message Sent Successfully!",
+    "sentDesc": "Thank you for contacting us. Our medical team or administrative staff will get back to you promptly.",
+    "sendNew": "Send another message",
+    "formTitle": "Send a Message",
+    "youAre": "You are",
+    "patient": "Patient",
+    "pro": "Healthcare Professional",
+    "subjectLabel": "Subject of Request *",
+    "subjectPlaceholder": "Select the subject of your inquiry...",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phoneField": "Phone Number",
+    "message": "Your Message",
+    "messagePlaceholder": "Describe your condition, symptoms, or any relevant medical background...",
+    "gdpr": "Your personal data is treated in strict confidentiality and security in compliance with GDPR and medical secrecy.",
+    "subjects": {
+      "urgent": "🚨 Urgent appointment (Acute pain / Crisis flare-up)",
+      "firstConsult": "🩺 First pain assessment consultation",
+      "followUp": "🔄 Treatment follow-up & Prescription renewal",
+      "technique": "💉 Interventional technique inquiry (Infiltration, Radiofrequency, Cryo, Blocks, rTMS...)",
+      "peer": "👨‍⚕️ Colleague referral & patient orientation (Physicians / Specialists)",
+      "insurance": "📋 Quote, Insurance & ALD coverage inquiry",
+      "training": "🎓 Medical training programs & ITID workshops",
+      "other": "💬 Other inquiry"
+    }
   }
 }

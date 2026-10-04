@@ -130,33 +130,33 @@ export function ContactSection() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/85">{t('contact.youAre') || "Vous êtes"}</label>
+                  <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/85">{t('contact.youAre')}</label>
                   <select
                     className="w-full px-3.5 py-3 rounded-xl text-sm outline-none cursor-pointer bg-white text-[#1a3a5c] font-medium border border-slate-300 focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 shadow-sm transition-all"
                     value={formData.category}
                     onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
                   >
-                    <option value={t('contact.patient') || "Patient"} className="text-black">{t('contact.patient') || "Patient"}</option>
-                    <option value={t('contact.pro') || "Professionnel de santé"} className="text-black">{t('contact.pro') || "Professionnel de santé"}</option>
+                    <option value={t('contact.patient')} className="text-black">{t('contact.patient')}</option>
+                    <option value={t('contact.pro')} className="text-black">{t('contact.pro')}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/85">{t('contact.subjectLabel') || "Objet de la demande *"}</label>
+                  <label className="block text-xs font-semibold mb-1.5 text-[#1a3a5c]/85">{t('contact.subjectLabel')}</label>
                   <select
                     required
                     className="w-full px-3.5 py-3 rounded-xl text-sm outline-none cursor-pointer bg-white text-[#1a3a5c] font-medium border border-slate-300 focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 shadow-sm transition-all"
                     value={formData.subject}
                     onChange={(e) => setFormData((prev) => ({ ...prev, subject: e.target.value }))}
                   >
-                    <option value="🚨 Rendez-vous urgent (Douleur aiguë / Crise)">🚨 Rendez-vous urgent (Douleur aiguë / Crise)</option>
-                    <option value="🩺 Première consultation d'évaluation de la douleur">🩺 Première consultation d'évaluation</option>
-                    <option value="🔄 Suivi de traitement & Renouvellement">🔄 Suivi de traitement & Renouvellement</option>
-                    <option value="💉 Information sur une technique interventionnelle (Infiltration, Radiofréquence, Cryoneurolyse, Blocs, rTMS...)">💉 Technique interventionnelle (Infiltration, Radiofréquence, rTMS...)</option>
-                    <option value="👨‍⚕️ Avis confraternel & Orientation patient (Médecins / Spécialistes)">👨‍⚕️ Avis confraternel / Orientation (Médecins)</option>
-                    <option value="📋 Devis, Prise en charge ALD & Renseignements mutuelle">📋 Devis, Prise en charge ALD & Mutuelle</option>
-                    <option value="🎓 Formations médicales & Ateliers pratiques ITID">🎓 Formations médicales & Ateliers ITID</option>
-                    <option value="💬 Autre demande d'information">💬 Autre demande d'information</option>
+                    <option value={t('contact.subjects.urgent')}>{t('contact.subjects.urgent')}</option>
+                    <option value={t('contact.subjects.firstConsult')}>{t('contact.subjects.firstConsult')}</option>
+                    <option value={t('contact.subjects.followUp')}>{t('contact.subjects.followUp')}</option>
+                    <option value={t('contact.subjects.technique')}>{t('contact.subjects.technique')}</option>
+                    <option value={t('contact.subjects.peer')}>{t('contact.subjects.peer')}</option>
+                    <option value={t('contact.subjects.insurance')}>{t('contact.subjects.insurance')}</option>
+                    <option value={t('contact.subjects.training')}>{t('contact.subjects.training')}</option>
+                    <option value={t('contact.subjects.other')}>{t('contact.subjects.other')}</option>
                   </select>
                 </div>
               </div>

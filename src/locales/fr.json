@@ -766,5 +766,43 @@
     "disclaimer": "Cet assistant IA est un outil d'aide à la décision clinique. Il ne remplace en aucun cas le jugement et l'expertise du médecin.",
     "rotateHint": "Faites pivoter pour localiser la douleur ↺",
     "welcomePro": "Bonjour Docteur. Je suis l'assistant IA de l'ITID spécialisé dans le diagnostic et l'orientation des douleurs chroniques. Décrivez-moi le cas clinique de votre patient, ses symptômes et l'historique de sa douleur pour que je puisse vous proposer des pistes diagnostiques, des examens complémentaires pertinents ou le spécialiste adapté sur la plateforme."
+  },
+  "contact": {
+    "subtitle": "CONTACT & RDV",
+    "title": "Nous contacter",
+    "desc": "La prise en charge à l'ITID nécessite une orientation par votre médecin traitant ou un spécialiste. N'hésitez pas à nous contacter pour toute question.",
+    "address": "Adresses des consultations & interventions",
+    "phone": "Téléphone",
+    "phoneVal": "03 51 53 20 26",
+    "hours": "Horaires",
+    "hoursVal": "Lundi - Vendredi : 8h30 – 18h00",
+    "appointment": "Prise de rendez-vous",
+    "appointmentVal": "Doctolib ou secrétariat médical",
+    "doctolibBtn": "Prendre RDV sur Doctolib",
+    "sentTitle": "Message envoyé avec succès !",
+    "sentDesc": "Merci de nous avoir contactés. Notre équipe médicale ou notre secrétariat vous répondra dans les plus brefs délais.",
+    "sendNew": "Envoyer un autre message",
+    "formTitle": "Envoyer un message",
+    "youAre": "Vous êtes",
+    "patient": "Patient",
+    "pro": "Professionnel de santé",
+    "subjectLabel": "Objet de la demande *",
+    "subjectPlaceholder": "Sélectionnez l'objet de votre demande...",
+    "fullName": "Nom complet",
+    "email": "Email",
+    "phoneField": "Téléphone",
+    "message": "Votre message",
+    "messagePlaceholder": "Décrivez votre situation, vos symptômes ou toute précision utile...",
+    "gdpr": "Vos données personnelles sont traitées de manière strictement confidentielle et sécurisée conformément au RGPD et au secret médical.",
+    "subjects": {
+      "urgent": "🚨 Rendez-vous urgent (Douleur aiguë / Crise)",
+      "firstConsult": "🩺 Première consultation d'évaluation de la douleur",
+      "followUp": "🔄 Suivi de traitement & Renouvellement",
+      "technique": "💉 Information sur une technique interventionnelle (Infiltration, Radiofréquence, Cryoneurolyse, Blocs, rTMS...)",
+      "peer": "👨‍⚕️ Avis confraternel & Orientation patient (Médecins / Spécialistes)",
+      "insurance": "📋 Devis, Prise en charge ALD & Renseignements mutuelle",
+      "training": "🎓 Formations médicales & Ateliers pratiques ITID",
+      "other": "💬 Autre demande d'information"
+    }
   }
 }
