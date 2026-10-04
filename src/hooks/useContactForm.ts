@@ -2,6 +2,7 @@ import { useState } from "react";
 
 export interface ContactFormData {
   category: string;
+  subject: string;
   name: string;
   email: string;
   phone: string;
@@ -22,6 +23,7 @@ export interface UseContactFormReturn {
 export function useContactForm(): UseContactFormReturn {
   const [formData, setFormData] = useState<ContactFormData>({
     category: "Patient",
+    subject: "🩺 Première consultation d'évaluation de la douleur",
     name: "",
     email: "",
     phone: "",
@@ -50,10 +52,11 @@ export function useContactForm(): UseContactFormReturn {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          subject: `Demande de contact — ${formData.category}`,
+          subject: formData.subject || `Demande de contact — ${formData.category}`,
           message: formData.message,
           metadata: {
             category: formData.category,
+            subject: formData.subject,
           },
           _website_hp: formData._website_hp,
         }),
@@ -82,6 +85,7 @@ export function useContactForm(): UseContactFormReturn {
   const resetForm = () => {
     setFormData({
       category: "Patient",
+      subject: "🩺 Première consultation d'évaluation de la douleur",
       name: "",
       email: "",
       phone: "",
@@ -95,3 +99,4 @@ export function useContactForm(): UseContactFormReturn {
 
   return { formData, setFormData, sent, loading, error, handleSubmit, resetForm };
 }
+

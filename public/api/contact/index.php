@@ -101,6 +101,7 @@ $safeName = htmlspecialchars($name ?: 'Non renseigné', ENT_QUOTES, 'UTF-8');
 $safeEmail = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
 $safePhone = htmlspecialchars($phone ?: 'Non renseigné', ENT_QUOTES, 'UTF-8');
 $safeCategory = htmlspecialchars($category, ENT_QUOTES, 'UTF-8');
+$safeSubject = htmlspecialchars($subject ?: 'Demande de contact', ENT_QUOTES, 'UTF-8');
 $safeMessage = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
 $currentDate = date('d/m/Y à H:i');
 
@@ -120,6 +121,7 @@ $htmlContent = "
     .meta-table td { padding: 10px 12px; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
     .meta-table td.label { font-weight: 600; color: #64748b; width: 35%; }
     .meta-table td.val { color: #0f172a; font-weight: 500; }
+    .badge-subject { display: inline-block; padding: 4px 10px; background: #e0f2fe; color: #0369a1; border-radius: 6px; font-weight: 600; font-size: 13px; }
     .message-box { background: #f8fafc; border-left: 4px solid #2a9d8f; border-radius: 8px; padding: 18px 20px; font-size: 15px; line-height: 1.6; color: #334155; margin-top: 12px; }
     .footer { padding: 20px 32px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center; }
   </style>
@@ -132,6 +134,7 @@ $htmlContent = "
     </div>
     <div class='body'>
       <table class='meta-table'>
+        <tr><td class='label'>Objet / Motif</td><td class='val'><span class='badge-subject'>{$safeSubject}</span></td></tr>
         <tr><td class='label'>Profil</td><td class='val'><strong>{$safeCategory}</strong></td></tr>
         <tr><td class='label'>Nom complet</td><td class='val'>{$safeName}</td></tr>
         <tr><td class='label'>Adresse email</td><td class='val'><a href='mailto:{$safeEmail}'>{$safeEmail}</a></td></tr>
@@ -158,7 +161,8 @@ $headers[] = 'From: ITID France <contact@itid-france.com>';
 $headers[] = 'Reply-To: ' . ($name ? "{$name} <{$email}>" : $email);
 $headers[] = 'X-Mailer: PHP/' . phpversion();
 
-$mailSent = @mail($recipientEmail, '=?UTF-8?B?' . base64_encode($subject) . '?=', $htmlContent, implode("\r\n", $headers));
+$emailSubject = "[ITID - {$subject}] De: " . ($name ?: $email);
+$mailSent = @mail($recipientEmail, '=?UTF-8?B?' . base64_encode($emailSubject) . '?=', $htmlContent, implode("\r\n", $headers));
 
 // Si l'email a été envoyé et qu'on a un id en base, on met à jour email_sent
 if ($mailSent && $insertedId) {

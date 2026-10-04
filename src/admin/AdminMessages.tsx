@@ -20,13 +20,14 @@ export default function AdminMessages() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [subjectFilter, setSubjectFilter] = useState<string>("");
   const [search, setSearch] = useState<string>("");
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
   const fetchMessages = async () => {
     setLoading(true);
     try {
-      let url = `/api/admin/messages?limit=50`;
+      let url = `/api/admin/messages?limit=100`;
       if (statusFilter) url += `&status=${statusFilter}`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
 
@@ -50,6 +51,39 @@ export default function AdminMessages() {
     e.preventDefault();
     fetchMessages();
   };
+
+  const getSubjectBadge = (subject: string | null) => {
+    const s = subject || "";
+    if (s.includes("urgent") || s.includes("Urgent") || s.includes("🚨")) {
+      return "bg-rose-500/20 text-rose-300 border-rose-500/40";
+    }
+    if (s.includes("Première") || s.includes("évaluation") || s.includes("🩺")) {
+      return "bg-cyan-500/20 text-cyan-300 border-cyan-500/40";
+    }
+    if (s.includes("Suivi") || s.includes("Renouvellement") || s.includes("🔄")) {
+      return "bg-amber-500/20 text-amber-300 border-amber-500/40";
+    }
+    if (s.includes("interventionnelle") || s.includes("Infiltration") || s.includes("💉")) {
+      return "bg-blue-500/20 text-blue-300 border-blue-500/40";
+    }
+    if (s.includes("confraternel") || s.includes("Orientation") || s.includes("👨‍⚕️")) {
+      return "bg-purple-500/20 text-purple-300 border-purple-500/40";
+    }
+    if (s.includes("Devis") || s.includes("ALD") || s.includes("📋")) {
+      return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
+    }
+    if (s.includes("Formations") || s.includes("🎓")) {
+      return "bg-indigo-500/20 text-indigo-300 border-indigo-500/40";
+    }
+    return "bg-slate-800 text-slate-300 border-slate-700";
+  };
+
+  const filteredMessages = messages.filter((m) => {
+    if (!subjectFilter) return true;
+    const sub = (m.subject || "").toLowerCase();
+    const filterKey = subjectFilter.toLowerCase();
+    return sub.includes(filterKey);
+  });
 
   const updateStatus = async (id: number, newStatus: "unread" | "read" | "archived") => {
     try {
@@ -85,7 +119,7 @@ export default function AdminMessages() {
         <div>
           <h1 className="text-2xl font-bold text-white">Messages & Demandes Reçues</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Enregistrement sécurisé de tous les formulaires (Contact, Devis, Inscriptions formations).
+            Enregistrement sécurisé et filtrage intelligent par objet médical (Urgence, Consultation, Suivi, Infiltrations, Confrères).
           </p>
         </div>
 
@@ -99,43 +133,66 @@ export default function AdminMessages() {
       </div>
 
       {/* Filter Bar */}
-      <div className="p-4 rounded-2xl bg-[#0c1a2e] border border-slate-800 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <form onSubmit={handleSearchSubmit} className="flex-1 w-full md:w-auto flex gap-2">
+      <div className="p-4 rounded-2xl bg-[#0c1a2e] border border-slate-800 flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <form onSubmit={handleSearchSubmit} className="flex-1 w-full lg:w-auto flex gap-2">
           <input
             type="text"
-            placeholder="Rechercher par nom, email ou contenu..."
+            placeholder="Rechercher par nom, email, objet ou contenu..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#2a9d8f]"
           />
           <button
             type="submit"
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-white"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-white cursor-pointer"
           >
             Rechercher
           </button>
         </form>
 
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-          <span className="text-xs text-slate-400 mr-1">Statut :</span>
-          {[
-            { label: "Tous", val: "" },
-            { label: "Non lus", val: "unread" },
-            { label: "Lus", val: "read" },
-            { label: "Archivés", val: "archived" },
-          ].map((f) => (
-            <button
-              key={f.val}
-              onClick={() => setStatusFilter(f.val)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                statusFilter === f.val
-                  ? "bg-[#2a9d8f] text-white"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-              }`}
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          {/* Dropdown Filtre par Objet */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-slate-400 whitespace-nowrap">Objet :</span>
+            <select
+              value={subjectFilter}
+              onChange={(e) => setSubjectFilter(e.target.value)}
+              className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#2a9d8f] cursor-pointer"
             >
-              {f.label}
-            </button>
-          ))}
+              <option value="">Tous les objets</option>
+              <option value="urgent">🚨 Rendez-vous urgent</option>
+              <option value="première consultation">🩺 Première consultation</option>
+              <option value="suivi">🔄 Suivi de traitement</option>
+              <option value="interventionnelle">💉 Technique interventionnelle</option>
+              <option value="confraternel">👨‍⚕️ Avis confraternel</option>
+              <option value="devis">📋 Devis / Prise en charge</option>
+              <option value="formations">🎓 Formations ITID</option>
+              <option value="autre">💬 Autre demande</option>
+            </select>
+          </div>
+
+          {/* Filtre Statut */}
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            <span className="text-xs text-slate-400 mr-0.5">Statut :</span>
+            {[
+              { label: "Tous", val: "" },
+              { label: "Non lus", val: "unread" },
+              { label: "Lus", val: "read" },
+              { label: "Archivés", val: "archived" },
+            ].map((f) => (
+              <button
+                key={f.val}
+                onClick={() => setStatusFilter(f.val)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                  statusFilter === f.val
+                    ? "bg-[#2a9d8f] text-white"
+                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -143,7 +200,7 @@ export default function AdminMessages() {
       <div className="rounded-2xl bg-[#0c1a2e] border border-slate-800 overflow-hidden shadow-xl">
         {loading ? (
           <div className="p-12 text-center text-slate-400 text-sm">Chargement des messages...</div>
-        ) : messages.length === 0 ? (
+        ) : filteredMessages.length === 0 ? (
           <div className="p-12 text-center text-slate-400 text-sm">
             Aucun message trouvé pour les critères sélectionnés.
           </div>
@@ -153,8 +210,8 @@ export default function AdminMessages() {
               <thead className="bg-[#081322] text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
                 <tr>
                   <th className="p-4">Expéditeur</th>
-                  <th className="p-4">Formulaire</th>
-                  <th className="p-4">Message / Objet</th>
+                  <th className="p-4">Objet / Motif</th>
+                  <th className="p-4">Aperçu Message</th>
                   <th className="p-4">Email Hostinger</th>
                   <th className="p-4">Statut</th>
                   <th className="p-4">Date</th>
@@ -162,7 +219,7 @@ export default function AdminMessages() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {messages.map((m) => (
+                {filteredMessages.map((m) => (
                   <tr
                     key={m.id}
                     onClick={() => openMessage(m)}
@@ -175,14 +232,13 @@ export default function AdminMessages() {
                       <div className="text-[11px] text-slate-400">{m.email}</div>
                       {m.phone && <div className="text-[10px] text-slate-500">{m.phone}</div>}
                     </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-[#48cae4] border border-slate-700">
-                        {m.form_name}
+                    <td className="p-4 whitespace-nowrap max-w-xs">
+                      <span className={`inline-block px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${getSubjectBadge(m.subject)} truncate max-w-[220px]`}>
+                        {m.subject || "Demande générale"}
                       </span>
                     </td>
                     <td className="p-4 max-w-xs truncate">
-                      <div className="text-white truncate">{m.subject || "Sans objet"}</div>
-                      <div className="text-[11px] text-slate-400 truncate">{m.message}</div>
+                      <div className="text-[11px] text-slate-300 truncate">{m.message}</div>
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       {m.email_sent ? (
@@ -190,8 +246,8 @@ export default function AdminMessages() {
                           <span>✓</span> Envoyé
                         </span>
                       ) : (
-                        <span className="text-amber-400 text-[11px] font-medium" title={m.email_error || "En attente"}>
-                          ⚠️ En base (SMTP en attente)
+                        <span className="text-amber-400 text-[11px] font-medium" title={m.email_error || "Enregistré en BDD"}>
+                          En base (Reçu)
                         </span>
                       )}
                     </td>
@@ -220,14 +276,14 @@ export default function AdminMessages() {
                       {m.status !== "archived" ? (
                         <button
                           onClick={() => updateStatus(m.id, "archived")}
-                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg"
+                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg cursor-pointer"
                         >
                           Archiver
                         </button>
                       ) : (
                         <button
                           onClick={() => updateStatus(m.id, "read")}
-                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg"
+                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg cursor-pointer"
                         >
                           Désarchiver
                         </button>
