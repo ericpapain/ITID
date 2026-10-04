@@ -1,27 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { BLOG_ARTICLES, BLOG_CATEGORIES, BlogCategory } from "../../data/blogData";
 import { useTypewriter } from "../../hooks/useTypewriter";
 import { Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ImageCarousel } from "../ui/ImageCarousel";
 
 export default function BlogPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith("en") ? "en" : "fr";
   const [activeCategory, setActiveCategory] = useState<BlogCategory | "Tous">("Tous");
   const { displayedText, showCursor, ref: typeRef } = useTypewriter(t('blog.title'));
+  const [dynamicArticles, setDynamicArticles] = useState<any[]>([]);
 
-  const translatedArticles = BLOG_ARTICLES.map(a => ({
-    ...a,
-    title: t(`blogData.${a.id}.title`),
-    summary: t(`blogData.${a.id}.summary`),
-    authorRole: t(`blogData.${a.id}.authorRole`),
-    category: t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
-  }));
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const res = await fetch("/api/cms/articles");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.articles) && data.articles.length > 0) {
+            setDynamicArticles(data.articles);
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    fetchArticles();
+  }, []);
+
+  const articlesSource = dynamicArticles.length > 0
+    ? dynamicArticles.map((a) => ({
+        id: a.slug,
+        title: lang === "en" ? (a.title_en || a.title_fr) : a.title_fr,
+        summary: lang === "en" ? (a.summary_en || a.summary_fr) : a.summary_fr,
+        author: a.author || "Dr. Marc Moreau",
+        authorRole: lang === "en" ? (a.author_role_en || a.author_role_fr) : a.author_role_fr,
+        date: a.date_published || "Septembre 2026",
+        readTime: lang === "en" ? (a.read_time_en || a.read_time_fr) : a.read_time_fr,
+        category: a.category,
+        coverImage: a.cover_image,
+        gallery: Array.isArray(a.gallery_images) && a.gallery_images.length > 0
+          ? a.gallery_images
+          : [a.cover_image, "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800", "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800", "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800", "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800"]
+      }))
+    : BLOG_ARTICLES.map(a => ({
+        ...a,
+        title: t(`blogData.${a.id}.title`),
+        summary: t(`blogData.${a.id}.summary`),
+        authorRole: t(`blogData.${a.id}.authorRole`),
+        category: t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
+        gallery: [
+          a.coverImage,
+          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop"
+        ]
+      }));
 
   const filteredArticles = activeCategory === "Tous" 
-    ? translatedArticles 
-    : translatedArticles.filter(a => a.category === t(`blogData.categories.${activeCategory === "Innovations" ? "innovations" : activeCategory === "Conseils Patients" ? "conseils" : activeCategory === "Traitements" ? "traitements" : "vie"}`));
+    ? articlesSource 
+    : articlesSource.filter(a => a.category === activeCategory || a.category === t(`blogData.categories.${activeCategory === "Innovations" ? "innovations" : activeCategory === "Conseils Patients" ? "conseils" : activeCategory === "Traitements" ? "traitements" : "vie"}`));
 
   const featuredArticle = activeCategory === "Tous" ? filteredArticles[0] : null;
   const regularArticles = activeCategory === "Tous" ? filteredArticles.slice(1) : filteredArticles;
@@ -50,7 +91,7 @@ export default function BlogPage() {
         <div className="flex flex-wrap justify-center gap-3 mb-16">
           <button
             onClick={() => setActiveCategory("Tous")}
-            className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+            className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${
               activeCategory === "Tous" 
                 ? "bg-[#48cae4] text-[#0c1a2e] shadow-[0_0_20px_rgba(72,202,228,0.4)]" 
                 : "bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white"
@@ -62,7 +103,7 @@ export default function BlogPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${
                 activeCategory === cat 
                   ? "bg-[#48cae4] text-[#0c1a2e] shadow-[0_0_20px_rgba(72,202,228,0.4)]" 
                   : "bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white"
@@ -77,13 +118,13 @@ export default function BlogPage() {
         {featuredArticle && (
           <Link to={`/actualites/${featuredArticle.id}`} className="block mb-16 group">
             <div className="relative rounded-3xl overflow-hidden bg-white/5 border border-white/10 flex flex-col md:flex-row min-h-[400px]">
-              <div className="w-full md:w-1/2 relative overflow-hidden">
-                <img 
-                  src={featuredArticle.coverImage} 
-                  alt={featuredArticle.title} 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90"
+              <div className="w-full md:w-1/2 relative overflow-hidden min-h-[280px]">
+                <ImageCarousel 
+                  images={featuredArticle.gallery}
+                  alt={featuredArticle.title}
+                  className="w-full h-full"
+                  autoPlayInterval={3400}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#0c1a2e] via-transparent to-transparent opacity-80" />
               </div>
               <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative z-10 bg-[#0c1a2e] md:bg-transparent md:bg-gradient-to-l md:from-[#0c1a2e] md:via-[#0c1a2e] md:to-transparent">
                 <span className="inline-block px-3 py-1 bg-[#48cae4]/20 text-[#48cae4] rounded-full text-xs font-bold uppercase tracking-widest w-fit mb-4 border border-[#48cae4]/30">
@@ -105,7 +146,7 @@ export default function BlogPage() {
           </Link>
         )}
 
-        {/* Regular Articles Grid */}
+        {/* Regular Articles Grid with 5-Image Carousel */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence>
             {regularArticles.map((article) => (
@@ -120,12 +161,14 @@ export default function BlogPage() {
                 <Link to={`/actualites/${article.id}`} className="block h-full group">
                   <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden h-full flex flex-col hover:bg-white/10 transition-colors duration-300">
                     <div className="relative h-56 overflow-hidden">
-                      <img 
-                        src={article.coverImage} 
-                        alt={article.title} 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                      {/* Carrousel défilant de 5 photos */}
+                      <ImageCarousel 
+                        images={article.gallery}
+                        alt={article.title}
+                        className="w-full h-full"
+                        autoPlayInterval={3200}
                       />
-                      <div className="absolute top-4 left-4">
+                      <div className="absolute top-4 left-4 z-20 pointer-events-none">
                         <span className="px-3 py-1 bg-[#0c1a2e]/80 backdrop-blur-md text-[#48cae4] rounded-full text-xs font-bold uppercase tracking-widest border border-white/10">
                           {article.category}
                         </span>

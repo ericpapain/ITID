@@ -1,7 +1,8 @@
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
 import { ShimmerButton } from "../ui/ShimmerButton";
-import { useState, useRef, useEffect } from "react";
 import { TRAITEMENTS } from "../../data";
 import { CardFlip } from "../ui/CardFlip";
 import { ContentNavigator } from "../ui/ContentNavigator";
@@ -42,7 +43,7 @@ function TreatmentFrontFace({ title, desc, img }: { title: string; desc: string;
   );
 }
 
-function TreatmentBackFace({ desc }: { desc: string }) {
+function TreatmentBackFace({ desc, slug }: { desc: string; slug?: string }) {
   const { t } = useTranslation();
 
   const handleBook = () => {
@@ -56,37 +57,79 @@ function TreatmentBackFace({ desc }: { desc: string }) {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto pr-2 mb-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+      <div className="flex-1 overflow-y-auto pr-2 mb-3 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
         <h3 className="text-xl font-semibold tracking-tight text-[#48cae4]">
           {t("common.learnMore", "En savoir plus")}
         </h3>
-        <p className="mt-3 text-base sm:text-[18px] text-gray-300 leading-relaxed whitespace-pre-line">
+        <p className="mt-2 text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-line">
           {desc}
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={handleBook}
-        className="mt-auto flex w-full items-center justify-center gap-2 rounded-xl bg-[#48cae4]/20 border border-[#48cae4]/50 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgba(72,202,228,0.3)] transition-colors duration-200 hover:bg-[#48cae4]/40 cursor-pointer"
-      >
-        {t("buttons.bookAppointment", "Prendre rendez-vous")}
-        <ArrowRight size={15} strokeWidth={2.25} />
-      </button>
+      <div className="mt-auto flex flex-col gap-2">
+        <Link
+          to={`/traitements/${slug || 'infiltrations-rachidiennes'}`}
+          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group"
+        >
+          <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
+            {t("common.readFullFile", "Lire la fiche détaillée")} 
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </div>
+        </Link>
+
+        <button
+          type="button"
+          onClick={handleBook}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#48cae4]/20 border border-[#48cae4]/50 px-4 py-2.5 text-xs font-semibold text-white shadow-[0_10px_30px_-10px_rgba(72,202,228,0.3)] transition-colors duration-200 hover:bg-[#48cae4]/40 cursor-pointer"
+        >
+          {t("buttons.bookAppointment", "Prendre rendez-vous")}
+          <ArrowRight size={14} strokeWidth={2.25} />
+        </button>
+      </div>
     </>
   );
 }
 
 export function TraitementsPremium() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith("en") ? "en" : "fr";
   const isMobile = useIsMobile();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [dynamicItems, setDynamicItems] = useState<any[]>([]);
 
-  const items = TRAITEMENTS.map((item) => ({
-    ...item,
-    title: t(item.title),
-    desc: t(item.desc),
-  }));
+  useEffect(() => {
+    async function fetchTreatments() {
+      try {
+        const res = await fetch("/api/cms/traitements");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.traitements) && data.traitements.length > 0) {
+            setDynamicItems(data.traitements);
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    fetchTreatments();
+  }, []);
+
+  const items = dynamicItems.length > 0
+    ? dynamicItems.map((item) => ({
+        ...item,
+        title: lang === "en" ? (item.title_en || item.title_fr) : item.title_fr,
+        desc: lang === "en" ? (item.desc_front_en || item.desc_front_fr) : item.desc_front_fr,
+        descBack: lang === "en" ? (item.desc_back_en || item.desc_back_fr) : item.desc_back_fr,
+        img: item.card_image || item.img,
+        slug: item.slug
+      }))
+    : TRAITEMENTS.map((item, idx) => ({
+        ...item,
+        title: t(item.title),
+        desc: t(item.desc),
+        descBack: t(item.desc),
+        slug: ["infiltrations-rachidiennes", "infiltrations-articulaires", "perfusion-lidocaine", "stimulation-ganglion-dorsal", "cryoneurolyse", "rtms", "blocs-anesthesiques", "radiofrequence", "toxine-botulique", "tens", "catheter-perinerveux", "patch-capsaicine", "hypnovr"][idx] || "infiltrations-rachidiennes"
+      }));
+
   const [highlightedTitle, setHighlightedTitle] = useState<string | null>(null);
 
   useEffect(() => {
@@ -201,7 +244,7 @@ export function TraitementsPremium() {
                       img={traitement.img}
                     />
                   }
-                  back={<TreatmentBackFace desc={traitement.desc} />}
+                  back={<TreatmentBackFace desc={traitement.descBack || traitement.desc} slug={traitement.slug} />}
                   className="w-full h-[400px] sm:h-[440px] md:h-[480px]"
                 />
               </div>

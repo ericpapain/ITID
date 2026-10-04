@@ -28,8 +28,14 @@ import { EquipePanorama } from "./components/home/EquipePanorama";
 const PathologiesPremium = React.lazy(() =>
   import("./components/pages/PathologiesPremium").then((m) => ({ default: m.PathologiesPremium }))
 );
+const PathologyDetailPage = React.lazy(() =>
+  import("./components/pages/PathologyDetailPage").then((m) => ({ default: m.PathologyDetailPage }))
+);
 const TraitementsPremium = React.lazy(() =>
   import("./components/pages/TraitementsPremium").then((m) => ({ default: m.TraitementsPremium }))
+);
+const TreatmentDetailPage = React.lazy(() =>
+  import("./components/pages/TreatmentDetailPage").then((m) => ({ default: m.TreatmentDetailPage }))
 );
 const FormationsPage = React.lazy(() =>
   import("./components/pages/FormationsPage").then((m) => ({ default: m.FormationsPage }))
@@ -143,7 +149,9 @@ function AppContent() {
                 }
               />
               <Route path="/pathologies" element={<PathologiesPremium />} />
+              <Route path="/pathologies/:slug" element={<PathologyDetailPage />} />
               <Route path="/traitements" element={<TraitementsPremium />} />
+              <Route path="/traitements/:slug" element={<TreatmentDetailPage />} />
               <Route path="/actualites" element={<BlogPage />} />
               <Route path="/actualites/:id" element={<BlogPostPage />} />
               <Route

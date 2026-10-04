@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useMotionValue, useSpring, useTransform, animate, PanInfo, useAnimationFrame, AnimatePresence } from "framer-motion";
 import { TransitionLink } from "../ui/TransitionLink";
 import { ShimmerButton } from "../ui/ShimmerButton";
@@ -11,20 +12,49 @@ import { useTranslation } from "react-i18next";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
 export function PathologiesPremium() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith("en") ? "en" : "fr";
   const isMobile = useIsMobile(1024);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [dynamicItems, setDynamicItems] = useState<any[]>([]);
   const rotation = useMotionValue(0);
   const smoothRotation = useSpring(rotation, { stiffness: 50, damping: 20 });
-  const items = PATHOLOGIES.map(item => ({
-    ...item,
-    title: t(item.title),
-    desc: t(item.desc)
-  }));
-  const angleStep = 360 / items.length;
+
+  useEffect(() => {
+    async function fetchPathologies() {
+      try {
+        const res = await fetch("/api/cms/pathologies");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.pathologies) && data.pathologies.length > 0) {
+            setDynamicItems(data.pathologies);
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    fetchPathologies();
+  }, []);
+
+  const items = dynamicItems.length > 0 
+    ? dynamicItems.map((item) => ({
+        ...item,
+        title: lang === "en" ? (item.title_en || item.title_fr) : item.title_fr,
+        desc: lang === "en" ? (item.short_desc_en || item.short_desc_fr) : item.short_desc_fr,
+        img: item.card_image || item.img,
+        slug: item.slug
+      }))
+    : PATHOLOGIES.map((item, idx) => ({
+        ...item,
+        title: t(item.title),
+        desc: t(item.desc),
+        slug: ["lombalgie-chronique", "nevralgie-arnold", "sdrc", "endometriose", "douleurs-articulaires", "fibromyalgie", "douleurs-neuropathiques", "douleurs-post-op", "migraines"][idx] || "lombalgie"
+      }));
+
+  const angleStep = 360 / Math.max(items.length, 1);
   const radius = 500; // Distance from center on desktop
 
   useEffect(() => {
@@ -209,12 +239,14 @@ export function PathologiesPremium() {
               <span className="text-gray-400 font-light">
                 {t("pathologies.touchToDiscover", "Détails & prise en charge")}
               </span>
-              <span 
-                className="font-semibold flex items-center gap-1 transition-transform group-hover:translate-x-1"
-                style={{ color: item.color || '#48cae4' }}
+              <Link
+                to={`/pathologies/${item.slug || 'lombalgie-chronique'}`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform"
               >
-                {t("common.seeMore", "En savoir plus")} <span>→</span>
-              </span>
+                {t("common.read", "Lire")} 
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </Link>
             </div>
           </motion.article>
         ))}

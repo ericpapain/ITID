@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaChevronDown } from 'react-icons/fa';
 import doctorImg from "../images/doctor.png";
 import doctoreImg from "../images/doctore.jpg";
 import { useTranslation } from "react-i18next";
+import { ArrowRight } from "lucide-react";
 
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
-export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, wikipediaUrl, img, imageHeight, isDetail, onClose }: any) => {
+export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, wikipediaUrl, img, imageHeight, isDetail, onClose, slug }: any) => {
   const { t } = useTranslation();
   const bgGradient = `linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)`;
+  const detailSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
   // 3D Tilt effect (Only for card mode)
   const x = useMotionValue(0);
@@ -45,7 +48,7 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         {/* Bouton Fermer */}
         <button 
           onClick={(e) => { e.stopPropagation(); if (onClose) onClose(); }} 
-          className="absolute top-4 right-4 z-50 flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-black/80 text-white rounded-full backdrop-blur-md transition-colors border border-white/20"
+          className="absolute top-4 right-4 z-50 flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-black/80 text-white rounded-full backdrop-blur-md transition-colors border border-white/20 cursor-pointer"
         >
           <span className="font-semibold text-sm">{t('common.close')}</span>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -75,16 +78,21 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
             {desc}
           </div>
 
-          {(longDesc || wikipediaUrl) && (
-            <div className="mt-8 pt-8 border-t border-white/10">
-              {longDesc && <div className="text-lg md:text-xl leading-relaxed md:leading-loose text-gray-200 whitespace-pre-line mb-6">{longDesc}</div>}
-              {wikipediaUrl && (
-                <a href={wikipediaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-bold hover:text-white transition-colors text-lg" style={{ color: color || '#48cae4' }}>
-                  {t('common.learnMoreWiki')}
-                </a>
-              )}
-            </div>
-          )}
+          <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+            <Link
+              to={`/pathologies/${detailSlug}`}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-[0_0_20px_rgba(72,202,228,0.4)] hover:brightness-110 transition-all flex items-center gap-2"
+            >
+              <span>{t('pathologies.openDedicatedPage', 'Découvrir la fiche complète détaillée')}</span>
+              <ArrowRight size={16} />
+            </Link>
+
+            {wikipediaUrl && (
+              <a href={wikipediaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-bold hover:text-white transition-colors text-base text-gray-400">
+                {t('common.learnMoreWiki')} <ArrowRight size={14} />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -138,11 +146,12 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
           {title}
         </div>
         
-        <div 
-          className="mt-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider transition-all duration-300 opacity-90 group-hover:opacity-100 group-hover:translate-y-1"
-          style={{ color: color || '#2a9d8f' }}
-        >
-          {t('common.seeMore')} <span className="text-xl group-hover:translate-x-1 transition-transform">›</span>
+        {/* Bouton Lire avec flèche */}
+        <div className="mt-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider transition-all duration-300 opacity-90 group-hover:opacity-100 group-hover:translate-y-0.5">
+          <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
+            {t('common.read', 'Lire')} 
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </div>
         </div>
         
         <motion.div 

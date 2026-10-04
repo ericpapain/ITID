@@ -44,6 +44,17 @@
   RewriteRule ^api/admin/analytics/([a-zA-Z0-9_\-]+)/?$ api/admin/analytics/index.php?endpoint=$1 [L,QSA]
   RewriteRule ^api/admin/analytics/?$ api/admin/analytics/index.php?endpoint=overview [L,QSA]
 
+  # CMS Public Endpoints
+  RewriteRule ^api/cms/pathologies/?$ api/cms/pathologies/index.php [L,QSA]
+  RewriteRule ^api/cms/traitements/?$ api/cms/traitements/index.php [L,QSA]
+  RewriteRule ^api/cms/articles/?$ api/cms/articles/index.php [L,QSA]
+  RewriteRule ^api/cms/pages/?$ api/cms/pages/index.php [L,QSA]
+
+  # CMS Admin Endpoints & Media Upload
+  RewriteRule ^api/admin/cms/?$ api/admin/cms/index.php [L,QSA]
+  RewriteRule ^api/admin/media/upload/?$ api/admin/media/index.php [L,QSA]
+  RewriteRule ^api/admin/seed_cms/?$ api/admin/seed_cms.php [L,QSA]
+
   # Backup & Diagnostic Base de Données
   RewriteRule ^api/admin/backup/?$ api/admin/backup/index.php [L,QSA]
   RewriteRule ^api/admin/seed_analytics/?$ api/admin/seed_analytics.php [L,QSA]
