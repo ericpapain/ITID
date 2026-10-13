@@ -1,0 +1,71 @@
+name: 🚀 CI/CD - Build & Déploiement Automatique ITID
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Permet de déclencher le déploiement manuellement depuis l'onglet Actions de GitHub
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: 🔨 Build & Déploiement Hostinger / OVH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configuration de Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Installation des dépendances
+        run: npm ci
+
+      - name: 🏗️ Compilation du projet (Vite build)
+        run: npm run build
+
+      - name: 🛡️ Vérification des fichiers du build
+        run: |
+          echo "Vérification des dossiers clés dans dist/ :"
+          ls -la dist/
+          ls -la dist/api/ || echo "api/ présent"
+
+      - name: 🔍 Vérification de la configuration des Secrets GitHub
+        run: |
+          if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "::error::Les secrets FTP ne sont pas encore renseignés dans GitHub !"
+            echo "Rendez-vous dans GitHub > Settings > Secrets and variables > Actions et ajoutez :"
+            echo "- FTP_SERVER (ex: ftp.itid-france.com ou l'IP Hostinger)"
+            echo "- FTP_USERNAME (votre identifiant FTP)"
+            echo "- FTP_PASSWORD (votre mot de passe FTP)"
+            echo "Optionnel : FTP_SERVER_DIR (par défaut: public_html/)"
+            exit 1
+          fi
+
+      - name: 🚀 Déploiement sur le serveur (FTPS / FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ secrets.FTP_PROTOCOL || 'ftps' }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          local-dir: ./dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/*.sqlite*
+            **/*.db*
+            **/itid_data/**
+            **/uploads/**
+            **/api/config.php
+            **/*.bak*
