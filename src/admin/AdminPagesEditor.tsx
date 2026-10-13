@@ -44,6 +44,10 @@ export default function AdminPagesEditor() {
           const data = await res.json();
           setPageContentFr(data.content_fr || {});
           setPageContentEn(data.content_en || {});
+        } else if (res.status === 401) {
+          setSaveMessage("⚠️ Non autorisé / Session expirée. Veuillez vous reconnecter.");
+        } else {
+          setSaveMessage(`❌ Erreur de chargement (HTTP ${res.status})`);
         }
       } else {
         const res = await fetch(`/api/admin/cms?type=${currentSection}`, {
@@ -57,6 +61,10 @@ export default function AdminPagesEditor() {
               setSelectedItem(data.items[0]);
             }
           }
+        } else if (res.status === 401) {
+          setSaveMessage("⚠️ Non autorisé / Session expirée. Veuillez vous reconnecter.");
+        } else {
+          setSaveMessage(`❌ Erreur de chargement (HTTP ${res.status})`);
         }
       }
     } catch (err: any) {

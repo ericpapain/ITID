@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../auth_check.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Admin-Token, X-Requested-With');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $auth = requireAdminAuth();
-if (!$auth['authenticated']) {
+if (!$auth) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Non autorisé. Veuillez vous reconnecter.']);
     exit;
@@ -36,6 +36,14 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_pathologies ORDER BY display_order ASC, id ASC");
             $items = $stmt->fetchAll();
+            if (empty($items)) {
+                require_once __DIR__ . '/../seed_cms.php';
+                if (function_exists('seedCmsIfEmpty')) {
+                    seedCmsIfEmpty($pdo);
+                    $stmt = $pdo->query("SELECT * FROM cms_pathologies ORDER BY display_order ASC, id ASC");
+                    $items = $stmt->fetchAll();
+                }
+            }
             foreach ($items as &$it) {
                 $it['hero_gallery'] = json_decode($it['hero_gallery_json'] ?? '[]', true) ?: [];
             }
@@ -150,6 +158,14 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_traitements ORDER BY display_order ASC, id ASC");
             $items = $stmt->fetchAll();
+            if (empty($items)) {
+                require_once __DIR__ . '/../seed_cms.php';
+                if (function_exists('seedCmsIfEmpty')) {
+                    seedCmsIfEmpty($pdo);
+                    $stmt = $pdo->query("SELECT * FROM cms_traitements ORDER BY display_order ASC, id ASC");
+                    $items = $stmt->fetchAll();
+                }
+            }
             foreach ($items as &$it) {
                 $it['hero_gallery'] = json_decode($it['hero_gallery_json'] ?? '[]', true) ?: [];
             }
@@ -275,6 +291,14 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY id DESC");
             $items = $stmt->fetchAll();
+            if (empty($items)) {
+                require_once __DIR__ . '/../seed_cms.php';
+                if (function_exists('seedCmsIfEmpty')) {
+                    seedCmsIfEmpty($pdo);
+                    $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY id DESC");
+                    $items = $stmt->fetchAll();
+                }
+            }
             foreach ($items as &$it) {
                 $it['gallery_images'] = json_decode($it['gallery_images_json'] ?? '[]', true) ?: [];
             }
@@ -385,6 +409,14 @@ try {
             $stmt = $pdo->prepare("SELECT * FROM cms_pages_content WHERE page_key = ? LIMIT 1");
             $stmt->execute([$pageKey]);
             $row = $stmt->fetch();
+            if (!$row) {
+                require_once __DIR__ . '/../seed_cms.php';
+                if (function_exists('seedCmsIfEmpty')) {
+                    seedCmsIfEmpty($pdo);
+                    $stmt->execute([$pageKey]);
+                    $row = $stmt->fetch();
+                }
+            }
             echo json_encode([
                 'success' => true,
                 'page_key' => $pageKey,

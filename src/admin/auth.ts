@@ -37,6 +37,11 @@ export function getAuthHeaders(): HeadersInit {
   const token = getAdminToken();
   return {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(token
+      ? {
+          Authorization: `Bearer ${token}`,
+          "X-Admin-Token": `Bearer ${token}`,
+        }
+      : {}),
   };
 }

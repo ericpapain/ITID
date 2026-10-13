@@ -36,6 +36,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Montage des routes d'API
 app.use('/api', apiRouter);
 
+// Distribution des fichiers médias statiques (uploads et images)
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'public/uploads')));
+app.use('/images', express.static(path.resolve(process.cwd(), 'public/images')));
+
 // En production : distribution des assets statiques compilés du frontend
 const distPath = path.resolve(process.cwd(), 'dist');
 if (fs.existsSync(distPath)) {

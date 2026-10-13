@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { getAuthHeaders } from "./auth";
+import { getAuthHeaders, getAdminToken } from "./auth";
 import { Upload, Link as LinkIcon, Trash2, Plus, Image as ImageIcon } from "lucide-react";
 
 interface SingleMediaSelectorProps {
@@ -28,6 +28,10 @@ export function SingleMediaSelector({
 
     const formData = new FormData();
     formData.append("file", file);
+    const token = getAdminToken();
+    if (token) {
+      formData.append("token", token);
+    }
 
     try {
       const headers = getAuthHeaders();
@@ -155,6 +159,10 @@ export function GalleryMediaSelector({
       for (let i = 0; i < files.length; i++) {
         const formData = new FormData();
         formData.append("file", files[i]);
+        const token = getAdminToken();
+        if (token) {
+          formData.append("token", token);
+        }
 
         const res = await fetch("/api/admin/media/upload", {
           method: "POST",

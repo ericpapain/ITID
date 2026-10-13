@@ -6,10 +6,13 @@
 require_once __DIR__ . '/db.php';
 
 function verifyAdminToken(?string $authHeader): ?array {
-    if (!$authHeader || !preg_match('/Bearer\s+(\S+)/i', $authHeader, $matches)) {
+    if (!$authHeader) {
         return null;
     }
-    $token = $matches[1];
+    $token = trim($authHeader);
+    if (preg_match('/Bearer\s+(\S+)/i', $token, $matches)) {
+        $token = $matches[1];
+    }
     $parts = explode('.', $token);
 
     $config = getItidConfig();
@@ -23,6 +26,7 @@ function verifyAdminToken(?string $authHeader): ?array {
         if (!hash_equals($expectedSig, $parts[1])) return null;
         $payload = json_decode($payloadJson, true);
         if (!$payload || !isset($payload['exp']) || $payload['exp'] < time()) return null;
+        $payload['authenticated'] = true;
         return $payload;
     }
 
@@ -36,6 +40,7 @@ function verifyAdminToken(?string $authHeader): ?array {
         if (hash_equals($expectedB64, $rawSig)) {
             $payload = json_decode($payloadJson, true);
             if ($payload && isset($payload['exp']) && $payload['exp'] >= time()) {
+                $payload['authenticated'] = true;
                 return $payload;
             }
         }
@@ -74,5 +79,6 @@ function requireAdminAuth(): array {
         ]);
         exit;
     }
+    $user['authenticated'] = true;
     return $user;
 }
