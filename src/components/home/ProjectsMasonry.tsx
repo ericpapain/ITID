@@ -40,7 +40,9 @@ function ActiveSliderCard({ item, scrollX, index }: { item: any, scrollX: any, i
 }
 
 export function ProjectsMasonry() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [dynamicCases, setDynamicCases] = useState<any[]>([]);
+
   const PROJECTS = [
     {
       title: t('masonry.p1.title'),
@@ -89,6 +91,39 @@ export function ProjectsMasonry() {
     }
   ];
 
+  // Chargement des cas cliniques dynamiques configurés dans l'admin CMS
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCases = async () => {
+      try {
+        const res = await fetch("/api/cms/cas_cliniques");
+        if (res.ok) {
+          const data = await res.json();
+          const items = data.items || data.cases;
+          if (isMounted && Array.isArray(items) && items.length > 0) {
+            setDynamicCases(items);
+          }
+        }
+      } catch (e) {
+        // Fallback silencieux vers PROJECTS statiques
+      }
+    };
+    fetchCases();
+    return () => { isMounted = false; };
+  }, []);
+
+  const currentLang = i18n.language || "fr";
+
+  const displayList = dynamicCases.length > 0
+    ? dynamicCases.map((item) => ({
+        title: currentLang.startsWith("en") ? (item.title_en || item.title_fr) : (item.title_fr || item.title_en),
+        category: currentLang.startsWith("en") ? (item.category_en || item.category_fr) : (item.category_fr || item.category_en),
+        image: item.image
+      }))
+    : PROJECTS;
+
+  const maxLimit = -Math.max(0, (displayList.length - 1) * 430);
+
   const isMobile = useIsMobile();
   const videoRef = useRef<HTMLVideoElement>(null);
   const { displayedText, showCursor, ref: typeRef } = useTypewriter(t('masonry.title1') + t('masonry.title2'));
@@ -125,7 +160,7 @@ export function ProjectsMasonry() {
     let target = current + velocity * 0.2; // Inertia
     // Bounds
     if (target > 0) target = 0;
-    if (target < -3200) target = -3200;
+    if (target < maxLimit) target = maxLimit;
 
     scrollX.set(target);
   };
@@ -140,7 +175,7 @@ export function ProjectsMasonry() {
   const handleNext = () => {
     const current = scrollX.get();
     let target = current - 450;
-    if (target < -3200) target = 0;
+    if (target < maxLimit) target = 0;
     scrollX.set(target);
   };
 
@@ -150,7 +185,7 @@ export function ProjectsMasonry() {
       handleNext();
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [maxLimit]);
 
   const title1Len = t('masonry.title1').length;
 
@@ -214,13 +249,13 @@ export function ProjectsMasonry() {
           <motion.div
             drag="x"
             dragElastic={0.1}
-            dragConstraints={{ left: -3200, right: 0 }}
+            dragConstraints={{ left: maxLimit, right: 0 }}
             onDrag={handleDrag}
             onDragEnd={handleDragEnd}
             style={{ x: springScroll }}
             className="absolute left-[10%] top-0 flex gap-8 cursor-grab active:cursor-grabbing z-10 px-10"
           >
-            {PROJECTS.map((item, idx) => (
+            {displayList.map((item, idx) => (
               <motion.div key={idx} style={{ skewX, scale }} className="pointer-events-none">
                 <ActiveSliderCard item={item} scrollX={springScroll} index={idx} />
               </motion.div>

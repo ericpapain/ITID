@@ -20,6 +20,7 @@ import {
   getAllContent,
   updateContentSection,
 } from '../controllers/contentController';
+import { getPublicCasCliniques, handleAdminCms } from '../controllers/cmsController';
 import { requireAdminAuth } from '../middleware/auth';
 
 const router = Router();
@@ -78,11 +79,16 @@ router.post('/auth/login', loginLimiter, handleAdminLogin);
 // Contenus dynamiques publics (FR/EN)
 router.get('/content', getAllContent);
 router.get('/content/:section', getContentSection);
+router.get('/cms/cas_cliniques', getPublicCasCliniques);
+router.get('/cms/cas-cliniques', getPublicCasCliniques);
 
 // Health check
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'ITID Backend API', timestamp: new Date() });
 });
+
+// CMS Admin endpoints
+router.all('/admin/cms', handleAdminCms);
 
 // -------------------------------------------------------------
 // Routes Administrateur Protégées (Bearer JWT)

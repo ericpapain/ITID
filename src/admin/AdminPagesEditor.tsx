@@ -25,6 +25,7 @@ export default function AdminPagesEditor() {
     { id: "pathologies", label: "Pathologies", icon: "🦴" },
     { id: "traitements", label: "Traitements", icon: "💉" },
     { id: "articles", label: "Actualités & Blog", icon: "📰" },
+    { id: "cas_cliniques", label: "Cas Cliniques (Accueil)", icon: "🔬" },
     { id: "home", label: "Page d'Accueil", icon: "🏠" },
     { id: "about", label: "À Propos & Équipe", icon: "🏥" },
   ];
@@ -259,6 +260,17 @@ export default function AdminPagesEditor() {
         is_published: 1
       };
       setSelectedItem(newArt);
+    } else if (currentSection === "cas_cliniques") {
+      const newCas = {
+        title_fr: "Nouveau Cas Clinique",
+        title_en: "New Clinical Case",
+        category_fr: "Infiltration / Intervention",
+        category_en: "Infiltration / Procedure",
+        image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop",
+        display_order: itemsList.length + 1,
+        is_active: 1
+      };
+      setSelectedItem(newCas);
     }
   };
 
@@ -405,6 +417,24 @@ export default function AdminPagesEditor() {
             />
           )}
 
+          {/* Rubrique CAS CLINIQUES (ACCUEIL) */}
+          {currentSection === "cas_cliniques" && (
+            <MasterDetailEditor
+              title="Cas Cliniques (Slider Page d'Accueil)"
+              items={itemsList}
+              selectedItem={selectedItem}
+              onSelect={setSelectedItem}
+              onAddNew={handleAddNew}
+              onDelete={handleDeleteItem}
+              onSave={handleSaveItem}
+              saving={saving}
+              lang={lang}
+              renderForm={(item: any, onChange: any) => (
+                <CasCliniqueForm item={item} onChange={onChange} lang={lang} />
+              )}
+            />
+          )}
+
           {/* Rubrique PAGE D'ACCUEIL */}
           {currentSection === "home" && (
             <HomePageEditor
@@ -481,8 +511,12 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-base shrink-0">
-                    {it.icon || "📄"}
+                  <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-base shrink-0 overflow-hidden">
+                    {it.image ? (
+                      <img src={it.image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      it.icon || "📄"
+                    )}
                   </div>
                   <div className="min-w-0">
                     <div className="font-bold text-xs text-white truncate flex items-center gap-1.5">
@@ -492,13 +526,20 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
                           ⭐ À la une
                         </span>
                       )}
-                      {(it.show_in_home ?? 1) === 1 && (
+                      {(it.show_in_home ?? 1) === 1 && it.slug && (
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30 shrink-0">
                           🏠 Accueil
                         </span>
                       )}
+                      {it.is_active === 0 && (
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-red-500/20 text-red-300 border border-red-500/30 shrink-0">
+                          ⛔ Masqué
+                        </span>
+                      )}
                     </div>
-                    <div className="text-[10px] text-slate-400 truncate">/{it.slug}</div>
+                    <div className="text-[10px] text-slate-400 truncate">
+                      {it.slug ? `/${it.slug}` : (lang === "en" ? (it.category_en || it.category_fr) : (it.category_fr || it.category_en))}
+                    </div>
                   </div>
                 </div>
 
@@ -1334,3 +1375,121 @@ function AboutPageEditor({ dataFr, dataEn, onChangeFr, onChangeEn, lang }: any) 
     </div>
   );
 }
+
+// ======================================================================
+// FORMULAIRE CAS CLINIQUE (BILINGUE + PHOTO + LIVE PREVIEW)
+// ======================================================================
+function CasCliniqueForm({ item, onChange, lang }: any) {
+  const currentTitle = lang === "en" ? (item.title_en || "") : (item.title_fr || "");
+  const currentCategory = lang === "en" ? (item.category_en || "") : (item.category_fr || "");
+
+  return (
+    <div className="space-y-6 text-xs">
+      {/* Information bilingue & Statut */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        {/* Titre selon langue */}
+        <div className="md:col-span-6">
+          <label className="block text-slate-300 font-semibold mb-1">
+            Titre du Cas Clinique [{lang.toUpperCase()}] *
+          </label>
+          <input
+            type="text"
+            value={currentTitle}
+            onChange={(e) =>
+              onChange(lang === "en" ? { title_en: e.target.value } : { title_fr: e.target.value })
+            }
+            placeholder={lang === "en" ? "e.g. Clinical Case #1" : "ex: Cas Clinique #1"}
+            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-sm focus:border-[#2a9d8f] focus:outline-none transition-all"
+          />
+        </div>
+
+        {/* Catégorie selon langue */}
+        <div className="md:col-span-6">
+          <label className="block text-slate-300 font-semibold mb-1">
+            Sous-titre / Geste / Catégorie [{lang.toUpperCase()}] *
+          </label>
+          <input
+            type="text"
+            value={currentCategory}
+            onChange={(e) =>
+              onChange(lang === "en" ? { category_en: e.target.value } : { category_fr: e.target.value })
+            }
+            placeholder={lang === "en" ? "e.g. Lumbar Infiltration" : "ex: Infiltration lombaire"}
+            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4] font-medium text-sm focus:border-[#2a9d8f] focus:outline-none transition-all"
+          />
+        </div>
+
+        {/* Ordre d'affichage & Statut visible */}
+        <div className="md:col-span-6">
+          <label className="block text-slate-300 font-semibold mb-1">
+            Ordre d'apparition dans le défilement (1, 2, 3...)
+          </label>
+          <input
+            type="number"
+            min={0}
+            value={item.display_order ?? 0}
+            onChange={(e) => onChange({ display_order: parseInt(e.target.value, 10) || 0 })}
+            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono focus:border-[#2a9d8f] focus:outline-none"
+          />
+        </div>
+
+        <div className="md:col-span-6 flex flex-col justify-end">
+          <label className="block text-slate-300 font-semibold mb-1">Visibilité sur le site</label>
+          <button
+            type="button"
+            onClick={() => onChange({ is_active: item.is_active === 0 ? 1 : 0 })}
+            className={`w-full py-2.5 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+              (item.is_active ?? 1) === 1
+                ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
+                : "bg-red-950/40 border-red-500/40 text-red-300"
+            }`}
+          >
+            <span>{(item.is_active ?? 1) === 1 ? "✅ Visible sur l'Accueil" : "⛔ Masqué de l'Accueil"}</span>
+            <span className="text-[10px] underline">Cliquer pour changer</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Sélecteur de média pour la photo du cas clinique */}
+      <div className="p-4 bg-slate-950/60 rounded-2xl border border-slate-800 space-y-4">
+        <SingleMediaSelector
+          label="Photo du Cas Clinique (Upload fichier local ou URL Web) *"
+          value={item.image || ""}
+          onChange={(url) => onChange({ image: url })}
+        />
+      </div>
+
+      {/* Aperçu en direct (Live Simulation) identique à la carte slider de la page principale */}
+      <div className="p-5 bg-gradient-to-br from-[#071322] to-[#0a1628] rounded-2xl border border-slate-800 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <span>👁️</span>
+            <span>Aperçu en Direct sur la Page d'Accueil</span>
+          </span>
+          <span className="text-[10px] text-slate-400">Rendu fidèle au slider du site</span>
+        </div>
+
+        <div className="flex justify-center p-4 bg-slate-950/50 rounded-xl">
+          <div className="relative w-[280px] h-[400px] md:w-[320px] md:h-[460px] rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
+            <img
+              src={item.image || "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800"}
+              alt={currentTitle || "Aperçu"}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a1628]/20 to-[#0a1628]/90" />
+
+            <div className="absolute bottom-6 left-6 right-6 z-10">
+              <span className="inline-block py-1 px-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] font-semibold text-[#48cae4] tracking-widest uppercase mb-2">
+                {currentCategory || (lang === "en" ? "Procedure" : "Geste Thérapeutique")}
+              </span>
+              <h3 className="text-2xl font-bold text-white drop-shadow-md">
+                {currentTitle || (lang === "en" ? "Clinical Case" : "Cas Clinique")}
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

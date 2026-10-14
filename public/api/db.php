@@ -432,6 +432,18 @@ function initSqliteTables(PDO $pdo): void {
             content_fr TEXT NOT NULL,
             content_en TEXT NOT NULL,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+        "CREATE TABLE IF NOT EXISTS cms_cas_cliniques (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title_fr TEXT NOT NULL,
+            title_en TEXT NOT NULL,
+            category_fr TEXT NOT NULL,
+            category_en TEXT NOT NULL,
+            image TEXT NOT NULL,
+            display_order INTEGER DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )"
     ];
 
@@ -674,6 +686,19 @@ function initMysqlTables(PDO $pdo): void {
             page_key VARCHAR(50) PRIMARY KEY,
             content_fr LONGTEXT NOT NULL,
             content_en LONGTEXT NOT NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS cms_cas_cliniques (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title_fr VARCHAR(255) NOT NULL,
+            title_en VARCHAR(255) NOT NULL,
+            category_fr VARCHAR(255) NOT NULL,
+            category_en VARCHAR(255) NOT NULL,
+            image VARCHAR(500) NOT NULL,
+            display_order INT DEFAULT 0,
+            is_active TINYINT(1) DEFAULT 1,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ];
