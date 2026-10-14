@@ -55,17 +55,6 @@ jobs:
             exit 1
           fi
 
-      - name: 🔧 Créer les répertoires distants si nécessaire (via lftp)
-        if: always()
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y lftp
-          # Normalize server dir variable (no leading slash)
-          REMOTE_DIR="${{ secrets.FTP_SERVER_DIR || 'public_html/' }}"
-          REMOTE_DIR="${REMOTE_DIR#/}"
-          # Try to create top-level server dir and api subdir (some FTP servers don't allow creating deep nested dirs)
-          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" "${{ secrets.FTP_SERVER }}" -e "set cmd:fail-exit true; mkdir -p ${REMOTE_DIR}; mkdir -p ${REMOTE_DIR}api; bye"
-
       - name: 🚀 Déploiement sur le serveur (FTPS / FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -74,6 +63,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ${{ secrets.FTP_PROTOCOL || 'ftps' }}
           port: ${{ secrets.FTP_PORT || 21 }}
+          security: loose
           local-dir: ./dist/
           server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
           dangerous-clean-slate: false
