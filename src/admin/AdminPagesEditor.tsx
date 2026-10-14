@@ -485,7 +485,19 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
                     {it.icon || "📄"}
                   </div>
                   <div className="min-w-0">
-                    <div className="font-bold text-xs text-white truncate">{displayTitle}</div>
+                    <div className="font-bold text-xs text-white truncate flex items-center gap-1.5">
+                      <span className="truncate">{displayTitle}</span>
+                      {it.is_featured === 1 && (
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                          ⭐ À la une
+                        </span>
+                      )}
+                      {(it.show_in_home ?? 1) === 1 && (
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30 shrink-0">
+                          🏠 Accueil
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-slate-400 truncate">/{it.slug}</div>
                   </div>
                 </div>
@@ -1028,13 +1040,169 @@ function ArticleForm({ item, onChange, lang }: any) {
         </div>
       </div>
 
-      {/* Galerie de 5 photos pour le carrousel de carte */}
+      {/* Galerie de photos pour le carrousel */}
       <GalleryMediaSelector
-        label="Galerie de Photos Défilantes pour la Carte d'Actualités (5 Photos recommandées)"
+        label="Galerie de Photos Défilantes pour l'Article & l'Accueil (5 Photos recommandées)"
         images={item.gallery_images || []}
         onChange={(images) => onChange({ gallery_images: images, cover_image: images[0] || item.cover_image })}
-        minImages={5}
+        minImages={3}
       />
+
+      {/* ========================================================= */}
+      {/* PARAMÈTRES D'AFFICHAGE & MISE EN AVANT (ACCUEIL & BLOG) */}
+      {/* ========================================================= */}
+      <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-4">
+        <div className="font-bold text-white text-xs flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Sparkles size={14} className="text-[#48cae4]" />
+            <span>Mise en avant & Diffusion de l'Actualité</span>
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Toggle 1: Actualité Principale (Haut de page Blog) */}
+          <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
+            <div>
+              <div className="font-bold text-white text-[11px] flex items-center gap-1.5">
+                <span>⭐ Actualité mise en évidence (Page Blog)</span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                Place cet article tout en haut en grand format sur la page Actualités.
+              </p>
+            </div>
+            <div className="flex items-center rounded-lg bg-slate-950 p-1 border border-slate-800 shrink-0">
+              <button
+                type="button"
+                onClick={() => onChange({ is_featured: 1 })}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  item.is_featured === 1
+                    ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Oui
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange({ is_featured: 0 })}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  item.is_featured !== 1
+                    ? "bg-slate-800 text-slate-200"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Non
+              </button>
+            </div>
+          </div>
+
+          {/* Toggle 2: Afficher dans le grand panneau d'Accueil */}
+          <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
+            <div>
+              <div className="font-bold text-white text-[11px] flex items-center gap-1.5">
+                <span>🏠 Afficher dans le grand panneau de l'Accueil</span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                Fait défiler les photos et textes de cet article dans la section À la une de l'accueil.
+              </p>
+            </div>
+            <div className="flex items-center rounded-lg bg-slate-950 p-1 border border-slate-800 shrink-0">
+              <button
+                type="button"
+                onClick={() => onChange({ show_in_home: 1 })}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  (item.show_in_home ?? 1) === 1
+                    ? "bg-[#2a9d8f] text-white shadow-md shadow-[#2a9d8f]/20"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Oui
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange({ show_in_home: 0 })}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                  (item.show_in_home ?? 1) === 0
+                    ? "bg-slate-800 text-slate-200"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Non
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Champs spécifiques conditionnels Accueil (FR & EN) */}
+        {(item.show_in_home ?? 1) === 1 && (
+          <div className="p-4 bg-gradient-to-br from-[#2a9d8f]/10 via-slate-900/90 to-slate-950 border border-[#2a9d8f]/30 rounded-xl space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <span className="text-[11px] font-bold text-[#48cae4] uppercase tracking-wider flex items-center gap-1.5">
+                <span>✨ Textes personnalisés pour l'Accueil (FR & EN)</span>
+              </span>
+              <span className="text-[10px] text-slate-400 italic">
+                (Optionnel : si vide, le titre et résumé normaux sont affichés)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
+                  Titre d'Accueil [FR]
+                </label>
+                <input
+                  type="text"
+                  placeholder={item.title_fr || "Titre pour l'accueil..."}
+                  value={item.home_title_fr || ""}
+                  onChange={(e) => onChange({ home_title_fr: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
+                  Home Title [EN]
+                </label>
+                <input
+                  type="text"
+                  placeholder={item.title_en || "Title for home..."}
+                  value={item.home_title_en || ""}
+                  onChange={(e) => onChange({ home_title_en: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
+                  Commentaire / Accroche Accueil [FR]
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder={item.summary_fr || "Court commentaire ou accroche pour l'accueil..."}
+                  value={item.home_desc_fr || ""}
+                  onChange={(e) => onChange({ home_desc_fr: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
+                  Home Comment / Excerpt [EN]
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder={item.summary_en || "Short comment or excerpt for home section..."}
+                  value={item.home_desc_en || ""}
+                  onChange={(e) => onChange({ home_desc_en: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 text-xs"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div>
         <label className="block text-slate-300 font-semibold mb-1">Résumé Synthétique de l'Article [{lang.toUpperCase()}] *</label>

@@ -412,9 +412,13 @@
     "discover": "Découvrir"
   },
   "immersion": {
+    "badge": "À la une",
+    "heading": "À la une,",
     "title": "Au-delà de la médecine,\nle bien-être profond.",
     "desc": "À l'ITID, nous croyons que l'apaisement de l'esprit est aussi crucial que le traitement du corps. Nos environnements sont conçus pour réduire le stress, inspirer le calme et favoriser la guérison.",
-    "discoverPhilosophy": "Découvrir notre philosophie"
+    "discoverPhilosophy": "Découvrir toutes les nouveautés",
+    "discoverNews": "Découvrir toutes les nouveautés",
+    "readArticle": "Lire l'article"
   },
   "stats": {
     "patients": "Patients pris en charge",

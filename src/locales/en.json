@@ -412,9 +412,13 @@
     "discover": "Discover"
   },
   "immersion": {
+    "badge": "In the spotlight",
+    "heading": "In the spotlight,",
     "title": "Beyond medicine,\nprofound well-being.",
     "desc": "At ITID, we believe that calming the mind is as crucial as treating the body. Our environments are designed to reduce stress, inspire calmness, and promote healing.",
-    "discoverPhilosophy": "Discover our philosophy"
+    "discoverPhilosophy": "Discover all news & updates",
+    "discoverNews": "Discover all news & updates",
+    "readArticle": "Read article"
   },
   "stats": {
     "patients": "Patients treated",

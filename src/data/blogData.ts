@@ -18,6 +18,14 @@ export interface Article {
   category: BlogCategory;
   coverImage: string;
   sections: ArticleSection[];
+  gallery?: string[];
+  gallery_images?: string[];
+  show_in_home?: number;
+  is_featured?: number;
+  home_title_fr?: string;
+  home_title_en?: string;
+  home_desc_fr?: string;
+  home_desc_en?: string;
 }
 
 export const BLOG_CATEGORIES: BlogCategory[] = [

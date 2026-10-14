@@ -41,12 +41,16 @@ export default function BlogPage() {
         readTime: lang === "en" ? (a.read_time_en || a.read_time_fr) : a.read_time_fr,
         category: a.category,
         coverImage: a.cover_image,
+        is_featured: Number(a.is_featured || 0),
+        show_in_home: Number(a.show_in_home ?? 1),
         gallery: Array.isArray(a.gallery_images) && a.gallery_images.length > 0
           ? a.gallery_images
           : [a.cover_image, "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800", "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800", "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800", "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800"]
       }))
-    : BLOG_ARTICLES.map(a => ({
+    : BLOG_ARTICLES.map((a, idx) => ({
         ...a,
+        is_featured: idx === 0 ? 1 : 0,
+        show_in_home: 1,
         title: t(`blogData.${a.id}.title`),
         summary: t(`blogData.${a.id}.summary`),
         authorRole: t(`blogData.${a.id}.authorRole`),
@@ -64,8 +68,12 @@ export default function BlogPage() {
     ? articlesSource 
     : articlesSource.filter(a => a.category === activeCategory || a.category === t(`blogData.categories.${activeCategory === "Innovations" ? "innovations" : activeCategory === "Conseils Patients" ? "conseils" : activeCategory === "Traitements" ? "traitements" : "vie"}`));
 
-  const featuredArticle = activeCategory === "Tous" ? filteredArticles[0] : null;
-  const regularArticles = activeCategory === "Tous" ? filteredArticles.slice(1) : filteredArticles;
+  const featuredArticle = activeCategory === "Tous" 
+    ? (filteredArticles.find(a => a.is_featured === 1) || filteredArticles[0]) 
+    : null;
+  const regularArticles = activeCategory === "Tous" 
+    ? filteredArticles.filter(a => a.id !== featuredArticle?.id) 
+    : filteredArticles;
 
   return (
     <main className="min-h-screen bg-[#0c1a2e] text-white pt-32 pb-24">

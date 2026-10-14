@@ -289,18 +289,20 @@ try {
     // -------------------------------------------------------------
     if ($type === 'articles') {
         if ($method === 'GET') {
-            $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY id DESC");
+            $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY is_featured DESC, id DESC");
             $items = $stmt->fetchAll();
             if (empty($items)) {
                 require_once __DIR__ . '/../seed_cms.php';
                 if (function_exists('seedCmsIfEmpty')) {
                     seedCmsIfEmpty($pdo);
-                    $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY id DESC");
+                    $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY is_featured DESC, id DESC");
                     $items = $stmt->fetchAll();
                 }
             }
             foreach ($items as &$it) {
                 $it['gallery_images'] = json_decode($it['gallery_images_json'] ?? '[]', true) ?: [];
+                $it['show_in_home'] = isset($it['show_in_home']) ? (int)$it['show_in_home'] : 1;
+                $it['is_featured'] = isset($it['is_featured']) ? (int)$it['is_featured'] : 0;
             }
             echo json_encode(['success' => true, 'items' => $items]);
             exit;
@@ -311,15 +313,21 @@ try {
         if ($method === 'POST') {
             $slug = trim($input['slug'] ?? ('article-' . time()));
             $gallery = json_encode($input['gallery_images'] ?? []);
+            $isFeatured = isset($input['is_featured']) ? (int)$input['is_featured'] : 0;
+            if ($isFeatured === 1) {
+                $pdo->exec("UPDATE cms_articles SET is_featured = 0");
+            }
 
             $stmt = $pdo->prepare("INSERT INTO cms_articles (
                 slug, title_fr, title_en, summary_fr, summary_en, content_fr, content_en,
                 category, author, author_role_fr, author_role_en, date_published, read_time_fr, read_time_en,
-                cover_image, gallery_images_json, is_published
+                cover_image, gallery_images_json, is_published,
+                show_in_home, is_featured, home_title_fr, home_title_en, home_desc_fr, home_desc_en
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?
+                ?, ?, ?,
+                ?, ?, ?, ?, ?, ?
             )");
 
             $stmt->execute([
@@ -339,7 +347,13 @@ try {
                 $input['read_time_en'] ?? '5 min',
                 $input['cover_image'] ?? 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200',
                 $gallery,
-                isset($input['is_published']) ? (int)$input['is_published'] : 1
+                isset($input['is_published']) ? (int)$input['is_published'] : 1,
+                isset($input['show_in_home']) ? (int)$input['show_in_home'] : 1,
+                $isFeatured,
+                $input['home_title_fr'] ?? null,
+                $input['home_title_en'] ?? null,
+                $input['home_desc_fr'] ?? null,
+                $input['home_desc_en'] ?? null
             ]);
 
             echo json_encode(['success' => true, 'id' => $pdo->lastInsertId(), 'message' => 'Article publié avec succès.']);
@@ -354,11 +368,17 @@ try {
             }
 
             $gallery = json_encode($input['gallery_images'] ?? []);
+            $isFeatured = isset($input['is_featured']) ? (int)$input['is_featured'] : 0;
+            if ($isFeatured === 1) {
+                $pdo->prepare("UPDATE cms_articles SET is_featured = 0 WHERE id != ?")->execute([$id]);
+            }
 
             $stmt = $pdo->prepare("UPDATE cms_articles SET
                 slug = ?, title_fr = ?, title_en = ?, summary_fr = ?, summary_en = ?, content_fr = ?, content_en = ?,
                 category = ?, author = ?, author_role_fr = ?, author_role_en = ?, date_published = ?, read_time_fr = ?, read_time_en = ?,
-                cover_image = ?, gallery_images_json = ?, is_published = ?, updated_at = CURRENT_TIMESTAMP
+                cover_image = ?, gallery_images_json = ?, is_published = ?,
+                show_in_home = ?, is_featured = ?, home_title_fr = ?, home_title_en = ?, home_desc_fr = ?, home_desc_en = ?,
+                updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?");
 
             $stmt->execute([
@@ -379,6 +399,12 @@ try {
                 $input['cover_image'] ?? '',
                 $gallery,
                 isset($input['is_published']) ? (int)$input['is_published'] : 1,
+                isset($input['show_in_home']) ? (int)$input['show_in_home'] : 1,
+                $isFeatured,
+                $input['home_title_fr'] ?? null,
+                $input['home_title_en'] ?? null,
+                $input['home_desc_fr'] ?? null,
+                $input['home_desc_en'] ?? null,
                 $id
             ]);
 
