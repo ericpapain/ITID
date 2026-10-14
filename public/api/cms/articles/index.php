@@ -33,10 +33,12 @@ try {
         exit;
     }
 
-    $stmt = $pdo->query("SELECT * FROM cms_articles WHERE is_published = 1 ORDER BY id DESC");
+    $stmt = $pdo->query("SELECT * FROM cms_articles WHERE is_published = 1 ORDER BY is_featured DESC, id DESC");
     $items = $stmt->fetchAll();
     foreach ($items as &$it) {
         $it['gallery_images'] = json_decode($it['gallery_images_json'] ?? '[]', true) ?: [];
+        $it['show_in_home'] = isset($it['show_in_home']) ? (int)$it['show_in_home'] : 1;
+        $it['is_featured'] = isset($it['is_featured']) ? (int)$it['is_featured'] : 0;
     }
 
     echo json_encode(['success' => true, 'articles' => $items]);

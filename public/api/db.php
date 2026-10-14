@@ -418,6 +418,12 @@ function initSqliteTables(PDO $pdo): void {
             cover_image TEXT NOT NULL,
             gallery_images_json TEXT NOT NULL,
             is_published INTEGER DEFAULT 1,
+            show_in_home INTEGER DEFAULT 1,
+            is_featured INTEGER DEFAULT 0,
+            home_title_fr TEXT,
+            home_title_en TEXT,
+            home_desc_fr TEXT,
+            home_desc_en TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )",
@@ -436,6 +442,7 @@ function initSqliteTables(PDO $pdo): void {
             error_log("ITID initSqliteTables error: " . $t->getMessage());
         }
     }
+    migrateCmsArticlesColumns($pdo);
     seedAdminUserIfEmpty($pdo);
     seedCmsIfEmptySafe($pdo);
 }
@@ -653,6 +660,12 @@ function initMysqlTables(PDO $pdo): void {
             cover_image VARCHAR(500) NOT NULL,
             gallery_images_json TEXT NOT NULL,
             is_published TINYINT(1) DEFAULT 1,
+            show_in_home TINYINT(1) DEFAULT 1,
+            is_featured TINYINT(1) DEFAULT 0,
+            home_title_fr VARCHAR(255) NULL,
+            home_title_en VARCHAR(255) NULL,
+            home_desc_fr TEXT NULL,
+            home_desc_en TEXT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
@@ -672,8 +685,27 @@ function initMysqlTables(PDO $pdo): void {
             error_log("ITID initMysqlTables error: " . $t->getMessage());
         }
     }
+    migrateCmsArticlesColumns($pdo);
     seedAdminUserIfEmpty($pdo);
     seedCmsIfEmptySafe($pdo);
+}
+
+function migrateCmsArticlesColumns(PDO $pdo): void {
+    $columns = [
+        'show_in_home'   => 'INTEGER DEFAULT 1',
+        'is_featured'    => 'INTEGER DEFAULT 0',
+        'home_title_fr'  => 'TEXT NULL',
+        'home_title_en'  => 'TEXT NULL',
+        'home_desc_fr'   => 'TEXT NULL',
+        'home_desc_en'   => 'TEXT NULL'
+    ];
+    foreach ($columns as $col => $def) {
+        try {
+            $pdo->exec("ALTER TABLE cms_articles ADD COLUMN {$col} {$def}");
+        } catch (Throwable $e) {
+            // Déjà existant ou non supporté, ignorer silencieusement
+        }
+    }
 }
 
 function seedAdminUserIfEmpty(PDO $pdo): void {

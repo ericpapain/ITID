@@ -150,7 +150,7 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         <div className="mt-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider transition-all duration-300 opacity-90 group-hover:opacity-100 group-hover:translate-y-0.5">
           <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
             {t('common.read', 'Lire')} 
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </div>
         </div>
         
