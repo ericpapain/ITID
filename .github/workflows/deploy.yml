@@ -33,9 +33,15 @@ jobs:
 
       - name: 🛡️ Vérification des fichiers du build
         run: |
-          echo "Vérification des dossiers clés dans dist/ :"
-          ls -la dist/
-          ls -la dist/api/ || echo "api/ présent"
+          echo "Vérification des dossiers clés dans dist/:"
+          ls -la dist/ || { echo "::error::Le dossier dist/ est manquant."; exit 1; }
+          if [ -d "dist/api" ]; then
+            echo "dist/api trouvé"
+            ls -la dist/api/
+          else
+            echo "::error::dist/api est manquant — le build n'a pas produit les fichiers API attendus"
+            exit 1
+          fi
 
       - name: 🔍 Vérification de la configuration des Secrets GitHub
         run: |
@@ -48,6 +54,17 @@ jobs:
             echo "Optionnel : FTP_SERVER_DIR (par défaut: public_html/)"
             exit 1
           fi
+
+      - name: 🔧 Créer les répertoires distants si nécessaire (via lftp)
+        if: always()
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y lftp
+          # Normalize server dir variable (no leading slash)
+          REMOTE_DIR="${{ secrets.FTP_SERVER_DIR || 'public_html/' }}"
+          REMOTE_DIR="${REMOTE_DIR#/}"
+          # Try to create top-level server dir and api subdir (some FTP servers don't allow creating deep nested dirs)
+          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" "${{ secrets.FTP_SERVER }}" -e "set cmd:fail-exit true; mkdir -p ${REMOTE_DIR}; mkdir -p ${REMOTE_DIR}api; bye"
 
       - name: 🚀 Déploiement sur le serveur (FTPS / FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
