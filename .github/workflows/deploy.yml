@@ -67,39 +67,68 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y lftp
 
-          echo "🔍 Détection automatique du répertoire distant..."
-          # Déterminer la racine réelle : si CUSTOM_DIR est fourni on le respecte,
-          # sinon on teste si public_html existe, sinon on se place à la racine ./
-          TARGET_DIR="${CUSTOM_DIR}"
-          if [ -z "$TARGET_DIR" ]; then
-            if lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" -e "set ssl:verify-certificate no; cd public_html; bye" 2>/dev/null; then
-              echo "✅ Dossier public_html/ détecté"
-              TARGET_DIR="public_html/"
+          echo "🔍 Nettoyage et détection du répertoire distant..."
+          # Nettoyer rigoureusement les espaces, retours chariots (\r) et newlines (\n)
+          RAW_DIR=$(printf '%s' "${CUSTOM_DIR:-}" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+          CLEAN_DIR=$(printf '%s' "$RAW_DIR" | sed -e 's|^/||' -e 's|/$||')
+
+          TARGET_DIR=""
+          if [ -n "$CLEAN_DIR" ] && [ "$CLEAN_DIR" != "." ]; then
+            echo "📁 Répertoire distant spécifié via secrets : '$CLEAN_DIR'"
+            TARGET_DIR="$CLEAN_DIR"
+          else
+            echo "🔎 Test automatique de la présence de public_html/ sur le serveur distant..."
+            if lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" -e "set ssl:verify-certificate no; set ftp:ssl-allow yes; set ftp:passive-mode yes; cd public_html; bye" 2>/dev/null; then
+              echo "✅ Dossier distant 'public_html' détecté avec succès"
+              TARGET_DIR="public_html"
             else
-              echo "✅ L'utilisateur FTP pointe déjà directement sur la racine web"
-              TARGET_DIR="./"
+              echo "✅ Le compte FTP pointe directement sur la racine web"
+              TARGET_DIR=""
             fi
           fi
 
-          echo "📦 Synchronisation en cours vers '$TARGET_DIR'..."
-          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" <<EOF
-          set ssl:verify-certificate no;
-          set ftp:ssl-allow yes;
-          set ftp:ssl-protect-data yes;
-          set ftp:passive-mode yes;
-          set net:timeout 30;
-          set net:max-retries 3;
-          mirror -R \
-            --verbose \
-            --parallel=3 \
-            --exclude-glob .git* \
-            --exclude-glob *.sqlite* \
-            --exclude-glob *.db* \
-            --exclude-glob itid_data/ \
-            --exclude-glob uploads/ \
-            --exclude-glob api/config.php \
-            --exclude-glob *.bak* \
-            dist/ "\$TARGET_DIR"
-          bye
-          EOF
-          echo "🎉 Déploiement terminé avec succès sur Hostinger !"
+          if [ -n "$TARGET_DIR" ]; then
+            echo "📦 Déploiement ciblé vers : $TARGET_DIR"
+            CD_STATEMENT="cd \"$TARGET_DIR\";"
+          else
+            echo "📦 Déploiement ciblé vers la racine FTP courante"
+            CD_STATEMENT=""
+          fi
+
+          # Préparation du script LFTP sans problème d'échappement de variable
+          cat <<EOF > deploy_script.lftp
+set ssl:verify-certificate no;
+set ftp:ssl-allow yes;
+set ftp:ssl-protect-data yes;
+set ftp:passive-mode yes;
+set ftp:use-site-chmod false;
+set ftp:use-allo false;
+set xfer:use-temp-file false;
+set mirror:set-permissions off;
+set mirror:dereference yes;
+set net:timeout 120;
+set net:max-retries 5;
+set net:reconnect-interval-base 5;
+$CD_STATEMENT
+mirror -R \
+  --continue \
+  --verbose \
+  --parallel=2 \
+  --no-perms \
+  --no-umask \
+  --allow-chown=false \
+  --exclude-glob .git* \
+  --exclude-glob *.sqlite* \
+  --exclude-glob *.db* \
+  --exclude-glob itid_data/ \
+  --exclude-glob uploads/ \
+  --exclude-glob api/config.php \
+  --exclude-glob *.bak* \
+  dist .
+bye
+EOF
+
+          echo "🚀 Synchronisation des fichiers avec LFTP..."
+          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" -f deploy_script.lftp
+          rm -f deploy_script.lftp
+          echo "🎉 Déploiement terminé avec succès sur l'hébergeur !"
