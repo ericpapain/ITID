@@ -18,6 +18,14 @@ export interface Article {
   category: BlogCategory;
   coverImage: string;
   sections: ArticleSection[];
+  tags?: string;
+  dynamicSections?: Array<{
+    id?: string;
+    image?: string;
+    title?: string;
+    content?: string;
+    disposition?: string;
+  }>;
   gallery?: string[];
   gallery_images?: string[];
   show_in_home?: number;

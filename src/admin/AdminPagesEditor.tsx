@@ -23,7 +23,12 @@ import {
   Download,
   ExternalLink,
   Calendar,
-  Clock
+  Clock,
+  BookOpen,
+  Star,
+  Sliders,
+  User,
+  X
 } from "lucide-react";
 import {
   HeroMediaItem,
@@ -277,10 +282,11 @@ export default function AdminPagesEditor() {
         date_published: new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" }),
         read_time_fr: "4 min",
         read_time_en: "4 min",
-        summary_fr: "Résumé accrocheur de l'article...",
+        summary_fr: "Résumé accrocheur de l'article visible sur la carte...",
         summary_en: "Compelling article summary...",
         content_fr: "Corps complet de l'article médical...",
         content_en: "Full body text of medical article...",
+        tags: "#ITID, #Innovations, #Algologie",
         cover_image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200",
         gallery_images: [
           "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800",
@@ -289,7 +295,23 @@ export default function AdminPagesEditor() {
           "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800",
           "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800"
         ],
-        is_published: 1
+        sections: [
+          {
+            id: "sec-1",
+            image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop",
+            title: "Une reconnaissance internationale pour l'écosystème médical ITID",
+            content: "L'Institut du Traitement Interventionnel de la Douleur innove continuellement en combinant diagnostic de haute précision et thérapeutiques ciblées sous contrôle de l'imagerie interventionnelle."
+          },
+          {
+            id: "sec-2",
+            image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop",
+            title: "Au cœur des enjeux de la prise en charge de la douleur chronique",
+            content: "Nos spécialistes algologues et radiologues interventionnels travaillent de concert pour proposer des alternatives non chirurgicales et ultra-précises aux patients souffrant de douleurs rebelles."
+          }
+        ],
+        is_published: 1,
+        show_in_home: 1,
+        is_featured: 0
       };
       setSelectedItem(newArt);
     } else if (currentSection === "cas_cliniques") {
@@ -557,8 +579,8 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-base shrink-0 overflow-hidden">
-                    {it.image ? (
-                      <img src={it.image} alt="" className="w-full h-full object-cover" />
+                    {(it.cover_image || it.image || (it.gallery_images && it.gallery_images[0])) ? (
+                      <img src={it.cover_image || it.image || it.gallery_images[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
                       it.icon || "📄"
                     )}
@@ -1068,320 +1090,650 @@ function TreatmentForm({ item, onChange, lang }: any) {
 }
 
 // ======================================================================
-// FORMULAIRE ARTICLES / BLOG (AVEC GALERIE DE 5 PHOTOS POUR LE CARROUSEL)
+// COMPOSANT UPLOADER IMAGE AVEC PREVIEW & BOUTON TÉLÉCHARGER DU PC
 // ======================================================================
-function ArticleForm({ item, onChange, lang }: any) {
+function ArticleImageUploader({
+  value,
+  onChange,
+  label,
+  placeholder = "URL de l'image ou cliquer sur 'Télécharger du PC'"
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  label?: string;
+  placeholder?: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const token = getAdminToken();
+      if (token) formData.append("token", token);
+
+      const headers = getAuthHeaders();
+      delete (headers as any)["Content-Type"];
+
+      const res = await fetch("/api/admin/media/upload", {
+        method: "POST",
+        headers,
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.url) {
+          onChange(data.url);
+          setUploading(false);
+          return;
+        }
+      }
+
+      // Fallback local base64 si l'API backend n'est pas dispo en dev
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          onChange(reader.result);
+        }
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err: any) {
+      // Fallback direct base64
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          onChange(reader.result);
+        }
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
-    <div className="space-y-6 text-xs">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2">
-          <label className="block text-slate-300 font-semibold mb-1">Titre de l'Article [{lang.toUpperCase()}] *</label>
+    <div className="space-y-2">
+      {label && <label className="block text-slate-200 font-semibold text-xs">{label}</label>}
+      <div className="flex flex-col sm:flex-row gap-2.5">
+        <div className="relative flex-1">
+          <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 pointer-events-none" />
           <input
             type="text"
-            value={lang === "en" ? (item.title_en || "") : (item.title_fr || "")}
-            onChange={(e) => onChange(lang === "en" ? { title_en: e.target.value } : { title_fr: e.target.value })}
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold"
+            className="w-full bg-slate-900/90 border border-slate-700 rounded-sm pl-9 pr-3 py-2 text-xs text-white focus:border-[#48cae4] focus:ring-1 focus:ring-[#48cae4] outline-none transition-all placeholder:text-slate-500"
+            placeholder={placeholder}
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
           />
         </div>
-
-        <div>
-          <label className="block text-slate-300 font-semibold mb-1">Identifiant d'URL (Slug) *</label>
+        <div className="shrink-0">
           <input
-            type="text"
-            value={item.slug || ""}
-            onChange={(e) => onChange({ slug: e.target.value })}
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4]"
+            type="file"
+            ref={fileInputRef}
+            accept="image/png, image/jpeg, image/webp, image/gif"
+            className="hidden"
+            onChange={handleFileUpload}
           />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="w-full sm:w-auto px-3.5 py-2 text-xs uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 border border-[#48cae4]/40 bg-[#48cae4]/10 hover:bg-[#48cae4]/20 text-[#48cae4] hover:text-white whitespace-nowrap disabled:opacity-50 transition-all font-semibold cursor-pointer shadow-sm"
+          >
+            {uploading ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-[#48cae4]/40 border-t-[#48cae4] rounded-full animate-spin" />
+                <span>Envoi...</span>
+              </>
+            ) : (
+              <>
+                <Upload size={14} className="text-[#48cae4]" />
+                <span>Télécharger du PC</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-slate-300 font-semibold mb-1">Catégorie</label>
-          <select
-            value={item.category || "Innovations"}
-            onChange={(e) => onChange({ category: e.target.value })}
-            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
-          >
-            <option value="Innovations">Innovations</option>
-            <option value="Traitements">Traitements</option>
-            <option value="Conseils Patients">Conseils Patients</option>
-            <option value="Vie de l'Institut">Vie de l'Institut</option>
-          </select>
-        </div>
-
-        {/* Champ Date de Publication */}
-        <div>
-          <label className="block text-slate-300 font-semibold mb-1 flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-white">
-              <Calendar size={13} className="text-[#48cae4]" />
-              <span>Date de Publication *</span>
-            </span>
+      {value && (
+        <div className="mt-2.5 p-1.5 bg-[#0a0d0f] rounded-sm border border-slate-800 inline-block max-w-[220px] relative group">
+          <div className="relative aspect-video rounded-sm overflow-hidden bg-black/50">
+            <img src={value} alt="Aperçu" className="w-full h-full object-cover" />
             <button
               type="button"
-              onClick={() => {
-                const now = new Date();
-                const formatted = now.toLocaleDateString(lang === "en" ? "en-US" : "fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric"
-                });
-                onChange({ date_published: formatted });
-              }}
-              className="text-[10px] text-[#48cae4] hover:underline font-normal cursor-pointer"
+              onClick={() => onChange("")}
+              className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-red-600 text-white rounded transition-colors"
+              title="Supprimer l'image"
             >
-              Aujourd'hui
+              <Trash2 size={12} />
             </button>
-          </label>
-          <div className="flex items-center gap-1.5">
+          </div>
+        </div>
+      )}
+
+      {error && <p className="text-red-400 text-[10px] mt-1">{error}</p>}
+    </div>
+  );
+}
+
+// ======================================================================
+// FORMULAIRE ARTICLES / BLOG (REFONTE INSPIRÉE DU CMS AVEC SECTIONS G/D)
+// ======================================================================
+function ArticleForm({ item, onChange, lang }: any) {
+  const [customCatMode, setCustomCatMode] = useState(false);
+
+  // Sections dynamiques alternées G/D
+  const sections: any[] = Array.isArray(item.sections) ? item.sections : [];
+
+  const handleAddSection = () => {
+    const isImageLeft = sections.length % 2 === 0;
+    const newSec = {
+      id: "sec-" + Date.now(),
+      image: "",
+      title: "",
+      content: "",
+      disposition: isImageLeft ? "image-left" : "image-right"
+    };
+    onChange({ sections: [...sections, newSec] });
+  };
+
+  const handleUpdateSection = (index: number, updatedFields: any) => {
+    const next = [...sections];
+    next[index] = { ...next[index], ...updatedFields };
+    onChange({ sections: next });
+  };
+
+  const handleRemoveSection = (index: number) => {
+    const next = sections.filter((_, i) => i !== index);
+    onChange({ sections: next });
+  };
+
+  const handleMoveSection = (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= sections.length) return;
+    const next = [...sections];
+    const temp = next[index];
+    next[index] = next[targetIndex];
+    next[targetIndex] = temp;
+    onChange({ sections: next });
+  };
+
+  const predefinedCategories = [
+    "INNOVATION & THÉRAPIES",
+    "ÉVÉNEMENTS & CONGRÈS",
+    "CAS CLINIQUES & RECHERCHE",
+    "CONSEILS PATIENTS",
+    "VIE DE L'INSTITUT",
+    "STRATÉGIE & PARTENARIATS"
+  ];
+
+  return (
+    <div className="space-y-8 text-xs text-slate-200">
+      {/* En-tête style CMS */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div>
+          <div className="eyebrow mb-1.5 flex items-center gap-2 text-[#48cae4] text-xs font-semibold tracking-wider uppercase">
+            <BookOpen size={14} className="text-[#48cae4]" />
+            <span>CMS · Articles & Publications</span>
+          </div>
+          <h2 className="text-xl md:text-2xl font-bold text-white">
+            Gestion du <span className="text-[#48cae4]">Blog & Actualités ITID</span>
+          </h2>
+          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+            Créez, modifiez et enrichissez vos articles avec images, sections alternées G/D, mise en avant à la une et carrousel d'accueil.
+          </p>
+        </div>
+      </div>
+
+      {/* Boîte principale du formulaire */}
+      <div className="bg-slate-900/60 border border-slate-800 rounded-sm p-6 relative overflow-hidden space-y-6 shadow-xl">
+        <div className="flex items-center gap-3 pb-4 border-b border-slate-800/80">
+          <div className="w-9 h-9 rounded-full bg-[#48cae4]/10 border border-[#48cae4]/30 flex items-center justify-center text-[#48cae4] shrink-0">
+            <Edit3 size={16} />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-white">Modifier l'article de blog</h3>
+            <p className="text-[11px] text-slate-400">
+              Remplissez les informations et ajoutez autant d'images et sections alternées que nécessaire.
+            </p>
+          </div>
+        </div>
+
+        {/* Titre et Slug */}
+        <div className="grid md:grid-cols-3 gap-5">
+          <div className="md:col-span-2 space-y-1.5">
+            <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+              Titre de l'article [{lang.toUpperCase()}] <span className="text-[#48cae4]">*</span>
+            </label>
             <input
               type="text"
-              placeholder={lang === "en" ? "e.g. October 15, 2026" : "ex: 15 Octobre 2026"}
-              value={item.date_published || ""}
-              onChange={(e) => onChange({ date_published: e.target.value })}
-              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+              placeholder="Ex: Prise en charge interventionnelle de la lombalgie chronique rebelle"
+              className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none transition-colors"
+              required
+              value={lang === "en" ? (item.title_en || "") : (item.title_fr || "")}
+              onChange={(e) => onChange(lang === "en" ? { title_en: e.target.value } : { title_fr: e.target.value })}
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+              Slug d'URL <span className="text-[#48cae4]">*</span>
+            </label>
             <input
-              type="date"
-              title="Choisir dans le calendrier"
-              onChange={(e) => {
-                if (!e.target.value) return;
-                const parts = e.target.value.split("-");
-                if (parts.length === 3) {
-                  const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-                  const formatted = d.toLocaleDateString(lang === "en" ? "en-US" : "fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric"
-                  });
-                  onChange({ date_published: formatted });
-                }
-              }}
-              className="w-9 h-9 p-1.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 cursor-pointer text-xs shrink-0 hover:bg-slate-700"
+              type="text"
+              placeholder="ex: lombalgie-chronique-recherche"
+              className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2.5 text-xs text-[#48cae4] font-mono outline-none transition-colors"
+              required
+              value={item.slug || ""}
+              onChange={(e) => onChange({ slug: e.target.value })}
             />
           </div>
         </div>
 
-        {/* Temps de lecture */}
-        <div>
-          <label className="block text-slate-300 font-semibold mb-1 flex items-center gap-1.5">
-            <Clock size={13} className="text-[#48cae4]" />
-            <span>Temps de Lecture [{lang.toUpperCase()}]</span>
+        {/* Catégorie, Date, Temps de lecture */}
+        <div className="grid md:grid-cols-3 gap-5">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs uppercase tracking-wider font-semibold text-white">Catégorie</label>
+              <button
+                type="button"
+                onClick={() => setCustomCatMode(!customCatMode)}
+                className="text-[11px] text-[#48cae4] hover:underline font-medium cursor-pointer"
+              >
+                {customCatMode ? "← Liste prédéfinie" : "+ Saisie personnalisée"}
+              </button>
+            </div>
+            {customCatMode ? (
+              <input
+                type="text"
+                placeholder="Nouvelle catégorie..."
+                className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2 text-xs text-white outline-none transition-colors"
+                value={item.category || ""}
+                onChange={(e) => onChange({ category: e.target.value })}
+              />
+            ) : (
+              <select
+                value={item.category || predefinedCategories[0]}
+                onChange={(e) => {
+                  if (e.target.value === "CUSTOM") {
+                    setCustomCatMode(true);
+                  } else {
+                    onChange({ category: e.target.value });
+                  }
+                }}
+                className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2 text-xs text-white outline-none transition-colors"
+              >
+                {predefinedCategories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+                <option value="CUSTOM">+ Autre catégorie personnalisée...</option>
+              </select>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs uppercase tracking-wider font-semibold text-white">Date de publication</label>
+              <button
+                type="button"
+                onClick={() => {
+                  const now = new Date();
+                  const formatted = now.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+                  onChange({ date_published: formatted });
+                }}
+                className="text-[10px] text-[#48cae4] hover:underline font-normal cursor-pointer"
+              >
+                Aujourd'hui
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                placeholder="Ex: 15 Octobre 2026"
+                className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3 py-2 text-xs text-white outline-none transition-colors font-medium"
+                value={item.date_published || ""}
+                onChange={(e) => onChange({ date_published: e.target.value })}
+              />
+              <input
+                type="date"
+                title="Choisir dans le calendrier"
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  const parts = e.target.value.split("-");
+                  if (parts.length === 3) {
+                    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                    const formatted = d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+                    onChange({ date_published: formatted });
+                  }
+                }}
+                className="w-8 h-8 p-1 bg-slate-800 border border-slate-700 rounded-sm text-slate-300 cursor-pointer text-xs shrink-0 hover:bg-slate-700"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+              Temps de lecture
+            </label>
+            <input
+              type="text"
+              placeholder="Ex: 4 min"
+              className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2 text-xs text-white outline-none transition-colors"
+              value={lang === "en" ? (item.read_time_en || "") : (item.read_time_fr || "")}
+              onChange={(e) => onChange(lang === "en" ? { read_time_en: e.target.value } : { read_time_fr: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Auteur et Rôle */}
+        <div className="grid md:grid-cols-2 gap-5">
+          <div className="space-y-1.5">
+            <label className="text-xs uppercase tracking-wider font-semibold text-white block">Auteur</label>
+            <input
+              type="text"
+              placeholder="Ex: Dr. Marc Moreau"
+              className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2 text-xs text-white outline-none transition-colors"
+              value={item.author || ""}
+              onChange={(e) => onChange({ author: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+              Rôle de l'Auteur [{lang.toUpperCase()}]
+            </label>
+            <input
+              type="text"
+              placeholder="Ex: Algologue / Radiologue interventionnel"
+              className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2 text-xs text-white outline-none transition-colors"
+              value={lang === "en" ? (item.author_role_en || "") : (item.author_role_fr || "")}
+              onChange={(e) => onChange(lang === "en" ? { author_role_en: e.target.value } : { author_role_fr: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Image principale de couverture */}
+        <div className="space-y-2 pt-2">
+          <ArticleImageUploader
+            label="Image principale de couverture *"
+            value={item.cover_image || ""}
+            onChange={(url) => onChange({ cover_image: url })}
+            placeholder="URL de l'image de couverture ou cliquer sur 'Télécharger du PC'"
+          />
+        </div>
+
+        {/* Résumé / Extrait d'accroche */}
+        <div className="space-y-1.5">
+          <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+            Résumé / Extrait d'accroche [{lang.toUpperCase()}] <span className="text-[#48cae4]">*</span>
+          </label>
+          <textarea
+            rows={3}
+            placeholder="Court résumé de l'article visible sur la carte et en haut d'article..."
+            className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none transition-colors resize-none leading-relaxed"
+            required
+            value={lang === "en" ? (item.summary_en || "") : (item.summary_fr || "")}
+            onChange={(e) => onChange(lang === "en" ? { summary_en: e.target.value } : { summary_fr: e.target.value })}
+          />
+        </div>
+
+        {/* Tags */}
+        <div className="space-y-1.5">
+          <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+            Tags (séparés par des virgules)
           </label>
           <input
             type="text"
-            placeholder={lang === "en" ? "e.g. 4 min" : "ex: 4 min"}
-            value={lang === "en" ? (item.read_time_en || "") : (item.read_time_fr || "")}
-            onChange={(e) => onChange(lang === "en" ? { read_time_en: e.target.value } : { read_time_fr: e.target.value })}
-            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-slate-300 font-semibold mb-1">Auteur</label>
-          <input
-            type="text"
-            value={item.author || ""}
-            onChange={(e) => onChange({ author: e.target.value })}
-            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
+            placeholder="Ex: #ITID, #Innovation, #Lombalgie, #Algologie, #Recherche"
+            className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2 text-xs text-white outline-none transition-colors"
+            value={item.tags || ""}
+            onChange={(e) => onChange({ tags: e.target.value })}
           />
         </div>
 
-        <div>
-          <label className="block text-slate-300 font-semibold mb-1">Rôle Auteur [{lang.toUpperCase()}]</label>
-          <input
-            type="text"
-            value={lang === "en" ? (item.author_role_en || "") : (item.author_role_fr || "")}
-            onChange={(e) => onChange(lang === "en" ? { author_role_en: e.target.value } : { author_role_fr: e.target.value })}
-            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
-          />
-        </div>
-      </div>
-
-      {/* Galerie de photos pour le carrousel */}
-      <GalleryMediaSelector
-        label="Galerie de Photos Défilantes pour l'Article & l'Accueil (5 Photos recommandées)"
-        images={item.gallery_images || []}
-        onChange={(images) => onChange({ gallery_images: images, cover_image: images[0] || item.cover_image })}
-        minImages={3}
-      />
-
-      {/* ========================================================= */}
-      {/* PARAMÈTRES D'AFFICHAGE & MISE EN AVANT (ACCUEIL & BLOG) */}
-      {/* ========================================================= */}
-      <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-4">
-        <div className="font-bold text-white text-xs flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <Sparkles size={14} className="text-[#48cae4]" />
-            <span>Mise en avant & Diffusion de l'Actualité</span>
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Toggle 1: Actualité Principale (Haut de page Blog) */}
-          <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
-            <div>
-              <div className="font-bold text-white text-[11px] flex items-center gap-1.5">
-                <span>⭐ Actualité mise en évidence (Page Blog)</span>
-              </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">
-                Place cet article tout en haut en grand format sur la page Actualités.
-              </p>
+        {/* Toggles : Slider Accueil & Actualité Principale */}
+        <div className="p-5 rounded-sm border border-[#48cae4]/40 bg-[#48cae4]/5 grid sm:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Sliders size={16} className="text-[#48cae4]" />
+              <span className="text-xs uppercase tracking-wider font-bold text-white">
+                Afficher dans le slider d'accueil ?
+              </span>
             </div>
-            <div className="flex items-center rounded-lg bg-slate-950 p-1 border border-slate-800 shrink-0">
-              <button
-                type="button"
-                onClick={() => onChange({ is_featured: 1 })}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
-                  item.is_featured === 1
-                    ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Oui
-              </button>
-              <button
-                type="button"
-                onClick={() => onChange({ is_featured: 0 })}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
-                  item.is_featured !== 1
-                    ? "bg-slate-800 text-slate-200"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Non
-              </button>
-            </div>
-          </div>
-
-          {/* Toggle 2: Afficher dans le grand panneau d'Accueil */}
-          <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
-            <div>
-              <div className="font-bold text-white text-[11px] flex items-center gap-1.5">
-                <span>🏠 Afficher dans le grand panneau de l'Accueil</span>
-              </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">
-                Fait défiler les photos et textes de cet article dans la section À la une de l'accueil.
-              </p>
-            </div>
-            <div className="flex items-center rounded-lg bg-slate-950 p-1 border border-slate-800 shrink-0">
+            <p className="text-xs text-slate-400">
+              Si OUI, cet article glissera dans le carrousel dynamique de la page d'accueil.
+            </p>
+            <div className="flex items-center gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => onChange({ show_in_home: 1 })}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                className={`px-4 py-1.5 rounded-sm text-xs uppercase font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                   (item.show_in_home ?? 1) === 1
-                    ? "bg-[#2a9d8f] text-white shadow-md shadow-[#2a9d8f]/20"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-[#48cae4] text-slate-950 shadow-md shadow-[#48cae4]/20"
+                    : "bg-black/40 text-slate-400 hover:text-white border border-slate-700"
                 }`}
               >
-                Oui
+                <Check size={14} /> Oui
               </button>
               <button
                 type="button"
                 onClick={() => onChange({ show_in_home: 0 })}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                className={`px-4 py-1.5 rounded-sm text-xs uppercase font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                   (item.show_in_home ?? 1) === 0
-                    ? "bg-slate-800 text-slate-200"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-slate-700 text-white shadow-md"
+                    : "bg-black/40 text-slate-400 hover:text-white border border-slate-700"
                 }`}
               >
-                Non
+                <X size={14} /> Non
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Star size={16} className="text-[#48cae4]" />
+              <span className="text-xs uppercase tracking-wider font-bold text-white">
+                Actualité Principale (À la une du Blog) ?
+              </span>
+            </div>
+            <p className="text-xs text-slate-400">
+              Si OUI, il sera mis en valeur dans la grande zone du haut de page du Blog (Image gauche, texte droite).
+            </p>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => onChange({ is_featured: 1 })}
+                className={`px-4 py-1.5 rounded-sm text-xs uppercase font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  item.is_featured === 1
+                    ? "bg-[#48cae4] text-slate-950 shadow-md shadow-[#48cae4]/20"
+                    : "bg-black/40 text-slate-400 hover:text-white border border-slate-700"
+                }`}
+              >
+                <Check size={14} /> Oui
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange({ is_featured: 0 })}
+                className={`px-4 py-1.5 rounded-sm text-xs uppercase font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  item.is_featured !== 1
+                    ? "bg-slate-700 text-white shadow-md"
+                    : "bg-black/40 text-slate-400 hover:text-white border border-slate-700"
+                }`}
+              >
+                <X size={14} /> Non
               </button>
             </div>
           </div>
         </div>
 
-        {/* Champs spécifiques conditionnels Accueil (FR & EN) */}
-        {(item.show_in_home ?? 1) === 1 && (
-          <div className="p-4 bg-gradient-to-br from-[#2a9d8f]/10 via-slate-900/90 to-slate-950 border border-[#2a9d8f]/30 rounded-xl space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-              <span className="text-[11px] font-bold text-[#48cae4] uppercase tracking-wider flex items-center gap-1.5">
-                <span>✨ Textes personnalisés pour l'Accueil (FR & EN)</span>
-              </span>
-              <span className="text-[10px] text-slate-400 italic">
-                (Optionnel : si vide, le titre et résumé normaux sont affichés)
-              </span>
+        {/* ====================================================================== */}
+        {/* SECTIONS & IMAGES DE L'ARTICLE (ALTERNANCE G/D) */}
+        {/* ====================================================================== */}
+        <div className="space-y-5 pt-4 border-t border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h4 className="text-base font-bold text-white flex items-center gap-2">
+                <Layers size={18} className="text-[#48cae4]" />
+                <span>Sections & Images de l'article (Alternance G/D)</span>
+              </h4>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Ajoutez autant d'images et de paragraphes que vous le souhaitez. Ils s'afficheront sur la page de lecture complète de façon alternée (Image à gauche → Image à droite → etc.).
+              </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
-                  Titre d'Accueil [FR]
-                </label>
-                <input
-                  type="text"
-                  placeholder={item.title_fr || "Titre pour l'accueil..."}
-                  value={item.home_title_fr || ""}
-                  onChange={(e) => onChange({ home_title_fr: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
-                  Home Title [EN]
-                </label>
-                <input
-                  type="text"
-                  placeholder={item.title_en || "Title for home..."}
-                  value={item.home_title_en || ""}
-                  onChange={(e) => onChange({ home_title_en: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
-                  Commentaire / Accroche Accueil [FR]
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder={item.summary_fr || "Court commentaire ou accroche pour l'accueil..."}
-                  value={item.home_desc_fr || ""}
-                  onChange={(e) => onChange({ home_desc_fr: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1 text-[11px]">
-                  Home Comment / Excerpt [EN]
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder={item.summary_en || "Short comment or excerpt for home section..."}
-                  value={item.home_desc_en || ""}
-                  onChange={(e) => onChange({ home_desc_en: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 text-xs"
-                />
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={handleAddSection}
+              className="px-3.5 py-1.5 rounded-sm bg-[#48cae4]/10 hover:bg-[#48cae4]/20 border border-[#48cae4]/40 text-[#48cae4] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+            >
+              <Plus size={14} /> Ajouter une image / section
+            </button>
           </div>
-        )}
-      </div>
 
-      <div>
-        <label className="block text-slate-300 font-semibold mb-1">Résumé Synthétique de l'Article [{lang.toUpperCase()}] *</label>
-        <textarea
-          rows={3}
-          value={lang === "en" ? (item.summary_en || "") : (item.summary_fr || "")}
-          onChange={(e) => onChange(lang === "en" ? { summary_en: e.target.value } : { summary_fr: e.target.value })}
-          className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-        />
-      </div>
+          {sections.length === 0 ? (
+            <div className="p-8 border border-dashed border-slate-700 rounded-sm text-center space-y-3 bg-slate-950/40">
+              <p className="text-slate-400 text-xs">
+                Aucune section alternée pour l'instant. Cliquez ci-dessous pour ajouter votre premier bloc image/texte.
+              </p>
+              <button
+                type="button"
+                onClick={handleAddSection}
+                className="px-4 py-2 bg-[#48cae4]/10 border border-[#48cae4]/40 text-[#48cae4] hover:bg-[#48cae4]/20 text-xs rounded-sm font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
+              >
+                <Plus size={14} /> Ajouter la section #1
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sections.map((sec, idx) => {
+                const isImageLeft = idx % 2 === 0;
+                return (
+                  <div
+                    key={sec.id || idx}
+                    className="p-4 rounded-sm border border-slate-700/80 bg-black/40 space-y-4 relative group hover:border-[#48cae4]/40 transition-colors"
+                  >
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                      <div className="flex items-center gap-2.5 flex-wrap">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#48cae4]/20 text-[#48cae4] border border-[#48cae4]/30 font-bold">
+                          Section #{idx + 1}
+                        </span>
+                        <span className="text-xs text-slate-300 font-medium">
+                          {isImageLeft
+                            ? "Disposition : 🖼️ Image à GAUCHE & Texte à DROITE"
+                            : "Disposition : 📝 Texte à GAUCHE & Image à DROITE"}
+                        </span>
+                      </div>
 
-      <div>
-        <label className="block text-slate-300 font-semibold mb-1">Corps Complet de l'Article [{lang.toUpperCase()}] *</label>
-        <textarea
-          rows={8}
-          value={lang === "en" ? (item.content_en || "") : (item.content_fr || "")}
-          onChange={(e) => onChange(lang === "en" ? { content_en: e.target.value } : { content_fr: e.target.value })}
-          className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 font-mono text-xs"
-        />
+                      <div className="flex items-center gap-1">
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSection(idx, "up")}
+                            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                            title="Monter cette section"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                        )}
+                        {idx < sections.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSection(idx, "down")}
+                            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                            title="Descendre cette section"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSection(idx)}
+                          className="text-slate-400 hover:text-red-400 p-1 hover:bg-red-500/10 rounded transition-colors"
+                          title="Supprimer cette section"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {/* Colonne Image */}
+                      <div className="space-y-2">
+                        <ArticleImageUploader
+                          label="Image de cette section"
+                          value={sec.image || ""}
+                          onChange={(url) => handleUpdateSection(idx, { image: url })}
+                          placeholder="URL de l'image ou cliquer sur 'Télécharger du PC'"
+                        />
+                      </div>
+
+                      {/* Colonne Contenu */}
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-[11px] uppercase tracking-wider font-semibold text-white block mb-1">
+                            Sous-titre de la section
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Ex: Opportunités thérapeutiques et perspectives"
+                            className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3 py-2 text-xs text-white outline-none transition-colors"
+                            value={sec.title || ""}
+                            onChange={(e) => handleUpdateSection(idx, { title: e.target.value })}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] uppercase tracking-wider font-semibold text-white block mb-1">
+                            Texte détaillé / Contenu
+                          </label>
+                          <textarea
+                            rows={4}
+                            placeholder="Développez les informations, explications cliniques, témoignages ou résultats..."
+                            className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3 py-2 text-xs text-white outline-none transition-colors resize-none leading-relaxed"
+                            value={sec.content || ""}
+                            onChange={(e) => handleUpdateSection(idx, { content: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Galerie défilante 5 photos */}
+        <div className="pt-4 border-t border-slate-800">
+          <GalleryMediaSelector
+            label="Galerie de Photos Défilantes pour l'Article & l'Accueil (5 Photos recommandées)"
+            images={item.gallery_images || []}
+            onChange={(images) => onChange({ gallery_images: images, cover_image: images[0] || item.cover_image })}
+            minImages={3}
+          />
+        </div>
+
+        {/* Corps complémentaire (Optionnel) */}
+        <div className="pt-4 border-t border-slate-800 space-y-1.5">
+          <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+            Texte de conclusion / Corps complémentaire [{lang.toUpperCase()}]
+          </label>
+          <textarea
+            rows={4}
+            placeholder="Texte complémentaire de fin d'article si vous souhaitez ajouter des précisions au-delà des sections..."
+            className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none transition-colors font-mono leading-relaxed"
+            value={lang === "en" ? (item.content_en || "") : (item.content_fr || "")}
+            onChange={(e) => onChange(lang === "en" ? { content_en: e.target.value } : { content_fr: e.target.value })}
+          />
+        </div>
       </div>
     </div>
   );

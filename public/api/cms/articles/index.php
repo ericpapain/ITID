@@ -29,6 +29,8 @@ try {
             exit;
         }
         $item['gallery_images'] = json_decode($item['gallery_images_json'] ?? '[]', true) ?: [];
+        $item['sections'] = json_decode($item['sections_json'] ?? '[]', true) ?: [];
+        $item['tags'] = $item['tags'] ?? '';
         echo json_encode(['success' => true, 'article' => $item]);
         exit;
     }
@@ -37,6 +39,8 @@ try {
     $items = $stmt->fetchAll();
     foreach ($items as &$it) {
         $it['gallery_images'] = json_decode($it['gallery_images_json'] ?? '[]', true) ?: [];
+        $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
+        $it['tags'] = $it['tags'] ?? '';
         $it['show_in_home'] = isset($it['show_in_home']) ? (int)$it['show_in_home'] : 1;
         $it['is_featured'] = isset($it['is_featured']) ? (int)$it['is_featured'] : 0;
     }
