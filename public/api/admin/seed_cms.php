@@ -31,6 +31,12 @@ function seedCmsIfEmpty(PDO $pdo): void {
         if ($pageCount === 0) {
             seedPagesData($pdo);
         }
+
+        // 5. Cas Cliniques (Accueil)
+        $casCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_cas_cliniques")->fetchColumn();
+        if ($casCount === 0) {
+            seedCasCliniquesData($pdo);
+        }
     } catch (Throwable $e) {
         error_log("seedCmsIfEmpty error: " . $e->getMessage());
     }
@@ -817,6 +823,98 @@ function seedPagesData(PDO $pdo): void {
     $stmt = $pdo->prepare("INSERT INTO cms_pages_content (page_key, content_fr, content_en) VALUES (?, ?, ?)");
     $stmt->execute(['home', json_encode($homeFr), json_encode($homeEn)]);
     $stmt->execute(['about', json_encode($aboutFr), json_encode($aboutEn)]);
+}
+
+function seedCasCliniquesData(PDO $pdo): void {
+    $cases = [
+        [
+            'title_fr' => 'Cas Clinique #1',
+            'title_en' => 'Clinical Case #1',
+            'category_fr' => 'Infiltration lombaire',
+            'category_en' => 'Lumbar Infiltration',
+            'image' => 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop',
+            'order' => 1
+        ],
+        [
+            'title_fr' => 'Cas Clinique #2',
+            'title_en' => 'Clinical Case #2',
+            'category_fr' => 'Radiofréquence',
+            'category_en' => 'Radiofrequency',
+            'image' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
+            'order' => 2
+        ],
+        [
+            'title_fr' => 'Cas Clinique #3',
+            'title_en' => 'Clinical Case #3',
+            'category_fr' => 'Douleur pelvienne',
+            'category_en' => 'Pelvic Pain',
+            'image' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
+            'order' => 3
+        ],
+        [
+            'title_fr' => 'Cas Clinique #4',
+            'title_en' => 'Clinical Case #4',
+            'category_fr' => 'Bloc nerveux',
+            'category_en' => 'Nerve Block',
+            'image' => 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop',
+            'order' => 4
+        ],
+        [
+            'title_fr' => 'Innovation #5',
+            'title_en' => 'Innovation #5',
+            'category_fr' => 'Réalité Virtuelle',
+            'category_en' => 'Virtual Reality',
+            'image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop',
+            'order' => 5
+        ],
+        [
+            'title_fr' => 'Cas Clinique #6',
+            'title_en' => 'Clinical Case #6',
+            'category_fr' => 'Céphalées chroniques',
+            'category_en' => 'Chronic Headaches',
+            'image' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop',
+            'order' => 6
+        ],
+        [
+            'title_fr' => 'Cas Clinique #7',
+            'title_en' => 'Clinical Case #7',
+            'category_fr' => 'Névralgie cervico-brachiale',
+            'category_en' => 'Cervicobrachial Neuralgia',
+            'image' => 'https://images.unsplash.com/photo-1579684453423-f84349ef60b0?q=80&w=800&auto=format&fit=crop',
+            'order' => 7
+        ],
+        [
+            'title_fr' => 'Cas Clinique #8',
+            'title_en' => 'Clinical Case #8',
+            'category_fr' => 'SDRC Type 1',
+            'category_en' => 'CRPS Type 1',
+            'image' => 'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop',
+            'order' => 8
+        ],
+        [
+            'title_fr' => 'Innovation #9',
+            'title_en' => 'Innovation #9',
+            'category_fr' => 'Neuromodulation',
+            'category_en' => 'Neuromodulation',
+            'image' => 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?q=80&w=800&auto=format&fit=crop',
+            'order' => 9
+        ],
+    ];
+
+    $stmt = $pdo->prepare("INSERT INTO cms_cas_cliniques (
+        title_fr, title_en, category_fr, category_en, image, display_order, is_active
+    ) VALUES (?, ?, ?, ?, ?, ?, 1)");
+
+    foreach ($cases as $c) {
+        $stmt->execute([
+            $c['title_fr'],
+            $c['title_en'],
+            $c['category_fr'],
+            $c['category_en'],
+            $c['image'],
+            $c['order']
+        ]);
+    }
 }
 
 // Si appelé directement en HTTP GET par l'admin

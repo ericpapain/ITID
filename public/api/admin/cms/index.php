@@ -476,6 +476,92 @@ try {
         }
     }
 
+    // -------------------------------------------------------------
+    // 5. CAS CLINIQUES (Accueil)
+    // -------------------------------------------------------------
+    if ($type === 'cas_cliniques') {
+        if ($method === 'GET') {
+            $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC");
+            $items = $stmt->fetchAll();
+            if (empty($items)) {
+                require_once __DIR__ . '/../seed_cms.php';
+                if (function_exists('seedCmsIfEmpty')) {
+                    seedCmsIfEmpty($pdo);
+                    $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC");
+                    $items = $stmt->fetchAll();
+                }
+            }
+            echo json_encode(['success' => true, 'items' => $items]);
+            exit;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?: [];
+
+        if ($method === 'POST') {
+            $stmt = $pdo->prepare("INSERT INTO cms_cas_cliniques (
+                title_fr, title_en, category_fr, category_en, image, display_order, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+            $stmt->execute([
+                $input['title_fr'] ?? 'Nouveau Cas Clinique',
+                $input['title_en'] ?? 'New Clinical Case',
+                $input['category_fr'] ?? 'Geste Interventionnel',
+                $input['category_en'] ?? 'Interventional Procedure',
+                $input['image'] ?? 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
+                (int)($input['display_order'] ?? 0),
+                isset($input['is_active']) ? (int)$input['is_active'] : 1
+            ]);
+
+            echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId(), 'message' => 'Cas clinique créé avec succès.']);
+            exit;
+        }
+
+        if ($method === 'PUT') {
+            if (!$id) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'ID manquant']);
+                exit;
+            }
+
+            $stmt = $pdo->prepare("UPDATE cms_cas_cliniques SET
+                title_fr = ?,
+                title_en = ?,
+                category_fr = ?,
+                category_en = ?,
+                image = ?,
+                display_order = ?,
+                is_active = ?,
+                updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?");
+
+            $stmt->execute([
+                $input['title_fr'] ?? '',
+                $input['title_en'] ?? '',
+                $input['category_fr'] ?? '',
+                $input['category_en'] ?? '',
+                $input['image'] ?? '',
+                (int)($input['display_order'] ?? 0),
+                isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                $id
+            ]);
+
+            echo json_encode(['success' => true, 'message' => 'Cas clinique mis à jour avec succès.']);
+            exit;
+        }
+
+        if ($method === 'DELETE') {
+            if (!$id) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'ID manquant']);
+                exit;
+            }
+            $stmt = $pdo->prepare("DELETE FROM cms_cas_cliniques WHERE id = ?");
+            $stmt->execute([$id]);
+            echo json_encode(['success' => true, 'message' => 'Cas clinique supprimé avec succès.']);
+            exit;
+        }
+    }
+
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Type inconnu']);
 

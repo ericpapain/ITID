@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - blog_modif
   workflow_dispatch: # Permet de déclencher le déploiement manuellement depuis l'onglet Actions de GitHub
 
 concurrency:
@@ -36,7 +37,7 @@ jobs:
           echo "Vérification des dossiers clés dans dist/:"
           ls -la dist/ || { echo "::error::Le dossier dist/ est manquant."; exit 1; }
           if [ -d "dist/api" ]; then
-            echo "dist/api trouvé"
+            echo "✅ dist/api trouvé avec succès"
             ls -la dist/api/
           else
             echo "::error::dist/api est manquant — le build n'a pas produit les fichiers API attendus"
@@ -48,31 +49,57 @@ jobs:
           if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
             echo "::error::Les secrets FTP ne sont pas encore renseignés dans GitHub !"
             echo "Rendez-vous dans GitHub > Settings > Secrets and variables > Actions et ajoutez :"
-            echo "- FTP_SERVER (ex: ftp.itid-france.com ou l'IP Hostinger)"
+            echo "- FTP_SERVER (ex: 46.202.172.176 ou ftp.itid-france.com)"
             echo "- FTP_USERNAME (votre identifiant FTP)"
             echo "- FTP_PASSWORD (votre mot de passe FTP)"
             echo "Optionnel : FTP_SERVER_DIR (par défaut: public_html/)"
             exit 1
           fi
 
-      - name: 🚀 Déploiement sur le serveur (FTPS / FTP)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ${{ secrets.FTP_PROTOCOL || 'ftps' }}
-          port: ${{ secrets.FTP_PORT || 21 }}
-          security: loose
-          local-dir: ./dist/
-          server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/*.sqlite*
-            **/*.db*
-            **/itid_data/**
-            **/uploads/**
-            **/api/config.php
-            **/*.bak*
+      - name: 🚀 Déploiement vers Hostinger (via lftp mirror ultra-fiable)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+          CUSTOM_DIR: ${{ secrets.FTP_SERVER_DIR }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y lftp
+
+          echo "🔍 Détection automatique du répertoire distant..."
+          # Déterminer la racine réelle : si CUSTOM_DIR est fourni on le respecte,
+          # sinon on teste si public_html existe, sinon on se place à la racine ./
+          TARGET_DIR="${CUSTOM_DIR}"
+          if [ -z "$TARGET_DIR" ]; then
+            if lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" -e "set ssl:verify-certificate no; cd public_html; bye" 2>/dev/null; then
+              echo "✅ Dossier public_html/ détecté"
+              TARGET_DIR="public_html/"
+            else
+              echo "✅ L'utilisateur FTP pointe déjà directement sur la racine web"
+              TARGET_DIR="./"
+            fi
+          fi
+
+          echo "📦 Synchronisation en cours vers '$TARGET_DIR'..."
+          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" <<EOF
+          set ssl:verify-certificate no;
+          set ftp:ssl-allow yes;
+          set ftp:ssl-protect-data yes;
+          set ftp:passive-mode yes;
+          set net:timeout 30;
+          set net:max-retries 3;
+          mirror -R \
+            --verbose \
+            --parallel=3 \
+            --exclude-glob .git* \
+            --exclude-glob *.sqlite* \
+            --exclude-glob *.db* \
+            --exclude-glob itid_data/ \
+            --exclude-glob uploads/ \
+            --exclude-glob api/config.php \
+            --exclude-glob *.bak* \
+            dist/ "\$TARGET_DIR"
+          bye
+          EOF
+          echo "🎉 Déploiement terminé avec succès sur Hostinger !"
