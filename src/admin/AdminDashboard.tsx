@@ -259,8 +259,14 @@ export default function AdminDashboard() {
             Modifiez en direct les textes, images et vidéos de chaque page du site avec gestion bilingue stricte (Français / Anglais) et répercussion instantanée.
           </p>
           <div className="flex flex-wrap gap-2">
+            <Link to="/admin/pages?section=hero_media" className="px-3 py-1.5 bg-[#2a9d8f]/20 hover:bg-[#2a9d8f]/40 text-[#48cae4] border border-[#2a9d8f]/30 text-xs font-semibold rounded-lg flex items-center gap-1">
+              <span>🎬</span> Médias Défilants
+            </Link>
+            <Link to="/admin/pages?section=cas_cliniques" className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg flex items-center gap-1">
+              <span>🔬</span> Cas Cliniques
+            </Link>
             <Link to="/admin/pages?section=home" className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg">
-              Accueil
+              Accueil (Textes)
             </Link>
             <Link to="/admin/pages?section=pathologies" className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg">
               Pathologies
@@ -268,7 +274,7 @@ export default function AdminDashboard() {
             <Link to="/admin/pages?section=traitements" className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg">
               Traitements
             </Link>
-            <Link to="/admin/pages?section=blog" className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg">
+            <Link to="/admin/pages?section=articles" className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg">
               Blog / Actualités
             </Link>
           </div>
