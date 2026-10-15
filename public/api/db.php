@@ -424,6 +424,8 @@ function initSqliteTables(PDO $pdo): void {
             home_title_en TEXT,
             home_desc_fr TEXT,
             home_desc_en TEXT,
+            sections_json TEXT,
+            tags TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )",
@@ -678,6 +680,8 @@ function initMysqlTables(PDO $pdo): void {
             home_title_en VARCHAR(255) NULL,
             home_desc_fr TEXT NULL,
             home_desc_en TEXT NULL,
+            sections_json LONGTEXT NULL,
+            tags TEXT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
@@ -722,7 +726,9 @@ function migrateCmsArticlesColumns(PDO $pdo): void {
         'home_title_fr'  => 'TEXT NULL',
         'home_title_en'  => 'TEXT NULL',
         'home_desc_fr'   => 'TEXT NULL',
-        'home_desc_en'   => 'TEXT NULL'
+        'home_desc_en'   => 'TEXT NULL',
+        'sections_json'  => 'TEXT NULL',
+        'tags'           => 'TEXT NULL'
     ];
     foreach ($columns as $col => $def) {
         try {

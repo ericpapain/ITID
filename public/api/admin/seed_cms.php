@@ -692,6 +692,29 @@ function seedArticlesData(PDO $pdo): void {
                 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
                 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop',
                 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop'
+            ],
+            'tags' => '#ITID, #Neuromodulation, #Innovation, #Algologie, #MoelleÉpinière',
+            'is_featured' => 1,
+            'show_in_home' => 1,
+            'sections' => [
+                [
+                    'id' => 'sec-1',
+                    'title' => 'Prise en charge guidée par imagerie interventionnelle',
+                    'content' => "À l'ITID, l'implantation d'électrodes de neuromodulation médullaire bénéficie des dernières avancées en scopie haute résolution. Les praticiens ciblent avec une exactitude submillimétrique les fibres dorsales responsables de la transmission des signaux douloureux réfractaires.\n\nCette précision d'imagerie réduit considérablement les temps d'intervention et garantit un positionnement optimal.",
+                    'image' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop'
+                ],
+                [
+                    'id' => 'sec-2',
+                    'title' => 'Générateurs intelligents & Boucle fermée (Closed-Loop)',
+                    'content' => "Les nouveaux stimulateurs d'aujourd'hui enregistrent en continu les potentiels d'action évoqués composites (ECAP) et adaptent la puissance de stimulation microseconde par microseconde.\n\nLe patient ne ressent plus d'à-coups désagréables lors des changements de position (debout, assis, couché) et retrouve un confort de vie inédit au quotidien.",
+                    'image' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop'
+                ],
+                [
+                    'id' => 'sec-3',
+                    'title' => 'Une alternative pérenne aux antalgiques lourds',
+                    'content' => "Pour les personnes souffrant de lombalgies chroniques post-chirurgicales (failed back surgery syndrome) ou de SDRC, la neuromodulation offre une réduction de 50 à 80% de l'intensité douloureuse.\n\nElle permet un sevrage sécurisé et progressif des opioïdes et favorise une reprise active des activités professionnelles et familiales.",
+                    'image' => 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop'
+                ]
             ]
         ],
         [
@@ -771,20 +794,27 @@ function seedArticlesData(PDO $pdo): void {
     $stmt = $pdo->prepare("INSERT INTO cms_articles (
         slug, title_fr, title_en, summary_fr, summary_en, content_fr, content_en,
         category, author, author_role_fr, author_role_en, date_published, read_time_fr, read_time_en,
-        cover_image, gallery_images_json, is_published
+        cover_image, gallery_images_json, is_published,
+        show_in_home, is_featured, sections_json, tags
     ) VALUES (
         ?, ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, 1
+        ?, ?, 1,
+        ?, ?, ?, ?
     )");
 
     foreach ($articles as $a) {
         $stmt->execute([
             $a['slug'], $a['title_fr'], $a['title_en'], $a['summary_fr'], $a['summary_en'], $a['content_fr'], $a['content_en'],
             $a['category'], $a['author'], $a['author_role_fr'], $a['author_role_en'], $a['date_published'], $a['read_time_fr'], $a['read_time_en'],
-            $a['cover_image'], json_encode($a['gallery'])
+            $a['cover_image'], json_encode($a['gallery']),
+            $a['show_in_home'] ?? 1,
+            $a['is_featured'] ?? 0,
+            json_encode($a['sections'] ?? []),
+            $a['tags'] ?? ''
         ]);
     }
+}
 function seedPagesData(PDO $pdo): void {
     $defaultHeroMedia = [
         [

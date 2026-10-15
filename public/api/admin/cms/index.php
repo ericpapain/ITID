@@ -301,6 +301,8 @@ try {
             }
             foreach ($items as &$it) {
                 $it['gallery_images'] = json_decode($it['gallery_images_json'] ?? '[]', true) ?: [];
+                $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
+                $it['tags'] = $it['tags'] ?? '';
                 $it['show_in_home'] = isset($it['show_in_home']) ? (int)$it['show_in_home'] : 1;
                 $it['is_featured'] = isset($it['is_featured']) ? (int)$it['is_featured'] : 0;
             }
@@ -313,6 +315,8 @@ try {
         if ($method === 'POST') {
             $slug = trim($input['slug'] ?? ('article-' . time()));
             $gallery = json_encode($input['gallery_images'] ?? []);
+            $sections = json_encode($input['sections'] ?? []);
+            $tags = trim($input['tags'] ?? '');
             $isFeatured = isset($input['is_featured']) ? (int)$input['is_featured'] : 0;
             if ($isFeatured === 1) {
                 $pdo->exec("UPDATE cms_articles SET is_featured = 0");
@@ -322,12 +326,14 @@ try {
                 slug, title_fr, title_en, summary_fr, summary_en, content_fr, content_en,
                 category, author, author_role_fr, author_role_en, date_published, read_time_fr, read_time_en,
                 cover_image, gallery_images_json, is_published,
-                show_in_home, is_featured, home_title_fr, home_title_en, home_desc_fr, home_desc_en
+                show_in_home, is_featured, home_title_fr, home_title_en, home_desc_fr, home_desc_en,
+                sections_json, tags
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?, ?,
                 ?, ?, ?,
-                ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?,
+                ?, ?
             )");
 
             $stmt->execute([
@@ -353,7 +359,9 @@ try {
                 $input['home_title_fr'] ?? null,
                 $input['home_title_en'] ?? null,
                 $input['home_desc_fr'] ?? null,
-                $input['home_desc_en'] ?? null
+                $input['home_desc_en'] ?? null,
+                $sections,
+                $tags
             ]);
 
             echo json_encode(['success' => true, 'id' => $pdo->lastInsertId(), 'message' => 'Article publié avec succès.']);
@@ -368,6 +376,8 @@ try {
             }
 
             $gallery = json_encode($input['gallery_images'] ?? []);
+            $sections = json_encode($input['sections'] ?? []);
+            $tags = trim($input['tags'] ?? '');
             $isFeatured = isset($input['is_featured']) ? (int)$input['is_featured'] : 0;
             if ($isFeatured === 1) {
                 $pdo->prepare("UPDATE cms_articles SET is_featured = 0 WHERE id != ?")->execute([$id]);
@@ -378,6 +388,7 @@ try {
                 category = ?, author = ?, author_role_fr = ?, author_role_en = ?, date_published = ?, read_time_fr = ?, read_time_en = ?,
                 cover_image = ?, gallery_images_json = ?, is_published = ?,
                 show_in_home = ?, is_featured = ?, home_title_fr = ?, home_title_en = ?, home_desc_fr = ?, home_desc_en = ?,
+                sections_json = ?, tags = ?,
                 updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?");
 
@@ -405,6 +416,8 @@ try {
                 $input['home_title_en'] ?? null,
                 $input['home_desc_fr'] ?? null,
                 $input['home_desc_en'] ?? null,
+                $sections,
+                $tags,
                 $id
             ]);
 
