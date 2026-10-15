@@ -73,16 +73,47 @@ jobs:
           CLEAN_DIR=$(printf '%s' "$RAW_DIR" | sed -e 's|^/||' -e 's|/$||')
 
           TARGET_DIR=""
+
+          # Helper: exécute une commande lftp simple, retourne 0 si OK
+          lftp_check() {
+            CMD="$1"
+            lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" -e "set ssl:verify-certificate no; set ftp:ssl-allow yes; set ftp:passive-mode yes; $CMD; bye" "$FTP_SERVER" >/dev/null 2>&1
+          }
+
           if [ -n "$CLEAN_DIR" ] && [ "$CLEAN_DIR" != "." ]; then
             echo "📁 Répertoire distant spécifié via secrets : '$CLEAN_DIR'"
-            TARGET_DIR="$CLEAN_DIR"
-          else
-            echo "🔎 Test automatique de la présence de public_html/ sur le serveur distant..."
-            if lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" -e "set ssl:verify-certificate no; set ftp:ssl-allow yes; set ftp:passive-mode yes; cd public_html; bye" "$FTP_SERVER" 2>/dev/null; then
-              echo "✅ Dossier distant 'public_html' détecté avec succès"
-              TARGET_DIR="public_html"
+
+            # Essayer d'accéder au répertoire fourni
+            if lftp_check "cd \"$CLEAN_DIR\""; then
+              echo "✅ Accès confirmé à '$CLEAN_DIR'"
+              TARGET_DIR="$CLEAN_DIR"
             else
-              echo "✅ Le compte FTP pointe directement sur la racine web"
+              echo "⚠️ Impossible d'accéder à '$CLEAN_DIR'. Tentative de création..."
+              # Tenter de créer puis cd
+              if lftp_check "mkdir -p \"$CLEAN_DIR\"; cd \"$CLEAN_DIR\""; then
+                echo "✅ Répertoire '$CLEAN_DIR' créé et accessible"
+                TARGET_DIR="$CLEAN_DIR"
+              else
+                echo "::error::Le répertoire distant '$CLEAN_DIR' est inaccessible et n'a pas pu être créé. Vérifiez la valeur de FTP_SERVER_DIR et les permissions du compte FTP."
+                echo "📋 Tentative d'afficher la racine distante pour debug:"
+                lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" -e "set ssl:verify-certificate no; set ftp:ssl-allow yes; set ftp:passive-mode yes; pwd; ls -la; bye" "$FTP_SERVER" || true
+                exit 1
+              fi
+            fi
+          else
+            echo "🔎 Aucun répertoire fourni via secrets — test automatique des dossiers courants..."
+            for d in public_html www html; do
+              if lftp_check "cd \"$d\""; then
+                echo "✅ Dossier distant détecté : $d"
+                TARGET_DIR="$d"
+                break
+              fi
+            done
+
+            if [ -z "$TARGET_DIR" ]; then
+              echo "⚠️ Aucun dossier public standard détecté. Déploiement vers la racine FTP courante."
+              # Afficher la racine distante pour debug
+              lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" -e "set ssl:verify-certificate no; set ftp:ssl-allow yes; set ftp:passive-mode yes; pwd; ls -la; bye" "$FTP_SERVER" || true
               TARGET_DIR=""
             fi
           fi
