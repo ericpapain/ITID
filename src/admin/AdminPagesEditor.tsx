@@ -19,7 +19,9 @@ import {
   Play,
   Monitor,
   Image as ImageIcon,
-  Film
+  Film,
+  Download,
+  ExternalLink
 } from "lucide-react";
 import {
   HeroMediaItem,
@@ -33,7 +35,7 @@ type LangTab = "fr" | "en";
 
 export default function AdminPagesEditor() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentSection = searchParams.get("section") || "pathologies";
+  const currentSection = searchParams.get("section") || "hero_media";
   const [lang, setLang] = useState<LangTab>("fr");
 
   const [loading, setLoading] = useState(false);
@@ -47,11 +49,12 @@ export default function AdminPagesEditor() {
   const [pageContentEn, setPageContentEn] = useState<any>({});
 
   const sectionsList = [
+    { id: "hero_media", label: "Médias Défilants (Accueil)", icon: "🎬" },
+    { id: "cas_cliniques", label: "Cas Cliniques (Accueil)", icon: "🔬" },
     { id: "pathologies", label: "Pathologies", icon: "🦴" },
     { id: "traitements", label: "Traitements", icon: "💉" },
     { id: "articles", label: "Actualités & Blog", icon: "📰" },
-    { id: "cas_cliniques", label: "Cas Cliniques (Accueil)", icon: "🔬" },
-    { id: "home", label: "Page d'Accueil", icon: "🏠" },
+    { id: "home", label: "Textes Page d'Accueil", icon: "🏠" },
     { id: "about", label: "À Propos & Équipe", icon: "🏥" },
   ];
 
@@ -62,8 +65,9 @@ export default function AdminPagesEditor() {
     setSelectedItem(null);
 
     try {
-      if (currentSection === "home" || currentSection === "about") {
-        const res = await fetch(`/api/admin/cms?type=pages&page=${currentSection}`, {
+      if (currentSection === "home" || currentSection === "about" || currentSection === "hero_media") {
+        const pageKey = (currentSection === "hero_media" || currentSection === "home") ? "home" : currentSection;
+        const res = await fetch(`/api/admin/cms?type=pages&page=${pageKey}`, {
           headers: getAuthHeaders(),
         });
         if (res.ok) {
@@ -104,13 +108,14 @@ export default function AdminPagesEditor() {
     loadData();
   }, [currentSection]);
 
-  // Sauvegarde globale pour Home & About
+  // Sauvegarde globale pour Home, Hero Media & About
   const handleSavePage = async () => {
     setSaving(true);
     setSaveMessage(null);
 
     try {
-      const res = await fetch(`/api/admin/cms?type=pages&page=${currentSection}`, {
+      const pageKey = (currentSection === "hero_media" || currentSection === "home") ? "home" : currentSection;
+      const res = await fetch(`/api/admin/cms?type=pages&page=${pageKey}`, {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -121,7 +126,7 @@ export default function AdminPagesEditor() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Erreur de sauvegarde");
 
-      setSaveMessage("✅ Page mise à jour avec succès en base de données !");
+      setSaveMessage("✅ Modifications enregistrées avec succès en base de données !");
       setTimeout(() => setSaveMessage(null), 4000);
     } catch (err: any) {
       setSaveMessage(`❌ ${err.message}`);
@@ -338,13 +343,13 @@ export default function AdminPagesEditor() {
             </button>
           </div>
 
-          {(currentSection === "home" || currentSection === "about") && (
+          {(currentSection === "home" || currentSection === "about" || currentSection === "hero_media") && (
             <button
               onClick={handleSavePage}
               disabled={saving}
               className="px-5 py-2.5 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
-              {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer la page</span>}
+              {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer les modifications</span>}
             </button>
           )}
         </div>
@@ -439,6 +444,19 @@ export default function AdminPagesEditor() {
               renderForm={(item: any, onChange: any) => (
                 <ArticleForm item={item} onChange={onChange} lang={lang} />
               )}
+            />
+          )}
+
+          {/* Rubrique MÉDIAS DÉFILANTS ACCUEIL (IMAGES / VIDÉOS) */}
+          {currentSection === "hero_media" && (
+            <HeroMediaDedicatedPageEditor
+              dataFr={pageContentFr}
+              dataEn={pageContentEn}
+              onChangeFr={(data: any) => setPageContentFr((prev: any) => ({ ...prev, ...data }))}
+              onChangeEn={(data: any) => setPageContentEn((prev: any) => ({ ...prev, ...data }))}
+              onSave={handleSavePage}
+              saving={saving}
+              lang={lang}
             />
           )}
 
@@ -1294,6 +1312,95 @@ function ArticleForm({ item, onChange, lang }: any) {
 }
 
 // ======================================================================
+// PAGE DÉDIÉE : GESTION DES MÉDIAS DÉFILANTS ACCUEIL (PHOTOS, VIDÉOS, YOUTUBE)
+// ======================================================================
+function HeroMediaDedicatedPageEditor({
+  dataFr,
+  dataEn,
+  onChangeFr,
+  onChangeEn,
+  onSave,
+  saving,
+  lang
+}: any) {
+  const activeData = lang === "fr" ? dataFr : dataEn;
+  const heroMediaList: HeroMediaItem[] =
+    activeData.heroMediaList || dataFr.heroMediaList || dataEn.heroMediaList || [];
+
+  const handleUpdateMediaList = (newList: HeroMediaItem[]) => {
+    onChangeFr({ heroMediaList: newList });
+    onChangeEn({ heroMediaList: newList });
+  };
+
+  const totalDuration = heroMediaList.reduce((acc, m) => acc + (m.duration || (m.type === "image" ? 7 : 12)), 0);
+
+  return (
+    <div className="space-y-6">
+      {/* Barre d'en-tête de la rubrique */}
+      <div className="p-6 bg-gradient-to-r from-[#0c1a2e] via-[#10243e] to-[#0c1a2e] border border-slate-800 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-2xl">🎬</span>
+            <h2 className="text-xl font-bold text-white">Médias Défilants en Arrière-Plan (Page d'Accueil)</h2>
+            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30 font-bold">
+              Carrousel Fond Actif
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 max-w-3xl">
+            Ajoutez, réordonnez ou supprimez les visuels d'arrière-plan de la section principale.
+            Vous pouvez téléverser des photos et des vidéos depuis votre PC (MP4/WebM), ajouter des liens YouTube ou des URLs externes.
+          </p>
+          <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-300">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#2a9d8f]"></span>
+              <span className="font-semibold">{heroMediaList.length} média(s) configuré(s)</span>
+            </div>
+            {totalDuration > 0 && (
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <span>⏱️ Durée totale d'un cycle complet :</span>
+                <span className="font-mono text-white font-bold">{totalDuration} secondes</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="px-6 py-3 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
+        >
+          {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer les Médias</span>}
+        </button>
+      </div>
+
+      {/* Gestionnaire complet */}
+      <HeroMediaLoopManager
+        mediaList={heroMediaList}
+        onChange={handleUpdateMediaList}
+        heroTitle1={activeData.heroTitle1 || "Institut du Traitement"}
+        heroTitle2={activeData.heroTitle2 || "Interventionnel de la Douleur"}
+      />
+
+      {/* Barre de sauvegarde basse */}
+      <div className="flex items-center justify-between p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+        <span className="text-xs text-slate-400">
+          N'oubliez pas d'enregistrer après avoir ajouté, supprimé ou réordonné vos médias.
+        </span>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="px-6 py-3 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer les Médias de l'Accueil</span>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ======================================================================
 // FORMULAIRE PAGE D'ACCUEIL
 // ======================================================================
 function HomePageEditor({ dataFr, dataEn, onChangeFr, onChangeEn, lang }: any) {
@@ -1426,6 +1533,7 @@ function HeroMediaLoopManager({
   const [titleInput, setTitleInput] = useState("");
   const [durationInput, setDurationInput] = useState<number>(7);
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewIdx, setPreviewIdx] = useState(0);
@@ -1439,69 +1547,79 @@ function HeroMediaLoopManager({
             type: "video",
             url: "/images/video-fond.mp4",
             title: "Vidéo Fond Institut (Originale)",
-            duration: 10
+            duration: 12
           },
           {
             id: "default-img-1",
             type: "image",
             url: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1600&auto=format&fit=crop",
             title: "Plateau Interventionnel Guidé",
-            duration: 6
+            duration: 7
           },
           {
             id: "default-img-2",
             type: "image",
             url: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1600&auto=format&fit=crop",
             title: "Plateau Technique & Imagerie",
-            duration: 6
+            duration: 7
           }
         ];
 
-  // Upload depuis l'ordinateur (Images et Vidéos)
+  // Upload depuis l'ordinateur (Images et Vidéos, support sélection multiple)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
     setError(null);
+    setUploadStatus(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
     const token = getAdminToken();
-    if (token) {
-      formData.append("token", token);
-    }
+    const headers = getAuthHeaders();
+    delete (headers as any)["Content-Type"];
+
+    const newItems: HeroMediaItem[] = [];
 
     try {
-      const headers = getAuthHeaders();
-      delete (headers as any)["Content-Type"];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadStatus(`Téléversement de ${file.name} (${i + 1}/${files.length})...`);
 
-      const res = await fetch("/api/admin/media/upload", {
-        method: "POST",
-        headers,
-        body: formData
-      });
+        const formData = new FormData();
+        formData.append("file", file);
+        if (token) {
+          formData.append("token", token);
+        }
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Erreur lors du téléversement du fichier.");
+        const res = await fetch("/api/admin/media/upload", {
+          method: "POST",
+          headers,
+          body: formData
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || `Erreur lors de l'envoi de ${file.name}`);
+        }
+
+        const detectedType = detectMediaType(data.url);
+        newItems.push({
+          id: "media-" + Date.now() + "-" + i,
+          type: detectedType,
+          url: data.url,
+          title: files.length === 1 && titleInput.trim() ? titleInput.trim() : file.name.replace(/\.[^/.]+$/, ""),
+          duration: durationInput || (detectedType === "image" ? 7 : 12)
+        });
       }
 
-      const detectedType = detectMediaType(data.url);
-      const newMedia: HeroMediaItem = {
-        id: "media-" + Date.now(),
-        type: detectedType,
-        url: data.url,
-        title: titleInput.trim() || file.name.replace(/\.[^/.]+$/, ""),
-        duration: detectedType === "image" ? 6 : 10
-      };
-
-      onChange([...currentMediaList, newMedia]);
+      onChange([...currentMediaList, ...newItems]);
       setTitleInput("");
+      setUploadStatus(null);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setUploading(false);
+      setUploadStatus(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -1550,10 +1668,12 @@ function HeroMediaLoopManager({
     setTitleInput("");
   };
 
-  // Suppression d'un média
+  // Suppression d'un média avec confirmation
   const handleDelete = (index: number) => {
-    if (currentMediaList.length <= 1) {
-      if (!window.confirm("C'est le seul média d'arrière-plan. Êtes-vous sûr de vouloir le supprimer ?")) return;
+    const itemToDelete = currentMediaList[index];
+    const itemLabel = itemToDelete?.title || `Média #${index + 1}`;
+    if (!window.confirm(`Voulez-vous vraiment supprimer "${itemLabel}" du défilement ?`)) {
+      return;
     }
     const updated = currentMediaList.filter((_, i) => i !== index);
     onChange(updated);
@@ -1603,14 +1723,21 @@ function HeroMediaLoopManager({
         </div>
       )}
 
+      {uploadStatus && (
+        <div className="p-3 bg-blue-950/60 border border-blue-500/40 text-blue-300 rounded-xl text-xs font-semibold flex items-center gap-2">
+          <RefreshCw size={14} className="animate-spin text-blue-400" />
+          <span>{uploadStatus}</span>
+        </div>
+      )}
+
       {/* Onglets d'Ajout de Nouveaux Médias */}
       <div className="p-5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <span className="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-2">
             <Plus size={14} className="text-[#2a9d8f]" />
             <span>Ajouter un Média à la Boucle</span>
           </span>
-          <div className="flex gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+          <div className="flex gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setActiveTab("upload")}
@@ -1619,7 +1746,7 @@ function HeroMediaLoopManager({
               }`}
             >
               <Upload size={13} />
-              <span>Depuis mon PC</span>
+              <span>Depuis mon PC (Photos & Vidéos)</span>
             </button>
             <button
               type="button"
@@ -1644,11 +1771,11 @@ function HeroMediaLoopManager({
           </div>
         </div>
 
-        {/* Tab 1 : Upload PC (Image ou Vidéo MP4/WEBM) */}
+        {/* Tab 1 : Upload PC (Photo ou Vidéo MP4/WEBM/MOV) */}
         {activeTab === "upload" && (
           <div className="space-y-3 p-4 bg-slate-950/60 rounded-xl border border-slate-800">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-              <div className="md:col-span-7">
+              <div className="md:col-span-5">
                 <label className="block text-slate-300 font-semibold mb-1">
                   Titre / Légende (Optionnel)
                 </label>
@@ -1657,7 +1784,21 @@ function HeroMediaLoopManager({
                   value={titleInput}
                   onChange={(e) => setTitleInput(e.target.value)}
                   placeholder="ex: Vidéo intervention au bloc ou photo IRM"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white"
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-slate-300 font-semibold mb-1">
+                  Durée (sec)
+                </label>
+                <input
+                  type="number"
+                  min={3}
+                  max={60}
+                  value={durationInput}
+                  onChange={(e) => setDurationInput(parseInt(e.target.value, 10) || 7)}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-center font-mono text-xs"
                 />
               </div>
 
@@ -1666,6 +1807,7 @@ function HeroMediaLoopManager({
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileUpload}
+                  multiple
                   accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,video/ogg"
                   className="hidden"
                 />
@@ -1683,14 +1825,14 @@ function HeroMediaLoopManager({
                   ) : (
                     <>
                       <Upload size={14} />
-                      <span>Choisir une Image ou Vidéo sur mon PC</span>
+                      <span>Choisir Photos ou Vidéos sur mon PC</span>
                     </>
                   )}
                 </button>
               </div>
             </div>
             <p className="text-[10px] text-slate-400">
-              💡 Accepte tous les fichiers : Photos (JPG, PNG, WEBP) et Vidéos (MP4, WEBM, MOV) jusqu'à 50 Mo.
+              💡 Accepte tous les fichiers : Photos (JPG, PNG, WEBP) et Vidéos (MP4, WEBM, MOV) jusqu'à 50 Mo. Vous pouvez sélectionner plusieurs fichiers à la fois.
             </p>
           </div>
         )}
@@ -1836,7 +1978,7 @@ function HeroMediaLoopManager({
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <Youtube size={18} className="text-red-500" />
+                          <YouTubeIcon size={18} className="text-red-500" />
                         </div>
                       </>
                     ) : isVideo ? (
@@ -1882,11 +2024,11 @@ function HeroMediaLoopManager({
                         </span>
                       ) : isVideo ? (
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
-                          🎬 Vidéo
+                          🎬 Vidéo MP4
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
-                          🖼️ Image
+                          🖼️ Photo
                         </span>
                       )}
                     </div>
@@ -1896,7 +2038,7 @@ function HeroMediaLoopManager({
                   </div>
                 </div>
 
-                {/* Réglages durée & Actions */}
+                {/* Réglages durée, téléchargement PC & Actions */}
                 <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
                   <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
                     <span>Durée :</span>
@@ -1904,15 +2046,42 @@ function HeroMediaLoopManager({
                       type="number"
                       min={3}
                       max={60}
-                      value={m.duration || (isVideo || ytId ? 10 : 6)}
-                      onChange={(e) => handleUpdateItem(index, { duration: parseInt(e.target.value, 10) || 6 })}
+                      value={m.duration || (isVideo || ytId ? 12 : 7)}
+                      onChange={(e) => handleUpdateItem(index, { duration: parseInt(e.target.value, 10) || 7 })}
                       className="w-12 px-1.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-center font-mono text-white text-xs"
                     />
                     <span>sec</span>
                   </div>
 
-                  {/* Boutons d'ordonnancement */}
+                  {/* Boutons d'ordonnancement & Téléchargement */}
                   <div className="flex items-center gap-1">
+                    {/* Téléchargement direct sur PC */}
+                    {!ytId && m.url && (
+                      <a
+                        href={m.url}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 bg-slate-800 hover:bg-[#2a9d8f] text-slate-300 hover:text-white rounded-lg transition-colors cursor-pointer"
+                        title="Télécharger ce média sur mon PC"
+                      >
+                        <Download size={13} />
+                      </a>
+                    )}
+
+                    {/* Lien direct YouTube */}
+                    {ytId && (
+                      <a
+                        href={m.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-lg transition-colors cursor-pointer"
+                        title="Ouvrir la vidéo sur YouTube"
+                      >
+                        <ExternalLink size={13} />
+                      </a>
+                    )}
+
                     <button
                       type="button"
                       disabled={index === 0}
