@@ -7,22 +7,16 @@ import { useTypewriter } from "../../hooks/useTypewriter";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 
-function ActiveSliderCard({ item, scrollX, index }: { item: any, scrollX: any, index: number }) {
-  // Parallax effect on the background image
-  const parallax = useTransform(scrollX, (value: number) => {
-    return (value + index * 400) * 0.15;
-  });
-
+function ActiveSliderCard({ item }: { item: any, scrollX?: any, index?: number }) {
   return (
-    <div className="relative w-[300px] h-[450px] md:w-[400px] md:h-[600px] rounded-2xl overflow-hidden shrink-0 group pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] card-hover-highlight hover:shadow-[0_0_40px_rgba(72,209,194,0.5)] transition-all duration-500">
-      <div className="absolute inset-0 w-full h-full overflow-hidden rounded-2xl pointer-events-none">
-        <motion.img
+    <div className="relative w-[300px] h-[450px] md:w-[400px] md:h-[600px] rounded-2xl overflow-hidden shrink-0 group pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] card-hover-highlight hover:shadow-[0_0_40px_rgba(72,209,194,0.5)] transition-all duration-500 p-[1mm] bg-white/10 backdrop-blur-md border border-white/20 hover:border-[#48cae4]/60">
+      <div className="relative w-full h-full overflow-hidden rounded-[calc(1rem-1mm)] bg-[#0a1628] pointer-events-none">
+        <img
           src={item.image}
           alt={item.title}
           loading="lazy"
           decoding="async"
-          style={{ x: parallax }}
-          className="absolute inset-0 w-[130%] h-full max-w-none object-cover opacity-100 transition-opacity duration-700"
+          className="w-full h-full object-cover opacity-100 transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a1628]/20 to-[#0a1628]/90 group-hover:to-[#0a1628]/70 transition-colors duration-500"></div>
       </div>

@@ -2161,21 +2161,23 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
         </div>
 
         <div className="flex justify-center p-4 bg-slate-950/50 rounded-xl">
-          <div className="relative w-[280px] h-[400px] md:w-[320px] md:h-[460px] rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
-            <img
-              src={item.image || "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800"}
-              alt={currentTitle || "Aperçu"}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a1628]/20 to-[#0a1628]/90" />
+          <div className="relative w-[280px] h-[400px] md:w-[320px] md:h-[460px] rounded-2xl overflow-hidden shadow-2xl border border-white/20 group p-[1mm] bg-white/10 backdrop-blur-md hover:border-[#48cae4]/60 transition-all duration-500">
+            <div className="relative w-full h-full rounded-[calc(1rem-1mm)] overflow-hidden bg-[#0a1628]">
+              <img
+                src={item.image || "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800"}
+                alt={currentTitle || "Aperçu"}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a1628]/20 to-[#0a1628]/90" />
 
-            <div className="absolute bottom-6 left-6 right-6 z-10">
-              <span className="inline-block py-1 px-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] font-semibold text-[#48cae4] tracking-widest uppercase mb-2">
-                {currentCategory || (lang === "en" ? "Procedure" : "Geste Thérapeutique")}
-              </span>
-              <h3 className="text-2xl font-bold text-white drop-shadow-md">
-                {currentTitle || (lang === "en" ? "Clinical Case" : "Cas Clinique")}
-              </h3>
+              <div className="absolute bottom-6 left-6 right-6 z-10">
+                <span className="inline-block py-1 px-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] font-semibold text-[#48cae4] tracking-widest uppercase mb-2">
+                  {currentCategory || (lang === "en" ? "Procedure" : "Geste Thérapeutique")}
+                </span>
+                <h3 className="text-2xl font-bold text-white drop-shadow-md">
+                  {currentTitle || (lang === "en" ? "Clinical Case" : "Cas Clinique")}
+                </h3>
+              </div>
             </div>
           </div>
         </div>
