@@ -785,9 +785,31 @@ function seedArticlesData(PDO $pdo): void {
             $a['cover_image'], json_encode($a['gallery'])
         ]);
     }
-}
-
 function seedPagesData(PDO $pdo): void {
+    $defaultHeroMedia = [
+        [
+            'id' => 'media-1',
+            'type' => 'video',
+            'url' => '/images/video-fond.mp4',
+            'title' => 'Vidéo Fond Institut (Originale)',
+            'duration' => 10
+        ],
+        [
+            'id' => 'media-2',
+            'type' => 'image',
+            'url' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1600&auto=format&fit=crop',
+            'title' => 'Plateau Interventionnel Guidé',
+            'duration' => 6
+        ],
+        [
+            'id' => 'media-3',
+            'type' => 'image',
+            'url' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1600&auto=format&fit=crop',
+            'title' => 'Imagerie Médicale Haute Définition',
+            'duration' => 6
+        ]
+    ];
+
     $homeFr = [
         'heroTitle1' => "Institut du Traitement",
         'heroTitle2' => "Interventionnel de la Douleur",
@@ -796,6 +818,7 @@ function seedPagesData(PDO $pdo): void {
         'heroBtn1Url' => "https://www.doctolib.fr",
         'heroVideoUrl' => "/images/ITID-VIDEO-fond.mp4",
         'heroVideoLoop' => true,
+        'heroMediaList' => $defaultHeroMedia,
         'parcoursTitle' => "Votre Parcours de Soins à l'ITID",
     ];
 
@@ -807,6 +830,7 @@ function seedPagesData(PDO $pdo): void {
         'heroBtn1Url' => "https://www.doctolib.fr",
         'heroVideoUrl' => "/images/ITID-VIDEO-fond.mp4",
         'heroVideoLoop' => true,
+        'heroMediaList' => $defaultHeroMedia,
         'parcoursTitle' => "Your Care Pathway at ITID",
     ];
 

@@ -20,7 +20,7 @@ import {
   getAllContent,
   updateContentSection,
 } from '../controllers/contentController';
-import { getPublicCasCliniques, handleAdminCms } from '../controllers/cmsController';
+import { getPublicCasCliniques, handleAdminCms, getPublicPageContent } from '../controllers/cmsController';
 import { requireAdminAuth } from '../middleware/auth';
 
 const router = Router();
@@ -81,6 +81,7 @@ router.get('/content', getAllContent);
 router.get('/content/:section', getContentSection);
 router.get('/cms/cas_cliniques', getPublicCasCliniques);
 router.get('/cms/cas-cliniques', getPublicCasCliniques);
+router.get('/cms/pages', getPublicPageContent);
 
 // Health check
 router.get('/health', (req, res) => {

@@ -203,5 +203,91 @@ export async function handleAdminCms(req: Request, res: Response) {
     }
   }
 
+  if (type === 'pages') {
+    const pageKey = (req.query.page as string) || 'home';
+
+    if (method === 'GET') {
+      const pageData = inMemoryPages[pageKey] || { content_fr: {}, content_en: {} };
+      return res.json({
+        success: true,
+        page_key: pageKey,
+        content_fr: pageData.content_fr || {},
+        content_en: pageData.content_en || {}
+      });
+    }
+
+    if (method === 'PUT' || method === 'POST') {
+      const body = req.body || {};
+      inMemoryPages[pageKey] = {
+        content_fr: body.content_fr || {},
+        content_en: body.content_en || {}
+      };
+      return res.json({ success: true, message: 'Page enregistrée avec succès.' });
+    }
+  }
+
   return res.status(400).json({ success: false, error: `Type non supporté en dev Node : ${type}` });
 }
+
+// In-memory pages storage
+const defaultHeroMedia = [
+  {
+    id: 'media-1',
+    type: 'video',
+    url: '/images/video-fond.mp4',
+    title: 'Vidéo Fond Institut (Originale)',
+    duration: 10
+  },
+  {
+    id: 'media-2',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1600&auto=format&fit=crop',
+    title: 'Plateau Interventionnel Guidé',
+    duration: 6
+  },
+  {
+    id: 'media-3',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1600&auto=format&fit=crop',
+    title: 'Imagerie Médicale Haute Définition',
+    duration: 6
+  }
+];
+
+const inMemoryPages: Record<string, { content_fr: any; content_en: any }> = {
+  home: {
+    content_fr: {
+      heroTitle1: "Institut du Traitement",
+      heroTitle2: "Interventionnel de la Douleur",
+      heroSubtitle: "Centre d'excellence dédié au diagnostic de précision et aux thérapeutiques interventionnelles guidées par imagerie pour les douleurs chroniques rebelles.",
+      heroBtn1: "Prendre Rendez-vous",
+      heroBtn1Url: "https://www.doctolib.fr",
+      heroMediaList: defaultHeroMedia
+    },
+    content_en: {
+      heroTitle1: "Institute for Interventional",
+      heroTitle2: "Pain Management & Relief",
+      heroSubtitle: "Center of excellence dedicated to precision diagnostics and image-guided interventional therapies for refractory chronic pain.",
+      heroBtn1: "Book Appointment",
+      heroBtn1Url: "https://www.doctolib.fr",
+      heroMediaList: defaultHeroMedia
+    }
+  }
+};
+
+// GET /api/cms/pages?page=home
+export async function getPublicPageContent(req: Request, res: Response) {
+  try {
+    const pageKey = (req.query.page as string) || 'home';
+    const pageData = inMemoryPages[pageKey] || { content_fr: {}, content_en: {} };
+    return res.json({
+      success: true,
+      page_key: pageKey,
+      content_fr: pageData.content_fr || {},
+      content_en: pageData.content_en || {}
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+}
+

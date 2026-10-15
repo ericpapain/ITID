@@ -49,6 +49,8 @@
   RewriteRule ^api/cms/traitements/?$ api/cms/traitements/index.php [L,QSA]
   RewriteRule ^api/cms/articles/?$ api/cms/articles/index.php [L,QSA]
   RewriteRule ^api/cms/pages/?$ api/cms/pages/index.php [L,QSA]
+  RewriteRule ^api/cms/cas_cliniques/?$ api/cms/cas_cliniques/index.php [L,QSA]
+  RewriteRule ^api/cms/cas-cliniques/?$ api/cms/cas-cliniques/index.php [L,QSA]
 
   # CMS Admin Endpoints & Media Upload
   RewriteRule ^api/admin/cms/?$ api/admin/cms/index.php [L,QSA]

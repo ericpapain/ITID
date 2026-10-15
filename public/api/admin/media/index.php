@@ -54,16 +54,16 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 }
 
 $file = $_FILES['file'];
-$maxSize = 10 * 1024 * 1024; // 10 Mo max
+$maxSize = 50 * 1024 * 1024; // 50 Mo max (images & vidéos)
 
 if ($file['size'] > $maxSize) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Image trop volumineuse (max 10 Mo).']);
+    echo json_encode(['success' => false, 'error' => 'Fichier trop volumineux (max 50 Mo).']);
     exit;
 }
 
-// 3. Validation de l'extension et du type MIME
-$allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'gif'];
+// 3. Validation de l'extension et du type MIME (Images et Vidéos)
+$allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'gif', 'mp4', 'webm', 'ogg', 'mov'];
 $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
 $mimeType = null;
@@ -89,6 +89,10 @@ $allowedMimes = [
     'image/webp' => 'webp',
     'image/svg+xml' => 'svg',
     'image/gif' => 'gif',
+    'video/mp4' => 'mp4',
+    'video/webm' => 'webm',
+    'video/ogg' => 'ogg',
+    'video/quicktime' => 'mov',
 ];
 
 $validMime = isset($allowedMimes[$mimeType]);
@@ -96,7 +100,7 @@ $validExt = in_array($fileExt, $allowedExtensions, true);
 
 if (!$validMime && !$validExt) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Format de fichier non autorisé. Formats acceptés : JPG, PNG, WEBP, SVG, GIF.']);
+    echo json_encode(['success' => false, 'error' => 'Format de fichier non autorisé. Formats acceptés : JPG, PNG, WEBP, SVG, GIF, MP4, WEBM, MOV, OGG.']);
     exit;
 }
 
