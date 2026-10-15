@@ -48,6 +48,13 @@
     "login": "Login",
     "signup": "Sign up"
   },
+  "hero": {
+    "title1": "Institute for Interventional",
+    "title2": "Pain Management & Relief",
+    "subtitle": "Center of excellence dedicated to precision diagnostics and image-guided interventional therapies for refractory chronic pain.",
+    "discoverExpertise": "Discover Our Expertise",
+    "discover": "Discover"
+  },
   "filters": {
     "allSpecialties": "All specialties",
     "healthcarePro": "Physicians & Specialists",

@@ -258,8 +258,10 @@ export function HeroPremium() {
           />
         </h1>
 
-        <p className="text-lg md:text-xl text-[#6b7c93] max-w-2xl mx-auto mb-10 font-medium leading-relaxed">
-          {subtitle}
+        <p className="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto mb-10 font-semibold leading-relaxed tracking-wide">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0284c7] via-[#0ea5e9] to-[#38bdf8] drop-shadow-[0_1px_3px_rgba(2,132,199,0.18)]">
+            {subtitle}
+          </span>
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
