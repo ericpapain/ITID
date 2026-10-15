@@ -89,44 +89,33 @@ jobs:
 
           if [ -n "$TARGET_DIR" ]; then
             echo "📦 Déploiement ciblé vers : $TARGET_DIR"
-            CD_STATEMENT="cd \"$TARGET_DIR\";"
           else
             echo "📦 Déploiement ciblé vers la racine FTP courante"
-            CD_STATEMENT=""
           fi
 
-          # Préparation du script LFTP sans problème d'échappement de variable
-          cat <<EOF > deploy_script.lftp
-set ssl:verify-certificate no;
-set ftp:ssl-allow yes;
-set ftp:ssl-protect-data yes;
-set ftp:passive-mode yes;
-set ftp:use-site-chmod false;
-set ftp:use-allo false;
-set xfer:use-temp-file false;
-set mirror:set-permissions off;
-set mirror:dereference yes;
-set net:timeout 120;
-set net:max-retries 5;
-set net:reconnect-interval-base 5;
-$CD_STATEMENT
-mirror -R \
-  --continue \
-  --verbose \
-  --parallel=2 \
-  --no-perms \
-  --no-umask \
-  --allow-chown=false \
-  --exclude-glob .git* \
-  --exclude-glob *.sqlite* \
-  --exclude-glob *.db* \
-  --exclude-glob itid_data/ \
-  --exclude-glob uploads/ \
-  --exclude-glob api/config.php \
-  --exclude-glob *.bak* \
-  dist .
-bye
-EOF
+          # Préparation du script LFTP avec indentation YAML valide
+          {
+            echo "set ssl:verify-certificate no;"
+            echo "set ftp:ssl-allow yes;"
+            echo "set ftp:ssl-protect-data yes;"
+            echo "set ftp:passive-mode yes;"
+            echo "set ftp:use-site-chmod false;"
+            echo "set ftp:use-allo false;"
+            echo "set xfer:use-temp-file false;"
+            echo "set mirror:set-permissions off;"
+            echo "set mirror:dereference yes;"
+            echo "set net:timeout 120;"
+            echo "set net:max-retries 5;"
+            echo "set net:reconnect-interval-base 5;"
+            if [ -n "$TARGET_DIR" ]; then
+              echo "cd \"$TARGET_DIR\";"
+            fi
+            echo "mirror -R --continue --verbose --parallel=2 --no-perms --no-umask --allow-chown=false --exclude-glob .git* --exclude-glob *.sqlite* --exclude-glob *.db* --exclude-glob itid_data/ --exclude-glob uploads/ --exclude-glob api/config.php --exclude-glob *.bak* dist ."
+            echo "bye"
+          } > deploy_script.lftp
+
+          echo "📄 Script de synchronisation préparé :"
+          cat deploy_script.lftp
 
           echo "🚀 Synchronisation des fichiers avec LFTP..."
           lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" -f deploy_script.lftp
