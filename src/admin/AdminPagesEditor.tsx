@@ -21,7 +21,9 @@ import {
   Image as ImageIcon,
   Film,
   Download,
-  ExternalLink
+  ExternalLink,
+  Calendar,
+  Clock
 } from "lucide-react";
 import {
   HeroMediaItem,
@@ -580,8 +582,13 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
                         </span>
                       )}
                     </div>
-                    <div className="text-[10px] text-slate-400 truncate">
-                      {it.slug ? `/${it.slug}` : (lang === "en" ? (it.category_en || it.category_fr) : (it.category_fr || it.category_en))}
+                    <div className="text-[10px] text-slate-400 truncate flex items-center gap-2">
+                      <span className="truncate">{it.slug ? `/${it.slug}` : (lang === "en" ? (it.category_en || it.category_fr) : (it.category_fr || it.category_en))}</span>
+                      {it.date_published && (
+                        <span className="text-slate-400 font-mono text-[9px] bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 shrink-0 flex items-center gap-1">
+                          <Calendar size={10} className="text-[#48cae4]" /> {it.date_published}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1103,6 +1110,75 @@ function ArticleForm({ item, onChange, lang }: any) {
           </select>
         </div>
 
+        {/* Champ Date de Publication */}
+        <div>
+          <label className="block text-slate-300 font-semibold mb-1 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-white">
+              <Calendar size={13} className="text-[#48cae4]" />
+              <span>Date de Publication *</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                const now = new Date();
+                const formatted = now.toLocaleDateString(lang === "en" ? "en-US" : "fr-FR", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric"
+                });
+                onChange({ date_published: formatted });
+              }}
+              className="text-[10px] text-[#48cae4] hover:underline font-normal cursor-pointer"
+            >
+              Aujourd'hui
+            </button>
+          </label>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="text"
+              placeholder={lang === "en" ? "e.g. October 15, 2026" : "ex: 15 Octobre 2026"}
+              value={item.date_published || ""}
+              onChange={(e) => onChange({ date_published: e.target.value })}
+              className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium"
+            />
+            <input
+              type="date"
+              title="Choisir dans le calendrier"
+              onChange={(e) => {
+                if (!e.target.value) return;
+                const parts = e.target.value.split("-");
+                if (parts.length === 3) {
+                  const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                  const formatted = d.toLocaleDateString(lang === "en" ? "en-US" : "fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  });
+                  onChange({ date_published: formatted });
+                }
+              }}
+              className="w-9 h-9 p-1.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 cursor-pointer text-xs shrink-0 hover:bg-slate-700"
+            />
+          </div>
+        </div>
+
+        {/* Temps de lecture */}
+        <div>
+          <label className="block text-slate-300 font-semibold mb-1 flex items-center gap-1.5">
+            <Clock size={13} className="text-[#48cae4]" />
+            <span>Temps de Lecture [{lang.toUpperCase()}]</span>
+          </label>
+          <input
+            type="text"
+            placeholder={lang === "en" ? "e.g. 4 min" : "ex: 4 min"}
+            value={lang === "en" ? (item.read_time_en || "") : (item.read_time_fr || "")}
+            onChange={(e) => onChange(lang === "en" ? { read_time_en: e.target.value } : { read_time_fr: e.target.value })}
+            className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-slate-300 font-semibold mb-1">Auteur</label>
           <input
