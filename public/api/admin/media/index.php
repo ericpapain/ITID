@@ -107,12 +107,17 @@ if (!$validMime && !$validExt) {
 $ext = $allowedMimes[$mimeType] ?? ($fileExt === 'jpeg' ? 'jpg' : $fileExt);
 
 // 4. Dossier de destination (compatible Hostinger public_html/uploads et environnement local)
+$docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/\\');
+$possibleDirs = [];
+if (!empty($docRoot)) {
+    $possibleDirs[] = $docRoot . '/uploads';
+}
+$possibleDirs[] = dirname(__DIR__, 3) . '/uploads'; // public/uploads
+$possibleDirs[] = dirname(__DIR__, 4) . '/public/uploads';
+$possibleDirs[] = dirname(__DIR__, 4) . '/dist/uploads';
+$possibleDirs[] = __DIR__ . '/../../../uploads';
+
 $uploadsDir = null;
-$possibleDirs = [
-    __DIR__ . '/../../../uploads',                             // Racine Hostinger : public_html/uploads
-    dirname(dirname(dirname(__DIR__))) . '/public/uploads',      // Structure projet avec dossier public/
-    dirname(dirname(dirname(__DIR__))) . '/dist/uploads',        // Structure dist/uploads
-];
 foreach ($possibleDirs as $candidate) {
     if (is_dir($candidate)) {
         $uploadsDir = $candidate;
@@ -120,8 +125,8 @@ foreach ($possibleDirs as $candidate) {
     }
 }
 if (!$uploadsDir) {
-    $uploadsDir = __DIR__ . '/../../../uploads';
-    @mkdir($uploadsDir, 0755, true);
+    $uploadsDir = !empty($docRoot) ? ($docRoot . '/uploads') : (dirname(__DIR__, 3) . '/uploads');
+    @mkdir($uploadsDir, 0775, true);
 }
 
 if (!is_dir($uploadsDir) || !is_writable($uploadsDir)) {

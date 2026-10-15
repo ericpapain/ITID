@@ -7,15 +7,36 @@ import { useTypewriter } from "../../hooks/useTypewriter";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 
-function ActiveSliderCard({ item }: { item: any, scrollX?: any, index?: number }) {
+const DEFAULT_CASE_IMAGES = [
+  "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1579684453423-f84349ef60b0?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop"
+];
+
+function ActiveSliderCard({ item, index = 0 }: { item: any, scrollX?: any, index?: number }) {
+  const [imgError, setImgError] = useState(false);
+
+  const fallbackUrl = DEFAULT_CASE_IMAGES[index % DEFAULT_CASE_IMAGES.length] || DEFAULT_CASE_IMAGES[0];
+  const hasValidImage = item.image && typeof item.image === "string" && item.image.trim().length > 0;
+  const currentImageSrc = (!hasValidImage || imgError) ? fallbackUrl : item.image;
+
   return (
     <div className="relative w-[300px] h-[450px] md:w-[400px] md:h-[600px] rounded-2xl overflow-hidden shrink-0 group pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] card-hover-highlight hover:shadow-[0_0_40px_rgba(72,209,194,0.5)] transition-all duration-500 p-[1mm] bg-white/10 backdrop-blur-md border border-white/20 hover:border-[#48cae4]/60">
       <div className="relative w-full h-full overflow-hidden rounded-[calc(1rem-1mm)] bg-[#0a1628] pointer-events-none">
         <img
-          src={item.image}
-          alt={item.title}
+          src={currentImageSrc}
+          alt={item.title || "Cas Clinique ITID"}
           loading="lazy"
           decoding="async"
+          onError={() => setImgError(true)}
           className="w-full h-full object-cover opacity-100 transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a1628]/20 to-[#0a1628]/90 group-hover:to-[#0a1628]/70 transition-colors duration-500"></div>
