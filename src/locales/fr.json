@@ -48,6 +48,13 @@
     "login": "Se connecter",
     "signup": "S'inscrire"
   },
+  "hero": {
+    "title1": "Institut du Traitement",
+    "title2": "Interventionnel de la Douleur",
+    "subtitle": "Centre d'excellence dédié au diagnostic de précision et aux thérapeutiques interventionnelles guidées par imagerie pour les douleurs chroniques rebelles.",
+    "discoverExpertise": "Découvrir nos expertises",
+    "discover": "Découvrir"
+  },
   "filters": {
     "allSpecialties": "Toutes les spécialités",
     "healthcarePro": "Médecins & Spécialistes",
