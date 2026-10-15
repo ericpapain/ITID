@@ -1,15 +1,48 @@
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { BLOG_ARTICLES, BlogCategory } from "../../data/blogData";
 import { ArrowLeft, Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export default function BlogPostPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith("en") ? "en" : "fr";
   const { id } = useParams<{ id: string }>();
+
+  const [dynamicArticle, setDynamicArticle] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadArticle() {
+      try {
+        const res = await fetch(`/api/cms/articles?slug=${id}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.article) {
+            setDynamicArticle(json.article);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Fallback on static blog data", err);
+      }
+      setLoading(false);
+    }
+    loadArticle();
+  }, [id]);
   
   const rawArticle = BLOG_ARTICLES.find(a => a.id === id);
 
-  if (!rawArticle) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0c1a2e] text-white pt-32 pb-24 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#48cae4]"></div>
+      </div>
+    );
+  }
+
+  if (!rawArticle && !dynamicArticle) {
     return (
       <div className="min-h-screen bg-[#0c1a2e] text-white pt-32 pb-24 flex flex-col items-center justify-center">
         <h1 className="text-4xl font-bold mb-4">{t('blog.notFound')}</h1>
@@ -20,21 +53,35 @@ export default function BlogPostPage() {
     );
   }
 
-  const article = {
-    ...rawArticle,
-    title: t(`blogData.${rawArticle.id}.title`),
-    summary: t(`blogData.${rawArticle.id}.summary`),
-    authorRole: t(`blogData.${rawArticle.id}.authorRole`),
-    category: t(`blogData.categories.${rawArticle.category === "Innovations" ? "innovations" : rawArticle.category === "Conseils Patients" ? "conseils" : rawArticle.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
-    sections: rawArticle.sections.map((s, i) => {
-      if (s.type === 'list') {
-        return { ...s, content: (s.content as string[]).map((_, j) => t(`blogData.${rawArticle.id}.sections.s${i}_${j}`)) };
+  const article = dynamicArticle
+    ? {
+        id: dynamicArticle.slug,
+        title: lang === "en" ? (dynamicArticle.title_en || dynamicArticle.title_fr) : dynamicArticle.title_fr,
+        summary: lang === "en" ? (dynamicArticle.summary_en || dynamicArticle.summary_fr) : dynamicArticle.summary_fr,
+        author: dynamicArticle.author || "Dr. Marc Moreau",
+        authorRole: lang === "en" ? (dynamicArticle.author_role_en || dynamicArticle.author_role_fr || "Pain Specialist") : (dynamicArticle.author_role_fr || "Algologue"),
+        date: dynamicArticle.date_published || "15 Octobre 2026",
+        readTime: lang === "en" ? (dynamicArticle.read_time_en || dynamicArticle.read_time_fr || "4 min") : (dynamicArticle.read_time_fr || "4 min"),
+        category: dynamicArticle.category || "Innovations",
+        coverImage: dynamicArticle.cover_image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200",
+        content: lang === "en" ? (dynamicArticle.content_en || dynamicArticle.content_fr) : dynamicArticle.content_fr,
+        sections: []
       }
-      return { ...s, content: t(`blogData.${rawArticle.id}.sections.s${i}`) as string };
-    })
-  };
+    : {
+        ...rawArticle!,
+        title: t(`blogData.${rawArticle!.id}.title`),
+        summary: t(`blogData.${rawArticle!.id}.summary`),
+        authorRole: t(`blogData.${rawArticle!.id}.authorRole`),
+        category: t(`blogData.categories.${rawArticle!.category === "Innovations" ? "innovations" : rawArticle!.category === "Conseils Patients" ? "conseils" : rawArticle!.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
+        sections: rawArticle!.sections.map((s, i) => {
+          if (s.type === 'list') {
+            return { ...s, content: (s.content as string[]).map((_, j) => t(`blogData.${rawArticle!.id}.sections.s${i}_${j}`)) };
+          }
+          return { ...s, content: t(`blogData.${rawArticle!.id}.sections.s${i}`) as string };
+        })
+      };
 
-  const relatedArticles = BLOG_ARTICLES.filter(a => a.category === rawArticle.category && a.id !== rawArticle.id).slice(0, 3).map(a => ({
+  const relatedArticles = BLOG_ARTICLES.filter(a => a.category === (rawArticle ? rawArticle.category : dynamicArticle?.category) && a.id !== (rawArticle ? rawArticle.id : dynamicArticle?.slug)).slice(0, 3).map(a => ({
     ...a,
     title: t(`blogData.${a.id}.title`),
     summary: t(`blogData.${a.id}.summary`),
@@ -98,33 +145,39 @@ export default function BlogPostPage() {
         </p>
         
         <article className="prose prose-lg md:prose-xl max-w-none text-gray-700">
-          {article.sections.map((section, idx) => {
-            switch (section.type) {
-              case 'heading':
-                return <h2 key={idx} className="text-3xl font-bold text-[#1a3a5c] mt-16 mb-6" style={{ fontFamily: "var(--font-display)" }}>{section.content}</h2>;
-              case 'paragraph':
-                return <p key={idx} className="mb-6 leading-relaxed font-light text-lg">{section.content}</p>;
-              case 'quote':
-                return (
-                  <blockquote key={idx} className="my-12 p-8 md:p-10 bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] border-l-4 border-[#48cae4] text-[#1a3a5c] italic font-medium text-xl md:text-2xl">
-                    "{section.content}"
-                  </blockquote>
-                );
-              case 'list':
-                return (
-                  <ul key={idx} className="my-10 space-y-4 bg-white p-8 md:p-10 rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-gray-100">
-                    {(section.content as string[]).map((item, i) => (
-                      <li key={i} className="flex items-start gap-4">
-                        <span className="text-[#2a9d8f] font-bold mt-1.5 text-xl">•</span>
-                        <span className="text-lg font-light">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                );
-              default:
-                return null;
-            }
-          })}
+          {article.sections && article.sections.length > 0 ? (
+            article.sections.map((section, idx) => {
+              switch (section.type) {
+                case 'heading':
+                  return <h2 key={idx} className="text-3xl font-bold text-[#1a3a5c] mt-16 mb-6" style={{ fontFamily: "var(--font-display)" }}>{section.content}</h2>;
+                case 'paragraph':
+                  return <p key={idx} className="mb-6 leading-relaxed font-light text-lg">{section.content}</p>;
+                case 'quote':
+                  return (
+                    <blockquote key={idx} className="my-12 p-8 md:p-10 bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] border-l-4 border-[#48cae4] text-[#1a3a5c] italic font-medium text-xl md:text-2xl">
+                      "{section.content}"
+                    </blockquote>
+                  );
+                case 'list':
+                  return (
+                    <ul key={idx} className="my-10 space-y-4 bg-white p-8 md:p-10 rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-gray-100">
+                      {(section.content as string[]).map((item, i) => (
+                        <li key={i} className="flex items-start gap-4">
+                          <span className="text-[#2a9d8f] font-bold mt-1.5 text-xl">•</span>
+                          <span className="text-lg font-light">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                default:
+                  return null;
+              }
+            })
+          ) : (
+            <div className="space-y-6 text-gray-700 leading-relaxed font-light text-lg whitespace-pre-line">
+              {article.content}
+            </div>
+          )}
         </article>
       </div>
 
