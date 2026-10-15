@@ -32,10 +32,14 @@ jobs:
       - name: 🏗️ Compilation du projet (Vite build)
         run: npm run build
 
-      - name: 🛡️ Vérification des fichiers du build
+      - name: 🛡️ Vérification des fichiers du build & Protection de la base
         run: |
           echo "Vérification des dossiers clés dans dist/:"
           ls -la dist/ || { echo "::error::Le dossier dist/ est manquant."; exit 1; }
+          # Supprimer tout fichier .sqlite ou .db résiduel dans dist/ pour ne jamais écraser les données réelles du serveur
+          find dist -name "*.sqlite*" -delete 2>/dev/null || true
+          find dist -name "*.db*" -delete 2>/dev/null || true
+          rm -rf dist/uploads dist/itid_data 2>/dev/null || true
           if [ -d "dist/api" ]; then
             echo "✅ dist/api trouvé avec succès"
             ls -la dist/api/

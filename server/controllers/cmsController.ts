@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { executeQuery } from '../config/db';
+import fs from 'fs';
+import path from 'path';
 
 export interface CasCliniqueItem {
   id: number;
@@ -14,8 +16,8 @@ export interface CasCliniqueItem {
   updated_at?: string;
 }
 
-// In-memory initial data for Cas Cliniques
-let inMemoryCasCliniques: CasCliniqueItem[] = [
+// Initial seed data for Cas Cliniques
+const initialCasCliniques: CasCliniqueItem[] = [
   {
     id: 1,
     title_fr: "Cas Clinique #1",
@@ -108,7 +110,44 @@ let inMemoryCasCliniques: CasCliniqueItem[] = [
   }
 ];
 
-let nextId = 10;
+const dataDir = path.resolve(process.cwd(), 'server/data');
+
+function ensureDataDir() {
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+}
+
+const casCliniquesFilePath = path.join(dataDir, 'cms_cas_cliniques.json');
+const pagesFilePath = path.join(dataDir, 'cms_pages.json');
+
+function loadCasCliniquesFromDisk(): CasCliniqueItem[] {
+  ensureDataDir();
+  if (fs.existsSync(casCliniquesFilePath)) {
+    try {
+      const content = fs.readFileSync(casCliniquesFilePath, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    } catch (err) {
+      console.error('Erreur lecture cms_cas_cliniques.json:', err);
+    }
+  }
+  return [...initialCasCliniques];
+}
+
+function saveCasCliniquesToDisk(items: CasCliniqueItem[]) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(casCliniquesFilePath, JSON.stringify(items, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Erreur écriture cms_cas_cliniques.json:', err);
+  }
+}
+
+let inMemoryCasCliniques: CasCliniqueItem[] = loadCasCliniquesFromDisk();
+let nextId = Math.max(...inMemoryCasCliniques.map(c => c.id || 0), 0) + 1;
 
 // GET /api/cms/cas_cliniques or /api/cms/cas-cliniques (Public)
 export async function getPublicCasCliniques(req: Request, res: Response) {
@@ -166,6 +205,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       } catch {}
 
       inMemoryCasCliniques.push(newItem);
+      saveCasCliniquesToDisk(inMemoryCasCliniques);
       return res.json({ success: true, id: newItem.id, message: 'Cas clinique créé avec succès.' });
     }
 
@@ -188,7 +228,8 @@ export async function handleAdminCms(req: Request, res: Response) {
           id
         };
       }
-      return res.json({ success: true, message: 'Cas clinique mis à jour avec succès.' });
+      saveCasCliniquesToDisk(inMemoryCasCliniques);
+      return res.json({ success: true, id, message: 'Cas clinique mis à jour avec succès.' });
     }
 
     if (method === 'DELETE') {
@@ -199,6 +240,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       } catch {}
 
       inMemoryCasCliniques = inMemoryCasCliniques.filter(c => c.id !== id);
+      saveCasCliniquesToDisk(inMemoryCasCliniques);
       return res.json({ success: true, message: 'Cas clinique supprimé avec succès.' });
     }
   }
@@ -222,6 +264,7 @@ export async function handleAdminCms(req: Request, res: Response) {
         content_fr: body.content_fr || {},
         content_en: body.content_en || {}
       };
+      savePagesToDisk(inMemoryPages);
       return res.json({ success: true, message: 'Page enregistrée avec succès.' });
     }
   }
@@ -254,7 +297,7 @@ const defaultHeroMedia = [
   }
 ];
 
-const inMemoryPages: Record<string, { content_fr: any; content_en: any }> = {
+const initialPages: Record<string, { content_fr: any; content_en: any }> = {
   home: {
     content_fr: {
       heroTitle1: "Institut du Traitement",
@@ -274,6 +317,33 @@ const inMemoryPages: Record<string, { content_fr: any; content_en: any }> = {
     }
   }
 };
+
+function loadPagesFromDisk(): Record<string, { content_fr: any; content_en: any }> {
+  ensureDataDir();
+  if (fs.existsSync(pagesFilePath)) {
+    try {
+      const content = fs.readFileSync(pagesFilePath, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    } catch (err) {
+      console.error('Erreur lecture cms_pages.json:', err);
+    }
+  }
+  return { ...initialPages };
+}
+
+function savePagesToDisk(pages: Record<string, { content_fr: any; content_en: any }>) {
+  try {
+    ensureDataDir();
+    fs.writeFileSync(pagesFilePath, JSON.stringify(pages, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Erreur écriture cms_pages.json:', err);
+  }
+}
+
+const inMemoryPages: Record<string, { content_fr: any; content_en: any }> = loadPagesFromDisk();
 
 // GET /api/cms/pages?page=home
 export async function getPublicPageContent(req: Request, res: Response) {

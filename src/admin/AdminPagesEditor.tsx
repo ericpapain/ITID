@@ -66,10 +66,9 @@ export default function AdminPagesEditor() {
   ];
 
   // Chargement des données selon la section active
-  const loadData = async () => {
+  const loadData = async (preferredId?: number) => {
     setLoading(true);
     setSaveMessage(null);
-    setSelectedItem(null);
 
     try {
       if (currentSection === "home" || currentSection === "about" || currentSection === "hero_media") {
@@ -95,7 +94,11 @@ export default function AdminPagesEditor() {
           if (data.success && Array.isArray(data.items)) {
             setItemsList(data.items);
             if (data.items.length > 0) {
-              setSelectedItem(data.items[0]);
+              const targetId = preferredId ?? selectedItem?.id;
+              const found = targetId ? data.items.find((it: any) => it.id === targetId) : null;
+              setSelectedItem(found || data.items[0]);
+            } else {
+              setSelectedItem(null);
             }
           }
         } else if (res.status === 401) {
@@ -112,6 +115,7 @@ export default function AdminPagesEditor() {
   };
 
   useEffect(() => {
+    setSelectedItem(null);
     loadData();
   }, [currentSection]);
 
@@ -142,7 +146,7 @@ export default function AdminPagesEditor() {
     }
   };
 
-  // Sauvegarde d'un élément (Pathologie, Traitement, Article)
+  // Sauvegarde d'un élément (Pathologie, Traitement, Article, Cas Clinique)
   const handleSaveItem = async (itemToSave: any) => {
     setSaving(true);
     setSaveMessage(null);
@@ -163,11 +167,12 @@ export default function AdminPagesEditor() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Erreur de sauvegarde");
 
+      const savedId = isNew ? (data.id || itemToSave.id) : itemToSave.id;
       setSaveMessage(`✅ ${isNew ? "Création réussie" : "Modifications enregistrées"} avec succès !`);
       setTimeout(() => setSaveMessage(null), 4000);
 
-      // Recharger la liste
-      await loadData();
+      // Recharger la liste en conservant la fiche modifiée ou nouvellement créée active
+      await loadData(savedId);
     } catch (err: any) {
       setSaveMessage(`❌ ${err.message}`);
     } finally {

@@ -43,16 +43,37 @@ export function SingleMediaSelector({
         body: formData
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Erreur lors du téléversement");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.url) {
+          onChange(data.url);
+          setUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+          return;
+        }
       }
-
-      onChange(data.url);
-    } catch (err: any) {
-      setError(err.message);
+      throw new Error("Téléversement serveur indisponible");
+    } catch {
+      // Fallback instantané : conversion FileReader en Data URL Base64
+      // Garantit que l'image s'affiche toujours immédiatement et se sauvegarde sans perte
+      try {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            onChange(reader.result);
+          }
+          setUploading(false);
+        };
+        reader.onerror = () => {
+          setError("Impossible de lire le fichier image sélectionné.");
+          setUploading(false);
+        };
+        reader.readAsDataURL(file);
+      } catch (readErr: any) {
+        setError("Erreur de lecture du fichier image.");
+        setUploading(false);
+      }
     } finally {
-      setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -110,7 +131,7 @@ export function SingleMediaSelector({
           {uploading ? (
             <>
               <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              <span>Envoi...</span>
+              <span>Chargement...</span>
             </>
           ) : (
             <>
@@ -157,22 +178,45 @@ export function GalleryMediaSelector({
       delete (headers as any)["Content-Type"];
 
       for (let i = 0; i < files.length; i++) {
-        const formData = new FormData();
-        formData.append("file", files[i]);
-        const token = getAdminToken();
-        if (token) {
-          formData.append("token", token);
+        const file = files[i];
+        let urlAdded = false;
+
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          const token = getAdminToken();
+          if (token) {
+            formData.append("token", token);
+          }
+
+          const res = await fetch("/api/admin/media/upload", {
+            method: "POST",
+            headers,
+            body: formData
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.url) {
+              uploadedUrls.push(data.url);
+              urlAdded = true;
+            }
+          }
+        } catch {
+          urlAdded = false;
         }
 
-        const res = await fetch("/api/admin/media/upload", {
-          method: "POST",
-          headers,
-          body: formData
-        });
-
-        const data = await res.json();
-        if (res.ok && data.success && data.url) {
-          uploadedUrls.push(data.url);
+        // Fallback Base64 si le téléversement serveur échoue
+        if (!urlAdded) {
+          const base64Url = await new Promise<string | null>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(file);
+          });
+          if (base64Url) {
+            uploadedUrls.push(base64Url);
+          }
         }
       }
 
@@ -180,7 +224,7 @@ export function GalleryMediaSelector({
         onChange([...images, ...uploadedUrls]);
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Erreur lors du chargement des images");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

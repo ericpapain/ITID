@@ -64,56 +64,81 @@ function getItidDb(): PDO {
     //   Priorité 3 : public/api/data/ (fallback local uniquement)
     //   Priorité 4 : sys_get_temp_dir() (dernier recours — non persistant)
     // ============================================================
+    // ============================================================
+    // DÉTERMINATION DU CHEMIN SQLITE (PÉRENNE & UNIQUE)
+    // ============================================================
     $config = getItidConfig();
 
-    // Priorité 0 : Chemin explicite dans config.php
+    // Priorité 0 : Chemin explicite configuré dans config.php
     $explicitPath = $config['sqlite_path'] ?? null;
-    if ($explicitPath && is_writable(dirname($explicitPath))) {
+    if ($explicitPath && (file_exists($explicitPath) || @is_writable(dirname($explicitPath)))) {
         $sqliteFile = $explicitPath;
     } else {
-        // Priorité 1 : Remonter hors du webroot (Hostinger : /public_html/../)
         $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+        $parentOfPublic = !empty($docRoot) ? dirname(rtrim($docRoot, '/\\')) : null;
+
         $candidateDirs = [];
 
-        if (!empty($docRoot)) {
-            $parentOfPublic = dirname(rtrim($docRoot, '/\\'));
+        // 1. Dossier data local dans public/api/data (standard, toujours au sein du site web)
+        $localDataDir = __DIR__ . '/data';
+        $candidateDirs[] = $localDataDir;
+
+        // 2. Dossier hors webroot Hostinger (/home/uXXXX/itid_data) si accessible
+        if ($parentOfPublic && is_dir($parentOfPublic)) {
             $candidateDirs[] = $parentOfPublic . '/itid_data';
             $candidateDirs[] = $parentOfPublic . '/private/itid_data';
         }
 
-        $apiDir = __DIR__;
-        $candidateDirs[] = dirname(dirname(dirname(dirname($apiDir)))) . '/itid_data';
-        $candidateDirs[] = __DIR__ . '/data';
+        // 3. Fallbacks
         $candidateDirs[] = __DIR__;
 
-        $dataDir = null;
+        $selectedDir = null;
+
+        // Étape A : chercher en priorité le dossier qui possède la base existante la plus complète (> 2 Ko)
+        $bestCandidateDir = null;
+        $bestCandidateSize = 0;
         foreach ($candidateDirs as $dir) {
-            if (!is_dir($dir)) {
-                @mkdir($dir, 0750, true);
+            $candidateFile = $dir . '/itid.sqlite';
+            if (file_exists($candidateFile)) {
+                $sz = (int)@filesize($candidateFile);
+                if ($sz > 2048 && $sz > $bestCandidateSize) {
+                    if (is_writable($candidateFile) || is_writable($dir)) {
+                        $bestCandidateDir = $dir;
+                        $bestCandidateSize = $sz;
+                    }
+                }
             }
-            if (is_dir($dir) && is_writable($dir)) {
-                $dataDir = $dir;
-                break;
+        }
+        if ($bestCandidateDir !== null) {
+            $selectedDir = $bestCandidateDir;
+        }
+
+        // Étape B : si aucune base existante n'a été trouvée, sélectionner le premier dossier inscriptible
+        if ($selectedDir === null) {
+            foreach ($candidateDirs as $dir) {
+                if (!is_dir($dir)) {
+                    @mkdir($dir, 0775, true);
+                }
+                if (is_dir($dir) && is_writable($dir)) {
+                    $selectedDir = $dir;
+                    break;
+                }
             }
         }
 
-        // Priorité 3 : Dossier temporaire système (non persistant — dernier recours)
-        if ($dataDir === null) {
-            $dataDir = sys_get_temp_dir() . '/itid_data';
-            if (!is_dir($dataDir)) {
-                @mkdir($dataDir, 0777, true);
+        // Étape C : dernier recours si aucun dossier n'est inscriptible
+        if ($selectedDir === null) {
+            $selectedDir = sys_get_temp_dir() . '/itid_data';
+            if (!is_dir($selectedDir)) {
+                @mkdir($selectedDir, 0777, true);
             }
-            error_log('ITID WARNING: SQLite stored in temp dir');
+            error_log('ITID WARNING: SQLite stored in temp directory: ' . $selectedDir);
         }
 
-        $sqliteFile = $dataDir . '/itid.sqlite';
+        $sqliteFile = $selectedDir . '/itid.sqlite';
     }
 
-    // ============================================================
-    // RÉCUPÉRATION & MIGRATION AUTOMATIQUE DES ANCIENNES BASES
-    // Si la base active est neuve ou vide, scanner les anciens emplacements
-    // pour restaurer automatiquement les données historiques existantes.
-    // ============================================================
+    // Protection : migrer uniquement si la base active est strictement absente ou vide (0 octet)
     autoMigrateLegacySqliteIfEmpty($sqliteFile);
 
     $pdo = new PDO("sqlite:" . $sqliteFile, null, null, [
@@ -131,56 +156,55 @@ function getItidDb(): PDO {
 }
 
 /**
- * Scanne tous les anciens emplacements connus sur le serveur.
- * Si le fichier actif n'existe pas ou est vide, et qu'un ancien fichier avec des données
- * existe ailleurs, il est automatiquement copié vers le nouvel emplacement pérenne.
+ * Scanne les anciens emplacements potentiels UNIQUEMENT si la base active est totalement vide (0 octet).
+ * Ne remplace JAMAIS une base existante qui contient des tables ou des données CMS.
  */
 function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
-    $targetSize = file_exists($targetSqliteFile) ? filesize($targetSqliteFile) : 0;
-    
-    // Si la base cible a déjà plus de 50 Ko, elle contient probablement des données
-    if ($targetSize > 51200) {
-        return;
-    }
-
-    // Si la cible existe, vérifier si elle a des enregistrements
-    if ($targetSize > 0) {
+    // Si la base cible existe déjà et n'est pas vide (> 0 octet)
+    if (file_exists($targetSqliteFile) && filesize($targetSqliteFile) > 0) {
         try {
             $testPdo = new PDO("sqlite:" . $targetSqliteFile);
-            $hasData = false;
-            foreach (['visitors', 'contact_messages', 'visitor_sessions'] as $table) {
-                $check = $testPdo->query("SELECT COUNT(*) FROM {$table}")->fetchColumn();
-                if ((int)$check > 0) {
-                    $hasData = true;
-                    break;
+            $tables = $testPdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")->fetchAll(PDO::FETCH_COLUMN);
+            
+            // Si des tables existent déjà, vérifier si la base contient des données
+            if (!empty($tables)) {
+                $checkTables = [
+                    'cms_cas_cliniques', 'cms_articles', 'cms_pathologies', 'cms_traitements',
+                    'cms_pages_content', 'contact_messages', 'visitors', 'visitor_sessions',
+                    'newsletter_subscribers', 'admin_users'
+                ];
+                foreach ($checkTables as $t) {
+                    if (in_array($t, $tables, true)) {
+                        $count = (int)$testPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                        if ($count > 0) {
+                            // Données actives présentes : INTERDICTION FORMELLE d'écraser la base !
+                            return;
+                        }
+                    }
                 }
             }
-            $testPdo = null;
-            if ($hasData) {
-                return; // La base active contient déjà des données valides
-            }
         } catch (Throwable $t) {
-            // Table non trouvée ou erreur, on continue la recherche
+            // En cas d'erreur ou de verrou, ne rien écraser à l'aveugle
+            return;
         }
+    }
+
+    // Si un marqueur d'initialisation existe déjà, ne rien faire
+    $markerFile = $targetSqliteFile . '.migrated';
+    if (file_exists($markerFile)) {
+        return;
     }
 
     // Liste des emplacements historiques potentiels à vérifier
     $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
     $legacyCandidates = [
-        __DIR__ . '/data/itid.sqlite',
-        __DIR__ . '/data/itid_france.sqlite',
-        __DIR__ . '/itid.sqlite',
         dirname(__DIR__) . '/data/itid.sqlite',
+        __DIR__ . '/data/itid_france.sqlite',
         $docRoot . '/api/data/itid.sqlite',
-        $docRoot . '/api/data/itid_france.sqlite',
-        $docRoot . '/api/itid.sqlite',
         $docRoot . '/data/itid.sqlite',
-        $docRoot . '/public/api/data/itid.sqlite',
-        dirname(rtrim($docRoot, '/\\')) . '/public_html/api/data/itid.sqlite',
-        dirname(rtrim($docRoot, '/\\')) . '/public_html/api/itid.sqlite',
+        $docRoot . '/itid_data/itid.sqlite',
         dirname(rtrim($docRoot, '/\\')) . '/itid_data/itid.sqlite',
-        sys_get_temp_dir() . '/itid_data/itid.sqlite',
-        sys_get_temp_dir() . '/itid.sqlite'
+        sys_get_temp_dir() . '/itid_data/itid.sqlite'
     ];
 
     $bestLegacy = null;
@@ -192,10 +216,9 @@ function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
         
         $size = filesize($legacyPath);
         if ($size > $bestSize && $size > 4096) {
-            // Vérifier s'il y a des tables et des données dedans
             try {
                 $legacyPdo = new PDO("sqlite:" . $legacyPath);
-                $tables = $legacyPdo->query("SELECT name FROM sqlite_master WHERE type='table'")->fetchAll(PDO::FETCH_COLUMN);
+                $tables = $legacyPdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")->fetchAll(PDO::FETCH_COLUMN);
                 if (!empty($tables)) {
                     $bestLegacy = $legacyPath;
                     $bestSize = $size;
@@ -205,12 +228,12 @@ function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
         }
     }
 
-    if ($bestLegacy !== null && $bestSize > $targetSize) {
-        error_log("ITID AUTO-MIGRATION: Copie de {$bestLegacy} ({$bestSize} octets) vers {$targetSqliteFile}");
-        if (file_exists($targetSqliteFile)) {
-            @copy($targetSqliteFile, $targetSqliteFile . '.empty_bak');
-        }
+    // Copie uniquement si la base cible n'existe pas ou pèse 0 octet
+    $targetSize = file_exists($targetSqliteFile) ? filesize($targetSqliteFile) : 0;
+    if ($bestLegacy !== null && $targetSize === 0) {
+        error_log("ITID AUTO-MIGRATION: Restauration initiale depuis {$bestLegacy} vers {$targetSqliteFile}");
         @copy($bestLegacy, $targetSqliteFile);
+        @file_put_contents($markerFile, date('c'));
     }
 }
 
