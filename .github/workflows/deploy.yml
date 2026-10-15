@@ -78,7 +78,7 @@ jobs:
             TARGET_DIR="$CLEAN_DIR"
           else
             echo "🔎 Test automatique de la présence de public_html/ sur le serveur distant..."
-            if lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" -e "set ssl:verify-certificate no; set ftp:ssl-allow yes; set ftp:passive-mode yes; cd public_html; bye" 2>/dev/null; then
+            if lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" -e "set ssl:verify-certificate no; set ftp:ssl-allow yes; set ftp:passive-mode yes; cd public_html; bye" "$FTP_SERVER" 2>/dev/null; then
               echo "✅ Dossier distant 'public_html' détecté avec succès"
               TARGET_DIR="public_html"
             else
@@ -95,6 +95,7 @@ jobs:
 
           # Préparation du script LFTP avec indentation YAML valide
           {
+            echo "set cmd:fail-exit yes;"
             echo "set ssl:verify-certificate no;"
             echo "set ftp:ssl-allow yes;"
             echo "set ftp:ssl-protect-data yes;"
@@ -110,7 +111,7 @@ jobs:
             if [ -n "$TARGET_DIR" ]; then
               echo "cd \"$TARGET_DIR\";"
             fi
-            echo "mirror -R --continue --verbose --parallel=2 --no-perms --no-umask --allow-chown=false --exclude-glob .git* --exclude-glob *.sqlite* --exclude-glob *.db* --exclude-glob itid_data/ --exclude-glob uploads/ --exclude-glob api/config.php --exclude-glob *.bak* dist ."
+            echo "mirror -R --continue --verbose --parallel=2 --no-perms --no-umask --exclude-glob .git* --exclude-glob *.sqlite* --exclude-glob *.db* --exclude-glob itid_data/ --exclude-glob uploads/ --exclude-glob api/config.php --exclude-glob *.bak* dist ."
             echo "bye"
           } > deploy_script.lftp
 
@@ -118,6 +119,6 @@ jobs:
           cat deploy_script.lftp
 
           echo "🚀 Synchronisation des fichiers avec LFTP..."
-          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" -f deploy_script.lftp
+          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -p "$FTP_PORT" "$FTP_SERVER" < deploy_script.lftp
           rm -f deploy_script.lftp
           echo "🎉 Déploiement terminé avec succès sur l'hébergeur !"
