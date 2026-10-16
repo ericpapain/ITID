@@ -36,6 +36,8 @@ function seedCmsIfEmpty(PDO $pdo): void {
         $casCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_cas_cliniques")->fetchColumn();
         if ($casCount === 0) {
             seedCasCliniquesData($pdo);
+        } else {
+            cleanupLegacyUnsplashCasCliniques($pdo);
         }
     } catch (Throwable $e) {
         error_log("seedCmsIfEmpty error: " . $e->getMessage());
@@ -879,6 +881,31 @@ function seedPagesData(PDO $pdo): void {
     $stmt->execute(['about', json_encode($aboutFr), json_encode($aboutEn)]);
 }
 
+function cleanupLegacyUnsplashCasCliniques(PDO $pdo): void {
+    try {
+        $realImages = [
+            1 => '/images/treatments/infiltrations_rachidiennes.jpg',
+            2 => '/images/treatments/radiofrequence.jpg',
+            3 => '/images/lombalgie.jpg',
+            4 => '/images/treatments/blocs_anesthesiques.jpg',
+            5 => '/images/treatments/hypnovr.jpg',
+            6 => '/images/migraine.jpg',
+            7 => '/images/nevralgie_arnold.jpg',
+            8 => '/images/sdrc.jpg',
+            9 => '/images/treatments/stimulation_ganglion_dorsal.jpg',
+        ];
+        $up = $pdo->prepare("UPDATE cms_cas_cliniques SET image = ? WHERE (image LIKE '%unsplash%' OR image = '' OR image IS NULL) AND display_order = ?");
+        foreach ($realImages as $order => $img) {
+            $up->execute([$img, $order]);
+        }
+        $pdo->exec("UPDATE cms_cas_cliniques SET image = '/images/treatments/infiltrations_rachidiennes.jpg' WHERE image LIKE '%unsplash%'");
+        // Normaliser les chemins locaux sans slash initial
+        $pdo->exec("UPDATE cms_cas_cliniques SET image = '/' || image WHERE image NOT LIKE '/%' AND image NOT LIKE 'http%' AND image NOT LIKE 'data:%'");
+    } catch (Throwable $e) {
+        error_log("cleanupLegacyUnsplash error: " . $e->getMessage());
+    }
+}
+
 function seedCasCliniquesData(PDO $pdo): void {
     $cases = [
         [
@@ -886,7 +913,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Clinical Case #1',
             'category_fr' => 'Infiltration lombaire',
             'category_en' => 'Lumbar Infiltration',
-            'image' => 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/treatments/infiltrations_rachidiennes.jpg',
             'order' => 1
         ],
         [
@@ -894,7 +921,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Clinical Case #2',
             'category_fr' => 'Radiofréquence',
             'category_en' => 'Radiofrequency',
-            'image' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/treatments/radiofrequence.jpg',
             'order' => 2
         ],
         [
@@ -902,7 +929,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Clinical Case #3',
             'category_fr' => 'Douleur pelvienne',
             'category_en' => 'Pelvic Pain',
-            'image' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/lombalgie.jpg',
             'order' => 3
         ],
         [
@@ -910,7 +937,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Clinical Case #4',
             'category_fr' => 'Bloc nerveux',
             'category_en' => 'Nerve Block',
-            'image' => 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/treatments/blocs_anesthesiques.jpg',
             'order' => 4
         ],
         [
@@ -918,7 +945,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Innovation #5',
             'category_fr' => 'Réalité Virtuelle',
             'category_en' => 'Virtual Reality',
-            'image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/treatments/hypnovr.jpg',
             'order' => 5
         ],
         [
@@ -926,7 +953,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Clinical Case #6',
             'category_fr' => 'Céphalées chroniques',
             'category_en' => 'Chronic Headaches',
-            'image' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/migraine.jpg',
             'order' => 6
         ],
         [
@@ -934,7 +961,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Clinical Case #7',
             'category_fr' => 'Névralgie cervico-brachiale',
             'category_en' => 'Cervicobrachial Neuralgia',
-            'image' => 'https://images.unsplash.com/photo-1579684453423-f84349ef60b0?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/nevralgie_arnold.jpg',
             'order' => 7
         ],
         [
@@ -942,7 +969,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Clinical Case #8',
             'category_fr' => 'SDRC Type 1',
             'category_en' => 'CRPS Type 1',
-            'image' => 'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/sdrc.jpg',
             'order' => 8
         ],
         [
@@ -950,7 +977,7 @@ function seedCasCliniquesData(PDO $pdo): void {
             'title_en' => 'Innovation #9',
             'category_fr' => 'Neuromodulation',
             'category_en' => 'Neuromodulation',
-            'image' => 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?q=80&w=800&auto=format&fit=crop',
+            'image' => '/images/treatments/stimulation_ganglion_dorsal.jpg',
             'order' => 9
         ],
     ];

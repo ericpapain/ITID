@@ -1,6 +1,27 @@
 import React, { useState, useRef } from "react";
 import { getAuthHeaders, getAdminToken } from "./auth";
-import { Upload, Link as LinkIcon, Trash2, Plus, Image as ImageIcon } from "lucide-react";
+import { Upload, Link as LinkIcon, Trash2, Plus, Image as ImageIcon, X, Check, Images } from "lucide-react";
+
+export const ITID_PRESET_IMAGES = [
+  { label: "Infiltration Rachidienne", url: "/images/treatments/infiltrations_rachidiennes.jpg" },
+  { label: "Radiofréquence", url: "/images/treatments/radiofrequence.jpg" },
+  { label: "Bloc Anesthésique", url: "/images/treatments/blocs_anesthesiques.jpg" },
+  { label: "Réalité Virtuelle HypnoVR", url: "/images/treatments/hypnovr.jpg" },
+  { label: "Cryoneurolyse", url: "/images/treatments/cryoneurolyse.jpg" },
+  { label: "Perfusion Lidocaïne", url: "/images/treatments/perfusion_lidocaine.jpg" },
+  { label: "Stimulation Ganglion Dorsal", url: "/images/treatments/stimulation_ganglion_dorsal.jpg" },
+  { label: "Infiltration Articulaire", url: "/images/treatments/infiltrations_articulaires.jpg" },
+  { label: "Lombalgie & Rachis", url: "/images/lombalgie.jpg" },
+  { label: "Migraine & Céphalées", url: "/images/migraine.jpg" },
+  { label: "Névralgie d'Arnold", url: "/images/nevralgie_arnold.jpg" },
+  { label: "SDRC Algodystrophie", url: "/images/sdrc.jpg" },
+  { label: "Endométriose", url: "/images/endometriose.jpg" },
+  { label: "Fibromyalgie", url: "/images/fibromyalgie.jpg" },
+  { label: "Douleurs Neuropathiques", url: "/images/douleurs_neuropathiques.jpg" },
+  { label: "Douleurs Articulaires", url: "/images/douleurs_articulaires.jpg" },
+  { label: "Colonne 3D Isolée", url: "/images/spine_isolated.jpg" },
+  { label: "Rachis Lumineux 3D", url: "/images/glowing_3d_spine.jpg" }
+];
 
 interface SingleMediaSelectorProps {
   value: string;
@@ -17,6 +38,7 @@ export function SingleMediaSelector({
 }: SingleMediaSelectorProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +136,21 @@ export function SingleMediaSelector({
           <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
         </div>
 
+        {/* Bouton Banque Photos Médicales ITID */}
+        <button
+          type="button"
+          onClick={() => setShowGallery(!showGallery)}
+          className={`w-full sm:w-auto px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer border ${
+            showGallery
+              ? "bg-[#2a9d8f] text-white border-[#2a9d8f]"
+              : "bg-[#2a9d8f]/10 hover:bg-[#2a9d8f]/20 text-[#48cae4] border-[#2a9d8f]/30"
+          }`}
+          title="Sélectionner parmi les photos cliniques ITID officielles"
+        >
+          <Images size={14} />
+          <span>Photos ITID</span>
+        </button>
+
         {/* Bouton Upload depuis PC */}
         <input
           type="file"
@@ -141,6 +178,51 @@ export function SingleMediaSelector({
           )}
         </button>
       </div>
+
+      {/* Panneau Sélecteur Photos Cliniques ITID */}
+      {showGallery && (
+        <div className="p-3 bg-slate-900 border border-[#2a9d8f]/40 rounded-2xl space-y-2 mt-2 shadow-xl animate-fadeIn">
+          <div className="flex items-center justify-between pb-1 border-b border-slate-800">
+            <span className="text-[11px] font-bold text-[#48cae4] flex items-center gap-1">
+              <Images size={12} />
+              <span>Photos cliniques & thérapeutiques officielles ITID</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowGallery(false)}
+              className="text-slate-400 hover:text-white text-xs p-1 cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-56 overflow-y-auto p-1">
+            {ITID_PRESET_IMAGES.map((preset) => (
+              <button
+                key={preset.url}
+                type="button"
+                onClick={() => {
+                  onChange(preset.url);
+                  setShowGallery(false);
+                }}
+                className={`flex items-center gap-2 p-1.5 rounded-xl border text-left transition-all group cursor-pointer ${
+                  value === preset.url
+                    ? "bg-[#2a9d8f]/20 border-[#2a9d8f] text-white"
+                    : "bg-slate-950 border-slate-800 hover:border-slate-600 text-slate-300"
+                }`}
+              >
+                <img
+                  src={preset.url}
+                  alt={preset.label}
+                  className="w-9 h-9 rounded-lg object-cover shrink-0"
+                />
+                <span className="text-[11px] font-medium leading-tight line-clamp-2">
+                  {preset.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && <div className="text-red-400 text-[11px]">{error}</div>}
     </div>

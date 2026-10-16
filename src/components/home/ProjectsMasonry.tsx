@@ -7,26 +7,50 @@ import { useTypewriter } from "../../hooks/useTypewriter";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 
-const DEFAULT_CASE_IMAGES = [
-  "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579684453423-f84349ef60b0?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop"
+const REAL_CLINICAL_IMAGES = [
+  "/images/treatments/infiltrations_rachidiennes.jpg",
+  "/images/treatments/radiofrequence.jpg",
+  "/images/treatments/perfusion_lidocaine.jpg",
+  "/images/treatments/blocs_anesthesiques.jpg",
+  "/images/treatments/hypnovr.jpg",
+  "/images/migraine.jpg",
+  "/images/treatments/cryoneurolyse.jpg",
+  "/images/sdrc.jpg",
+  "/images/treatments/stimulation_ganglion_dorsal.jpg",
+  "/images/lombalgie.jpg",
+  "/images/nevralgie_arnold.jpg"
 ];
+
+function getCleanImageSrc(rawImage?: string | null, fallbackIndex: number = 0): string {
+  const fallback = REAL_CLINICAL_IMAGES[fallbackIndex % REAL_CLINICAL_IMAGES.length] || REAL_CLINICAL_IMAGES[0];
+  if (!rawImage || typeof rawImage !== "string") {
+    return fallback;
+  }
+  const trimmed = rawImage.trim();
+  if (trimmed.length === 0) {
+    return fallback;
+  }
+  // Purger les anciennes URLs Unsplash résiduelles en base
+  if (trimmed.includes("images.unsplash.com") || trimmed.includes("unsplash.com")) {
+    return fallback;
+  }
+  // Normaliser les chemins relatifs locaux
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://") && !trimmed.startsWith("data:") && !trimmed.startsWith("/")) {
+    return "/" + trimmed;
+  }
+  return trimmed;
+}
 
 function ActiveSliderCard({ item, index = 0 }: { item: any, scrollX?: any, index?: number }) {
   const [imgError, setImgError] = useState(false);
 
-  const fallbackUrl = DEFAULT_CASE_IMAGES[index % DEFAULT_CASE_IMAGES.length] || DEFAULT_CASE_IMAGES[0];
-  const hasValidImage = item.image && typeof item.image === "string" && item.image.trim().length > 0;
-  const currentImageSrc = (!hasValidImage || imgError) ? fallbackUrl : item.image;
+  const fallbackUrl = REAL_CLINICAL_IMAGES[index % REAL_CLINICAL_IMAGES.length] || REAL_CLINICAL_IMAGES[0];
+  const resolvedSrc = getCleanImageSrc(item?.image, index);
+  const currentImageSrc = imgError ? fallbackUrl : resolvedSrc;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [item?.image]);
 
   return (
     <div className="relative w-[300px] h-[450px] md:w-[400px] md:h-[600px] rounded-2xl overflow-hidden shrink-0 group pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] card-hover-highlight hover:shadow-[0_0_40px_rgba(72,209,194,0.5)] transition-all duration-500 p-[1mm] bg-white/10 backdrop-blur-md border border-white/20 hover:border-[#48cae4]/60">
@@ -62,47 +86,47 @@ export function ProjectsMasonry() {
     {
       title: t('masonry.p1.title'),
       category: t('masonry.p1.cat'),
-      image: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop"
+      image: "/images/treatments/infiltrations_rachidiennes.jpg"
     },
     {
       title: t('masonry.p2.title'),
       category: t('masonry.p2.cat'),
-      image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop"
+      image: "/images/treatments/radiofrequence.jpg"
     },
     {
       title: t('masonry.p3.title'),
       category: t('masonry.p3.cat'),
-      image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop"
+      image: "/images/lombalgie.jpg"
     },
     {
       title: t('masonry.p4.title'),
       category: t('masonry.p4.cat'),
-      image: "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop"
+      image: "/images/treatments/blocs_anesthesiques.jpg"
     },
     {
       title: t('masonry.p5.title'),
       category: t('masonry.p5.cat'),
-      image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop"
+      image: "/images/treatments/hypnovr.jpg"
     },
     {
       title: t('masonry.p6.title'),
       category: t('masonry.p6.cat'),
-      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop"
+      image: "/images/migraine.jpg"
     },
     {
       title: t('masonry.p7.title'),
       category: t('masonry.p7.cat'),
-      image: "https://images.unsplash.com/photo-1579684453423-f84349ef60b0?q=80&w=800&auto=format&fit=crop"
+      image: "/images/nevralgie_arnold.jpg"
     },
     {
       title: t('masonry.p8.title'),
       category: t('masonry.p8.cat'),
-      image: "https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop"
+      image: "/images/sdrc.jpg"
     },
     {
       title: t('masonry.p9.title'),
       category: t('masonry.p9.cat'),
-      image: "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?q=80&w=800&auto=format&fit=crop"
+      image: "/images/treatments/stimulation_ganglion_dorsal.jpg"
     }
   ];
 

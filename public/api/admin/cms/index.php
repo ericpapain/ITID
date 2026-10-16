@@ -496,14 +496,44 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC");
             $items = $stmt->fetchAll();
+            require_once __DIR__ . '/../seed_cms.php';
             if (empty($items)) {
-                require_once __DIR__ . '/../seed_cms.php';
                 if (function_exists('seedCmsIfEmpty')) {
                     seedCmsIfEmpty($pdo);
                     $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC");
                     $items = $stmt->fetchAll();
                 }
+            } else {
+                if (function_exists('cleanupLegacyUnsplashCasCliniques')) {
+                    cleanupLegacyUnsplashCasCliniques($pdo);
+                }
             }
+
+            $realDefaults = [
+                1 => '/images/treatments/infiltrations_rachidiennes.jpg',
+                2 => '/images/treatments/radiofrequence.jpg',
+                3 => '/images/lombalgie.jpg',
+                4 => '/images/treatments/blocs_anesthesiques.jpg',
+                5 => '/images/treatments/hypnovr.jpg',
+                6 => '/images/migraine.jpg',
+                7 => '/images/nevralgie_arnold.jpg',
+                8 => '/images/sdrc.jpg',
+                9 => '/images/treatments/stimulation_ganglion_dorsal.jpg',
+            ];
+
+            foreach ($items as $idx => &$it) {
+                $img = trim($it['image'] ?? '');
+                $order = (int)($it['display_order'] ?? ($idx + 1));
+                $fallback = $realDefaults[$order] ?? '/images/treatments/infiltrations_rachidiennes.jpg';
+
+                if (empty($img) || strpos($img, 'unsplash') !== false) {
+                    $it['image'] = $fallback;
+                } elseif (!preg_match('#^(https?://|data:|/)#', $img)) {
+                    $it['image'] = '/' . $img;
+                }
+            }
+            unset($it);
+
             echo json_encode(['success' => true, 'items' => $items]);
             exit;
         }
@@ -515,12 +545,19 @@ try {
                 title_fr, title_en, category_fr, category_en, image, display_order, is_active
             ) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
+            $postedImg = trim($input['image'] ?? '');
+            if (empty($postedImg) || strpos($postedImg, 'unsplash') !== false) {
+                $postedImg = '/images/treatments/infiltrations_rachidiennes.jpg';
+            } elseif (!preg_match('#^(https?://|data:|/)#', $postedImg)) {
+                $postedImg = '/' . $postedImg;
+            }
+
             $stmt->execute([
                 $input['title_fr'] ?? 'Nouveau Cas Clinique',
                 $input['title_en'] ?? 'New Clinical Case',
                 $input['category_fr'] ?? 'Geste Interventionnel',
                 $input['category_en'] ?? 'Interventional Procedure',
-                $input['image'] ?? 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
+                $postedImg,
                 (int)($input['display_order'] ?? 0),
                 isset($input['is_active']) ? (int)$input['is_active'] : 1
             ]);

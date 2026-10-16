@@ -16,6 +16,29 @@ export interface CasCliniqueItem {
   updated_at?: string;
 }
 
+const realClinicalImages = [
+  "/images/treatments/infiltrations_rachidiennes.jpg",
+  "/images/treatments/radiofrequence.jpg",
+  "/images/lombalgie.jpg",
+  "/images/treatments/blocs_anesthesiques.jpg",
+  "/images/treatments/hypnovr.jpg",
+  "/images/migraine.jpg",
+  "/images/nevralgie_arnold.jpg",
+  "/images/sdrc.jpg",
+  "/images/treatments/stimulation_ganglion_dorsal.jpg"
+];
+
+export function sanitizeCaseImage(img: string | undefined | null, index: number = 0): string {
+  const fallback = realClinicalImages[index % realClinicalImages.length] || realClinicalImages[0];
+  if (!img || typeof img !== 'string' || img.trim().length === 0) return fallback;
+  const trimmed = img.trim();
+  if (trimmed.includes('images.unsplash.com') || trimmed.includes('unsplash.com')) return fallback;
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('data:') && !trimmed.startsWith('/')) {
+    return '/' + trimmed;
+  }
+  return trimmed;
+}
+
 // Initial seed data for Cas Cliniques
 const initialCasCliniques: CasCliniqueItem[] = [
   {
@@ -24,7 +47,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Clinical Case #1",
     category_fr: "Infiltration lombaire",
     category_en: "Lumbar Infiltration",
-    image: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop",
+    image: "/images/treatments/infiltrations_rachidiennes.jpg",
     display_order: 1,
     is_active: 1
   },
@@ -34,7 +57,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Clinical Case #2",
     category_fr: "Radiofréquence",
     category_en: "Radiofrequency",
-    image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop",
+    image: "/images/treatments/radiofrequence.jpg",
     display_order: 2,
     is_active: 1
   },
@@ -44,7 +67,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Clinical Case #3",
     category_fr: "Douleur pelvienne",
     category_en: "Pelvic Pain",
-    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop",
+    image: "/images/lombalgie.jpg",
     display_order: 3,
     is_active: 1
   },
@@ -54,7 +77,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Clinical Case #4",
     category_fr: "Bloc nerveux",
     category_en: "Nerve Block",
-    image: "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop",
+    image: "/images/treatments/blocs_anesthesiques.jpg",
     display_order: 4,
     is_active: 1
   },
@@ -64,7 +87,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Innovation #5",
     category_fr: "Réalité Virtuelle",
     category_en: "Virtual Reality",
-    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop",
+    image: "/images/treatments/hypnovr.jpg",
     display_order: 5,
     is_active: 1
   },
@@ -74,7 +97,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Clinical Case #6",
     category_fr: "Céphalées chroniques",
     category_en: "Chronic Headaches",
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop",
+    image: "/images/migraine.jpg",
     display_order: 6,
     is_active: 1
   },
@@ -84,7 +107,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Clinical Case #7",
     category_fr: "Névralgie cervico-brachiale",
     category_en: "Cervicobrachial Neuralgia",
-    image: "https://images.unsplash.com/photo-1579684453423-f84349ef60b0?q=80&w=800&auto=format&fit=crop",
+    image: "/images/nevralgie_arnold.jpg",
     display_order: 7,
     is_active: 1
   },
@@ -94,7 +117,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Clinical Case #8",
     category_fr: "SDRC Type 1",
     category_en: "CRPS Type 1",
-    image: "https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop",
+    image: "/images/sdrc.jpg",
     display_order: 8,
     is_active: 1
   },
@@ -104,7 +127,7 @@ const initialCasCliniques: CasCliniqueItem[] = [
     title_en: "Innovation #9",
     category_fr: "Neuromodulation",
     category_en: "Neuromodulation",
-    image: "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?q=80&w=800&auto=format&fit=crop",
+    image: "/images/treatments/stimulation_ganglion_dorsal.jpg",
     display_order: 9,
     is_active: 1
   }
@@ -155,11 +178,21 @@ export async function getPublicCasCliniques(req: Request, res: Response) {
     try {
       const rows: any = await executeQuery('SELECT * FROM cms_cas_cliniques WHERE is_active = 1 ORDER BY display_order ASC, id ASC');
       if (rows && rows.length > 0) {
-        return res.json({ success: true, cases: rows, items: rows });
+        const cleaned = rows.map((r: any, idx: number) => ({
+          ...r,
+          image: sanitizeCaseImage(r.image, idx)
+        }));
+        return res.json({ success: true, cases: cleaned, items: cleaned });
       }
     } catch {}
 
-    const active = inMemoryCasCliniques.filter(c => c.is_active === 1).sort((a, b) => a.display_order - b.display_order);
+    const active = inMemoryCasCliniques
+      .filter(c => c.is_active === 1)
+      .sort((a, b) => a.display_order - b.display_order)
+      .map((c, idx) => ({
+        ...c,
+        image: sanitizeCaseImage(c.image, idx)
+      }));
     return res.json({ success: true, cases: active, items: active });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
@@ -177,11 +210,21 @@ export async function handleAdminCms(req: Request, res: Response) {
       try {
         const rows: any = await executeQuery('SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC');
         if (rows && rows.length > 0) {
-          return res.json({ success: true, items: rows });
+          const cleaned = rows.map((r: any, idx: number) => ({
+            ...r,
+            image: sanitizeCaseImage(r.image, idx)
+          }));
+          return res.json({ success: true, items: cleaned });
         }
       } catch {}
 
-      return res.json({ success: true, items: [...inMemoryCasCliniques].sort((a, b) => a.display_order - b.display_order) });
+      const cleanedMemory = [...inMemoryCasCliniques]
+        .sort((a, b) => a.display_order - b.display_order)
+        .map((c, idx) => ({
+          ...c,
+          image: sanitizeCaseImage(c.image, idx)
+        }));
+      return res.json({ success: true, items: cleanedMemory });
     }
 
     if (method === 'POST') {
@@ -192,7 +235,7 @@ export async function handleAdminCms(req: Request, res: Response) {
         title_en: body.title_en || 'New Clinical Case',
         category_fr: body.category_fr || 'Geste Interventionnel',
         category_en: body.category_en || 'Interventional Procedure',
-        image: body.image || 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
+        image: sanitizeCaseImage(body.image, inMemoryCasCliniques.length),
         display_order: parseInt(body.display_order ?? 0, 10),
         is_active: body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
       };

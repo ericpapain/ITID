@@ -18,17 +18,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 try {
     $pdo = getItidDb();
 
+    require_once __DIR__ . '/../../admin/seed_cms.php';
+
     $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques WHERE is_active = 1 ORDER BY display_order ASC, id ASC");
     $items = $stmt->fetchAll();
 
     if (empty($items)) {
-        require_once __DIR__ . '/../../admin/seed_cms.php';
         if (function_exists('seedCmsIfEmpty')) {
             seedCmsIfEmpty($pdo);
             $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques WHERE is_active = 1 ORDER BY display_order ASC, id ASC");
             $items = $stmt->fetchAll();
         }
+    } else {
+        if (function_exists('cleanupLegacyUnsplashCasCliniques')) {
+            cleanupLegacyUnsplashCasCliniques($pdo);
+        }
     }
+
+    $realDefaults = [
+        1 => '/images/treatments/infiltrations_rachidiennes.jpg',
+        2 => '/images/treatments/radiofrequence.jpg',
+        3 => '/images/lombalgie.jpg',
+        4 => '/images/treatments/blocs_anesthesiques.jpg',
+        5 => '/images/treatments/hypnovr.jpg',
+        6 => '/images/migraine.jpg',
+        7 => '/images/nevralgie_arnold.jpg',
+        8 => '/images/sdrc.jpg',
+        9 => '/images/treatments/stimulation_ganglion_dorsal.jpg',
+    ];
+
+    foreach ($items as $idx => &$it) {
+        $img = trim($it['image'] ?? '');
+        $order = (int)($it['display_order'] ?? ($idx + 1));
+        $fallback = $realDefaults[$order] ?? '/images/treatments/infiltrations_rachidiennes.jpg';
+
+        if (empty($img) || strpos($img, 'unsplash') !== false) {
+            $it['image'] = $fallback;
+        } elseif (!preg_match('#^(https?://|data:|/)#', $img)) {
+            $it['image'] = '/' . $img;
+        }
+    }
+    unset($it);
 
     echo json_encode(['success' => true, 'cases' => $items, 'items' => $items]);
 } catch (Throwable $e) {
