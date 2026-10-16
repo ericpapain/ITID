@@ -66,10 +66,9 @@ export default function AdminPagesEditor() {
   ];
 
   // Chargement des données selon la section active
-  const loadData = async () => {
+  const loadData = async (preferredId?: number) => {
     setLoading(true);
     setSaveMessage(null);
-    setSelectedItem(null);
 
     try {
       if (currentSection === "home" || currentSection === "about" || currentSection === "hero_media") {
@@ -95,7 +94,11 @@ export default function AdminPagesEditor() {
           if (data.success && Array.isArray(data.items)) {
             setItemsList(data.items);
             if (data.items.length > 0) {
-              setSelectedItem(data.items[0]);
+              const targetId = preferredId ?? selectedItem?.id;
+              const found = targetId ? data.items.find((it: any) => it.id === targetId) : null;
+              setSelectedItem(found || data.items[0]);
+            } else {
+              setSelectedItem(null);
             }
           }
         } else if (res.status === 401) {
@@ -112,6 +115,7 @@ export default function AdminPagesEditor() {
   };
 
   useEffect(() => {
+    setSelectedItem(null);
     loadData();
   }, [currentSection]);
 
@@ -142,7 +146,7 @@ export default function AdminPagesEditor() {
     }
   };
 
-  // Sauvegarde d'un élément (Pathologie, Traitement, Article)
+  // Sauvegarde d'un élément (Pathologie, Traitement, Article, Cas Clinique)
   const handleSaveItem = async (itemToSave: any) => {
     setSaving(true);
     setSaveMessage(null);
@@ -163,11 +167,12 @@ export default function AdminPagesEditor() {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Erreur de sauvegarde");
 
+      const savedId = isNew ? (data.id || itemToSave.id) : itemToSave.id;
       setSaveMessage(`✅ ${isNew ? "Création réussie" : "Modifications enregistrées"} avec succès !`);
       setTimeout(() => setSaveMessage(null), 4000);
 
-      // Recharger la liste
-      await loadData();
+      // Recharger la liste en conservant la fiche modifiée ou nouvellement créée active
+      await loadData(savedId);
     } catch (err: any) {
       setSaveMessage(`❌ ${err.message}`);
     } finally {
@@ -320,7 +325,7 @@ export default function AdminPagesEditor() {
         title_en: "New Clinical Case",
         category_fr: "Infiltration / Intervention",
         category_en: "Infiltration / Procedure",
-        image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop",
+        image: "/images/treatments/infiltrations_rachidiennes.jpg",
         display_order: itemsList.length + 1,
         is_active: 1
       };
@@ -2761,7 +2766,7 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
           <div className="relative w-[280px] h-[400px] md:w-[320px] md:h-[460px] rounded-2xl overflow-hidden shadow-2xl border border-white/20 group p-[1mm] bg-white/10 backdrop-blur-md hover:border-[#48cae4]/60 transition-all duration-500">
             <div className="relative w-full h-full rounded-[calc(1rem-1mm)] overflow-hidden bg-[#0a1628]">
               <img
-                src={item.image || "https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800"}
+                src={item.image && !item.image.includes("unsplash.com") ? item.image : "/images/treatments/infiltrations_rachidiennes.jpg"}
                 alt={currentTitle || "Aperçu"}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
