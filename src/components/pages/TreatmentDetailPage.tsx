@@ -57,7 +57,7 @@ export function TreatmentDetailPage() {
         hero_gallery: [
           found.img || "/images/treatments/infiltrations_rachidiennes.jpg",
           "/images/treatments/infiltrations_articulaires.jpg",
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop"
+          "/images/glowing_3d_spine.jpg"
         ],
         section1_title_fr: "Indications & Douleurs Ciblées",
         section1_title_en: "Indications & Targeted Conditions",
@@ -69,13 +69,13 @@ export function TreatmentDetailPage() {
         section2_title_en: "Step-by-Step Guided Procedure",
         section2_text_fr: "Réalisé au bloc interventionnel stérile sous contrôle échographique ou scopique en temps réel. Le positionnement de précision garantit une sécurité maximale et un confort optimal.",
         section2_text_en: "Performed in a sterile interventional suite under real-time ultrasound or fluoroscopic imaging. Precision guidance ensures maximal clinical safety.",
-        section2_image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop",
+        section2_image: "/images/treatments/radiofrequence.jpg",
 
         section3_title_fr: "Bénéfices Attendus & Suites Post-Interventionnelles",
         section3_title_en: "Expected Benefits & Recovery",
         section3_text_fr: "Soulagement significatif et rapide, permettant de reprendre les activités quotidiennes et le reconditionnement physique en toute sécurité.",
         section3_text_en: "Significant and sustained pain reduction, facilitating early rehabilitation and return to active daily living.",
-        section3_image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop",
+        section3_image: "/images/glowing_3d_spine.jpg",
 
         section4_title_fr: "Pathologies Associées Prises en Charge",
         section4_title_en: "Related Conditions Managed",
@@ -111,11 +111,11 @@ export function TreatmentDetailPage() {
 
   const s2Title = lang === "en" ? (data.section2_title_en || data.section2_title_fr) : data.section2_title_fr;
   const s2Text = lang === "en" ? (data.section2_text_en || data.section2_text_fr) : data.section2_text_fr;
-  const s2Img = data.section2_image || "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop";
+  const s2Img = data.section2_image || "/images/treatments/radiofrequence.jpg";
 
   const s3Title = lang === "en" ? (data.section3_title_en || data.section3_title_fr) : data.section3_title_fr;
   const s3Text = lang === "en" ? (data.section3_text_en || data.section3_text_fr) : data.section3_text_fr;
-  const s3Img = data.section3_image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop";
+  const s3Img = data.section3_image || "/images/glowing_3d_spine.jpg";
 
   const s4Title = lang === "en" ? (data.section4_title_en || data.section4_title_fr) : data.section4_title_fr;
   const s4Text = lang === "en" ? (data.section4_text_en || data.section4_text_fr) : data.section4_text_fr;

@@ -146,7 +146,7 @@ jobs:
             if [ -n "$TARGET_DIR" ]; then
               echo "cd \"$TARGET_DIR\";"
             fi
-            echo "mirror -R --continue --verbose --parallel=2 --no-perms --no-umask --exclude-glob .git* --exclude-glob *.sqlite* --exclude-glob *.db* --exclude-glob itid_data/ --exclude-glob uploads/ --exclude-glob api/config.php --exclude-glob *.bak* dist ."
+            echo "mirror -R --continue --verbose --parallel=2 --no-perms --no-umask --exclude-glob .git* --exclude-glob *.sqlite* --exclude-glob *.db* --exclude-glob */itid.sqlite* --exclude-glob itid_data/ --exclude-glob uploads/ --exclude-glob api/config.php --exclude-glob api/data/*.sqlite* --exclude-glob api/data/*.db* --exclude-glob *.bak* dist ."
             echo "bye"
           } > deploy_script.lftp
 

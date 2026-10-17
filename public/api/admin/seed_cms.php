@@ -7,6 +7,7 @@
 require_once __DIR__ . '/../../db.php';
 
 function seedCmsIfEmpty(PDO $pdo): void {
+    cleanupAllLegacyUnsplashMedia($pdo);
     try {
         // 1. Vérifier si les pathologies sont déjà initialisées
         $pathoCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_pathologies")->fetchColumn();
@@ -58,9 +59,9 @@ function seedPathologiesData(PDO $pdo): void {
             'hero_gallery' => [
                 '/images/lombalgie.jpg',
                 '/images/spine_isolated.jpg',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=1200&auto=format&fit=crop'
+                '/images/lombalgie.jpg',
+                '/images/glowing_3d_spine.jpg',
+                '/images/treatments/infiltrations_rachidiennes.jpg'
             ],
             's1_t_fr' => 'Comprendre la Lombalgie Chronique',
             's1_t_en' => 'Understanding Chronic Lower Back Pain',
@@ -81,7 +82,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Prevention & Daily Lifestyle Advice',
             's4_txt_fr' => "Le mouvement reste le meilleur traitement du rachis. Nous accompagnons chaque patient avec un programme personnalisé : renforcement du gainage abdominal profond, étirements des chaînes postérieures, ergonomie au poste de travail et gestion du stress chronique.",
             's4_txt_en' => "Movement is medicine for the spine. We support each patient with a personalized program: deep core strengthening, posterior muscle chain stretching, workstation ergonomics, and chronic stress management.",
-            's4_img' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop',
+            's4_img' => '/images/spine_isolated.png',
             'wiki' => 'https://fr.wikipedia.org/wiki/Lombalgie',
             'order' => 1
         ],
@@ -96,9 +97,9 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/nevralgie_arnold.jpg',
             'hero_gallery' => [
                 '/images/nevralgie_arnold.jpg',
-                'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=1200&auto=format&fit=crop'
+                '/images/treatments/radiofrequence.jpg',
+                '/images/nevralgie_arnold.jpg',
+                '/images/treatments/blocs_anesthesiques.jpg'
             ],
             's1_t_fr' => "Qu'est-ce que la Névralgie d'Arnold ?",
             's1_t_en' => "What is Occipital Neuralgia?",
@@ -109,7 +110,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'Diagnosis & Warning Signs',
             's2_txt_fr' => "Le diagnostic repose sur la reproduction de la douleur à la palpation du point d'émergence du nerf occipital (signe de Tinel) et sur l'exclusion d'autres céphalées par imagerie cervicale (IRM/Scanner).",
             's2_txt_en' => "Diagnosis is established through tenderness at the occipital nerve emergence point (Tinel's sign) and cervical imaging (MRI/CT) to rule out secondary causes.",
-            's2_img' => 'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=800&auto=format&fit=crop',
+            's2_img' => '/images/sdrc.jpg',
             's3_t_fr' => 'Gestes d\'intervention à l\'ITID',
             's3_t_en' => 'Interventional Procedures at ITID',
             's3_txt_fr' => "• Bloc anesthésique écho-guidé du grand et petit nerf occipital\n• Radiofréquence pulsée du nerf d'Arnold pour une antalgie prolongée sans léser le nerf\n• Cryoneurolyse percutanée\n• Injections de toxine botulique dans les trapèzes et muscles sous-occipitaux.",
@@ -119,7 +120,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Prevention & Ergonomics',
             's4_txt_fr' => "Correction des postures sur écran (tête penchée en avant), kinésithérapie de décoaptation cervicale, oreiller ergonomique à mémoire de forme et gestion des tensions musculaires de stress.",
             's4_txt_en' => "Forward head posture correction, cervical gentle mobilization physiotherapy, ergonomic cervical pillow, and stress-related tension reduction.",
-            's4_img' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop',
+            's4_img' => '/images/treatments/hypnovr.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/N%C3%A9vralgie_d%27Arnold',
             'order' => 2
         ],
@@ -134,8 +135,8 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/sdrc.jpg',
             'hero_gallery' => [
                 '/images/sdrc.jpg',
-                'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1200&auto=format&fit=crop'
+                '/images/migraine.jpg',
+                '/images/treatments/infiltrations_articulaires.jpg'
             ],
             's1_t_fr' => 'Comprendre le SDRC (Algodystrophie)',
             's1_t_en' => 'Understanding CRPS (Algodystrophy)',
@@ -146,7 +147,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'Early Diagnosis',
             's2_txt_fr' => "Un diagnostic précoce (critères de Budapest) dans les premières semaines est capital pour empêcher l'enraidissement et la chronicisation. Scintigraphie osseuse et IRM confirment le stade évolutif.",
             's2_txt_en' => "Early diagnosis (Budapest criteria) is paramount to prevent permanent stiffness and severe chronification. Bone scintigraphy and MRI aid staging.",
-            's2_img' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop',
+            's2_img' => '/images/douleurs_articulaires.jpg',
             's3_t_fr' => 'Protocoles Thérapeutiques ITID',
             's3_t_en' => 'ITID Treatment Protocols',
             's3_txt_fr' => "• Perfusions intraveineuses de Lidocaïne et magnésium en milieu sécurisé\n• Blocs sympathiques écho-guidés (ganglion stellaire ou lombaire)\n• Neurostimulation médullaire ou du ganglion spinal dorsal (DRG)\n• rTMS pour rééquilibrer le cortex somatosensoriel.",
@@ -156,7 +157,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Rehabilitation & Mirror Therapy',
             's4_txt_fr' => "Désensibilisation tactile progressive, rééducation par imagerie motrice graduée et thérapie par miroir pour reprogrammer la perception cérébrale du membre.",
             's4_txt_en' => "Graded tactile desensitization, motor imagery training, and mirror therapy to restore brain body map perception.",
-            's4_img' => 'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?w=800&auto=format&fit=crop',
+            's4_img' => '/images/treatments/cryoneurolyse.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/Syndrome_douloureux_r%C3%A9gional_complexe',
             'order' => 3
         ],
@@ -171,8 +172,8 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/endometriose.jpg',
             'hero_gallery' => [
                 '/images/endometriose.jpg',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop'
+                '/images/endometriose.jpg',
+                '/images/treatments/perfusion_lidocaine.jpg'
             ],
             's1_t_fr' => 'L\'Endométriose et le Système Nerveux Pelvien',
             's1_t_en' => 'Endometriosis & The Pelvic Nervous System',
@@ -183,7 +184,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'Algological Pelvic Assessment',
             's2_txt_fr' => "Évaluation pluridisciplinaire associant algologue, gynécologue et radiologue expert, avec IRM pelvienne dédiée et cartographie précise des points douloureux myo-fasciaux.",
             's2_txt_en' => "Multidisciplinary assessment involving pain specialist, gynecologist, and specialized MRI mapping of myo-fascial trigger zones and pudendal nerve trajectory.",
-            's2_img' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop',
+            's2_img' => '/images/treatments/stimulation_ganglion_dorsal.jpg',
             's3_t_fr' => 'Traitements Spécifiques ITID',
             's3_t_en' => 'Dedicated ITID Treatments',
             's3_txt_fr' => "• Infiltrations écho-guidées du nerf pudendal et du nerf ilio-inguinal\n• Blocs du plexus hypogastrique supérieur\n• Injections de toxine botulique dans le muscle élévateur de l'anus (levator ani)\n• Neurostimulation transcutanée TENS pelvienne.",
@@ -193,7 +194,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Integrative Approach & Diet',
             's4_txt_fr' => "Alimentation anti-inflammatoire personnalisée, kinésithérapie périnéale douce, hypnose médicale pour l'atténuation du stress et relaxation pelvienne.",
             's4_txt_en' => "Customized anti-inflammatory nutrition, gentle pelvic floor physiotherapy, medical hypnosis for pain perception regulation and somatic relaxation.",
-            's4_img' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop',
+            's4_img' => '/images/treatments/tens.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/Endom%C3%A9triose',
             'order' => 4
         ],
@@ -208,8 +209,8 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/douleurs_articulaires.jpg',
             'hero_gallery' => [
                 '/images/douleurs_articulaires.jpg',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=1200&auto=format&fit=crop'
+                '/images/treatments/toxine_botulique.jpg',
+                '/images/treatments/patch_capsaicine.jpg'
             ],
             's1_t_fr' => 'Mécanisme des Douleurs Articulaires',
             's1_t_en' => 'Mechanisms of Chronic Joint Pain',
@@ -220,7 +221,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'When to Seek Interventional Evaluation?',
             's2_txt_fr' => "Lorsque les antalgiques habituels ne suffisent plus, que la marche ou les mouvements simples deviennent pénibles, ou chez les patients non opérables souhaitant éviter la chirurgie lourde.",
             's2_txt_en' => "When oral pain medications fail to provide relief, daily mobility is constrained, or for patients seeking non-surgical alternatives to heavy joint surgery.",
-            's2_img' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop',
+            's2_img' => '/images/treatments/catheter_perinerveux.jpg',
             's3_t_fr' => 'Gestes Thérapeutiques ITID',
             's3_t_en' => 'ITID Interventional Procedures',
             's3_txt_fr' => "• Infiltrations écho-guidées d'acide hyaluronique et corticoïdes retard\n• Dénervation par radiofréquence refroidie des nerfs géniculés (genou) et supra-scapulaires (épaule)\n• Cryoneurolyse articulaire\n• Viscosupplémentation de nouvelle génération.",
@@ -230,7 +231,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Recovery & Physical Activity',
             's4_txt_fr' => "Renforcement musculaire ciblé sans impact (balnéothérapie, vélo, marche douce), contrôle du poids corporel et supplémentation protectrice.",
             's4_txt_en' => "Low-impact muscle strengthening (water therapy, cycling, walking), joint load optimization, and supportive nutritional measures.",
-            's4_img' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop',
+            's4_img' => '/images/lombalgie.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/Arthralgie',
             'order' => 5
         ],
@@ -245,8 +246,8 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/fibromyalgie.jpg',
             'hero_gallery' => [
                 '/images/fibromyalgie.jpg',
-                'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop'
+                '/images/glowing_3d_spine.jpg',
+                '/images/treatments/infiltrations_rachidiennes.jpg'
             ],
             's1_t_fr' => 'Comprendre la Sensibilisation Centrale',
             's1_t_en' => 'Understanding Central Sensitization',
@@ -257,7 +258,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'Multidisciplinary Assessment',
             's2_txt_fr' => "Le diagnostic repose sur un interrogatoire précis, la recherche des points douloureux myo-fasciaux et l'évaluation du sommeil, de l'humeur et du niveau d'énergie.",
             's2_txt_en' => "Comprehensive evaluation incorporates tender point examination, polysomnography review, cognitive assessment, and quality-of-life mapping.",
-            's2_img' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop',
+            's2_img' => '/images/spine_isolated.png',
             's3_t_fr' => 'Traitements Innovants ITID',
             's3_t_en' => 'Innovative Treatments at ITID',
             's3_txt_fr' => "• Séances de rTMS (Stimulation Magnétique Transcrânienne) sur le cortex moteur pour réguler les voies inhibitrices de la douleur\n• Perfusions antalgiques individualisées de Kétamine / Lidocaïne\n• Casques de Réalité Virtuelle HypnoVR pour la relaxation profonde.",
@@ -267,7 +268,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Body Reprogramming & Lifestyle',
             's4_txt_fr' => "Réentraînement doux à l'effort aérobie progressif, régulation du rythme circadien et méditation de pleine conscience.",
             's4_txt_en' => "Graded aerobic conditioning, circadian rhythm hygiene, and mindfulness-based stress reduction.",
-            's4_img' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop',
+            's4_img' => '/images/treatments/radiofrequence.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/Fibromyalgie',
             'order' => 6
         ],
@@ -282,8 +283,8 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/douleurs_neuropathiques.jpg',
             'hero_gallery' => [
                 '/images/douleurs_neuropathiques.jpg',
-                'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?w=1200&auto=format&fit=crop'
+                '/images/nevralgie_arnold.jpg',
+                '/images/treatments/blocs_anesthesiques.jpg'
             ],
             's1_t_fr' => 'Origine de la Douleur Neuropathique',
             's1_t_en' => 'Origin of Neuropathic Pain',
@@ -294,7 +295,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'Diagnostic Criteria (DN4 Score)',
             's2_txt_fr' => "Le diagnostic est confirmé par le score DN4 (brûlures, froid douloureux, décharges, allodynie au frottement) complété par électromyogramme et imagerie.",
             's2_txt_en' => "Assessment utilizes the validated DN4 scoring tool (burning, electric shock, pinprick sensitivity, dynamic allodynia) paired with EMG and imaging.",
-            's2_img' => 'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=800&auto=format&fit=crop',
+            's2_img' => '/images/sdrc.jpg',
             's3_t_fr' => 'Traitements Hautement Spécialisés',
             's3_t_en' => 'Highly Specialized Treatments at ITID',
             's3_txt_fr' => "• Application de patchs de Capsaïcine haute concentration (Qutenza) en ambulatoire\n• Stimulation médullaire épidurale (SCS)\n• Blocs périnerveux continus\n• Radiofréquence pulsée sur les racines dorsales.",
@@ -304,7 +305,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Prevention & Management',
             's4_txt_fr' => "Contrôle strict des facteurs métaboliques (glycémie), protection cutanée et adaptation thérapeutique précoce dès l'apparition des premiers symptômes.",
             's4_txt_en' => "Metabolic control (glycemia), skin barrier care, and rapid therapeutic titration to prevent long-term central hypersensitivity.",
-            's4_img' => 'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?w=800&auto=format&fit=crop',
+            's4_img' => '/images/treatments/hypnovr.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/Douleur_neuropathique',
             'order' => 7
         ],
@@ -319,8 +320,8 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/douleurs_post_op.jpg',
             'hero_gallery' => [
                 '/images/douleurs_post_op.jpg',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop'
+                '/images/migraine.jpg',
+                '/images/treatments/infiltrations_articulaires.jpg'
             ],
             's1_t_fr' => 'Pourquoi la douleur persiste après une chirurgie ?',
             's1_t_en' => 'Why Pain Persists After Surgery?',
@@ -331,7 +332,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'Differential Diagnosis',
             's2_txt_fr' => "Vérification minutieuse de l'intégrité du matériel chirurgical, élimination de complications infectieuses et cartographie précise du territoire neurologique atteint.",
             's2_txt_en' => "Hardware placement verification, surgical complication rule-out, and precise neurological dermatomal mapping.",
-            's2_img' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop',
+            's2_img' => '/images/douleurs_articulaires.jpg',
             's3_t_fr' => 'Traitements Dédiés ITID',
             's3_t_en' => 'Dedicated Interventions at ITID',
             's3_txt_fr' => "• Infiltrations cicatricielles écho-guidées avec anesthésique local et corticoïdes\n• Cryoneurolyse percutanée des névromes cicatriciels\n• Radiofréquence pulsée\n• Neurostimulation médullaire pour Failed Back Surgery Syndrome (FBSS).",
@@ -341,7 +342,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Comprehensive Recovery Plan',
             's4_txt_fr' => "Désensibilisation manuelle douce de la cicatrice, reprise progressive des mouvements et thérapies cognitivo-comportementales de la douleur.",
             's4_txt_en' => "Gentle scar desensitization techniques, progressive movement restoration, and cognitive-behavioral pain coping strategies.",
-            's4_img' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop',
+            's4_img' => '/images/treatments/cryoneurolyse.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/Douleur',
             'order' => 8
         ],
@@ -356,8 +357,8 @@ function seedPathologiesData(PDO $pdo): void {
             'card_image' => '/images/migraine.jpg',
             'hero_gallery' => [
                 '/images/migraine.jpg',
-                'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=1200&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=1200&auto=format&fit=crop'
+                '/images/endometriose.jpg',
+                '/images/treatments/perfusion_lidocaine.jpg'
             ],
             's1_t_fr' => 'Comprendre la Migraine Chronique',
             's1_t_en' => 'Understanding Chronic Migraines',
@@ -368,7 +369,7 @@ function seedPathologiesData(PDO $pdo): void {
             's2_t_en' => 'Diagnostic Criteria',
             's2_txt_fr' => "Présence de céphalées plus de 15 jours par mois depuis au moins 3 mois, dont au moins 8 jours avec caractéristiques migraineuses typiques.",
             's2_txt_en' => "Headaches on 15 or more days per month for at least 3 months, with at least 8 days meeting strict migraine features.",
-            's2_img' => 'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=800&auto=format&fit=crop',
+            's2_img' => '/images/treatments/stimulation_ganglion_dorsal.jpg',
             's3_t_fr' => 'Protocoles Thérapeutiques ITID',
             's3_t_en' => 'ITID Treatment Protocols',
             's3_txt_fr' => "• Injections de Toxine Botulique selon le protocole PREEMPT (31 points spécifiques)\n• Blocs du ganglion sphéno-palatin sous guidage\n• Blocs du nerf grand occipital\n• Séances de rTMS pour stabiliser l'excitabilité corticale.",
@@ -378,7 +379,7 @@ function seedPathologiesData(PDO $pdo): void {
             's4_t_en' => 'Lifestyle & Trigger Management',
             's4_txt_fr' => "Identification et éviction des facteurs déclenchants (sommeil irrégulier, déshydratation, aliments spécifiques), biofeedback et relaxation guidée.",
             's4_txt_en' => "Trigger identification and avoidance (sleep irregularities, dietary triggers, hydration), biofeedback training, and guided autonomic relaxation.",
-            's4_img' => 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=800&auto=format&fit=crop',
+            's4_img' => '/images/treatments/tens.jpg',
             'wiki' => 'https://fr.wikipedia.org/wiki/Migraine',
             'order' => 9
         ]
@@ -428,7 +429,7 @@ function seedTraitementsData(PDO $pdo): void {
             'hero_gallery' => [
                 '/images/treatments/infiltrations_rachidiennes.jpg',
                 '/images/spine_isolated.jpg',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop'
+                '/images/treatments/toxine_botulique.jpg'
             ],
             's1_t_fr' => 'Indications Cliniques',
             's1_t_en' => 'Clinical Indications',
@@ -439,12 +440,12 @@ function seedTraitementsData(PDO $pdo): void {
             's2_t_en' => 'Procedure Protocol at ITID',
             's2_txt_fr' => "Réalisé au bloc interventionnel en position ventrale. Après désinfection et anesthésie locale cutanée, l'aiguille est guidée au millimètre près sous contrôle radiologique scopique. Un produit de contraste confirme le bon positionnement avant l'injection. Durée : 15 minutes.",
             's2_txt_en' => "Performed in interventional suite under local anesthesia. Real-time fluoroscopy and contrast dye verify precise needle placement before administering medication. Procedure duration: 15 minutes.",
-            's2_img' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop',
+            's2_img' => '/images/treatments/patch_capsaicine.jpg',
             's3_t_fr' => 'Bénéfices Attendus & Suites',
             's3_t_en' => 'Expected Benefits & Follow-Up',
             's3_txt_fr' => "Soulagement progressif en 48 à 72 heures, permettant la reprise des activités et de la kinésithérapie active. Repos relatif de 24h conseillé.",
             's3_txt_en' => "Progressive pain reduction within 48 to 72 hours, enabling return to daily activities and active physiotherapy. 24-hour relative rest advised.",
-            's3_img' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop',
+            's3_img' => '/images/treatments/catheter_perinerveux.jpg',
             's4_t_fr' => 'Pathologies Traitées Associées',
             's4_t_en' => 'Associated Conditions Treated',
             's4_txt_fr' => "Lombalgies chroniques, sciatiques, cruralgies et douleurs post-opératoires du rachis.",
@@ -465,7 +466,7 @@ function seedTraitementsData(PDO $pdo): void {
             'card_image' => '/images/treatments/infiltrations_articulaires.jpg',
             'hero_gallery' => [
                 '/images/treatments/infiltrations_articulaires.jpg',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop'
+                '/images/lombalgie.jpg'
             ],
             's1_t_fr' => 'Indications Principales',
             's1_t_en' => 'Primary Indications',
@@ -476,12 +477,12 @@ function seedTraitementsData(PDO $pdo): void {
             's2_t_en' => 'Procedure Details',
             's2_txt_fr' => "Geste rapide en consultation ou au bloc ambulatoire sous échographie haute fréquence. Permet de lubrifier le cartilage et d'éteindre la poussée inflammatoire synoviale.",
             's2_txt_en' => "Quick outpatient procedure under high-frequency ultrasound guidance. Re-lubricates articular surfaces and calms synovial inflammatory surges.",
-            's2_img' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop',
+            's2_img' => '/images/glowing_3d_spine.jpg',
             's3_t_fr' => 'Bénéfices & Durabilité',
             's3_t_en' => 'Durability & Benefits',
             's3_txt_fr' => "Amélioration fonctionnelle durant 6 à 12 mois, diminution de la prise d'anti-inflammatoires oraux et protection du capital articulaire.",
             's3_txt_en' => "Functional relief lasting 6 to 12 months, reduced reliance on oral NSAIDs, and joint preservation.",
-            's3_img' => 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800&auto=format&fit=crop',
+            's3_img' => '/images/treatments/infiltrations_rachidiennes.jpg',
             's4_t_fr' => 'Pathologies Associées',
             's4_t_en' => 'Associated Conditions',
             's4_txt_fr' => "Douleurs articulaires de hanche, genou et épaule, suites de prothèses douloureuses.",
@@ -502,7 +503,7 @@ function seedTraitementsData(PDO $pdo): void {
             'card_image' => '/images/treatments/perfusion_lidocaine.jpg',
             'hero_gallery' => [
                 '/images/treatments/perfusion_lidocaine.jpg',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop'
+                '/images/spine_isolated.png'
             ],
             's1_t_fr' => 'Indications',
             's1_t_en' => 'Indications',
@@ -513,12 +514,12 @@ function seedTraitementsData(PDO $pdo): void {
             's2_t_en' => 'Safety & Monitoring',
             's2_txt_fr' => "Administration par pousse-seringue électrique en chambre individuelle de repos avec présence infirmière dédiée et casque de réalité virtuelle de relaxation.",
             's2_txt_en' => "Infusion pump delivery in private recovery suite with dedicated nurse monitoring and virtual reality relaxation headset.",
-            's2_img' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop',
+            's2_img' => '/images/treatments/radiofrequence.jpg',
             's3_t_fr' => 'Effet Reset Cérébral',
             's3_t_en' => 'Central Reset Effect',
             's3_txt_fr' => "Diminution drastique de l'allodynie et de l'hyperpathie, sensation de soulagement profond et durable sur plusieurs semaines.",
             's3_txt_en' => "Dramatic reduction in allodynia and hyperpathia, delivering profound relief sustained over multiple weeks.",
-            's3_img' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop',
+            's3_img' => '/images/nevralgie_arnold.jpg',
             's4_t_fr' => 'Pathologies Cibles',
             's4_t_en' => 'Targeted Conditions',
             's4_txt_fr' => "SDRC, Fibromyalgie, Douleurs neuropathiques chroniques.",
@@ -539,7 +540,7 @@ function seedTraitementsData(PDO $pdo): void {
             'card_image' => '/images/treatments/radiofrequence.jpg',
             'hero_gallery' => [
                 '/images/treatments/radiofrequence.jpg',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop'
+                '/images/treatments/blocs_anesthesiques.jpg'
             ],
             's1_t_fr' => 'Indications Principales',
             's1_t_en' => 'Key Indications',
@@ -550,12 +551,12 @@ function seedTraitementsData(PDO $pdo): void {
             's2_t_en' => 'Procedure Protocol',
             's2_txt_fr' => "Réalisé au bloc sous anesthésie locale et contrôle scopique. Une sonde millimétrique délivre un courant ciblé à température contrôlée pendant 90 secondes.",
             's2_txt_en' => "Performed under local anesthesia and fluoroscopy. A micro-probe delivers controlled-temperature waves for 90 seconds per target.",
-            's2_img' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop',
+            's2_img' => '/images/sdrc.jpg',
             's3_t_fr' => 'Bénéfices',
             's3_t_en' => 'Long-Term Benefits',
             's3_txt_fr' => "Soulagement majeur et pérenne (jusqu'à 2 ans), renouvelable en toute sécurité.",
             's3_txt_en' => "Major long-lasting relief (up to 2 years), safely repeatable when needed.",
-            's3_img' => 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800&auto=format&fit=crop',
+            's3_img' => '/images/treatments/hypnovr.jpg',
             's4_t_fr' => 'Pathologies Associées',
             's4_t_en' => 'Related Conditions',
             's4_txt_fr' => "Lombalgies, Névralgies d'Arnold, Douleurs articulaires.",
@@ -576,7 +577,7 @@ function seedTraitementsData(PDO $pdo): void {
             'card_image' => '/images/treatments/cryoneurolyse.jpg',
             'hero_gallery' => [
                 '/images/treatments/cryoneurolyse.jpg',
-                'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?w=1200&auto=format&fit=crop'
+                '/images/migraine.jpg'
             ],
             's1_t_fr' => 'Indications',
             's1_t_en' => 'Indications',
@@ -587,12 +588,12 @@ function seedTraitementsData(PDO $pdo): void {
             's2_t_en' => 'Technical Execution',
             's2_txt_fr' => "Geste écho-guidé sous anesthésie locale. La cryosonde forme une bille de glace sphérique au contact exact du nerf douloureux.",
             's2_txt_en' => "Ultrasound-guided procedure. The cryoprobe creates an exact micro-ice ball freezing the target sensory nerve safely.",
-            's2_img' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop',
+            's2_img' => '/images/treatments/infiltrations_articulaires.jpg',
             's3_t_fr' => 'Bénéfices',
             's3_t_en' => 'Clinical Benefits',
             's3_txt_fr' => "Analgésie immédiate et prolongée (4 à 9 mois) sans formation de névrome secondaire.",
             's3_txt_en' => "Immediate and prolonged analgesia (4 to 9 months) without risk of secondary neuroma formation.",
-            's3_img' => 'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?w=800&auto=format&fit=crop',
+            's3_img' => '/images/douleurs_articulaires.jpg',
             's4_t_fr' => 'Pathologies Traitées',
             's4_t_en' => 'Treated Conditions',
             's4_txt_fr' => "Douleurs post-opératoires, Névralgies thoraciques et pelviennes.",
@@ -613,7 +614,7 @@ function seedTraitementsData(PDO $pdo): void {
             'card_image' => '/images/treatments/rtms.jpg',
             'hero_gallery' => [
                 '/images/treatments/rtms.jpg',
-                'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=1200&auto=format&fit=crop'
+                '/images/treatments/cryoneurolyse.jpg'
             ],
             's1_t_fr' => 'Indications',
             's1_t_en' => 'Indications',
@@ -624,12 +625,12 @@ function seedTraitementsData(PDO $pdo): void {
             's2_t_en' => 'Protocol Schedule',
             's2_txt_fr' => "Protocole d'attaque de 10 séances consécutives suivi de séances d'entretien mensuelles. Le patient reste confortablement assis.",
             's2_txt_en' => "Induction protocol of 10 daily sessions followed by monthly maintenance sessions. The patient remains comfortably seated.",
-            's2_img' => 'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=800&auto=format&fit=crop',
+            's2_img' => '/images/endometriose.jpg',
             's3_t_fr' => 'Efficacité',
             's3_t_en' => 'Efficacy',
             's3_txt_fr' => "Amélioration globale de la qualité de vie, du sommeil et réduction sensible de l'intensité douloureuse.",
             's3_txt_en' => "Substantial improvement in pain scores, sleep quality, and daily functional vitality.",
-            's3_img' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop',
+            's3_img' => '/images/treatments/perfusion_lidocaine.jpg',
             's4_t_fr' => 'Pathologies Liées',
             's4_t_en' => 'Related Conditions',
             's4_txt_fr' => "Fibromyalgie, Migraines chroniques, Douleurs neuropathiques.",
@@ -687,13 +688,13 @@ function seedArticlesData(PDO $pdo): void {
             'date_published' => '12 Septembre 2026',
             'read_time_fr' => '5 min',
             'read_time_en' => '5 min',
-            'cover_image' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200&auto=format&fit=crop',
+            'cover_image' => '/images/treatments/stimulation_ganglion_dorsal.jpg',
             'gallery' => [
-                'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop'
+                '/images/treatments/tens.jpg',
+                '/images/treatments/toxine_botulique.jpg',
+                '/images/treatments/patch_capsaicine.jpg',
+                '/images/treatments/catheter_perinerveux.jpg',
+                '/images/lombalgie.jpg'
             ],
             'tags' => '#ITID, #Neuromodulation, #Innovation, #Algologie, #MoelleÉpinière',
             'is_featured' => 1,
@@ -703,19 +704,19 @@ function seedArticlesData(PDO $pdo): void {
                     'id' => 'sec-1',
                     'title' => 'Prise en charge guidée par imagerie interventionnelle',
                     'content' => "À l'ITID, l'implantation d'électrodes de neuromodulation médullaire bénéficie des dernières avancées en scopie haute résolution. Les praticiens ciblent avec une exactitude submillimétrique les fibres dorsales responsables de la transmission des signaux douloureux réfractaires.\n\nCette précision d'imagerie réduit considérablement les temps d'intervention et garantit un positionnement optimal.",
-                    'image' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop'
+                    'image' => '/images/glowing_3d_spine.jpg'
                 ],
                 [
                     'id' => 'sec-2',
                     'title' => 'Générateurs intelligents & Boucle fermée (Closed-Loop)',
                     'content' => "Les nouveaux stimulateurs d'aujourd'hui enregistrent en continu les potentiels d'action évoqués composites (ECAP) et adaptent la puissance de stimulation microseconde par microseconde.\n\nLe patient ne ressent plus d'à-coups désagréables lors des changements de position (debout, assis, couché) et retrouve un confort de vie inédit au quotidien.",
-                    'image' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop'
+                    'image' => '/images/treatments/infiltrations_rachidiennes.jpg'
                 ],
                 [
                     'id' => 'sec-3',
                     'title' => 'Une alternative pérenne aux antalgiques lourds',
                     'content' => "Pour les personnes souffrant de lombalgies chroniques post-chirurgicales (failed back surgery syndrome) ou de SDRC, la neuromodulation offre une réduction de 50 à 80% de l'intensité douloureuse.\n\nElle permet un sevrage sécurisé et progressif des opioïdes et favorise une reprise active des activités professionnelles et familiales.",
-                    'image' => 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=800&auto=format&fit=crop'
+                    'image' => '/images/spine_isolated.png'
                 ]
             ]
         ],
@@ -734,13 +735,13 @@ function seedArticlesData(PDO $pdo): void {
             'date_published' => '05 Septembre 2026',
             'read_time_fr' => '4 min',
             'read_time_en' => '4 min',
-            'cover_image' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1200&auto=format&fit=crop',
+            'cover_image' => '/images/treatments/radiofrequence.jpg',
             'gallery' => [
-                'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?q=80&w=800&auto=format&fit=crop'
+                '/images/nevralgie_arnold.jpg',
+                '/images/treatments/blocs_anesthesiques.jpg',
+                '/images/sdrc.jpg',
+                '/images/treatments/hypnovr.jpg',
+                '/images/migraine.jpg'
             ]
         ],
         [
@@ -758,13 +759,13 @@ function seedArticlesData(PDO $pdo): void {
             'date_published' => '28 Août 2026',
             'read_time_fr' => '6 min',
             'read_time_en' => '6 min',
-            'cover_image' => 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1200&auto=format&fit=crop',
+            'cover_image' => '/images/treatments/infiltrations_articulaires.jpg',
             'gallery' => [
-                'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800&auto=format&fit=crop'
+                '/images/douleurs_articulaires.jpg',
+                '/images/treatments/cryoneurolyse.jpg',
+                '/images/endometriose.jpg',
+                '/images/treatments/perfusion_lidocaine.jpg',
+                '/images/treatments/stimulation_ganglion_dorsal.jpg'
             ]
         ],
         [
@@ -782,13 +783,13 @@ function seedArticlesData(PDO $pdo): void {
             'date_published' => '15 Août 2026',
             'read_time_fr' => '3 min',
             'read_time_en' => '3 min',
-            'cover_image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop',
+            'cover_image' => '/images/treatments/tens.jpg',
             'gallery' => [
-                'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1582719478250-c89af14eb2de?q=80&w=800&auto=format&fit=crop',
-                'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop'
+                '/images/treatments/toxine_botulique.jpg',
+                '/images/treatments/patch_capsaicine.jpg',
+                '/images/treatments/catheter_perinerveux.jpg',
+                '/images/lombalgie.jpg',
+                '/images/glowing_3d_spine.jpg'
             ]
         ]
     ];
@@ -829,14 +830,14 @@ function seedPagesData(PDO $pdo): void {
         [
             'id' => 'media-2',
             'type' => 'image',
-            'url' => 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1600&auto=format&fit=crop',
+            'url' => '/images/treatments/infiltrations_rachidiennes.jpg',
             'title' => 'Plateau Interventionnel Guidé',
             'duration' => 6
         ],
         [
             'id' => 'media-3',
             'type' => 'image',
-            'url' => 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1600&auto=format&fit=crop',
+            'url' => '/images/spine_isolated.png',
             'title' => 'Imagerie Médicale Haute Définition',
             'duration' => 6
         ]
@@ -1004,4 +1005,50 @@ if (php_sapi_name() !== 'cli' && isset($_GET['run'])) {
     $pdo = getItidDb();
     seedCmsIfEmpty($pdo);
     echo json_encode(['success' => true, 'message' => 'CMS seeding complete.']);
+}
+
+function cleanupAllLegacyUnsplashMedia(PDO $pdo): void {
+    try {
+        // 1. cms_pages_content (heroMediaList et autres)
+        $pages = $pdo->query("SELECT page_key, content_fr, content_en FROM cms_pages_content")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($pages as $p) {
+            $fr = $p['content_fr'];
+            $en = $p['content_en'];
+            $changed = false;
+            if (is_string($fr) && str_contains($fr, 'unsplash.com')) {
+                $fr = preg_replace('/https:\/\/images\.unsplash\.com\/[^"\']+/i', '/images/glowing_3d_spine.jpg', $fr);
+                $changed = true;
+            }
+            if (is_string($en) && str_contains($en, 'unsplash.com')) {
+                $en = preg_replace('/https:\/\/images\.unsplash\.com\/[^"\']+/i', '/images/glowing_3d_spine.jpg', $en);
+                $changed = true;
+            }
+            if ($changed) {
+                $stmt = $pdo->prepare("UPDATE cms_pages_content SET content_fr = ?, content_en = ? WHERE page_key = ?");
+                $stmt->execute([$fr, $en, $p['page_key']]);
+            }
+        }
+
+        // 2. cms_pathologies
+        $pdo->exec("UPDATE cms_pathologies SET card_image = '/images/lombalgie.jpg' WHERE card_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_pathologies SET section1_image = '/images/lombalgie.jpg' WHERE section1_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_pathologies SET section2_image = '/images/glowing_3d_spine.jpg' WHERE section2_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_pathologies SET section3_image = '/images/treatments/infiltrations_rachidiennes.jpg' WHERE section3_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_pathologies SET section4_image = '/images/spine_isolated.png' WHERE section4_image LIKE '%unsplash.com%'");
+
+        // 3. cms_traitements
+        $pdo->exec("UPDATE cms_traitements SET card_image = '/images/treatments/infiltrations_rachidiennes.jpg' WHERE card_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_traitements SET section1_image = '/images/treatments/infiltrations_rachidiennes.jpg' WHERE section1_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_traitements SET section2_image = '/images/treatments/radiofrequence.jpg' WHERE section2_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_traitements SET section3_image = '/images/treatments/blocs_anesthesiques.jpg' WHERE section3_image LIKE '%unsplash.com%'");
+        $pdo->exec("UPDATE cms_traitements SET section4_image = '/images/treatments/hypnovr.jpg' WHERE section4_image LIKE '%unsplash.com%'");
+
+        // 4. cms_articles
+        $pdo->exec("UPDATE cms_articles SET cover_image = '/images/lombalgie.jpg' WHERE cover_image LIKE '%unsplash.com%'");
+
+        // 5. cms_cas_cliniques
+        $pdo->exec("UPDATE cms_cas_cliniques SET image = '/images/treatments/infiltrations_rachidiennes.jpg' WHERE image LIKE '%unsplash.com%'");
+    } catch (Throwable $t) {
+        error_log('ITID cleanupAllLegacyUnsplashMedia error: ' . $t->getMessage());
+    }
 }

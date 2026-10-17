@@ -8,31 +8,27 @@
 // - 'mysql'  : Si vous avez créé une base de données MySQL dans le hPanel Hostinger.
 // ======================================================================
 
+$envHost = getenv('DB_HOST') ?: (isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
+$envName = getenv('DB_NAME') ?: (isset($_ENV['DB_NAME']) ? $_ENV['DB_NAME'] : '');
+$envUser = getenv('DB_USER') ?: (isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : '');
+$envPass = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : (isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : '');
+
+$hasMysqlEnv = !empty($envName) && !empty($envUser);
+
 return [
-    // Choix du pilote : 'sqlite' (zéro configuration) ou 'mysql'
-    'db_type'     => 'sqlite',
+    // Choix du pilote : 'mysql' en priorité si configuré, sinon 'sqlite'
+    'db_type'     => $hasMysqlEnv ? 'mysql' : 'sqlite',
 
     // ====================================================================
     // PERSISTANCE SQLITE — IMPORTANT POUR ÉVITER LA PERTE DE DONNÉES
     // ====================================================================
-    // Définissez ici un chemin ABSOLU vers un dossier HORS du webroot
-    // sur Hostinger. Ce dossier ne sera jamais écrasé lors d'un déploiement.
-    //
-    // Pour trouver votre chemin sur Hostinger :
-    //   1. Connectez-vous à hPanel > File Manager
-    //   2. Remontez au niveau de 'domains' (au-dessus de public_html)
-    //   3. Créez un dossier 'itid_data' à cet endroit
-    //   4. Le chemin ressemble à : /home/uXXXXXX/domains/itid-france.com/itid_data/itid.sqlite
-    //
-    // Tant que ce champ est vide, le système choisit automatiquement
-    // le meilleur emplacement disponible hors du webroot.
-    'sqlite_path' => '',
+    'sqlite_path' => __DIR__ . '/data/itid.sqlite',
 
-    // Paramètres MySQL (uniquement si 'db_type' => 'mysql')
-    'mysql_host'     => 'localhost',
-    'mysql_name'     => '',       // ex: u123456789_itid
-    'mysql_user'     => '',       // ex: u123456789_user
-    'mysql_password' => '',       // mot de passe MySQL Hostinger
+    // Paramètres MySQL (lus depuis l'environnement Hostinger ou renseignés ici)
+    'mysql_host'     => $envHost ?: 'localhost',
+    'mysql_name'     => $envName ?: '',       // ex: u123456789_itid
+    'mysql_user'     => $envUser ?: '',       // ex: u123456789_user
+    'mysql_password' => $envPass ?: '',       // mot de passe MySQL Hostinger
 
     // Email de notification réception
     'admin_email' => 'contact@itid-france.com',

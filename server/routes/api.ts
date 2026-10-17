@@ -20,7 +20,20 @@ import {
   getAllContent,
   updateContentSection,
 } from '../controllers/contentController';
-import { getPublicCasCliniques, handleAdminCms, getPublicPageContent } from '../controllers/cmsController';
+import {
+  getPublicCasCliniques,
+  handleAdminCms,
+  getPublicPageContent,
+  getPublicPathologies,
+  getPublicTraitements,
+  getPublicArticles,
+} from '../controllers/cmsController';
+import {
+  uploadMiddleware,
+  handleUploadMedia,
+  handleGetMedia,
+  handleDeleteMedia,
+} from '../controllers/mediaController';
 import { requireAdminAuth } from '../middleware/auth';
 
 const router = Router();
@@ -75,6 +88,7 @@ router.post('/newsletter/trigger-campaign', handleTriggerCampaign);
 
 // Authentification Administrateur avec limitation de débit anti brute-force
 router.post('/auth/login', loginLimiter, handleAdminLogin);
+router.post('/admin/login', loginLimiter, handleAdminLogin);
 
 // Contenus dynamiques publics (FR/EN)
 router.get('/content', getAllContent);
@@ -82,6 +96,9 @@ router.get('/content/:section', getContentSection);
 router.get('/cms/cas_cliniques', getPublicCasCliniques);
 router.get('/cms/cas-cliniques', getPublicCasCliniques);
 router.get('/cms/pages', getPublicPageContent);
+router.get('/cms/pathologies', getPublicPathologies);
+router.get('/cms/traitements', getPublicTraitements);
+router.get('/cms/articles', getPublicArticles);
 
 // Health check
 router.get('/health', (req, res) => {
@@ -96,6 +113,12 @@ router.all('/admin/cms', handleAdminCms);
 // -------------------------------------------------------------
 
 router.get('/auth/me', requireAdminAuth, handleGetMe);
+
+// Gestion Médias & Upload (Persistant)
+router.post('/admin/media/upload', requireAdminAuth, uploadMiddleware.single('file'), handleUploadMedia);
+router.get('/admin/media', requireAdminAuth, handleGetMedia);
+router.delete('/admin/media/:id', requireAdminAuth, handleDeleteMedia);
+router.delete('/admin/media', requireAdminAuth, handleDeleteMedia);
 
 // Messages reçus
 router.get('/admin/messages', requireAdminAuth, getAdminMessages);

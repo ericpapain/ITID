@@ -20,14 +20,14 @@ const DEFAULT_HERO_MEDIA: HeroMediaItem[] = [
   {
     id: "default-img-1",
     type: "image",
-    url: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1600&auto=format&fit=crop",
+    url: "/images/lombalgie.jpg",
     title: "Plateau Interventionnel Guidé",
     duration: 7
   },
   {
     id: "default-img-2",
     type: "image",
-    url: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1600&auto=format&fit=crop",
+    url: "/images/glowing_3d_spine.jpg",
     title: "Imagerie Médicale Haute Définition",
     duration: 7
   }

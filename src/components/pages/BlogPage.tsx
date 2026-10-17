@@ -45,7 +45,7 @@ export default function BlogPage() {
         show_in_home: Number(a.show_in_home ?? 1),
         gallery: Array.isArray(a.gallery_images) && a.gallery_images.length > 0
           ? a.gallery_images
-          : [a.cover_image, "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800", "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800", "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800", "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800"]
+          : [a.cover_image, "/images/lombalgie.jpg", "/images/glowing_3d_spine.jpg", "/images/treatments/infiltrations_rachidiennes.jpg"]
       }))
     : BLOG_ARTICLES.map((a, idx) => ({
         ...a,
@@ -57,10 +57,9 @@ export default function BlogPage() {
         category: t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
         gallery: [
           a.coverImage,
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop"
+          "/images/lombalgie.jpg",
+          "/images/glowing_3d_spine.jpg",
+          "/images/treatments/infiltrations_rachidiennes.jpg"
         ]
       }));
 

@@ -53,7 +53,7 @@ export const BLOG_ARTICLES: Article[] = [
     date: "12 Septembre 2026",
     readTime: "5 min",
     category: "Innovations",
-    coverImage: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "/images/lombalgie.jpg",
     sections: [
       {
         type: 'heading',
@@ -94,7 +94,7 @@ export const BLOG_ARTICLES: Article[] = [
     date: "05 Septembre 2026",
     readTime: "4 min",
     category: "Traitements",
-    coverImage: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "/images/treatments/hypnovr.jpg",
     sections: [
       {
         type: 'heading',
@@ -132,7 +132,7 @@ export const BLOG_ARTICLES: Article[] = [
     date: "28 Août 2026",
     readTime: "6 min",
     category: "Conseils Patients",
-    coverImage: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "/images/treatments/infiltrations_rachidiennes.jpg",
     sections: [
       {
         type: 'heading',
@@ -170,7 +170,7 @@ export const BLOG_ARTICLES: Article[] = [
     date: "15 Août 2026",
     readTime: "3 min",
     category: "Vie de l'Institut",
-    coverImage: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "/images/glowing_3d_spine.jpg",
     sections: [
       {
         type: 'paragraph',
@@ -199,7 +199,7 @@ export const BLOG_ARTICLES: Article[] = [
     date: "10 Août 2026",
     readTime: "5 min",
     category: "Conseils Patients",
-    coverImage: "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "/images/treatments/tens.jpg",
     sections: [
       {
         type: 'heading',
@@ -236,7 +236,7 @@ export const BLOG_ARTICLES: Article[] = [
     date: "02 Août 2026",
     readTime: "4 min",
     category: "Innovations",
-    coverImage: "https://images.unsplash.com/photo-1614064641913-a5509971bc39?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "/images/treatments/hypnovr.jpg",
     sections: [
       {
         type: 'paragraph',

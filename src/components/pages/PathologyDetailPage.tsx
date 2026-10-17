@@ -59,7 +59,7 @@ export function PathologyDetailPage() {
         hero_gallery: [
           found.img || "/images/lombalgie.jpg",
           "/images/glowing_3d_spine.jpg",
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&auto=format&fit=crop"
+          "/images/spine_isolated.png"
         ],
         section1_title_fr: "Comprendre la Pathologie",
         section1_title_en: "Understanding the Condition",
@@ -83,7 +83,7 @@ export function PathologyDetailPage() {
         section4_title_en: "Prevention & Daily Advice",
         section4_text_fr: "La réadaptation active, la posture ergonomique et la nutrition anti-inflammatoire permettent de maintenir un soulagement durable et de prévenir les récidives.",
         section4_text_en: "Active rehabilitation, ergonomic posture, and anti-inflammatory lifestyle measures sustain long-term relief and prevent recurrences.",
-        section4_image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop"
+        section4_image: "/images/spine_isolated.png"
       });
       setLoading(false);
     }
@@ -121,7 +121,7 @@ export function PathologyDetailPage() {
 
   const s4Title = lang === "en" ? (data.section4_title_en || data.section4_title_fr) : data.section4_title_fr;
   const s4Text = lang === "en" ? (data.section4_text_en || data.section4_text_fr) : data.section4_text_fr;
-  const s4Img = data.section4_image || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop";
+  const s4Img = data.section4_image || "/images/spine_isolated.png";
 
   return (
     <main className="min-h-screen bg-[#0c1a2e] text-white pt-28 md:pt-32 pb-24 relative overflow-hidden">
