@@ -33,13 +33,22 @@ export function PathologyDetailPage() {
       }
 
       // Fallback local data if API not responding
-      const found = PATHOLOGIES.find((p) => {
-        const pSlug = t(p.title).toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        return pSlug.includes(slug || "") || (slug && p.title.includes(slug));
+      const cleanSlug = (slug || "").toLowerCase().trim();
+      const found = PATHOLOGIES.find((p: any) => {
+        if (p.slug && (p.slug === cleanSlug || (cleanSlug === "migraine" && p.slug === "migraines") || (cleanSlug === "migraines" && p.slug === "migraine"))) {
+          return true;
+        }
+        if (p.title) {
+          const keyPart = p.title.replace("pathologies.", "").replace(".title", "").toLowerCase();
+          if (cleanSlug.includes(keyPart) || keyPart.includes(cleanSlug)) return true;
+        }
+        const pSlug = t(p.title).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
+        const normClean = cleanSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return pSlug.includes(normClean) || normClean.includes(pSlug);
       }) || PATHOLOGIES[0];
 
       setData({
-        slug: slug || "lombalgie",
+        slug: (found as any).slug || slug || "lombalgie-chronique",
         title_fr: t(found.title),
         title_en: t(found.title),
         icon: found.icon || "🩺",

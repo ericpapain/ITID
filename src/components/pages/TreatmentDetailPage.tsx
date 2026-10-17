@@ -31,13 +31,20 @@ export function TreatmentDetailPage() {
       }
 
       // Fallback local data
-      const found = TRAITEMENTS.find((tr) => {
-        const trSlug = t(tr.title).toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        return trSlug.includes(slug || "") || (slug && tr.title.includes(slug));
+      const cleanSlug = (slug || "").toLowerCase().trim();
+      const found = TRAITEMENTS.find((tr: any) => {
+        if (tr.slug && tr.slug === cleanSlug) return true;
+        if (tr.title) {
+          const keyPart = tr.title.replace("treatments.", "").replace(".title", "").toLowerCase();
+          if (cleanSlug.includes(keyPart)) return true;
+        }
+        const trSlug = t(tr.title).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
+        const normClean = cleanSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return trSlug.includes(normClean) || normClean.includes(trSlug) || (slug && tr.title.includes(slug));
       }) || TRAITEMENTS[0];
 
       setData({
-        slug: slug || "infiltrations-rachidiennes",
+        slug: (found as any).slug || slug || "infiltrations-rachidiennes",
         num: found.num || "01",
         icon: found.icon || "💉",
         title_fr: t(found.title),

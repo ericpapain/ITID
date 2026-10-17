@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaChevronDown } from 'react-icons/fa';
 import doctorImg from "../images/doctor.png";
 import doctoreImg from "../images/doctore.jpg";
@@ -10,8 +10,8 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, wikipediaUrl, img, imageHeight, isDetail, onClose, slug }: any) => {
   const { t } = useTranslation();
-  const bgGradient = `linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)`;
-  const detailSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const navigate = useNavigate();
+  const detailSlug = slug || (title ? title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-') : 'lombalgie-chronique');
 
   // 3D Tilt effect (Only for card mode)
   const x = useMotionValue(0);
@@ -79,13 +79,20 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
           </div>
 
           <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
-            <Link
-              to={`/pathologies/${detailSlug}`}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-[0_0_20px_rgba(72,202,228,0.4)] hover:brightness-110 transition-all flex items-center gap-2"
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onClose) onClose();
+                navigate(`/pathologies/${detailSlug}`);
+              }}
+              className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer"
             >
-              <span>{t('pathologies.openDedicatedPage', 'Découvrir la fiche complète détaillée')}</span>
-              <ArrowRight size={16} />
-            </Link>
+              <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
+                {t("common.readFullFile", "Lire la fiche détaillée")}
+                <ArrowRight size={14} className="ml-1" />
+              </div>
+            </button>
 
             {wikipediaUrl && (
               <a href={wikipediaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-bold hover:text-white transition-colors text-base text-gray-400">
@@ -100,6 +107,7 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
 
   return (
     <motion.div
+      onClick={() => navigate(`/pathologies/${detailSlug}`)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -107,10 +115,10 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         rotateY,
         transformStyle: "preserve-3d",
         perspective: 1000,
-        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.4), 0 25px 50px -12px rgba(0,0,0,0.5)",
-        borderColor: color ? color : '#fff'
+        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2), 0 25px 50px -12px rgba(0,0,0,0.6)",
+        borderColor: color ? color : '#48cae4'
       }}
-      className="relative flex flex-col rounded-3xl overflow-hidden group transition-all duration-300 border-2 bg-white h-full cursor-pointer card-hover-highlight hover:shadow-[0_0_50px_rgba(255,255,255,0.3)]"
+      className="relative flex flex-col rounded-3xl overflow-hidden group transition-all duration-300 border-2 bg-[#0d1c31] h-full cursor-pointer card-hover-highlight hover:shadow-[0_0_50px_rgba(72,202,228,0.3)] text-white"
     >
       {/* Spotlight Effect */}
       <motion.div
@@ -118,7 +126,7 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         style={{
           background: useTransform(
             [x, y],
-            ([latestX, latestY]) => `radial-gradient(400px circle at ${(latestX as number + 0.5) * 100}% ${(latestY as number + 0.5) * 100}%, rgba(42,157,143,0.15), transparent 40%)`
+            ([latestX, latestY]) => `radial-gradient(400px circle at ${(latestX as number + 0.5) * 100}% ${(latestY as number + 0.5) * 100}%, rgba(72,202,228,0.2), transparent 40%)`
           )
         }}
       />
@@ -129,9 +137,9 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         style={{ transform: "translateZ(30px)" }}
       >
         <img alt={title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" src={img || doctorImg} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d1c31] via-transparent to-transparent"></div>
         <motion.div 
-          className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-white shadow-lg border border-gray-200 transform group-hover:scale-110 transition-transform duration-300" 
+          className="absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-white/10 backdrop-blur-md shadow-lg border border-white/20 transform group-hover:scale-110 transition-transform duration-300" 
           style={{ transform: "translateZ(50px)" }}
           animate={{ y: [0, -5, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -141,18 +149,25 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
       </div>
       
       {/* Zone Texte (Compacte) */}
-      <div className="p-6 relative z-10 flex flex-col justify-center items-center text-center flex-1" style={{ background: bgGradient, transform: "translateZ(20px)" }}>
-        <div className="font-bold text-xl md:text-2xl mb-2 text-[#0c1a2e] transition-colors line-clamp-2" style={{ fontFamily: "var(--font-display)" }}>
+      <div className="p-5 sm:p-6 relative z-10 flex flex-col justify-between items-center text-center flex-1 bg-gradient-to-b from-[#0d1c31] to-[#071322]" style={{ transform: "translateZ(20px)" }}>
+        <div className="font-bold text-lg sm:text-xl md:text-2xl mb-2 text-white transition-colors line-clamp-2" style={{ fontFamily: "var(--font-display)" }}>
           {title}
         </div>
         
-        {/* Bouton Lire avec flèche */}
-        <div className="mt-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider transition-all duration-300 opacity-90 group-hover:opacity-100 group-hover:translate-y-0.5">
+        {/* Bouton Lire la fiche détaillée */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/pathologies/${detailSlug}`);
+          }}
+          className="mt-3 flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer shadow-md"
+        >
           <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
-            {t('common.read', 'Lire')} 
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            {t("common.readFullFile", "Lire la fiche détaillée")}
+            <ArrowRight size={14} className="ml-1" />
           </div>
-        </div>
+        </button>
         
         <motion.div 
           className="absolute -bottom-6 -right-4 text-9xl opacity-[0.02] pointer-events-none select-none z-0"

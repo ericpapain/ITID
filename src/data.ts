@@ -37,32 +37,32 @@ export const NAV_LINKS = [
 ];
 
 export const PATHOLOGIES = [
-  { icon: "🦴", title: "pathologies.lombalgie.title", desc: "pathologies.lombalgie.desc", color: "#48d1c2", borderColor: "#48d1c240", wikipediaUrl: "https://fr.wikipedia.org/wiki/Lombalgie", img: lombalgieImg },
-  { icon: "⚡", title: "pathologies.nevralgie_arnold.title", desc: "pathologies.nevralgie_arnold.desc", color: "#2a9d8f", borderColor: "#2a9d8f40", wikipediaUrl: "https://fr.wikipedia.org/wiki/N%C3%A9vralgie_d%27Arnold", img: nevralgieArnoldImg },
-  { icon: "🔥", title: "pathologies.sdrc.title", desc: "pathologies.sdrc.desc", color: "#e76f51", borderColor: "#e76f5140", wikipediaUrl: "https://fr.wikipedia.org/wiki/Syndrome_douloureux_r%C3%A9gional_complexe", img: sdrcImg },
-  { icon: "🌸", title: "pathologies.endometriose.title", desc: "pathologies.endometriose.desc", color: "#e9c46a", borderColor: "#e9c46a40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Endom%C3%A9triose", img: endometrioseImg },
-  { icon: "🦿", title: "pathologies.douleurs_articulaires.title", desc: "pathologies.douleurs_articulaires.desc", color: "#f4a261", borderColor: "#f4a26140", wikipediaUrl: "https://fr.wikipedia.org/wiki/Arthralgie", img: douleursArticulairesImg },
-  { icon: "🌬️", title: "pathologies.fibromyalgie.title", desc: "pathologies.fibromyalgie.desc", color: "#81b29a", borderColor: "#81b29a40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Fibromyalgie", img: fibromyalgieImg },
-  { icon: "💥", title: "pathologies.douleurs_neuropathiques.title", desc: "pathologies.douleurs_neuropathiques.desc", color: "#e07a5f", borderColor: "#e07a5f40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Douleur_neuropathique", img: douleursNeuropathiquesImg },
-  { icon: "⚕️", title: "pathologies.douleurs_post_op.title", desc: "pathologies.douleurs_post_op.desc", color: "#3d5a80", borderColor: "#3d5a8040", wikipediaUrl: "https://fr.wikipedia.org/wiki/Douleur", img: douleursPostOpImg },
-  { icon: "🧠", title: "pathologies.migraine.title", desc: "pathologies.migraine.desc", color: "#264653", borderColor: "#26465340", wikipediaUrl: "https://fr.wikipedia.org/wiki/Migraine", img: migraineImg }
+  { slug: "lombalgie-chronique", icon: "🦴", title: "pathologies.lombalgie.title", desc: "pathologies.lombalgie.desc", color: "#48d1c2", borderColor: "#48d1c240", wikipediaUrl: "https://fr.wikipedia.org/wiki/Lombalgie", img: lombalgieImg },
+  { slug: "nevralgie-arnold", icon: "⚡", title: "pathologies.nevralgie_arnold.title", desc: "pathologies.nevralgie_arnold.desc", color: "#2a9d8f", borderColor: "#2a9d8f40", wikipediaUrl: "https://fr.wikipedia.org/wiki/N%C3%A9vralgie_d%27Arnold", img: nevralgieArnoldImg },
+  { slug: "sdrc", icon: "🔥", title: "pathologies.sdrc.title", desc: "pathologies.sdrc.desc", color: "#e76f51", borderColor: "#e76f5140", wikipediaUrl: "https://fr.wikipedia.org/wiki/Syndrome_douloureux_r%C3%A9gional_complexe", img: sdrcImg },
+  { slug: "endometriose", icon: "🌸", title: "pathologies.endometriose.title", desc: "pathologies.endometriose.desc", color: "#e9c46a", borderColor: "#e9c46a40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Endom%C3%A9triose", img: endometrioseImg },
+  { slug: "douleurs-articulaires", icon: "🦿", title: "pathologies.douleurs_articulaires.title", desc: "pathologies.douleurs_articulaires.desc", color: "#f4a261", borderColor: "#f4a26140", wikipediaUrl: "https://fr.wikipedia.org/wiki/Arthralgie", img: douleursArticulairesImg },
+  { slug: "fibromyalgie", icon: "🌬️", title: "pathologies.fibromyalgie.title", desc: "pathologies.fibromyalgie.desc", color: "#81b29a", borderColor: "#81b29a40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Fibromyalgie", img: fibromyalgieImg },
+  { slug: "douleurs-neuropathiques", icon: "💥", title: "pathologies.douleurs_neuropathiques.title", desc: "pathologies.douleurs_neuropathiques.desc", color: "#e07a5f", borderColor: "#e07a5f40", wikipediaUrl: "https://fr.wikipedia.org/wiki/Douleur_neuropathique", img: douleursNeuropathiquesImg },
+  { slug: "douleurs-post-op", icon: "⚕️", title: "pathologies.douleurs_post_op.title", desc: "pathologies.douleurs_post_op.desc", color: "#3d5a80", borderColor: "#3d5a8040", wikipediaUrl: "https://fr.wikipedia.org/wiki/Douleur", img: douleursPostOpImg },
+  { slug: "migraines", icon: "🧠", title: "pathologies.migraine.title", desc: "pathologies.migraine.desc", color: "#264653", borderColor: "#26465340", wikipediaUrl: "https://fr.wikipedia.org/wiki/Migraine", img: migraineImg }
 ];
 
 export const TRAITEMENTS = [
-  { num: "01", title: "treatments.t01.title", desc: "treatments.t01.desc", icon: "💉", img: traitement1Img },
-  { num: "02", title: "treatments.t02.title", desc: "treatments.t02.desc", icon: "🦵", img: traitement2Img },
-  { num: "03", title: "treatments.t03.title", desc: "treatments.t03.desc", icon: "💧", img: traitement3Img },
-  { num: "04", title: "treatments.t04.title", desc: "treatments.t04.desc", icon: "⚙️", img: traitement4Img },
-  { num: "05", title: "treatments.t05.title", desc: "treatments.t05.desc", icon: "❄️", img: traitement5Img },
-  { num: "06", title: "treatments.t06.title", desc: "treatments.t06.desc", icon: "🧠", img: traitement6Img },
-  { num: "07", title: "treatments.t07.title", desc: "treatments.t07.desc", icon: "🎯", img: traitement7Img },
-  { num: "08", title: "treatments.t08.title", desc: "treatments.t08.desc", icon: "🔥", img: traitement8Img },
-  { num: "09", title: "treatments.t09.title", desc: "treatments.t09.desc", icon: "🔬", img: traitement9Img },
-  { num: "10", title: "treatments.t10.title", desc: "treatments.t10.desc", icon: "⚡", img: traitement10Img },
-  { num: "11", title: "treatments.t11.title", desc: "treatments.t11.desc", icon: "🚰", img: traitement11Img },
-  { num: "12", title: "treatments.t12.title", desc: "treatments.t12.desc", icon: "🩹", img: traitement12Img },
-  { num: "13", title: "treatments.t13.title", desc: "treatments.t13.desc", icon: "🥽", img: traitement13Img },
-  { num: "14", title: "treatments.t14.title", desc: "treatments.t14.desc", icon: "⚡", img: "https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=600&h=450&fit=crop" }
+  { slug: "infiltrations-rachidiennes", num: "01", title: "treatments.t01.title", desc: "treatments.t01.desc", icon: "💉", img: traitement1Img },
+  { slug: "infiltrations-articulaires", num: "02", title: "treatments.t02.title", desc: "treatments.t02.desc", icon: "🦵", img: traitement2Img },
+  { slug: "perfusion-lidocaine", num: "03", title: "treatments.t03.title", desc: "treatments.t03.desc", icon: "💧", img: traitement3Img },
+  { slug: "stimulation-ganglion-dorsal", num: "04", title: "treatments.t04.title", desc: "treatments.t04.desc", icon: "⚙️", img: traitement4Img },
+  { slug: "cryoneurolyse", num: "05", title: "treatments.t05.title", desc: "treatments.t05.desc", icon: "❄️", img: traitement5Img },
+  { slug: "rtms", num: "06", title: "treatments.t06.title", desc: "treatments.t06.desc", icon: "🧠", img: traitement6Img },
+  { slug: "blocs-anesthesiques", num: "07", title: "treatments.t07.title", desc: "treatments.t07.desc", icon: "🎯", img: traitement7Img },
+  { slug: "radiofrequence", num: "08", title: "treatments.t08.title", desc: "treatments.t08.desc", icon: "🔥", img: traitement8Img },
+  { slug: "toxine-botulique", num: "09", title: "treatments.t09.title", desc: "treatments.t09.desc", icon: "🔬", img: traitement9Img },
+  { slug: "tens", num: "10", title: "treatments.t10.title", desc: "treatments.t10.desc", icon: "⚡", img: traitement10Img },
+  { slug: "catheter-perinerveux", num: "11", title: "treatments.t11.title", desc: "treatments.t11.desc", icon: "🚰", img: traitement11Img },
+  { slug: "patch-capsaicine", num: "12", title: "treatments.t12.title", desc: "treatments.t12.desc", icon: "🩹", img: traitement12Img },
+  { slug: "hypnovr", num: "13", title: "treatments.t13.title", desc: "treatments.t13.desc", icon: "🥽", img: traitement13Img },
+  { slug: "stimulation-medullaire", num: "14", title: "treatments.t14.title", desc: "treatments.t14.desc", icon: "⚡", img: "https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=600&h=450&fit=crop" }
 ];
 
 export const TEAM_ROLES = [
