@@ -36,7 +36,7 @@ export function ProfilPage({
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
               <div className="flex justify-between items-start mb-6">
                 <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
-                  <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&auto=format" alt="Avatar Utilisateur" className="w-full h-full object-cover" />
+                  <img src="/images/doctor.png" alt="Avatar Utilisateur" className="w-full h-full object-cover" />
                 </div>
               </div>
 

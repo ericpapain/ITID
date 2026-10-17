@@ -71,9 +71,18 @@ function getItidDb(): PDO {
 
     // Priorité 0 : Chemin explicite configuré dans config.php
     $explicitPath = $config['sqlite_path'] ?? null;
-    if ($explicitPath && (file_exists($explicitPath) || @is_writable(dirname($explicitPath)))) {
-        $sqliteFile = $explicitPath;
-    } else {
+    if ($explicitPath) {
+        $parentDir = dirname($explicitPath);
+        if (!is_dir($parentDir)) {
+            @mkdir($parentDir, 0777, true);
+        }
+        @chmod($parentDir, 0777);
+        if (file_exists($explicitPath) || is_writable($parentDir)) {
+            $sqliteFile = $explicitPath;
+        }
+    }
+
+    if (!isset($sqliteFile) || empty($sqliteFile)) {
         $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
         $parentOfPublic = !empty($docRoot) ? dirname(rtrim($docRoot, '/\\')) : null;
 
@@ -89,7 +98,10 @@ function getItidDb(): PDO {
             $candidateDirs[] = $parentOfPublic . '/private/itid_data';
         }
 
-        // 3. Fallbacks
+        // 3. Dossier uploads (garanti inscriptible par le serveur web)
+        $candidateDirs[] = dirname(__DIR__) . '/uploads';
+
+        // 4. Dossier api courant
         $candidateDirs[] = __DIR__;
 
         $selectedDir = null;
@@ -102,6 +114,8 @@ function getItidDb(): PDO {
             if (file_exists($candidateFile)) {
                 $sz = (int)@filesize($candidateFile);
                 if ($sz > 2048 && $sz > $bestCandidateSize) {
+                    @chmod($candidateFile, 0666);
+                    @chmod($dir, 0777);
                     if (is_writable($candidateFile) || is_writable($dir)) {
                         $bestCandidateDir = $dir;
                         $bestCandidateSize = $sz;
@@ -117,8 +131,9 @@ function getItidDb(): PDO {
         if ($selectedDir === null) {
             foreach ($candidateDirs as $dir) {
                 if (!is_dir($dir)) {
-                    @mkdir($dir, 0775, true);
+                    @mkdir($dir, 0777, true);
                 }
+                @chmod($dir, 0777);
                 if (is_dir($dir) && is_writable($dir)) {
                     $selectedDir = $dir;
                     break;
@@ -126,13 +141,11 @@ function getItidDb(): PDO {
             }
         }
 
-        // Étape C : dernier recours si aucun dossier n'est inscriptible
+        // Étape C : fallback obligatoire sur __DIR__ . '/data' avec forçage des droits
         if ($selectedDir === null) {
-            $selectedDir = sys_get_temp_dir() . '/itid_data';
-            if (!is_dir($selectedDir)) {
-                @mkdir($selectedDir, 0777, true);
-            }
-            error_log('ITID WARNING: SQLite stored in temp directory: ' . $selectedDir);
+            $selectedDir = __DIR__ . '/data';
+            @mkdir($selectedDir, 0777, true);
+            @chmod($selectedDir, 0777);
         }
 
         $sqliteFile = $selectedDir . '/itid.sqlite';

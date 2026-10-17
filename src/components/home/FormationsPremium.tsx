@@ -41,7 +41,7 @@ export function FormationsPremium() {
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
             <img
-              src="https://images.unsplash.com/photo-1758691462749-a95ce1bd7f96?w=600&h=380&fit=crop&auto=format&q=80"
+              src="/images/lombalgie.jpg"
               alt="video"
               loading="lazy"
               decoding="async"
@@ -55,7 +55,7 @@ export function FormationsPremium() {
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
             <img
-              src="https://images.unsplash.com/photo-1758691463620-188ca7c1a04f?w=600&h=380&fit=crop&auto=format&q=80"
+              src="/images/treatments/hypnovr.jpg"
               alt="video"
               loading="lazy"
               decoding="async"

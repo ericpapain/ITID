@@ -232,7 +232,7 @@ export default function AdminPagesEditor() {
         section4_title_en: "Prevention & Daily Advice",
         section4_text_fr: "Postures, réadaptation et hygiène de vie...",
         section4_text_en: "Postures, rehabilitation, and lifestyle...",
-        section4_image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
+        section4_image: "/images/spine_isolated.png",
         wikipedia_url: "",
         display_order: itemsList.length + 1,
         is_active: 1
@@ -260,12 +260,12 @@ export default function AdminPagesEditor() {
         section2_title_en: "Step-by-Step Guided Procedure",
         section2_text_fr: "Protocole interventionnel, durée et sécurité...",
         section2_text_en: "Interventional protocol, duration, safety...",
-        section2_image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800",
+        section2_image: "/images/treatments/radiofrequence.jpg",
         section3_title_fr: "Bénéfices Attendus & Suites",
         section3_title_en: "Expected Benefits & Recovery",
         section3_text_fr: "Délai de soulagement et reprise d'activité...",
         section3_text_en: "Pain relief timeline and recovery...",
-        section3_image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800",
+        section3_image: "/images/glowing_3d_spine.jpg",
         section4_title_fr: "Pathologies Associées Prises en Charge",
         section4_title_en: "Related Conditions Managed",
         section4_text_fr: "Maladies traitées par cette technique...",
@@ -292,24 +292,23 @@ export default function AdminPagesEditor() {
         content_fr: "Corps complet de l'article médical...",
         content_en: "Full body text of medical article...",
         tags: "#ITID, #Innovations, #Algologie",
-        cover_image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200",
+        cover_image: "/images/lombalgie.jpg",
         gallery_images: [
-          "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800",
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800",
-          "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800",
-          "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800",
-          "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800"
+          "/images/lombalgie.jpg",
+          "/images/glowing_3d_spine.jpg",
+          "/images/spine_isolated.png",
+          "/images/treatments/infiltrations_rachidiennes.jpg"
         ],
         sections: [
           {
             id: "sec-1",
-            image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop",
+            image: "/images/lombalgie.jpg",
             title: "Une reconnaissance internationale pour l'écosystème médical ITID",
             content: "L'Institut du Traitement Interventionnel de la Douleur innove continuellement en combinant diagnostic de haute précision et thérapeutiques ciblées sous contrôle de l'imagerie interventionnelle."
           },
           {
             id: "sec-2",
-            image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop",
+            image: "/images/treatments/infiltrations_rachidiennes.jpg",
             title: "Au cœur des enjeux de la prise en charge de la douleur chronique",
             content: "Nos spécialistes algologues et radiologues interventionnels travaillent de concert pour proposer des alternatives non chirurgicales et ultra-précises aux patients souffrant de douleurs rebelles."
           }
@@ -1985,14 +1984,14 @@ function HeroMediaLoopManager({
           {
             id: "default-img-1",
             type: "image",
-            url: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1600&auto=format&fit=crop",
+            url: "/images/lombalgie.jpg",
             title: "Plateau Interventionnel Guidé",
             duration: 7
           },
           {
             id: "default-img-2",
             type: "image",
-            url: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1600&auto=format&fit=crop",
+            url: "/images/glowing_3d_spine.jpg",
             title: "Plateau Technique & Imagerie",
             duration: 7
           }
@@ -2344,7 +2343,7 @@ function HeroMediaLoopManager({
                     type="text"
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
-                    placeholder="https://images.unsplash.com/... ou https://.../video.mp4"
+                    placeholder="/uploads/... ou https://.../video.mp4"
                     className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono text-xs focus:border-[#3b82f6] focus:outline-none"
                   />
                   <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" />

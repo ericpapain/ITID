@@ -62,7 +62,7 @@ export const TRAITEMENTS = [
   { slug: "catheter-perinerveux", num: "11", title: "treatments.t11.title", desc: "treatments.t11.desc", icon: "🚰", img: traitement11Img },
   { slug: "patch-capsaicine", num: "12", title: "treatments.t12.title", desc: "treatments.t12.desc", icon: "🩹", img: traitement12Img },
   { slug: "hypnovr", num: "13", title: "treatments.t13.title", desc: "treatments.t13.desc", icon: "🥽", img: traitement13Img },
-  { slug: "stimulation-medullaire", num: "14", title: "treatments.t14.title", desc: "treatments.t14.desc", icon: "⚡", img: "https://images.unsplash.com/photo-1559757175-9b2f3bc13a07?w=600&h=450&fit=crop" }
+  { slug: "stimulation-medullaire", num: "14", title: "treatments.t14.title", desc: "treatments.t14.desc", icon: "⚡", img: traitement4Img }
 ];
 
 export const TEAM_ROLES = [
@@ -154,7 +154,7 @@ export const CATEGORIES_FORMATIONS = [
       title: title,
       duration: `${Math.floor(Math.random() * 3) + 1}h${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
       price: "290 €",
-      img: `https://images.unsplash.com/photo-1758691462749-a95ce1bd7f96?w=600&h=380&fit=crop&auto=format&q=${i}`,
+      img: "/images/lombalgie.jpg",
       subVideos: generateSubVideos()
     }))
   },
@@ -168,7 +168,7 @@ export const CATEGORIES_FORMATIONS = [
       title: title,
       duration: `${Math.floor(Math.random() * 2) + 1}h${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
       price: "89 €",
-      img: `https://images.unsplash.com/photo-1758691463620-188ca7c1a04f?w=600&h=380&fit=crop&auto=format&q=${i}`,
+      img: "/images/treatments/hypnovr.jpg",
       subVideos: generateSubVideos()
     }))
   },
@@ -182,7 +182,7 @@ export const CATEGORIES_FORMATIONS = [
       title: title,
       duration: `${Math.floor(Math.random() * 2) + 1}h${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
       price: "149 €",
-      img: `https://images.unsplash.com/photo-1758691462743-f9fc9e430d39?w=600&h=380&fit=crop&auto=format&q=${i}`,
+      img: "/images/treatments/infiltrations_rachidiennes.jpg",
       subVideos: generateSubVideos()
     }))
   }
