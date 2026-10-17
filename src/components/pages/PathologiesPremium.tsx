@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, useMotionValue, useSpring, useTransform, animate, PanInfo, useAnimationFrame, AnimatePresence } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import { TransitionLink } from "../ui/TransitionLink";
 import { ShimmerButton } from "../ui/ShimmerButton";
 import { PATHOLOGIES } from "../../data";
@@ -13,6 +14,7 @@ import { useIsMobile } from "../../hooks/useIsMobile";
 
 export function PathologiesPremium() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const lang = i18n.language.startsWith("en") ? "en" : "fr";
   const isMobile = useIsMobile(1024);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -51,7 +53,7 @@ export function PathologiesPremium() {
         ...item,
         title: t(item.title),
         desc: t(item.desc),
-        slug: ["lombalgie-chronique", "nevralgie-arnold", "sdrc", "endometriose", "douleurs-articulaires", "fibromyalgie", "douleurs-neuropathiques", "douleurs-post-op", "migraines"][idx] || "lombalgie"
+        slug: item.slug || ["lombalgie-chronique", "nevralgie-arnold", "sdrc", "endometriose", "douleurs-articulaires", "fibromyalgie", "douleurs-neuropathiques", "douleurs-post-op", "migraines"][idx] || "lombalgie-chronique"
       }));
 
   const angleStep = 360 / Math.max(items.length, 1);
@@ -234,19 +236,21 @@ export function PathologiesPremium() {
               </div>
             </div>
 
-            {/* Pied de carte avec incitation au clic */}
-            <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-              <span className="text-gray-400 font-light">
-                {t("pathologies.touchToDiscover", "Détails & prise en charge")}
-              </span>
-              <Link
-                to={`/pathologies/${item.slug || 'lombalgie-chronique'}`}
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform"
+            {/* Pied de carte avec bouton vers la fiche détaillée */}
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/pathologies/${item.slug || 'lombalgie-chronique'}`);
+                }}
+                className="flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer"
               >
-                {t("common.read", "Lire")} 
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right ml-1" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-              </Link>
+                <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
+                  {t("common.readFullFile", "Lire la fiche détaillée")}
+                  <ArrowRight size={14} className="ml-1" />
+                </div>
+              </button>
             </div>
           </motion.article>
         ))}

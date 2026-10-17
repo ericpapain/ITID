@@ -136,7 +136,7 @@ export function TraitementsPremium() {
         title: t(item.title),
         desc: t(item.desc),
         descBack: t(item.desc),
-        slug: ["infiltrations-rachidiennes", "infiltrations-articulaires", "perfusion-lidocaine", "stimulation-ganglion-dorsal", "cryoneurolyse", "rtms", "blocs-anesthesiques", "radiofrequence", "toxine-botulique", "tens", "catheter-perinerveux", "patch-capsaicine", "hypnovr"][idx] || "infiltrations-rachidiennes"
+        slug: item.slug || ["infiltrations-rachidiennes", "infiltrations-articulaires", "perfusion-lidocaine", "stimulation-ganglion-dorsal", "cryoneurolyse", "rtms", "blocs-anesthesiques", "radiofrequence", "toxine-botulique", "tens", "catheter-perinerveux", "patch-capsaicine", "hypnovr", "stimulation-medullaire"][idx] || "infiltrations-rachidiennes"
       }));
 
   const [highlightedTitle, setHighlightedTitle] = useState<string | null>(null);
