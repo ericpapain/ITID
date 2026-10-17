@@ -469,6 +469,21 @@ function initSqliteTables(PDO $pdo): void {
             is_active INTEGER DEFAULT 1,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+        "CREATE TABLE IF NOT EXISTS media_files (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename TEXT NOT NULL UNIQUE,
+            original_name TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            public_url TEXT NOT NULL,
+            mime_type TEXT NOT NULL,
+            file_size INTEGER NOT NULL,
+            file_hash TEXT NOT NULL,
+            media_type TEXT NOT NULL DEFAULT 'image',
+            alt_text_fr TEXT,
+            alt_text_en TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )"
     ];
 
@@ -482,6 +497,7 @@ function initSqliteTables(PDO $pdo): void {
     migrateCmsArticlesColumns($pdo);
     seedAdminUserIfEmpty($pdo);
     seedCmsIfEmptySafe($pdo);
+    indexExistingLocalMediaIfEmpty($pdo);
 }
 
 function initMysqlTables(PDO $pdo): void {
@@ -722,11 +738,29 @@ function initMysqlTables(PDO $pdo): void {
             title_en VARCHAR(255) NOT NULL,
             category_fr VARCHAR(255) NOT NULL,
             category_en VARCHAR(255) NOT NULL,
-            image VARCHAR(500) NOT NULL,
+            image TEXT NOT NULL,
             display_order INT DEFAULT 0,
             is_active TINYINT(1) DEFAULT 1,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+        "CREATE TABLE IF NOT EXISTS media_files (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            filename VARCHAR(255) NOT NULL UNIQUE,
+            original_name VARCHAR(255) NOT NULL,
+            file_path VARCHAR(500) NOT NULL,
+            public_url VARCHAR(500) NOT NULL,
+            mime_type VARCHAR(100) NOT NULL,
+            file_size INT NOT NULL,
+            file_hash VARCHAR(64) NOT NULL,
+            media_type VARCHAR(20) NOT NULL DEFAULT 'image',
+            alt_text_fr VARCHAR(255) NULL,
+            alt_text_en VARCHAR(255) NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_media_hash (file_hash),
+            INDEX idx_media_type (media_type)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ];
 
@@ -737,9 +771,11 @@ function initMysqlTables(PDO $pdo): void {
             error_log("ITID initMysqlTables error: " . $t->getMessage());
         }
     }
+    upgradeMysqlColumnsSafe($pdo);
     migrateCmsArticlesColumns($pdo);
     seedAdminUserIfEmpty($pdo);
     seedCmsIfEmptySafe($pdo);
+    indexExistingLocalMediaIfEmpty($pdo);
 }
 
 function migrateCmsArticlesColumns(PDO $pdo): void {
@@ -793,4 +829,239 @@ function seedCmsIfEmptySafe(PDO $pdo): void {
         error_log("seedCmsIfEmptySafe error: " . $t->getMessage());
     }
 }
+
+function upgradeMysqlColumnsSafe(PDO $pdo): void {
+    $alterQueries = [
+        "ALTER TABLE cms_pathologies MODIFY card_image TEXT",
+        "ALTER TABLE cms_pathologies MODIFY wikipedia_url TEXT",
+        "ALTER TABLE cms_pathologies MODIFY section1_image TEXT",
+        "ALTER TABLE cms_pathologies MODIFY section2_image TEXT",
+        "ALTER TABLE cms_pathologies MODIFY section3_image TEXT",
+        "ALTER TABLE cms_pathologies MODIFY section4_image TEXT",
+        "ALTER TABLE cms_traitements MODIFY card_image TEXT",
+        "ALTER TABLE cms_traitements MODIFY section1_image TEXT",
+        "ALTER TABLE cms_traitements MODIFY section2_image TEXT",
+        "ALTER TABLE cms_traitements MODIFY section3_image TEXT",
+        "ALTER TABLE cms_traitements MODIFY section4_image TEXT",
+        "ALTER TABLE cms_articles MODIFY cover_image TEXT",
+        "ALTER TABLE cms_cas_cliniques MODIFY image TEXT",
+    ];
+    foreach ($alterQueries as $sql) {
+        try {
+            $pdo->exec($sql);
+        } catch (Throwable $e) {}
+    }
+}
+
+function indexExistingLocalMediaIfEmpty(PDO $pdo): void {
+    try {
+        $count = (int)$pdo->query("SELECT COUNT(*) FROM media_files")->fetchColumn();
+        if ($count > 0) {
+            return;
+        }
+
+        $publicDir = dirname(__DIR__);
+        $imagesDir = $publicDir . '/images';
+        $treatmentsDir = $publicDir . '/images/treatments';
+
+        $itemsToIndex = [
+            // Vidéos d'ambiance et hero
+            [
+                'filename' => 'video-fond.mp4',
+                'name' => 'Vidéo Hero Principale (Accueil)',
+                'path' => $imagesDir . '/video-fond.mp4',
+                'url' => '/images/video-fond.mp4',
+                'mime' => 'video/mp4',
+                'type' => 'video'
+            ],
+            [
+                'filename' => 'ITID-VIDEO-fond.mp4',
+                'name' => 'Vidéo Ambiance ITID (Fond)',
+                'path' => $imagesDir . '/ITID-VIDEO-fond.mp4',
+                'url' => '/images/ITID-VIDEO-fond.mp4',
+                'mime' => 'video/mp4',
+                'type' => 'video'
+            ],
+            [
+                'filename' => 'parcours-patient.mp4',
+                'name' => 'Vidéo Parcours Patient',
+                'path' => $imagesDir . '/parcours-patient.mp4',
+                'url' => '/images/parcours-patient.mp4',
+                'mime' => 'video/mp4',
+                'type' => 'video'
+            ],
+            [
+                'filename' => 'video-intervention.mp4',
+                'name' => 'Vidéo Gestes & Blocs Interventionnels',
+                'path' => $imagesDir . '/video-intervention.mp4',
+                'url' => '/images/video-intervention.mp4',
+                'mime' => 'video/mp4',
+                'type' => 'video'
+            ],
+            [
+                'filename' => 'pathologie-2.mp4',
+                'name' => 'Vidéo Ambiance Pathologies',
+                'path' => $imagesDir . '/pathologie-2.mp4',
+                'url' => '/images/pathologie-2.mp4',
+                'mime' => 'video/mp4',
+                'type' => 'video'
+            ],
+            // Logo officiel
+            [
+                'filename' => 'logo-itid.png',
+                'name' => 'Logo Officiel ITID France',
+                'path' => $publicDir . '/logo-itid.png',
+                'url' => '/logo-itid.png',
+                'mime' => 'image/png',
+                'type' => 'image'
+            ],
+            // Images Pathologies & Clés
+            [
+                'filename' => 'lombalgie.jpg',
+                'name' => 'Lombalgie & Rachis',
+                'path' => $imagesDir . '/lombalgie.jpg',
+                'url' => '/images/lombalgie.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'nevralgie_arnold.jpg',
+                'name' => "Névralgie d'Arnold",
+                'path' => $imagesDir . '/nevralgie_arnold.jpg',
+                'url' => '/images/nevralgie_arnold.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'sdrc.jpg',
+                'name' => 'Syndrome Douloureux Régional Complexe (SDRC)',
+                'path' => $imagesDir . '/sdrc.jpg',
+                'url' => '/images/sdrc.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'migraine.jpg',
+                'name' => 'Migraines & Céphalées',
+                'path' => $imagesDir . '/migraine.jpg',
+                'url' => '/images/migraine.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'endometriose.jpg',
+                'name' => 'Endométriose & Douleurs Pelviennes',
+                'path' => $imagesDir . '/endometriose.jpg',
+                'url' => '/images/endometriose.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'fibromyalgie.jpg',
+                'name' => 'Fibromyalgie Diffuse',
+                'path' => $imagesDir . '/fibromyalgie.jpg',
+                'url' => '/images/fibromyalgie.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'douleurs_neuropathiques.jpg',
+                'name' => 'Douleurs Neuropathiques',
+                'path' => $imagesDir . '/douleurs_neuropathiques.jpg',
+                'url' => '/images/douleurs_neuropathiques.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'glowing_3d_spine.jpg',
+                'name' => 'Rachis 3D Lumineux',
+                'path' => $imagesDir . '/glowing_3d_spine.jpg',
+                'url' => '/images/glowing_3d_spine.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            // Traitements
+            [
+                'filename' => 'infiltrations_rachidiennes.jpg',
+                'name' => 'Infiltrations Rachidiennes Guidées',
+                'path' => $treatmentsDir . '/infiltrations_rachidiennes.jpg',
+                'url' => '/images/treatments/infiltrations_rachidiennes.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'radiofrequence.jpg',
+                'name' => 'Radiofréquence Pulsée & Thermique',
+                'path' => $treatmentsDir . '/radiofrequence.jpg',
+                'url' => '/images/treatments/radiofrequence.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'blocs_anesthesiques.jpg',
+                'name' => 'Blocs Anesthésiques Test',
+                'path' => $treatmentsDir . '/blocs_anesthesiques.jpg',
+                'url' => '/images/treatments/blocs_anesthesiques.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'hypnovr.jpg',
+                'name' => 'Réalité Virtuelle Médicale (HypnoVR)',
+                'path' => $treatmentsDir . '/hypnovr.jpg',
+                'url' => '/images/treatments/hypnovr.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'cryoneurolyse.jpg',
+                'name' => 'Cryoneurolyse Ciblée',
+                'path' => $treatmentsDir . '/cryoneurolyse.jpg',
+                'url' => '/images/treatments/cryoneurolyse.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'perfusion_lidocaine.jpg',
+                'name' => 'Perfusions de Lidocaïne',
+                'path' => $treatmentsDir . '/perfusion_lidocaine.jpg',
+                'url' => '/images/treatments/perfusion_lidocaine.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ],
+            [
+                'filename' => 'rtms.jpg',
+                'name' => 'Stimulation Magnétique Transcrânienne (rTMS)',
+                'path' => $treatmentsDir . '/rtms.jpg',
+                'url' => '/images/treatments/rtms.jpg',
+                'mime' => 'image/jpeg',
+                'type' => 'image'
+            ]
+        ];
+
+        $stmt = $pdo->prepare("INSERT INTO media_files (
+            filename, original_name, file_path, public_url, mime_type, file_size, file_hash, media_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+        foreach ($itemsToIndex as $m) {
+            $fSize = file_exists($m['path']) ? (int)filesize($m['path']) : 102400;
+            $fHash = file_exists($m['path']) ? md5_file($m['path']) : md5($m['filename']);
+            try {
+                $stmt->execute([
+                    $m['filename'],
+                    $m['name'],
+                    $m['path'],
+                    $m['url'],
+                    $m['mime'],
+                    $fSize,
+                    $fHash ?: 'hash_init',
+                    $m['type']
+                ]);
+            } catch (Throwable $e) {}
+        }
+    } catch (Throwable $t) {
+        error_log("indexExistingLocalMediaIfEmpty error: " . $t->getMessage());
+    }
+}
+
 

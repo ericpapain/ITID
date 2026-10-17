@@ -53,7 +53,7 @@ export function ImmersionSection() {
   // Extraction de la galerie d'images pour l'article courant
   const currentImages: string[] = (() => {
     if (!currentArticle) {
-      return ["https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200"];
+      return ["/images/lombalgie.jpg"];
     }
     const gallery = Array.isArray(currentArticle.gallery_images) && currentArticle.gallery_images.length > 0
       ? currentArticle.gallery_images
@@ -65,9 +65,9 @@ export function ImmersionSection() {
     const list = gallery.length > 0
       ? gallery
       : [
-          fallbackCover || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200",
-          "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&auto=format&fit=crop"
+          fallbackCover || "/images/lombalgie.jpg",
+          "/images/glowing_3d_spine.jpg",
+          "/images/treatments/infiltrations_rachidiennes.jpg"
         ];
     return list.filter(Boolean);
   })();

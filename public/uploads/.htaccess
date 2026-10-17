@@ -1,4 +1,8 @@
-# ITID France — Autorisation d'accès aux médias téléversés
+# ======================================================================
+# ITID France — Dossier de Stockage Persistant des Médias (/uploads/)
+# ======================================================================
+
+# 1. Autoriser l'accès public en lecture aux médias
 <IfModule mod_authz_core.c>
     Require all granted
 </IfModule>
@@ -7,12 +11,37 @@
     Allow from all
 </IfModule>
 
-# Caching des images téléversées
+# 2. Sécurité Stricte : Interdire l'exécution de tout script (anti web-shell)
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phps|cgi|pl|py|sh|bash|exe)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Désactiver le moteur PHP dans le dossier d'uploads si supporté
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# 3. Validation de Cache & Anti-Stale
+FileETag MTime Size
+
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresDefault "access plus 1 month"
+    ExpiresDefault "access plus 7 days"
 </IfModule>
 
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
+    Header set Cache-Control "public, max-age=604800, must-revalidate"
 </IfModule>

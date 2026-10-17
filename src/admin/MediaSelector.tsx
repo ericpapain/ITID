@@ -1,6 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { getAuthHeaders, getAdminToken } from "./auth";
-import { Upload, Link as LinkIcon, Trash2, Plus, Image as ImageIcon, X, Check, Images } from "lucide-react";
+import { Upload, Link as LinkIcon, Trash2, Plus, Image as ImageIcon, X, Check, Images, HardDrive, RefreshCw } from "lucide-react";
 
 export const ITID_PRESET_IMAGES = [
   { label: "Infiltration Rachidienne", url: "/images/treatments/infiltrations_rachidiennes.jpg" },
@@ -34,12 +34,30 @@ export function SingleMediaSelector({
   value,
   onChange,
   label,
-  placeholder = "URL de l'image (ex: /images/photo.jpg ou https://...)"
+  placeholder = "URL de l'image (ex: /uploads/... ou /images/...)"
 }: SingleMediaSelectorProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showGallery, setShowGallery] = useState(false);
+  const [dbMediaList, setDbMediaList] = useState<any[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Charger les médias de la médiathèque quand la galerie s'ouvre
+  useEffect(() => {
+    if (showGallery && dbMediaList.length === 0) {
+      setLoadingMedia(true);
+      fetch("/api/admin/media?type=image", { headers: getAuthHeaders() })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.items)) {
+            setDbMediaList(data.items);
+          }
+        })
+        .catch(() => {})
+        .finally(() => setLoadingMedia(false));
+    }
+  }, [showGallery]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -57,7 +75,7 @@ export function SingleMediaSelector({
 
     try {
       const headers = getAuthHeaders();
-      delete (headers as any)["Content-Type"]; // laisser le navigateur définir multipart/form-data boundary
+      delete (headers as any)["Content-Type"];
 
       const res = await fetch("/api/admin/media/upload", {
         method: "POST",
@@ -74,28 +92,12 @@ export function SingleMediaSelector({
           return;
         }
       }
-      throw new Error("Téléversement serveur indisponible");
+      const err = await res.json().catch(() => ({}));
+      setError(err.error || "Échec du téléversement sur le serveur.");
     } catch {
-      // Fallback instantané : conversion FileReader en Data URL Base64
-      // Garantit que l'image s'affiche toujours immédiatement et se sauvegarde sans perte
-      try {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === "string") {
-            onChange(reader.result);
-          }
-          setUploading(false);
-        };
-        reader.onerror = () => {
-          setError("Impossible de lire le fichier image sélectionné.");
-          setUploading(false);
-        };
-        reader.readAsDataURL(file);
-      } catch (readErr: any) {
-        setError("Erreur de lecture du fichier image.");
-        setUploading(false);
-      }
+      setError("Erreur de connexion au serveur lors de l'envoi de l'image.");
     } finally {
+      setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -136,19 +138,19 @@ export function SingleMediaSelector({
           <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
         </div>
 
-        {/* Bouton Banque Photos Médicales ITID */}
+        {/* Bouton Médiathèque & Photos Officielles */}
         <button
           type="button"
           onClick={() => setShowGallery(!showGallery)}
           className={`w-full sm:w-auto px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer border ${
             showGallery
-              ? "bg-[#2a9d8f] text-white border-[#2a9d8f]"
+              ? "bg-[#2a9d8f] text-slate-950 border-[#2a9d8f]"
               : "bg-[#2a9d8f]/10 hover:bg-[#2a9d8f]/20 text-[#48cae4] border-[#2a9d8f]/30"
           }`}
-          title="Sélectionner parmi les photos cliniques ITID officielles"
+          title="Sélectionner depuis la médiathèque ou les photos officielles"
         >
           <Images size={14} />
-          <span>Photos ITID</span>
+          <span>Médiathèque</span>
         </button>
 
         {/* Bouton Upload depuis PC */}
@@ -163,68 +165,98 @@ export function SingleMediaSelector({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all shrink-0 cursor-pointer disabled:opacity-50"
+          className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-slate-700 shrink-0 cursor-pointer disabled:opacity-50"
         >
           {uploading ? (
             <>
-              <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              <span>Chargement...</span>
+              <RefreshCw size={14} className="animate-spin text-[#48cae4]" />
+              <span>Envoi...</span>
             </>
           ) : (
             <>
               <Upload size={14} />
-              <span>Depuis PC</span>
+              <span>Téléverser</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Panneau Sélecteur Photos Cliniques ITID */}
+      {/* Galerie Sélecteur */}
       {showGallery && (
-        <div className="p-3 bg-slate-900 border border-[#2a9d8f]/40 rounded-2xl space-y-2 mt-2 shadow-xl animate-fadeIn">
-          <div className="flex items-center justify-between pb-1 border-b border-slate-800">
-            <span className="text-[11px] font-bold text-[#48cae4] flex items-center gap-1">
-              <Images size={12} />
-              <span>Photos cliniques & thérapeutiques officielles ITID</span>
+        <div className="mt-2 p-4 bg-slate-900 border border-slate-700 rounded-2xl space-y-3 max-h-80 overflow-y-auto">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <span className="text-xs font-bold text-white flex items-center gap-1.5">
+              <HardDrive size={13} className="text-[#2a9d8f]" />
+              Médiathèque & Banques Photos Officielles
             </span>
             <button
               type="button"
               onClick={() => setShowGallery(false)}
-              className="text-slate-400 hover:text-white text-xs p-1 cursor-pointer"
+              className="text-slate-400 hover:text-white text-xs"
             >
-              <X size={14} />
+              Fermer ✕
             </button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-56 overflow-y-auto p-1">
-            {ITID_PRESET_IMAGES.map((preset) => (
-              <button
-                key={preset.url}
-                type="button"
-                onClick={() => {
-                  onChange(preset.url);
-                  setShowGallery(false);
-                }}
-                className={`flex items-center gap-2 p-1.5 rounded-xl border text-left transition-all group cursor-pointer ${
-                  value === preset.url
-                    ? "bg-[#2a9d8f]/20 border-[#2a9d8f] text-white"
-                    : "bg-slate-950 border-slate-800 hover:border-slate-600 text-slate-300"
-                }`}
-              >
-                <img
-                  src={preset.url}
-                  alt={preset.label}
-                  className="w-9 h-9 rounded-lg object-cover shrink-0"
-                />
-                <span className="text-[11px] font-medium leading-tight line-clamp-2">
-                  {preset.label}
-                </span>
-              </button>
-            ))}
+
+          {/* Médias de la Médiathèque DB si existants */}
+          {dbMediaList.length > 0 && (
+            <div>
+              <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
+                Fichiers Récemment Téléversés
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                {dbMediaList.slice(0, 8).map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      onChange(m.public_url);
+                      setShowGallery(false);
+                    }}
+                    className={`flex items-center gap-2 p-1.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      value === m.public_url
+                        ? "bg-[#2a9d8f]/20 border-[#2a9d8f] text-white"
+                        : "bg-slate-950 border-slate-800 hover:border-slate-600 text-slate-300"
+                    }`}
+                  >
+                    <img src={m.public_url} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                    <span className="text-[10px] font-medium leading-tight truncate">{m.original_name || m.filename}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Photos Médicales Prédéfinies */}
+          <div>
+            <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
+              Photos Cliniques ITID Officielles
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {ITID_PRESET_IMAGES.map((preset) => (
+                <button
+                  key={preset.url}
+                  type="button"
+                  onClick={() => {
+                    onChange(preset.url);
+                    setShowGallery(false);
+                  }}
+                  className={`flex items-center gap-2 p-1.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    value === preset.url
+                      ? "bg-[#2a9d8f]/20 border-[#2a9d8f] text-white"
+                      : "bg-slate-950 border-slate-800 hover:border-slate-600 text-slate-300"
+                  }`}
+                >
+                  <img src={preset.url} alt={preset.label} className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                  <span className="text-[10px] font-medium leading-tight truncate">{preset.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {error && <div className="text-red-400 text-[11px]">{error}</div>}
+      {error && <div className="text-red-400 text-[11px] font-medium">{error}</div>}
     </div>
   );
 }
@@ -244,6 +276,7 @@ export function GalleryMediaSelector({
 }: GalleryMediaSelectorProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPresets, setShowPresets] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -254,6 +287,7 @@ export function GalleryMediaSelector({
     setError(null);
 
     const uploadedUrls: string[] = [];
+    let hasFailure = false;
 
     try {
       const headers = getAuthHeaders();
@@ -261,16 +295,12 @@ export function GalleryMediaSelector({
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        let urlAdded = false;
+        const formData = new FormData();
+        formData.append("file", file);
+        const token = getAdminToken();
+        if (token) formData.append("token", token);
 
         try {
-          const formData = new FormData();
-          formData.append("file", file);
-          const token = getAdminToken();
-          if (token) {
-            formData.append("token", token);
-          }
-
           const res = await fetch("/api/admin/media/upload", {
             method: "POST",
             headers,
@@ -281,120 +311,141 @@ export function GalleryMediaSelector({
             const data = await res.json();
             if (data.success && data.url) {
               uploadedUrls.push(data.url);
-              urlAdded = true;
+            } else {
+              hasFailure = true;
             }
+          } else {
+            hasFailure = true;
           }
         } catch {
-          urlAdded = false;
-        }
-
-        // Fallback Base64 si le téléversement serveur échoue
-        if (!urlAdded) {
-          const base64Url = await new Promise<string | null>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
-            reader.onerror = () => resolve(null);
-            reader.readAsDataURL(file);
-          });
-          if (base64Url) {
-            uploadedUrls.push(base64Url);
-          }
+          hasFailure = true;
         }
       }
 
       if (uploadedUrls.length > 0) {
         onChange([...images, ...uploadedUrls]);
       }
-    } catch (err: any) {
-      setError(err.message || "Erreur lors du chargement des images");
+
+      if (hasFailure) {
+        setError("Certains fichiers n'ont pas pu être téléversés sur le serveur.");
+      }
+    } catch {
+      setError("Erreur de connexion pendant le téléversement de la galerie.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const removeImage = (index: number) => {
-    const next = images.filter((_, i) => i !== index);
-    onChange(next);
+  const removeImage = (indexToRemove: number) => {
+    onChange(images.filter((_, idx) => idx !== indexToRemove));
   };
 
-  const addUrlPrompt = () => {
-    const url = window.prompt("Entrez l'URL de l'image (ex: https://... ou /images/photo.jpg) :");
-    if (url && url.trim()) {
-      onChange([...images, url.trim()]);
+  const addPresetImage = (url: string) => {
+    if (!images.includes(url)) {
+      onChange([...images, url]);
     }
   };
 
   return (
-    <div className="space-y-3 p-4 bg-slate-950/70 border border-slate-800 rounded-2xl">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <label className="block text-slate-200 font-bold text-xs">{label}</label>
-          <p className="text-slate-400 text-[11px]">
-            {images.length} photo(s) sélectionnée(s) {images.length < minImages && `(recommandé : au moins ${minImages})`}
-          </p>
+          <label className="block text-slate-200 font-semibold text-xs">{label}</label>
+          <span className="text-[11px] text-slate-400">
+            {images.length} image{images.length > 1 ? "s" : ""} dans la galerie (minimum recommandé : {minImages})
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowPresets(!showPresets)}
+            className="px-3 py-1.5 rounded-xl bg-[#2a9d8f]/10 hover:bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+          >
+            <Images size={13} />
+            <span>Ajouter Photo ITID</span>
+          </button>
+
           <input
             type="file"
-            multiple
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept="image/jpeg,image/png,image/webp,image/svg+xml,image/gif"
+            multiple
+            accept="image/jpeg,image/png,image/webp,image/svg+xml"
             className="hidden"
           />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
-            {uploading ? (
-              <>
-                <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                <span>Envoi...</span>
-              </>
-            ) : (
-              <>
-                <Upload size={13} />
-                <span>+ Importer depuis PC</span>
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={addUrlPrompt}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-          >
-            <Plus size={13} />
-            <span>+ Ajouter par URL</span>
+            {uploading ? <RefreshCw size={13} className="animate-spin text-[#48cae4]" /> : <Upload size={13} />}
+            <span>{uploading ? "Envoi..." : "Téléverser"}</span>
           </button>
         </div>
       </div>
 
-      {/* Grille des images */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
-        {images.map((img, idx) => (
-          <div key={idx} className="relative aspect-video rounded-xl bg-slate-900 border border-slate-700 overflow-hidden group">
-            <img src={img} alt={`Galerie ${idx + 1}`} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity gap-2">
-              <span className="text-[10px] text-white font-bold bg-black/70 px-1.5 py-0.5 rounded">#{idx + 1}</span>
+      {/* Grille des images actuelles */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 pt-2">
+        {images.map((imgUrl, index) => (
+          <div
+            key={index}
+            className="group relative aspect-video rounded-xl bg-slate-950 border border-slate-800 overflow-hidden"
+          >
+            <img src={imgUrl} alt={`Galerie ${index + 1}`} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button
                 type="button"
-                onClick={() => removeImage(idx)}
-                className="text-red-400 hover:text-red-300 p-1"
-                title="Supprimer"
+                onClick={() => removeImage(index)}
+                className="p-1 rounded-lg bg-red-600/80 text-white hover:bg-red-600 transition-colors cursor-pointer"
+                title="Retirer cette image"
               >
-                <Trash2 size={14} />
+                <Trash2 size={13} />
               </button>
             </div>
+            <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono bg-black/70 text-slate-300">
+              #{index + 1}
+            </span>
           </div>
         ))}
       </div>
 
-      {error && <div className="text-red-400 text-[11px]">{error}</div>}
+      {/* Presets rapides */}
+      {showPresets && (
+        <div className="mt-3 p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-white">Choisir une photo officielle à ajouter :</span>
+            <button type="button" onClick={() => setShowPresets(false)} className="text-slate-400 hover:text-white text-xs">
+              ✕
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
+            {ITID_PRESET_IMAGES.map((p) => {
+              const alreadySelected = images.includes(p.url);
+              return (
+                <button
+                  key={p.url}
+                  type="button"
+                  disabled={alreadySelected}
+                  onClick={() => addPresetImage(p.url)}
+                  className={`p-1.5 rounded-lg border text-left flex items-center gap-2 transition-all cursor-pointer ${
+                    alreadySelected
+                      ? "opacity-40 border-slate-800 bg-slate-900 cursor-not-allowed"
+                      : "border-slate-800 hover:border-[#2a9d8f] bg-slate-900/60"
+                  }`}
+                >
+                  <img src={p.url} alt="" className="w-7 h-7 rounded object-cover shrink-0" />
+                  <span className="text-[10px] text-slate-300 truncate">{p.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {error && <div className="text-red-400 text-[11px] font-medium">{error}</div>}
     </div>
   );
 }

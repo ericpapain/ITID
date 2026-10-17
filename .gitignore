@@ -45,4 +45,5 @@ public/api/data/*.db
 public/api/data/*.bak*
 api/data/*.sqlite
 data/*.sqlite
+server/data/
 

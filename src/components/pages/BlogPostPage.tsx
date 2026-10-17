@@ -63,7 +63,7 @@ export default function BlogPostPage() {
         date: dynamicArticle.date_published || "15 Octobre 2026",
         readTime: lang === "en" ? (dynamicArticle.read_time_en || dynamicArticle.read_time_fr || "4 min") : (dynamicArticle.read_time_fr || "4 min"),
         category: dynamicArticle.category || "Innovations",
-        coverImage: dynamicArticle.cover_image || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200",
+        coverImage: dynamicArticle.cover_image || "/images/lombalgie.jpg",
         content: lang === "en" ? (dynamicArticle.content_en || dynamicArticle.content_fr) : dynamicArticle.content_fr,
         tags: dynamicArticle.tags || "",
         dynamicSections: Array.isArray(dynamicArticle.sections) ? dynamicArticle.sections : [],
