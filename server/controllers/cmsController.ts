@@ -642,11 +642,26 @@ export async function handleAdminCms(req: Request, res: Response) {
       try {
         const rows: any = await executeQuery('SELECT * FROM cms_articles ORDER BY is_featured DESC, id DESC');
         if (rows && rows.length > 0) {
-          const items = rows.map((r: any) => ({
-            ...r,
-            gallery_images: typeof r.gallery_images_json === 'string' ? JSON.parse(r.gallery_images_json || '[]') : r.gallery_images_json || [],
-            sections: typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || []
-          }));
+          const items = rows.map((r: any, idx: number) => {
+            const cleanCover = sanitizeCaseImage(r.cover_image, idx);
+            const rawGallery = typeof r.gallery_images_json === 'string' ? JSON.parse(r.gallery_images_json || '[]') : r.gallery_images_json || [];
+            const cleanGallery = Array.isArray(rawGallery) && rawGallery.length > 0
+              ? rawGallery.map((img: string, gIdx: number) => sanitizeCaseImage(img, gIdx))
+              : [cleanCover, '/images/glowing_3d_spine.jpg', '/images/treatments/infiltrations_rachidiennes.jpg'];
+            
+            const rawSections = typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || [];
+            const cleanSections = Array.isArray(rawSections) ? rawSections.map((s: any, sIdx: number) => ({
+              ...s,
+              image: s.image ? sanitizeCaseImage(s.image, sIdx + 1) : undefined
+            })) : [];
+
+            return {
+              ...r,
+              cover_image: cleanCover,
+              gallery_images: cleanGallery,
+              sections: cleanSections
+            };
+          });
           return res.json({ success: true, items });
         }
       } catch {}

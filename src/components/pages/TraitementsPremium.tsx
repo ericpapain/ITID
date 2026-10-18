@@ -11,16 +11,27 @@ import { Particles } from "../animations/Particles";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import bgVideo from "../../images/video_intervention_ITID.mp4";
 import { useTranslation } from "react-i18next";
+import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 
-function TreatmentFrontFace({ title, desc, img }: { title: string; desc: string; img: string }) {
+function TreatmentFrontFace({ title, desc, img, index = 0 }: { title: string; desc: string; img: string; index?: number }) {
+  const [imgError, setImgError] = useState(false);
+  const cleanSrc = getCleanImageSrc(img, index);
+  const fallback = REAL_FALLBACK_IMAGES[index % REAL_FALLBACK_IMAGES.length];
+  const finalSrc = imgError ? fallback : cleanSrc;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [img]);
+
   return (
     <>
-      <div className="absolute inset-0 z-0 overflow-hidden rounded-[26px]">
+      <div className="absolute inset-0 z-0 overflow-hidden rounded-[26px] bg-slate-950">
         <img
-          src={img}
+          src={finalSrc}
           alt={title}
           loading="lazy"
           decoding="async"
+          onError={() => setImgError(true)}
           className="w-full h-full object-cover opacity-60 mix-blend-overlay transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e] via-[#0c1a2e]/60 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
@@ -123,12 +134,12 @@ export function TraitementsPremium() {
   }, []);
 
   const items = dynamicItems.length > 0
-    ? dynamicItems.map((item) => ({
+    ? dynamicItems.map((item, idx) => ({
         ...item,
         title: lang === "en" ? (item.title_en || item.title_fr) : item.title_fr,
         desc: lang === "en" ? (item.desc_front_en || item.desc_front_fr) : item.desc_front_fr,
         descBack: lang === "en" ? (item.desc_back_en || item.desc_back_fr) : item.desc_back_fr,
-        img: item.card_image || item.img,
+        img: getCleanImageSrc(item.card_image || item.img, idx),
         slug: item.slug
       }))
     : TRAITEMENTS.map((item, idx) => ({
@@ -136,6 +147,7 @@ export function TraitementsPremium() {
         title: t(item.title),
         desc: t(item.desc),
         descBack: t(item.desc),
+        img: getCleanImageSrc(item.img, idx),
         slug: item.slug || ["infiltrations-rachidiennes", "infiltrations-articulaires", "perfusion-lidocaine", "stimulation-ganglion-dorsal", "cryoneurolyse", "rtms", "blocs-anesthesiques", "radiofrequence", "toxine-botulique", "tens", "catheter-perinerveux", "patch-capsaicine", "hypnovr", "stimulation-medullaire"][idx] || "infiltrations-rachidiennes"
       }));
 
@@ -251,6 +263,7 @@ export function TraitementsPremium() {
                       title={traitement.title}
                       desc={traitement.desc}
                       img={traitement.img}
+                      index={idx}
                     />
                   }
                   back={<TreatmentBackFace desc={traitement.descBack || traitement.desc} slug={traitement.slug} />}

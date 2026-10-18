@@ -584,7 +584,12 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700 flex items-center justify-center text-base shrink-0 overflow-hidden">
                     {(it.cover_image || it.image || (it.gallery_images && it.gallery_images[0])) ? (
-                      <img src={it.cover_image || it.image || it.gallery_images[0]} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={it.cover_image || it.image || it.gallery_images[0]}
+                        alt=""
+                        onError={(e) => { e.currentTarget.src = "/images/lombalgie.jpg"; }}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       it.icon || "📄"
                     )}

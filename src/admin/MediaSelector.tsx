@@ -110,7 +110,12 @@ export function SingleMediaSelector({
         {/* Preview Miniature */}
         <div className="w-16 h-16 rounded-xl bg-slate-950 border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center relative group">
           {value ? (
-            <img src={value} alt="Aperçu" className="w-full h-full object-cover" />
+            <img
+              src={value}
+              alt="Aperçu"
+              onError={(e) => { e.currentTarget.src = "/images/lombalgie.jpg"; }}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <ImageIcon size={22} className="text-slate-600" />
           )}
@@ -394,7 +399,12 @@ export function GalleryMediaSelector({
             key={index}
             className="group relative aspect-video rounded-xl bg-slate-950 border border-slate-800 overflow-hidden"
           >
-            <img src={imgUrl} alt={`Galerie ${index + 1}`} className="w-full h-full object-cover" />
+            <img
+              src={imgUrl}
+              alt={`Galerie ${index + 1}`}
+              onError={(e) => { e.currentTarget.src = "/images/lombalgie.jpg"; }}
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button
                 type="button"

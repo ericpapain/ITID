@@ -7,6 +7,8 @@ import { Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ImageCarousel } from "../ui/ImageCarousel";
 
+import { getCleanImageSrc, getCleanGallery } from "../../utils/imageUtils";
+
 export default function BlogPage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith("en") ? "en" : "fr";
@@ -31,37 +33,37 @@ export default function BlogPage() {
   }, []);
 
   const articlesSource = dynamicArticles.length > 0
-    ? dynamicArticles.map((a) => ({
-        id: a.slug,
-        title: lang === "en" ? (a.title_en || a.title_fr) : a.title_fr,
-        summary: lang === "en" ? (a.summary_en || a.summary_fr) : a.summary_fr,
-        author: a.author || "Dr. Marc Moreau",
-        authorRole: lang === "en" ? (a.author_role_en || a.author_role_fr) : a.author_role_fr,
-        date: a.date_published || "Septembre 2026",
-        readTime: lang === "en" ? (a.read_time_en || a.read_time_fr) : a.read_time_fr,
-        category: a.category,
-        coverImage: a.cover_image,
-        is_featured: Number(a.is_featured || 0),
-        show_in_home: Number(a.show_in_home ?? 1),
-        gallery: Array.isArray(a.gallery_images) && a.gallery_images.length > 0
-          ? a.gallery_images
-          : [a.cover_image, "/images/lombalgie.jpg", "/images/glowing_3d_spine.jpg", "/images/treatments/infiltrations_rachidiennes.jpg"]
-      }))
-    : BLOG_ARTICLES.map((a, idx) => ({
-        ...a,
-        is_featured: idx === 0 ? 1 : 0,
-        show_in_home: 1,
-        title: t(`blogData.${a.id}.title`),
-        summary: t(`blogData.${a.id}.summary`),
-        authorRole: t(`blogData.${a.id}.authorRole`),
-        category: t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
-        gallery: [
-          a.coverImage,
-          "/images/lombalgie.jpg",
-          "/images/glowing_3d_spine.jpg",
-          "/images/treatments/infiltrations_rachidiennes.jpg"
-        ]
-      }));
+    ? dynamicArticles.map((a, idx) => {
+        const cleanCover = getCleanImageSrc(a.cover_image, idx);
+        return {
+          id: a.slug,
+          title: lang === "en" ? (a.title_en || a.title_fr) : a.title_fr,
+          summary: lang === "en" ? (a.summary_en || a.summary_fr) : a.summary_fr,
+          author: a.author || "Dr. Marc Moreau",
+          authorRole: lang === "en" ? (a.author_role_en || a.author_role_fr) : a.author_role_fr,
+          date: a.date_published || "Septembre 2026",
+          readTime: lang === "en" ? (a.read_time_en || a.read_time_fr) : a.read_time_fr,
+          category: a.category,
+          coverImage: cleanCover,
+          is_featured: Number(a.is_featured || 0),
+          show_in_home: Number(a.show_in_home ?? 1),
+          gallery: getCleanGallery(a.gallery_images, cleanCover, 3)
+        };
+      })
+    : BLOG_ARTICLES.map((a, idx) => {
+        const cleanCover = getCleanImageSrc(a.coverImage, idx);
+        return {
+          ...a,
+          is_featured: idx === 0 ? 1 : 0,
+          show_in_home: 1,
+          title: t(`blogData.${a.id}.title`),
+          summary: t(`blogData.${a.id}.summary`),
+          authorRole: t(`blogData.${a.id}.authorRole`),
+          category: t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
+          coverImage: cleanCover,
+          gallery: getCleanGallery(a.gallery, cleanCover, 3)
+        };
+      });
 
   const filteredArticles = activeCategory === "Tous" 
     ? articlesSource 

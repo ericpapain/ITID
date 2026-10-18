@@ -3,6 +3,39 @@ import { useParams, Link } from "react-router-dom";
 import { BLOG_ARTICLES, BlogCategory } from "../../data/blogData";
 import { ArrowLeft, Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
+
+function ResilientArticleImage({
+  src,
+  alt,
+  className,
+  fallbackIndex = 0
+}: {
+  src?: string;
+  alt: string;
+  className?: string;
+  fallbackIndex?: number;
+}) {
+  const [imgError, setImgError] = useState(false);
+  const cleanSrc = getCleanImageSrc(src, fallbackIndex);
+  const fallback = REAL_FALLBACK_IMAGES[fallbackIndex % REAL_FALLBACK_IMAGES.length];
+  const finalSrc = imgError ? fallback : cleanSrc;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [src]);
+
+  return (
+    <img
+      src={finalSrc}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      onError={() => setImgError(true)}
+      className={className}
+    />
+  );
+}
 
 export default function BlogPostPage() {
   const { t, i18n } = useTranslation();
@@ -63,7 +96,7 @@ export default function BlogPostPage() {
         date: dynamicArticle.date_published || "15 Octobre 2026",
         readTime: lang === "en" ? (dynamicArticle.read_time_en || dynamicArticle.read_time_fr || "4 min") : (dynamicArticle.read_time_fr || "4 min"),
         category: dynamicArticle.category || "Innovations",
-        coverImage: dynamicArticle.cover_image || "/images/lombalgie.jpg",
+        coverImage: getCleanImageSrc(dynamicArticle.cover_image, 0),
         content: lang === "en" ? (dynamicArticle.content_en || dynamicArticle.content_fr) : dynamicArticle.content_fr,
         tags: dynamicArticle.tags || "",
         dynamicSections: Array.isArray(dynamicArticle.sections) ? dynamicArticle.sections : [],
@@ -73,6 +106,7 @@ export default function BlogPostPage() {
         ...rawArticle!,
         tags: rawArticle!.tags || "",
         dynamicSections: rawArticle!.dynamicSections || [],
+        coverImage: getCleanImageSrc(rawArticle!.coverImage, 0),
         title: t(`blogData.${rawArticle!.id}.title`),
         summary: t(`blogData.${rawArticle!.id}.summary`),
         authorRole: t(`blogData.${rawArticle!.id}.authorRole`),
@@ -85,8 +119,9 @@ export default function BlogPostPage() {
         })
       };
 
-  const relatedArticles = BLOG_ARTICLES.filter(a => a.category === (rawArticle ? rawArticle.category : dynamicArticle?.category) && a.id !== (rawArticle ? rawArticle.id : dynamicArticle?.slug)).slice(0, 3).map(a => ({
+  const relatedArticles = BLOG_ARTICLES.filter(a => a.category === (rawArticle ? rawArticle.category : dynamicArticle?.category) && a.id !== (rawArticle ? rawArticle.id : dynamicArticle?.slug)).slice(0, 3).map((a, idx) => ({
     ...a,
+    coverImage: getCleanImageSrc(a.coverImage, idx),
     title: t(`blogData.${a.id}.title`),
     summary: t(`blogData.${a.id}.summary`),
     category: t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
@@ -97,10 +132,11 @@ export default function BlogPostPage() {
       {/* Hero Header */}
       <div className="relative h-[60vh] min-h-[400px] w-full">
         <div className="absolute inset-0 bg-[#0c1a2e]">
-          <img 
+          <ResilientArticleImage 
             src={article.coverImage} 
             alt={article.title} 
             className="w-full h-full object-cover opacity-40"
+            fallbackIndex={0}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#f0f7f6] via-transparent to-transparent" />
         </div>
@@ -191,10 +227,11 @@ export default function BlogPostPage() {
                     <div className={`${isImageLeft ? "md:order-1" : "md:order-2"} w-full`}>
                       {sec.image ? (
                         <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md group bg-slate-950">
-                          <img
+                          <ResilientArticleImage
                             src={sec.image}
                             alt={sec.title || article.title}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            fallbackIndex={idx + 1}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
