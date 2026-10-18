@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAuthHeaders, getAdminToken } from "./auth";
 import { SingleMediaSelector, GalleryMediaSelector } from "./MediaSelector";
+import { CmsBackupRestorePanel } from "./CmsBackupRestorePanel";
 import {
   Plus,
   Trash2,
@@ -63,10 +64,33 @@ export default function AdminPagesEditor() {
     { id: "articles", label: "Actualités & Blog", icon: "📰" },
     { id: "home", label: "Textes Page d'Accueil", icon: "🏠" },
     { id: "about", label: "À Propos & Équipe", icon: "🏥" },
+    { id: "backup", label: "Sauvegarde & Restauration", icon: "🛡️" },
   ];
+
+  const triggerAutoSnapshot = () => {
+    fetch("/api/admin/cms?type=backup&action=export", { headers: getAuthHeaders() })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.backup) {
+          localStorage.setItem(
+            "itid_cms_auto_backup",
+            JSON.stringify({
+              saved_at: new Date().toISOString(),
+              backup: d.backup,
+            })
+          );
+        }
+      })
+      .catch(() => {});
+  };
 
   // Chargement des données selon la section active
   const loadData = async (preferredId?: number) => {
+    if (currentSection === "backup") {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setSaveMessage(null);
 
@@ -139,6 +163,7 @@ export default function AdminPagesEditor() {
 
       setSaveMessage("✅ Modifications enregistrées avec succès en base de données !");
       setTimeout(() => setSaveMessage(null), 4000);
+      triggerAutoSnapshot();
     } catch (err: any) {
       setSaveMessage(`❌ ${err.message}`);
     } finally {
@@ -170,6 +195,7 @@ export default function AdminPagesEditor() {
       const savedId = isNew ? (data.id || itemToSave.id) : itemToSave.id;
       setSaveMessage(`✅ ${isNew ? "Création réussie" : "Modifications enregistrées"} avec succès !`);
       setTimeout(() => setSaveMessage(null), 4000);
+      triggerAutoSnapshot();
 
       // Recharger la liste en conservant la fiche modifiée ou nouvellement créée active
       await loadData(savedId);
@@ -349,6 +375,20 @@ export default function AdminPagesEditor() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Bouton Accès Rapide Sauvegarde & Backup */}
+          <button
+            onClick={() => setSearchParams({ section: "backup" })}
+            className={`px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              currentSection === "backup"
+                ? "bg-amber-600 text-white border-amber-500 shadow-md"
+                : "bg-slate-900 border-slate-700 text-amber-300 hover:border-amber-500/50 hover:bg-slate-800"
+            }`}
+            title="Centre de Sauvegarde & Restauration CMS"
+          >
+            <span>🛡️</span>
+            <span className="hidden sm:inline">Sauvegarde & Backup</span>
+          </button>
+
           {/* Sélecteur de Langue Strict FR / EN */}
           <div className="flex p-1 bg-slate-900 border border-slate-700 rounded-xl">
             <button
@@ -525,6 +565,14 @@ export default function AdminPagesEditor() {
               onChangeFr={(data: any) => setPageContentFr((prev: any) => ({ ...prev, ...data }))}
               onChangeEn={(data: any) => setPageContentEn((prev: any) => ({ ...prev, ...data }))}
               lang={lang}
+            />
+          )}
+
+          {/* Rubrique SAUVEGARDE & RESTAURATION CMS */}
+          {currentSection === "backup" && (
+            <CmsBackupRestorePanel
+              lang={lang}
+              onRestored={() => loadData()}
             />
           )}
         </div>

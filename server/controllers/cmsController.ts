@@ -786,5 +786,83 @@ export async function handleAdminCms(req: Request, res: Response) {
     }
   }
 
+  // 6. BACKUP & RESTORE CMS
+  if (type === 'backup') {
+    const action = (req.query.action as string) || 'export';
+
+    if (action === 'export') {
+      const backupPayload = {
+        export_version: '1.0',
+        exported_at: new Date().toISOString(),
+        source: 'ITID France CMS',
+        counts: {
+          pages: Object.keys(inMemoryPages).length,
+          articles: inMemoryArticles.length,
+          cas_cliniques: inMemoryCasCliniques.length,
+          pathologies: inMemoryPathologies.length,
+          traitements: inMemoryTraitements.length
+        },
+        data: {
+          pages: inMemoryPages,
+          articles: inMemoryArticles,
+          cas_cliniques: inMemoryCasCliniques,
+          pathologies: inMemoryPathologies,
+          traitements: inMemoryTraitements
+        }
+      };
+
+      if (req.query.download === '1') {
+        const filename = `itid_cms_backup_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`;
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        return res.send(JSON.stringify(backupPayload, null, 2));
+      }
+
+      return res.json({ success: true, backup: backupPayload });
+    }
+
+    if (action === 'restore' && method === 'POST') {
+      const data = body.data || body;
+      if (!data) {
+        return res.status(400).json({ success: false, error: 'Données de sauvegarde invalides.' });
+      }
+
+      if (data.pages && typeof data.pages === 'object') {
+        inMemoryPages = data.pages;
+        saveJsonToDisk(pagesFilePath, inMemoryPages);
+      }
+      if (Array.isArray(data.articles)) {
+        inMemoryArticles = data.articles;
+        saveJsonToDisk(articlesFilePath, inMemoryArticles);
+      }
+      if (Array.isArray(data.cas_cliniques)) {
+        inMemoryCasCliniques = data.cas_cliniques;
+        saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
+      }
+      if (Array.isArray(data.pathologies)) {
+        inMemoryPathologies = data.pathologies;
+        saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
+      }
+      if (Array.isArray(data.traitements)) {
+        inMemoryTraitements = data.traitements;
+        saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
+      }
+
+      return res.json({
+        success: true,
+        message: 'Restauration complète du CMS effectuée avec succès !',
+        counts: {
+          pages: Object.keys(inMemoryPages).length,
+          articles: inMemoryArticles.length,
+          cas_cliniques: inMemoryCasCliniques.length,
+          pathologies: inMemoryPathologies.length,
+          traitements: inMemoryTraitements.length
+        }
+      });
+    }
+
+    return res.status(400).json({ success: false, error: 'Action backup inconnue' });
+  }
+
   return res.status(400).json({ success: false, error: `Type non supporté : ${type}` });
 }
