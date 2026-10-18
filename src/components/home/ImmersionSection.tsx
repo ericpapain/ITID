@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Particles } from "../animations/Particles";
@@ -6,6 +6,7 @@ import { ShimmerButton } from "../ui/ShimmerButton";
 import { useTranslation } from "react-i18next";
 import { BLOG_ARTICLES } from "../../data/blogData";
 import { Sparkles, ArrowRight, ChevronLeft, ChevronRight, Newspaper, Calendar } from "lucide-react";
+import { getCleanGallery, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 
 export function ImmersionSection() {
   const { t, i18n } = useTranslation();
@@ -50,30 +51,44 @@ export function ImmersionSection() {
   const safeArticleIndex = activeArticleIndex < displayArticles.length ? activeArticleIndex : 0;
   const currentArticle = displayArticles[safeArticleIndex] || displayArticles[0];
 
-  // Extraction de la galerie d'images pour l'article courant
-  const currentImages: string[] = (() => {
+  // Extraction de la galerie d'images pour l'article courant avec nettoyage
+  const initialImages: string[] = useMemo(() => {
     if (!currentArticle) {
-      return ["/images/lombalgie.jpg"];
+      return getCleanGallery(null, null, 3);
     }
-    const gallery = Array.isArray(currentArticle.gallery_images) && currentArticle.gallery_images.length > 0
+    const rawList = Array.isArray(currentArticle.gallery_images) && currentArticle.gallery_images.length > 0
       ? currentArticle.gallery_images
       : Array.isArray(currentArticle.gallery) && currentArticle.gallery.length > 0
       ? currentArticle.gallery
       : [];
 
     const fallbackCover = currentArticle.cover_image || currentArticle.coverImage;
-    const list = gallery.length > 0
-      ? gallery
-      : [
-          fallbackCover || "/images/lombalgie.jpg",
-          "/images/glowing_3d_spine.jpg",
-          "/images/treatments/infiltrations_rachidiennes.jpg"
-        ];
-    return list.filter(Boolean);
-  })();
+    return getCleanGallery(rawList, fallbackCover, 3);
+  }, [currentArticle]);
 
+  // État local de la galerie pour pouvoir remplacer instantanément une image corrompue/404
+  const [activeGallery, setActiveGallery] = useState<string[]>(initialImages);
+
+  useEffect(() => {
+    setActiveGallery(initialImages);
+    setActiveImageIndex(0);
+  }, [initialImages]);
+
+  const currentImages = activeGallery.length > 0 ? activeGallery : initialImages;
   const safeImageIndex = activeImageIndex < currentImages.length ? activeImageIndex : 0;
-  const currentImageSrc = currentImages[safeImageIndex] || currentImages[0];
+  const currentImageSrc = currentImages[safeImageIndex] || REAL_FALLBACK_IMAGES[safeImageIndex % REAL_FALLBACK_IMAGES.length];
+
+  // Gestionnaire d'erreur : si l'image distante échoue, remplacement immédiat
+  const handleImageError = (failedIdx: number) => {
+    setActiveGallery((prev) => {
+      const next = [...prev];
+      const fallback = REAL_FALLBACK_IMAGES[(safeArticleIndex * 2 + failedIdx) % REAL_FALLBACK_IMAGES.length];
+      if (next[failedIdx] !== fallback) {
+        next[failedIdx] = fallback;
+      }
+      return next;
+    });
+  };
 
   // Défilement automatique : les photos de l'article défilent, puis passage à l'article suivant
   useEffect(() => {
@@ -293,6 +308,7 @@ export function ImmersionSection() {
                   alt={articleTitle}
                   loading="lazy"
                   decoding="async"
+                  onError={() => handleImageError(safeImageIndex)}
                   initial={{ opacity: 0, scale: 1.06 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}

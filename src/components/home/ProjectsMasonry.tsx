@@ -6,45 +6,12 @@ import videoIntervention from "../../images/video-intervention.mp4";
 import { useTypewriter } from "../../hooks/useTypewriter";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
-
-const REAL_CLINICAL_IMAGES = [
-  "/images/treatments/infiltrations_rachidiennes.jpg",
-  "/images/treatments/radiofrequence.jpg",
-  "/images/treatments/perfusion_lidocaine.jpg",
-  "/images/treatments/blocs_anesthesiques.jpg",
-  "/images/treatments/hypnovr.jpg",
-  "/images/migraine.jpg",
-  "/images/treatments/cryoneurolyse.jpg",
-  "/images/sdrc.jpg",
-  "/images/treatments/stimulation_ganglion_dorsal.jpg",
-  "/images/lombalgie.jpg",
-  "/images/nevralgie_arnold.jpg"
-];
-
-function getCleanImageSrc(rawImage?: string | null, fallbackIndex: number = 0): string {
-  const fallback = REAL_CLINICAL_IMAGES[fallbackIndex % REAL_CLINICAL_IMAGES.length] || REAL_CLINICAL_IMAGES[0];
-  if (!rawImage || typeof rawImage !== "string") {
-    return fallback;
-  }
-  const trimmed = rawImage.trim();
-  if (trimmed.length === 0) {
-    return fallback;
-  }
-  // Purger les anciennes URLs Unsplash résiduelles en base
-  if (trimmed.includes("images.unsplash.com") || trimmed.includes("unsplash.com")) {
-    return fallback;
-  }
-  // Normaliser les chemins relatifs locaux
-  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://") && !trimmed.startsWith("data:") && !trimmed.startsWith("/")) {
-    return "/" + trimmed;
-  }
-  return trimmed;
-}
+import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 
 function ActiveSliderCard({ item, index = 0 }: { item: any, scrollX?: any, index?: number }) {
   const [imgError, setImgError] = useState(false);
 
-  const fallbackUrl = REAL_CLINICAL_IMAGES[index % REAL_CLINICAL_IMAGES.length] || REAL_CLINICAL_IMAGES[0];
+  const fallbackUrl = REAL_FALLBACK_IMAGES[index % REAL_FALLBACK_IMAGES.length] || REAL_FALLBACK_IMAGES[0];
   const resolvedSrc = getCleanImageSrc(item?.image, index);
   const currentImageSrc = imgError ? fallbackUrl : resolvedSrc;
 

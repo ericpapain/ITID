@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, ShieldCheck, CheckCircle2, Activity, HelpCircle, A
 import { ImageCarousel } from "../ui/ImageCarousel";
 import { ShimmerButton } from "../ui/ShimmerButton";
 import { PATHOLOGIES } from "../../data";
+import { getCleanImageSrc, getCleanGallery, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 
 export function PathologyDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -104,24 +105,24 @@ export function PathologyDetailPage() {
 
   const title = lang === "en" ? (data.title_en || data.title_fr) : data.title_fr;
   const shortDesc = lang === "en" ? (data.short_desc_en || data.short_desc_fr) : data.short_desc_fr;
-  const heroImages = data.hero_gallery && data.hero_gallery.length > 0 ? data.hero_gallery : [data.card_image || "/images/lombalgie.jpg"];
+  const heroImages = getCleanGallery(data.hero_gallery, data.card_image, 3);
 
   // Sections data
   const s1Title = lang === "en" ? (data.section1_title_en || data.section1_title_fr) : data.section1_title_fr;
   const s1Text = lang === "en" ? (data.section1_text_en || data.section1_text_fr) : data.section1_text_fr;
-  const s1Img = data.section1_image || data.card_image;
+  const s1Img = getCleanImageSrc(data.section1_image || data.card_image, 0);
 
   const s2Title = lang === "en" ? (data.section2_title_en || data.section2_title_fr) : data.section2_title_fr;
   const s2Text = lang === "en" ? (data.section2_text_en || data.section2_text_fr) : data.section2_text_fr;
-  const s2Img = data.section2_image || "/images/glowing_3d_spine.jpg";
+  const s2Img = getCleanImageSrc(data.section2_image, 1);
 
   const s3Title = lang === "en" ? (data.section3_title_en || data.section3_title_fr) : data.section3_title_fr;
   const s3Text = lang === "en" ? (data.section3_text_en || data.section3_text_fr) : data.section3_text_fr;
-  const s3Img = data.section3_image || "/images/treatments/infiltrations_rachidiennes.jpg";
+  const s3Img = getCleanImageSrc(data.section3_image, 2);
 
   const s4Title = lang === "en" ? (data.section4_title_en || data.section4_title_fr) : data.section4_title_fr;
   const s4Text = lang === "en" ? (data.section4_text_en || data.section4_text_fr) : data.section4_text_fr;
-  const s4Img = data.section4_image || "/images/spine_isolated.png";
+  const s4Img = getCleanImageSrc(data.section4_image, 3);
 
   return (
     <main className="min-h-screen bg-[#0c1a2e] text-white pt-28 md:pt-32 pb-24 relative overflow-hidden">
@@ -232,10 +233,13 @@ export function PathologyDetailPage() {
           {/* 🔹 SECTION 1 : Comprendre la maladie (Photo Gauche / Texte Droite) */}
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
             <div className="lg:col-span-5 order-2 lg:order-1">
-              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group">
+              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group bg-slate-950">
                 <img 
                   src={s1Img} 
                   alt={s1Title}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => { e.currentTarget.src = REAL_FALLBACK_IMAGES[0]; }}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e]/80 via-transparent to-transparent" />
@@ -276,10 +280,13 @@ export function PathologyDetailPage() {
             </div>
 
             <div className="lg:col-span-5">
-              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group">
+              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group bg-slate-950">
                 <img 
                   src={s2Img} 
                   alt={s2Title}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => { e.currentTarget.src = REAL_FALLBACK_IMAGES[1]; }}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e]/80 via-transparent to-transparent" />
@@ -294,10 +301,13 @@ export function PathologyDetailPage() {
           {/* 🔹 SECTION 3 : Traitements ITID Associés (Photo Gauche / Texte Droite) */}
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
             <div className="lg:col-span-5 order-2 lg:order-1">
-              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group">
+              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group bg-slate-950">
                 <img 
                   src={s3Img} 
                   alt={s3Title}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => { e.currentTarget.src = REAL_FALLBACK_IMAGES[2]; }}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e]/80 via-transparent to-transparent" />
@@ -348,10 +358,13 @@ export function PathologyDetailPage() {
             </div>
 
             <div className="lg:col-span-5">
-              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group">
+              <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-2xl aspect-[4/3] group bg-slate-950">
                 <img 
                   src={s4Img} 
                   alt={s4Title}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => { e.currentTarget.src = REAL_FALLBACK_IMAGES[3]; }}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e]/80 via-transparent to-transparent" />

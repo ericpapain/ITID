@@ -8,6 +8,7 @@ import { ShimmerButton } from "../ui/ShimmerButton";
 import { NoiseGradient } from "../ui/NoiseGradient";
 import { useTranslation } from "react-i18next";
 import { HeroMediaItem, extractYouTubeId, getYouTubeEmbedUrl } from "../../utils/mediaUtils";
+import { getCleanImageSrc, getCleanVideoSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 
 const DEFAULT_HERO_MEDIA: HeroMediaItem[] = [
   {
@@ -47,6 +48,7 @@ export function HeroPremium() {
   const [homeCms, setHomeCms] = useState<any>(null);
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [mediaErrorMap, setMediaErrorMap] = useState<Record<number, string>>({});
 
   useEffect(() => {
     let isMounted = true;
@@ -69,13 +71,28 @@ export function HeroPremium() {
     return () => { isMounted = false; };
   }, [i18n.language]);
 
-  // Liste des médias de fond (Images et Vidéos)
-  const mediaList: HeroMediaItem[] = (homeCms?.heroMediaList && Array.isArray(homeCms.heroMediaList) && homeCms.heroMediaList.length > 0)
+  // Liste des médias de fond (Images et Vidéos) nettoyée et normalisée
+  const rawMediaList = (homeCms?.heroMediaList && Array.isArray(homeCms.heroMediaList) && homeCms.heroMediaList.length > 0)
     ? homeCms.heroMediaList
     : DEFAULT_HERO_MEDIA;
 
+  const mediaList: HeroMediaItem[] = (rawMediaList.length > 0 ? rawMediaList : DEFAULT_HERO_MEDIA).map((item: any, idx: number) => {
+    const isVid = item.type === "video" || (item.url && item.url.split("?")[0].toLowerCase().endsWith(".mp4"));
+    return {
+      ...item,
+      url: isVid ? getCleanVideoSrc(item.url, videoFond) : getCleanImageSrc(item.url, idx)
+    };
+  });
+
   const currentMediaIndex = activeMediaIndex % mediaList.length;
-  const currentMedia = mediaList[currentMediaIndex] || mediaList[0];
+  const currentMediaItem = mediaList[currentMediaIndex] || mediaList[0];
+
+  // Si une erreur a été détectée sur ce média, on utilise l'URL de secours
+  const activeMediaUrl = mediaErrorMap[currentMediaIndex] || currentMediaItem.url;
+  const currentMedia = {
+    ...currentMediaItem,
+    url: activeMediaUrl
+  };
 
   // Rotation automatique en boucle des médias d'arrière-plan
   useEffect(() => {
@@ -162,8 +179,14 @@ export function HeroPremium() {
   }, [text1, text2]);
 
   // Détection du type YouTube ou Vidéo HTML5
+  const mediaCleanPath = (currentMedia.url || "").split("?")[0].toLowerCase();
   const ytId = extractYouTubeId(currentMedia.url);
-  const isVideoFile = !ytId && (currentMedia.type === "video" || currentMedia.url.endsWith(".mp4") || currentMedia.url.endsWith(".webm") || currentMedia.url.endsWith(".mov"));
+  const isVideoFile = !ytId && (
+    currentMedia.type === "video" ||
+    mediaCleanPath.endsWith(".mp4") ||
+    mediaCleanPath.endsWith(".webm") ||
+    mediaCleanPath.endsWith(".mov")
+  );
 
   return (
     <section ref={ref} className="relative min-h-screen w-full overflow-hidden flex items-center justify-center pt-32 pb-16">
@@ -194,7 +217,7 @@ export function HeroPremium() {
                   />
                 </motion.div>
               ) : isVideoFile ? (
-                // 2. Vidéo HTML5 locale/MP4
+                // 2. Vidéo HTML5 locale/MP4 avec fallback automatique
                 <motion.div
                   key={`vid-${currentMedia.url}`}
                   initial={{ opacity: 0 }}
@@ -211,15 +234,27 @@ export function HeroPremium() {
                     muted
                     playsInline
                     preload="auto"
+                    onError={() => {
+                      setMediaErrorMap((prev) => ({
+                        ...prev,
+                        [currentMediaIndex]: videoFond
+                      }));
+                    }}
                     className="absolute top-1/2 left-1/2 w-full h-full object-cover -translate-x-1/2 -translate-y-1/2 opacity-65"
                   />
                 </motion.div>
               ) : (
-                // 3. Image haute définition
+                // 3. Image haute définition avec fallback automatique
                 <motion.img
                   key={`img-${currentMedia.url}`}
                   src={currentMedia.url}
                   alt={currentMedia.title || "Fond ITID"}
+                  onError={() => {
+                    setMediaErrorMap((prev) => ({
+                      ...prev,
+                      [currentMediaIndex]: REAL_FALLBACK_IMAGES[currentMediaIndex % REAL_FALLBACK_IMAGES.length]
+                    }));
+                  }}
                   initial={{ opacity: 0, scale: 1.08 }}
                   animate={{ opacity: 0.7, scale: 1 }}
                   exit={{ opacity: 0 }}

@@ -22,15 +22,9 @@
     </IfModule>
 </FilesMatch>
 
-# Désactiver le moteur PHP dans le dossier d'uploads si supporté
-<IfModule mod_php.c>
-    php_flag engine off
-</IfModule>
-<IfModule mod_php7.c>
-    php_flag engine off
-</IfModule>
-<IfModule mod_php8.c>
-    php_flag engine off
+# Neutraliser toute interprétation PHP sans provoquer d'erreur 500 sur serveur FastCGI/PHP-FPM
+<IfModule mod_mime.c>
+    RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8
 </IfModule>
 
 # 3. Validation de Cache & Anti-Stale

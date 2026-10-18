@@ -11,6 +11,7 @@ import spineImg from "../../images/spine_isolated.png";
 import bgVideo from "../../images/pathologie-2.mp4";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "../../hooks/useIsMobile";
+import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 
 export function PathologiesPremium() {
   const { t, i18n } = useTranslation();
@@ -42,17 +43,18 @@ export function PathologiesPremium() {
   }, []);
 
   const items = dynamicItems.length > 0 
-    ? dynamicItems.map((item) => ({
+    ? dynamicItems.map((item, idx) => ({
         ...item,
         title: lang === "en" ? (item.title_en || item.title_fr) : item.title_fr,
         desc: lang === "en" ? (item.short_desc_en || item.short_desc_fr) : item.short_desc_fr,
-        img: item.card_image || item.img,
+        img: getCleanImageSrc(item.card_image || item.img, idx),
         slug: item.slug
       }))
     : PATHOLOGIES.map((item, idx) => ({
         ...item,
         title: t(item.title),
         desc: t(item.desc),
+        img: getCleanImageSrc(item.img, idx),
         slug: item.slug || ["lombalgie-chronique", "nevralgie-arnold", "sdrc", "endometriose", "douleurs-articulaires", "fibromyalgie", "douleurs-neuropathiques", "douleurs-post-op", "migraines"][idx] || "lombalgie-chronique"
       }));
 
@@ -200,6 +202,7 @@ export function PathologiesPremium() {
                   alt={item.title}
                   loading="lazy"
                   decoding="async"
+                  onError={(e) => { e.currentTarget.src = REAL_FALLBACK_IMAGES[index % REAL_FALLBACK_IMAGES.length]; }}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
