@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 
 import logo from "../../logos/logo ITID 3.png";
 import videoFond from "../../images/video-fond.mp4";
@@ -15,22 +15,29 @@ const DEFAULT_HERO_MEDIA: HeroMediaItem[] = [
     id: "default-video-1",
     type: "video",
     url: videoFond,
-    title: "Vidéo Fond ITID",
-    duration: 12
+    title: "Plateau Interventionnel Guidé (Vidéo)",
+    duration: 10
   },
   {
     id: "default-img-1",
     type: "image",
     url: "/images/lombalgie.jpg",
-    title: "Plateau Interventionnel Guidé",
-    duration: 7
+    title: "Prise en charge spécialisée du rachis",
+    duration: 6
   },
   {
     id: "default-img-2",
     type: "image",
     url: "/images/glowing_3d_spine.jpg",
     title: "Imagerie Médicale Haute Définition",
-    duration: 7
+    duration: 6
+  },
+  {
+    id: "default-img-3",
+    type: "image",
+    url: "/images/equipebloc.jpg",
+    title: "Équipe & Blocs Spécialisés ITID",
+    duration: 6
   }
 ];
 
@@ -71,40 +78,61 @@ export function HeroPremium() {
     return () => { isMounted = false; };
   }, [i18n.language]);
 
-  // Liste des médias de fond (Images et Vidéos) nettoyée et normalisée
-  const rawMediaList = (homeCms?.heroMediaList && Array.isArray(homeCms.heroMediaList) && homeCms.heroMediaList.length > 0)
-    ? homeCms.heroMediaList
-    : DEFAULT_HERO_MEDIA;
+  // Liste des médias de fond (Images et Vidéos) nettoyée, enrichie et mémoïsée
+  const mediaList: HeroMediaItem[] = useMemo(() => {
+    const raw = (homeCms?.heroMediaList && Array.isArray(homeCms.heroMediaList) && homeCms.heroMediaList.length > 0)
+      ? homeCms.heroMediaList
+      : DEFAULT_HERO_MEDIA;
 
-  const mediaList: HeroMediaItem[] = (rawMediaList.length > 0 ? rawMediaList : DEFAULT_HERO_MEDIA).map((item: any, idx: number) => {
-    const isVid = item.type === "video" || (item.url && item.url.split("?")[0].toLowerCase().endsWith(".mp4"));
-    return {
-      ...item,
-      url: isVid ? getCleanVideoSrc(item.url, videoFond) : getCleanImageSrc(item.url, idx)
-    };
-  });
+    // Si la liste CMS ne contient qu'un seul élément, on la complète pour garantir un défilement dynamique
+    let combined = [...raw];
+    if (combined.length === 1) {
+      combined = [...combined, ...DEFAULT_HERO_MEDIA.filter(d => d.url !== combined[0]?.url)];
+    }
+    if (combined.length === 0) {
+      combined = DEFAULT_HERO_MEDIA;
+    }
 
-  const currentMediaIndex = activeMediaIndex % mediaList.length;
+    return combined.map((item: any, idx: number) => {
+      const isVid = item.type === "video" || (item.url && item.url.split("?")[0].toLowerCase().endsWith(".mp4"));
+      return {
+        ...item,
+        url: isVid ? getCleanVideoSrc(item.url, videoFond) : getCleanImageSrc(item.url, idx)
+      };
+    });
+  }, [homeCms?.heroMediaList]);
+
+  const currentMediaIndex = activeMediaIndex % (mediaList.length || 1);
   const currentMediaItem = mediaList[currentMediaIndex] || mediaList[0];
 
   // Si une erreur a été détectée sur ce média, on utilise l'URL de secours
-  const activeMediaUrl = mediaErrorMap[currentMediaIndex] || currentMediaItem.url;
+  const activeMediaUrl = mediaErrorMap[currentMediaIndex] || currentMediaItem?.url || videoFond;
   const currentMedia = {
     ...currentMediaItem,
     url: activeMediaUrl
   };
 
+  const currentDuration = currentMediaItem?.duration || (currentMediaItem?.type === "image" ? 6 : 10);
+
   // Rotation automatique en boucle des médias d'arrière-plan
+  // Utilise UNIQUEMENT des types primitifs en dépendances pour éviter toute interruption par le typewriter/curseur
   useEffect(() => {
     if (mediaList.length <= 1 || isPaused) return;
 
-    const durationSeconds = currentMedia.duration || (currentMedia.type === "image" ? 7 : 12);
     const timer = setTimeout(() => {
       setActiveMediaIndex((prev) => (prev + 1) % mediaList.length);
-    }, durationSeconds * 1000);
+    }, currentDuration * 1000);
 
     return () => clearTimeout(timer);
-  }, [currentMediaIndex, mediaList.length, isPaused, currentMedia]);
+  }, [currentMediaIndex, mediaList.length, isPaused, currentDuration]);
+
+  const handlePrevMedia = useCallback(() => {
+    setActiveMediaIndex((prev) => (prev - 1 + mediaList.length) % mediaList.length);
+  }, [mediaList.length]);
+
+  const handleNextMedia = useCallback(() => {
+    setActiveMediaIndex((prev) => (prev + 1) % mediaList.length);
+  }, [mediaList.length]);
 
   // Textes & Boutons (priorité aux réglages de l'Admin CMS avec fallback i18n)
   const text1 = homeCms?.heroTitle1 || t('hero.title1');
@@ -230,10 +258,10 @@ export function HeroPremium() {
                     ref={videoRef}
                     src={currentMedia.url}
                     autoPlay
-                    loop
                     muted
                     playsInline
                     preload="auto"
+                    onEnded={() => setActiveMediaIndex((prev) => (prev + 1) % mediaList.length)}
                     onError={() => {
                       setMediaErrorMap((prev) => ({
                         ...prev,
@@ -318,18 +346,38 @@ export function HeroPremium() {
         </div>
       </div>
 
-      {/* Indicateur de Défilement des Médias de Fond (Discret & Interactif) */}
+      {/* Indicateur et Contrôles de Défilement des Médias de Fond */}
       {mediaList.length > 1 && (
         <div
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          className="absolute bottom-6 right-6 z-20 hidden sm:flex items-center gap-2 p-2 rounded-2xl bg-slate-950/60 backdrop-blur-md border border-white/10 shadow-xl"
+          className="absolute bottom-6 right-4 sm:right-6 z-20 flex items-center gap-2 p-1.5 sm:p-2 rounded-2xl bg-slate-950/70 backdrop-blur-md border border-white/15 shadow-2xl transition-all"
         >
-          <span className="text-[10px] text-slate-300 font-mono px-2 font-bold">
+          {/* Bouton Précédent */}
+          <button
+            onClick={handlePrevMedia}
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white text-xs cursor-pointer transition-colors"
+            title="Média précédent"
+            aria-label="Média précédent"
+          >
+            ‹
+          </button>
+
+          {/* Bouton Play/Pause */}
+          <button
+            onClick={() => setIsPaused((prev) => !prev)}
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-[#48cae4] text-[10px] cursor-pointer transition-colors"
+            title={isPaused ? "Reprendre le défilement" : "Mettre en pause"}
+            aria-label={isPaused ? "Reprendre" : "Pause"}
+          >
+            {isPaused ? "▶" : "❚❚"}
+          </button>
+
+          {/* Compteur */}
+          <span className="text-[10px] text-slate-300 font-mono px-1 font-bold">
             {currentMediaIndex + 1}/{mediaList.length}
           </span>
 
-          <div className="flex items-center gap-1.5">
+          {/* Puces de sélection directe */}
+          <div className="flex items-center gap-1.5 px-1">
             {mediaList.map((m, idx) => (
               <button
                 key={m.id || idx}
@@ -344,8 +392,19 @@ export function HeroPremium() {
             ))}
           </div>
 
+          {/* Bouton Suivant */}
+          <button
+            onClick={handleNextMedia}
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white text-xs cursor-pointer transition-colors"
+            title="Média suivant"
+            aria-label="Média suivant"
+          >
+            ›
+          </button>
+
+          {/* Titre du média (visible à partir des écrans moyens) */}
           {currentMedia.title && (
-            <span className="text-[10px] text-slate-400 font-medium max-w-[140px] truncate border-l border-white/10 pl-2">
+            <span className="text-[10px] text-slate-300 font-medium max-w-[150px] truncate border-l border-white/15 pl-2 hidden md:inline-block">
               {currentMedia.title}
             </span>
           )}
