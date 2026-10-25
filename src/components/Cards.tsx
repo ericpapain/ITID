@@ -79,20 +79,19 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
           </div>
 
           <div className="mt-8 pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
-            <button
-              type="button"
+            <Link
+              to={`/pathologies/${detailSlug}`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (onClose) onClose();
-                navigate(`/pathologies/${detailSlug}`);
               }}
-              className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer"
+              className="flex items-center justify-between px-5 py-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-md hover:brightness-110 transition-all group cursor-pointer"
             >
-              <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
+              <div className="flex items-center text-[#0c1a2e] font-bold group-hover:translate-x-1 transition-transform">
                 {t("common.readFullFile", "Lire la fiche détaillée")}
                 <ArrowRight size={14} className="ml-1" />
               </div>
-            </button>
+            </Link>
 
             {wikipediaUrl && (
               <a href={wikipediaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-bold hover:text-white transition-colors text-base text-gray-400">
@@ -155,19 +154,18 @@ export const MedicalCard = ({ icon, title, desc, color, borderColor, longDesc, w
         </div>
         
         {/* Bouton Lire la fiche détaillée */}
-        <button
-          type="button"
+        <Link
+          to={`/pathologies/${detailSlug}`}
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/pathologies/${detailSlug}`);
           }}
-          className="mt-3 flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer shadow-md"
+          className="mt-3 flex w-full items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-md hover:brightness-110 transition-all group cursor-pointer"
         >
-          <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
+          <div className="flex items-center text-[#0c1a2e] font-bold group-hover:translate-x-1 transition-transform">
             {t("common.readFullFile", "Lire la fiche détaillée")}
             <ArrowRight size={14} className="ml-1" />
           </div>
-        </button>
+        </Link>
         
         <motion.div 
           className="absolute -bottom-6 -right-4 text-9xl opacity-[0.02] pointer-events-none select-none z-0"

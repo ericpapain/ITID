@@ -34,7 +34,11 @@ export default function AdminLogin() {
         throw new Error(data?.error || "Identifiants incorrects.");
       }
     } catch (apiErr: any) {
-      setError(apiErr.message || "Identifiants incorrects.");
+      if (apiErr.message === "Failed to fetch" || apiErr.name === "TypeError") {
+        setError("Impossible de joindre le serveur local. Assurez-vous d'accéder au port 5173 (http://localhost:5173/admin/login) et que le serveur Node tourne.");
+      } else {
+        setError(apiErr.message || "Identifiants incorrects.");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +104,29 @@ export default function AdminLogin() {
             )}
           </button>
         </form>
+
+        {/* Aide au développement local STRICTEMENT RÉSERVÉE au mode DEV (strippée à la compilation production) */}
+        {import.meta.env.DEV && (
+          <div className="mt-5 p-3 bg-slate-800/80 border border-slate-700/60 rounded-xl text-left text-xs text-slate-300 relative z-10">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-semibold text-[#48cae4] text-[11px] uppercase tracking-wider">Accès Local / Test</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("contact@itid-france.com");
+                  setPassword("AdminItid2026!");
+                }}
+                className="text-[11px] font-medium bg-[#2a9d8f]/20 hover:bg-[#2a9d8f]/30 text-[#48cae4] border border-[#2a9d8f]/40 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
+              >
+                Pré-remplir en 1 clic
+              </button>
+            </div>
+            <div className="text-[11px] text-slate-400 space-y-0.5 font-mono bg-slate-900/60 p-2 rounded-lg">
+              <div>Email : <span className="text-white select-all">contact@itid-france.com</span></div>
+              <div>Mot de passe : <span className="text-white select-all">AdminItid2026!</span></div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 pt-4 border-t border-slate-800 text-center">
           <a href="/" className="text-xs text-[#48cae4] hover:underline">

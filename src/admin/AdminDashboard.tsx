@@ -329,6 +329,13 @@ export default function AdminDashboard() {
             >
               {seedLoading ? "Génération en cours..." : "📊 Reconstituer 504 Visites (18 Sep - 1 Oct)"}
             </button>
+            <Link
+              to="/admin/pages?section=backup"
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-lg transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>🛡️</span>
+              <span>Sauvegarder / Restaurer le CMS</span>
+            </Link>
             <a
               href="/api/admin/backup?action=download"
               className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"

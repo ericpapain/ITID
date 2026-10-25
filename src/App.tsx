@@ -95,6 +95,18 @@ function AppContent() {
     setMenuOpen(false);
   }, [location]);
 
+  // Masquage de la section contact sur les pages dédiées demandées par l'utilisateur
+  const hideContactRoutes = [
+    "/traitements",
+    "/pathologies",
+    "/formations",
+    "/ia",
+    "/actualites",
+  ];
+  const shouldHideContact = hideContactRoutes.some((route) =>
+    location.pathname.startsWith(route)
+  );
+
   return (
     <>
       <AuthModal
@@ -183,7 +195,7 @@ function AppContent() {
         </div>
 
         <SocialSection />
-        <ContactSection />
+        {!shouldHideContact && <ContactSection />}
         <Footer />
       </div>
 

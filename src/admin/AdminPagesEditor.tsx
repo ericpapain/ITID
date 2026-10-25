@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAuthHeaders, getAdminToken } from "./auth";
 import { SingleMediaSelector, GalleryMediaSelector } from "./MediaSelector";
+import { CmsBackupRestorePanel } from "./CmsBackupRestorePanel";
+import { RichContentEditor } from "./RichContentEditor";
+import { TRAITEMENTS, PATHOLOGIES } from "../data";
 import {
   Plus,
   Trash2,
@@ -63,10 +66,33 @@ export default function AdminPagesEditor() {
     { id: "articles", label: "Actualités & Blog", icon: "📰" },
     { id: "home", label: "Textes Page d'Accueil", icon: "🏠" },
     { id: "about", label: "À Propos & Équipe", icon: "🏥" },
+    { id: "backup", label: "Sauvegarde & Restauration", icon: "🛡️" },
   ];
+
+  const triggerAutoSnapshot = () => {
+    fetch("/api/admin/cms?type=backup&action=export", { headers: getAuthHeaders() })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.backup) {
+          localStorage.setItem(
+            "itid_cms_auto_backup",
+            JSON.stringify({
+              saved_at: new Date().toISOString(),
+              backup: d.backup,
+            })
+          );
+        }
+      })
+      .catch(() => {});
+  };
 
   // Chargement des données selon la section active
   const loadData = async (preferredId?: number) => {
+    if (currentSection === "backup") {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setSaveMessage(null);
 
@@ -139,6 +165,7 @@ export default function AdminPagesEditor() {
 
       setSaveMessage("✅ Modifications enregistrées avec succès en base de données !");
       setTimeout(() => setSaveMessage(null), 4000);
+      triggerAutoSnapshot();
     } catch (err: any) {
       setSaveMessage(`❌ ${err.message}`);
     } finally {
@@ -170,6 +197,7 @@ export default function AdminPagesEditor() {
       const savedId = isNew ? (data.id || itemToSave.id) : itemToSave.id;
       setSaveMessage(`✅ ${isNew ? "Création réussie" : "Modifications enregistrées"} avec succès !`);
       setTimeout(() => setSaveMessage(null), 4000);
+      triggerAutoSnapshot();
 
       // Recharger la liste en conservant la fiche modifiée ou nouvellement créée active
       await loadData(savedId);
@@ -322,14 +350,20 @@ export default function AdminPagesEditor() {
       const newCas = {
         title_fr: "Nouveau Cas Clinique",
         title_en: "New Clinical Case",
-        category_fr: "Infiltration / Intervention",
-        category_en: "Infiltration / Procedure",
+        category_fr: "Geste Interventionnel",
+        category_en: "Interventional Procedure",
         image: "/images/treatments/infiltrations_rachidiennes.jpg",
+        traitement_slug: "infiltrations-rachidiennes",
+        traitement_name: "Infiltrations Rachidiennes Guidées",
+        pathologie_slug: "lombalgie-chronique",
+        short_desc_fr: "Description clinique détaillée du cas, indication thérapeutique retenue, déroulement de l'intervention et résultat fonctionnel.",
+        short_desc_en: "Detailed clinical case presentation, interventional technique applied and therapeutic outcome.",
         display_order: itemsList.length + 1,
         is_active: 1
       };
       setSelectedItem(newCas);
     }
+
   };
 
   return (
@@ -349,6 +383,20 @@ export default function AdminPagesEditor() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Bouton Accès Rapide Sauvegarde & Backup */}
+          <button
+            onClick={() => setSearchParams({ section: "backup" })}
+            className={`px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              currentSection === "backup"
+                ? "bg-amber-600 text-white border-amber-500 shadow-md"
+                : "bg-slate-900 border-slate-700 text-amber-300 hover:border-amber-500/50 hover:bg-slate-800"
+            }`}
+            title="Centre de Sauvegarde & Restauration CMS"
+          >
+            <span>🛡️</span>
+            <span className="hidden sm:inline">Sauvegarde & Backup</span>
+          </button>
+
           {/* Sélecteur de Langue Strict FR / EN */}
           <div className="flex p-1 bg-slate-900 border border-slate-700 rounded-xl">
             <button
@@ -525,6 +573,14 @@ export default function AdminPagesEditor() {
               onChangeFr={(data: any) => setPageContentFr((prev: any) => ({ ...prev, ...data }))}
               onChangeEn={(data: any) => setPageContentEn((prev: any) => ({ ...prev, ...data }))}
               lang={lang}
+            />
+          )}
+
+          {/* Rubrique SAUVEGARDE & RESTAURATION CMS */}
+          {currentSection === "backup" && (
+            <CmsBackupRestorePanel
+              lang={lang}
+              onRestored={() => loadData()}
             />
           )}
         </div>
@@ -770,131 +826,419 @@ function PathologyForm({ item, onChange, lang }: any) {
         minImages={3}
       />
 
-      {/* 4 SECTIONS DÉTAILLÉES EN LAYOUT ALTERNÉ */}
-      <div className="space-y-4 pt-4 border-t border-slate-800">
-        <div className="font-bold text-sm text-white flex items-center gap-2">
-          <Layers size={16} className="text-[#2a9d8f]" />
-          <span>Contenu Détaillé de la Page (4 Sections Alternées Photo / Texte)</span>
+      {/* SECTIONS DÉTAILLÉES DYNAMIQUES (AJOUT / SUPPRESSION / RÉORDONNER / POSITION IMAGE) */}
+      <DynamicSectionsManager
+        sections={getEntitySections(item, defaultPathologyBadges)}
+        onChangeSections={(next) => syncEntitySections(next, onChange)}
+        lang={lang}
+        title="Contenu Détaillé de la Pathologie (Sections Dynamiques)"
+        subtitle="Ajoutez ou supprimez des sections, changez leur ordre et définissez la disposition de l'image (Gauche, Droite ou Pleine largeur)."
+        defaultBadges={defaultPathologyBadges}
+        placeholder="Explications médicales et physiopathologiques..."
+      />
+    </div>
+  );
+}
+
+// Badges par défaut suggérés
+const defaultPathologyBadges = [
+  "Comprendre la Pathologie",
+  "Diagnostic & Quand Consulter",
+  "Traitements Interventionnels ITID",
+  "Prévention & Conseils au Quotidien",
+  "Recherche & Approches Futures",
+  "Conseils & Prise en Charge"
+];
+
+const defaultTreatmentBadges = [
+  "Indications & Douleurs Ciblées",
+  "Déroulement Précis du Geste",
+  "Bénéfices Attendus & Suites",
+  "Pathologies Associées Prises en Charge",
+  "Conseils Post-Intervention",
+  "Suivi Thérapeutique"
+];
+
+interface DynamicSectionItem {
+  id: string;
+  badge?: string;
+  title_fr?: string;
+  title_en?: string;
+  text_fr?: string;
+  text_en?: string;
+  image?: string;
+  image_position?: "left" | "right" | "none";
+}
+
+// Extraction et normalisation des sections
+function getEntitySections(item: any, defaultBadges: string[]): DynamicSectionItem[] {
+  if (Array.isArray(item.sections) && item.sections.length > 0) {
+    return item.sections;
+  }
+  const synthesized: DynamicSectionItem[] = [];
+  for (let i = 1; i <= 4; i++) {
+    const titleFr = item[`section${i}_title_fr`];
+    const titleEn = item[`section${i}_title_en`];
+    const textFr = item[`section${i}_text_fr`];
+    const textEn = item[`section${i}_text_en`];
+    const image = item[`section${i}_image`];
+    const pos = item[`section${i}_image_position`] || (i % 2 === 1 ? "left" : "right");
+    const badge = item[`section${i}_badge`] || defaultBadges[i - 1] || `Section ${i}`;
+
+    if (titleFr || titleEn || textFr || textEn || image || i <= 2) {
+      synthesized.push({
+        id: `sec-${i}-${Date.now()}`,
+        badge,
+        title_fr: titleFr || "",
+        title_en: titleEn || "",
+        text_fr: textFr || "",
+        text_en: textEn || "",
+        image: image || "",
+        image_position: pos
+      });
+    }
+  }
+  return synthesized.length > 0 ? synthesized : [
+    {
+      id: `sec-1-${Date.now()}`,
+      badge: defaultBadges[0] || "Section 1",
+      title_fr: "",
+      title_en: "",
+      text_fr: "",
+      text_en: "",
+      image: "",
+      image_position: "left"
+    }
+  ];
+}
+
+// Synchronisation réversible avec les colonnes SQL section1_* à section4_*
+function syncEntitySections(nextSections: DynamicSectionItem[], onChange: (data: any) => void) {
+  const payload: any = {
+    sections: nextSections,
+    sections_json: JSON.stringify(nextSections)
+  };
+  for (let i = 1; i <= 4; i++) {
+    const sec = nextSections[i - 1];
+    if (sec) {
+      payload[`section${i}_title_fr`] = sec.title_fr || "";
+      payload[`section${i}_title_en`] = sec.title_en || "";
+      payload[`section${i}_text_fr`] = sec.text_fr || "";
+      payload[`section${i}_text_en`] = sec.text_en || "";
+      payload[`section${i}_image`] = sec.image || "";
+      payload[`section${i}_image_position`] = sec.image_position || (i % 2 === 1 ? "left" : "right");
+      payload[`section${i}_badge`] = sec.badge || "";
+    } else {
+      payload[`section${i}_title_fr`] = "";
+      payload[`section${i}_title_en`] = "";
+      payload[`section${i}_text_fr`] = "";
+      payload[`section${i}_text_en`] = "";
+      payload[`section${i}_image`] = "";
+      payload[`section${i}_image_position`] = "none";
+      payload[`section${i}_badge`] = "";
+    }
+  }
+  onChange(payload);
+}
+
+// ======================================================================
+// COMPOSANT RÉUTILISABLE GESTIONNAIRE DYNAMIQUE DE SECTIONS (AJOUT / SUPPRESSION)
+// ======================================================================
+function DynamicSectionsManager({
+  sections,
+  onChangeSections,
+  lang,
+  title = "Contenu Détaillé de la Page",
+  subtitle = "Ajoutez, supprimez, réordonnez vos sections et configurez la position de l'image (Gauche, Droite ou Pleine Largeur).",
+  defaultBadges = [],
+  placeholder = "Rédigez le contenu médical..."
+}: {
+  sections: DynamicSectionItem[];
+  onChangeSections: (next: DynamicSectionItem[]) => void;
+  lang: "fr" | "en";
+  title?: string;
+  subtitle?: string;
+  defaultBadges?: string[];
+  placeholder?: string;
+}) {
+  const handleAdd = () => {
+    const newIdx = sections.length;
+    const defaultBadge = defaultBadges[newIdx] || `Section #${newIdx + 1}`;
+    const newSec: DynamicSectionItem = {
+      id: "sec-" + Date.now(),
+      badge: defaultBadge,
+      title_fr: "",
+      title_en: "",
+      text_fr: "",
+      text_en: "",
+      image: "",
+      image_position: newIdx % 2 === 0 ? "left" : "right"
+    };
+    onChangeSections([...sections, newSec]);
+  };
+
+  const handleUpdate = (idx: number, patch: Partial<DynamicSectionItem>) => {
+    const next = [...sections];
+    next[idx] = { ...next[idx], ...patch };
+    onChangeSections(next);
+  };
+
+  const handleRemove = (idx: number) => {
+    if (sections.length <= 1) {
+      if (!confirm("Voulez-vous supprimer cette unique section ?")) return;
+    }
+    const next = sections.filter((_, i) => i !== idx);
+    onChangeSections(next);
+  };
+
+  const handleMove = (idx: number, direction: "up" | "down") => {
+    const targetIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= sections.length) return;
+    const next = [...sections];
+    const temp = next[idx];
+    next[idx] = next[targetIdx];
+    next[targetIdx] = temp;
+    onChangeSections(next);
+  };
+
+  const badgeColors = [
+    "text-cyan-300 border-cyan-500/30 bg-cyan-950/40",
+    "text-emerald-300 border-emerald-500/30 bg-emerald-950/40",
+    "text-yellow-300 border-yellow-500/30 bg-yellow-950/40",
+    "text-teal-300 border-teal-500/30 bg-teal-950/40",
+    "text-blue-300 border-blue-500/30 bg-blue-950/40",
+    "text-purple-300 border-purple-500/30 bg-purple-950/40",
+  ];
+
+  return (
+    <div className="space-y-4 pt-4 border-t border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+        <div>
+          <div className="font-bold text-sm text-white flex items-center gap-2">
+            <Layers size={17} className="text-[#2a9d8f]" />
+            <span>{title}</span>
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-[#2a9d8f]/20 text-[#2a9d8f] border border-[#2a9d8f]/40 font-bold">
+              {sections.length} {sections.length > 1 ? "sections" : "section"}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            {subtitle}
+          </p>
         </div>
 
-        {/* Section 1 : Comprendre la maladie (Photo Gauche / Texte Droite) */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-cyan-300">Section 1 — Comprendre la Pathologie (Photo Gauche / Texte Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SingleMediaSelector
-              label="Photo Section 1"
-              value={item.section1_image || ""}
-              onChange={(url) => onChange({ section1_image: url })}
-            />
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre de la Section 1"
-                value={lang === "en" ? (item.section1_title_en || "") : (item.section1_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section1_title_en: e.target.value } : { section1_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Texte explicatif clinique..."
-                value={lang === "en" ? (item.section1_text_en || "") : (item.section1_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section1_text_en: e.target.value } : { section1_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 2 : Diagnostic (Texte Gauche / Photo Droite) */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-emerald-300">Section 2 — Diagnostic & Quand Consulter (Texte Gauche / Photo Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre de la Section 2"
-                value={lang === "en" ? (item.section2_title_en || "") : (item.section2_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section2_title_en: e.target.value } : { section2_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Critères d'alerte, examens d'imagerie..."
-                value={lang === "en" ? (item.section2_text_en || "") : (item.section2_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section2_text_en: e.target.value } : { section2_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-            <SingleMediaSelector
-              label="Photo Section 2"
-              value={item.section2_image || ""}
-              onChange={(url) => onChange({ section2_image: url })}
-            />
-          </div>
-        </div>
-
-        {/* Section 3 : Traitements ITID (Photo Gauche / Texte Droite) */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-yellow-300">Section 3 — Traitements Interventionnels ITID (Photo Gauche / Texte Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SingleMediaSelector
-              label="Photo Section 3"
-              value={item.section3_image || ""}
-              onChange={(url) => onChange({ section3_image: url })}
-            />
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre de la Section 3"
-                value={lang === "en" ? (item.section3_title_en || "") : (item.section3_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section3_title_en: e.target.value } : { section3_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Infiltrations, radiofréquence, cryoneurolyse..."
-                value={lang === "en" ? (item.section3_text_en || "") : (item.section3_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section3_text_en: e.target.value } : { section3_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 4 : Prévention & Conseils (Texte Gauche / Photo Droite) */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-teal-300">Section 4 — Prévention & Conseils au Quotidien (Texte Gauche / Photo Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre de la Section 4"
-                value={lang === "en" ? (item.section4_title_en || "") : (item.section4_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section4_title_en: e.target.value } : { section4_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Postures, étirements, hygiène de vie..."
-                value={lang === "en" ? (item.section4_text_en || "") : (item.section4_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section4_text_en: e.target.value } : { section4_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-            <SingleMediaSelector
-              label="Photo Section 4"
-              value={item.section4_image || ""}
-              onChange={(url) => onChange({ section4_image: url })}
-            />
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 self-start sm:self-auto"
+        >
+          <Plus size={15} />
+          <span>Ajouter une section</span>
+        </button>
       </div>
+
+      {sections.length === 0 ? (
+        <div className="p-8 border border-dashed border-slate-700 rounded-2xl text-center space-y-3 bg-slate-950/40">
+          <Layers size={32} className="mx-auto text-slate-500 opacity-60" />
+          <p className="text-slate-400 text-xs">
+            Aucune section configurée pour l'instant. Cliquez ci-dessous pour ajouter votre première section.
+          </p>
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="px-4 py-2 bg-[#2a9d8f]/10 border border-[#2a9d8f]/40 text-[#2a9d8f] hover:bg-[#2a9d8f]/20 text-xs rounded-xl font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
+          >
+            <Plus size={14} />
+            <span>Ajouter la section #1</span>
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {sections.map((sec, idx) => {
+            const currentPos = sec.image_position || (idx % 2 === 0 ? "left" : "right");
+            const colorClass = badgeColors[idx % badgeColors.length];
+            const currentTitle = lang === "en" ? (sec.title_en || "") : (sec.title_fr || "");
+            const currentText = lang === "en" ? (sec.text_en || "") : (sec.text_fr || "");
+
+            return (
+              <div
+                key={sec.id || idx}
+                className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-4 shadow-sm hover:border-slate-700 transition-colors"
+              >
+                {/* Entête de la section */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`px-2 py-0.5 rounded-lg text-xs font-bold border ${colorClass}`}>
+                      Section #{idx + 1}
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="Badge / Thème (ex: Pour qui ?)"
+                      value={sec.badge || ""}
+                      onChange={(e) => handleUpdate(idx, { badge: e.target.value })}
+                      className="px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs font-semibold text-white focus:border-[#2a9d8f] outline-none"
+                    />
+                  </div>
+
+                  {/* Boutons Position & Actions Réordonner / Supprimer */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {/* Sélecteur position image */}
+                    <div className="flex bg-slate-900 border border-slate-700 rounded-xl p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => handleUpdate(idx, { image_position: "left" })}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                          currentPos === "left"
+                            ? "bg-[#2a9d8f] text-white shadow-sm"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                        title="Image positionnée à Gauche"
+                      >
+                        ⬅️ Gauche
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdate(idx, { image_position: "right" })}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                          currentPos === "right"
+                            ? "bg-[#2a9d8f] text-white shadow-sm"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                        title="Image positionnée à Droite"
+                      >
+                        Droite ➡️
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdate(idx, { image_position: "none" })}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                          currentPos === "none"
+                            ? "bg-amber-600 text-white shadow-sm"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                        title="Aucune image : Texte sur toute la largeur (100%)"
+                      >
+                        🚫 Aucune
+                      </button>
+                    </div>
+
+                    {/* Flèches monter / descendre */}
+                    <div className="flex items-center gap-1 border-l border-slate-800 pl-2">
+                      <button
+                        type="button"
+                        onClick={() => handleMove(idx, "up")}
+                        disabled={idx === 0}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                        title="Monter cette section"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMove(idx, "down")}
+                        disabled={idx === sections.length - 1}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                        title="Descendre cette section"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+
+                      {/* Bouton Supprimer */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(idx)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer ml-1"
+                        title="Supprimer cette section"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Formulaire de la section */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1 text-xs">
+                      Titre de la Section #{idx + 1} [{lang.toUpperCase()}]
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={`Ex: Titre de la section ${idx + 1}`}
+                      value={currentTitle}
+                      onChange={(e) =>
+                        handleUpdate(
+                          idx,
+                          lang === "en"
+                            ? { title_en: e.target.value }
+                            : { title_fr: e.target.value }
+                        )
+                      }
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white text-sm focus:border-[#2a9d8f] outline-none"
+                    />
+                  </div>
+
+                  {currentPos !== "none" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                      <div className={currentPos === "left" ? "order-1" : "order-2"}>
+                        <SingleMediaSelector
+                          label={`Photo Section #${idx + 1} (${currentPos === "left" ? "Affichée à Gauche" : "Affichée à Droite"})`}
+                          value={sec.image || ""}
+                          onChange={(url) => handleUpdate(idx, { image: url })}
+                        />
+                      </div>
+                      <div className={`space-y-1 ${currentPos === "left" ? "order-2" : "order-1"}`}>
+                        <RichContentEditor
+                          label={`Contenu Section #${idx + 1} [${lang.toUpperCase()}]`}
+                          placeholder={placeholder}
+                          value={currentText}
+                          onChange={(val) =>
+                            handleUpdate(
+                              idx,
+                              lang === "en"
+                                ? { text_en: val }
+                                : { text_fr: val }
+                            )
+                          }
+                          minHeight="170px"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
+                        <span>ℹ️</span>
+                        <span>
+                          <strong>Image désactivée :</strong> Le texte occupera automatiquement toute la largeur disponible (100%) sans espace vide.
+                        </span>
+                      </div>
+                      <RichContentEditor
+                        label={`Contenu Pleine Largeur Section #${idx + 1} [${lang.toUpperCase()}]`}
+                        placeholder={placeholder}
+                        value={currentText}
+                        onChange={(val) =>
+                          handleUpdate(
+                            idx,
+                            lang === "en"
+                              ? { text_en: val }
+                              : { text_fr: val }
+                          )
+                        }
+                        minHeight="170px"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
 // ======================================================================
-// FORMULAIRE TRAITEMENT (BILINGUE + RECTO/VERSO + 4 SECTIONS)
+// FORMULAIRE TRAITEMENT (BILINGUE + RECTO/VERSO + 4 SECTIONS AVEC POSITION IMAGE)
 // ======================================================================
 function TreatmentForm({ item, onChange, lang }: any) {
   return (
@@ -926,7 +1270,7 @@ function TreatmentForm({ item, onChange, lang }: any) {
             type="text"
             value={item.slug || ""}
             onChange={(e) => onChange({ slug: e.target.value })}
-            placeholder="ex: infiltrations-rachidiennes"
+            placeholder="ex: radiofrequence"
             className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4]"
           />
         </div>
@@ -975,128 +1319,20 @@ function TreatmentForm({ item, onChange, lang }: any) {
         minImages={3}
       />
 
-      {/* 4 SECTIONS DÉTAILLÉES */}
-      <div className="space-y-4 pt-4 border-t border-slate-800">
-        <div className="font-bold text-sm text-white flex items-center gap-2">
-          <Layers size={16} className="text-[#2a9d8f]" />
-          <span>Contenu Détaillé du Traitement (4 Sections Alternées)</span>
-        </div>
-
-        {/* Section 1 : Indications */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-cyan-300">Section 1 — Indications & Douleurs Ciblées (Photo Gauche / Texte Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SingleMediaSelector
-              label="Photo Section 1"
-              value={item.section1_image || ""}
-              onChange={(url) => onChange({ section1_image: url })}
-            />
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre Section 1"
-                value={lang === "en" ? (item.section1_title_en || "") : (item.section1_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section1_title_en: e.target.value } : { section1_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Indications médicales..."
-                value={lang === "en" ? (item.section1_text_en || "") : (item.section1_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section1_text_en: e.target.value } : { section1_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 2 : Déroulement */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-emerald-300">Section 2 — Déroulement Précis du Geste (Texte Gauche / Photo Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre Section 2"
-                value={lang === "en" ? (item.section2_title_en || "") : (item.section2_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section2_title_en: e.target.value } : { section2_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Position, guidage radiologique/échographique, durée..."
-                value={lang === "en" ? (item.section2_text_en || "") : (item.section2_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section2_text_en: e.target.value } : { section2_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-            <SingleMediaSelector
-              label="Photo Section 2"
-              value={item.section2_image || ""}
-              onChange={(url) => onChange({ section2_image: url })}
-            />
-          </div>
-        </div>
-
-        {/* Section 3 : Bénéfices */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-yellow-300">Section 3 — Bénéfices Attendus & Suites (Photo Gauche / Texte Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SingleMediaSelector
-              label="Photo Section 3"
-              value={item.section3_image || ""}
-              onChange={(url) => onChange({ section3_image: url })}
-            />
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre Section 3"
-                value={lang === "en" ? (item.section3_title_en || "") : (item.section3_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section3_title_en: e.target.value } : { section3_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Soulagement et consignes post-intervention..."
-                value={lang === "en" ? (item.section3_text_en || "") : (item.section3_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section3_text_en: e.target.value } : { section3_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 4 : Pathologies liées */}
-        <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
-          <div className="font-semibold text-teal-300">Section 4 — Pathologies Associées (Texte Gauche / Photo Droite)</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Titre Section 4"
-                value={lang === "en" ? (item.section4_title_en || "") : (item.section4_title_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section4_title_en: e.target.value } : { section4_title_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-bold text-white"
-              />
-              <textarea
-                rows={3}
-                placeholder="Pathologies cibles traitées..."
-                value={lang === "en" ? (item.section4_text_en || "") : (item.section4_text_fr || "")}
-                onChange={(e) => onChange(lang === "en" ? { section4_text_en: e.target.value } : { section4_text_fr: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-              />
-            </div>
-            <SingleMediaSelector
-              label="Photo Section 4"
-              value={item.section4_image || ""}
-              onChange={(url) => onChange({ section4_image: url })}
-            />
-          </div>
-        </div>
-      </div>
+      {/* SECTIONS DÉTAILLÉES DYNAMIQUES (AJOUT / SUPPRESSION / RÉORDONNER / POSITION IMAGE) */}
+      <DynamicSectionsManager
+        sections={getEntitySections(item, defaultTreatmentBadges)}
+        onChangeSections={(next) => syncEntitySections(next, onChange)}
+        lang={lang}
+        title="Contenu Détaillé du Traitement (Sections Dynamiques)"
+        subtitle="Ajoutez ou supprimez des sections, changez leur ordre et définissez la disposition de l'image (Gauche, Droite ou Pleine largeur)."
+        defaultBadges={defaultTreatmentBadges}
+        placeholder="Indications médicales validées, protocole interventionnel, bénéfices attendus..."
+      />
     </div>
   );
 }
+
 
 // ======================================================================
 // COMPOSANT UPLOADER IMAGE AVEC PREVIEW & BOUTON TÉLÉCHARGER DU PC
@@ -1250,7 +1486,12 @@ function ArticleForm({ item, onChange, lang }: any) {
       id: "sec-" + Date.now(),
       image: "",
       title: "",
+      title_fr: "",
+      title_en: "",
       content: "",
+      content_fr: "",
+      content_en: "",
+      image_position: isImageLeft ? "left" : "right",
       disposition: isImageLeft ? "image-left" : "image-right"
     };
     onChange({ sections: [...sections, newSec] });
@@ -1623,7 +1864,7 @@ function ArticleForm({ item, onChange, lang }: any) {
           ) : (
             <div className="space-y-4">
               {sections.map((sec, idx) => {
-                const isImageLeft = idx % 2 === 0;
+                const imgPos = sec.image_position || (idx % 2 === 0 ? "left" : "right");
                 return (
                   <div
                     key={sec.id || idx}
@@ -1634,11 +1875,44 @@ function ArticleForm({ item, onChange, lang }: any) {
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#48cae4]/20 text-[#48cae4] border border-[#48cae4]/30 font-bold">
                           Section #{idx + 1}
                         </span>
-                        <span className="text-xs text-slate-300 font-medium">
-                          {isImageLeft
-                            ? "Disposition : 🖼️ Image à GAUCHE & Texte à DROITE"
-                            : "Disposition : 📝 Texte à GAUCHE & Image à DROITE"}
-                        </span>
+                        
+                        {/* Sélecteur Position Image Gauche / Droite / Aucune */}
+                        <div className="inline-flex items-center gap-1 bg-slate-900 border border-slate-700/80 rounded p-0.5 text-[11px]">
+                          <span className="text-[10px] text-slate-400 font-semibold px-1.5 uppercase">Image :</span>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateSection(idx, { image_position: "left" })}
+                            className={`px-2 py-0.5 rounded text-xs transition-all ${
+                              imgPos === "left"
+                                ? "bg-[#48cae4] text-[#0c1a2e] font-bold shadow-xs"
+                                : "text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            Gauche
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateSection(idx, { image_position: "right" })}
+                            className={`px-2 py-0.5 rounded text-xs transition-all ${
+                              imgPos === "right"
+                                ? "bg-[#48cae4] text-[#0c1a2e] font-bold shadow-xs"
+                                : "text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            Droite
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateSection(idx, { image_position: "none" })}
+                            className={`px-2 py-0.5 rounded text-xs transition-all ${
+                              imgPos === "none"
+                                ? "bg-amber-400 text-[#0c1a2e] font-bold shadow-xs"
+                                : "text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            Aucune
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-1">
@@ -1673,42 +1947,57 @@ function ArticleForm({ item, onChange, lang }: any) {
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {/* Colonne Image */}
-                      <div className="space-y-2">
-                        <ArticleImageUploader
-                          label="Image de cette section"
-                          value={sec.image || ""}
-                          onChange={(url) => handleUpdateSection(idx, { image: url })}
-                          placeholder="URL de l'image ou cliquer sur 'Télécharger du PC'"
-                        />
-                      </div>
+                    <div className={imgPos === "none" ? "space-y-3" : "grid md:grid-cols-2 gap-4"}>
+                      {/* Colonne Image (si non masquée) */}
+                      {imgPos !== "none" && (
+                        <div className="space-y-2">
+                          <ArticleImageUploader
+                            label={`Image de cette section (${imgPos === "left" ? "Gauche" : "Droite"})`}
+                            value={sec.image || ""}
+                            onChange={(url) => handleUpdateSection(idx, { image: url })}
+                            placeholder="URL de l'image ou cliquer sur 'Télécharger du PC'"
+                          />
+                        </div>
+                      )}
 
-                      {/* Colonne Contenu */}
+                      {/* Colonne Contenu / Éditeur Riche */}
                       <div className="space-y-2">
                         <div>
                           <label className="text-[11px] uppercase tracking-wider font-semibold text-white block mb-1">
-                            Sous-titre de la section
+                            Sous-titre de la section [{lang.toUpperCase()}]
                           </label>
                           <input
                             type="text"
                             placeholder="Ex: Opportunités thérapeutiques et perspectives"
                             className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3 py-2 text-xs text-white outline-none transition-colors"
-                            value={sec.title || ""}
-                            onChange={(e) => handleUpdateSection(idx, { title: e.target.value })}
+                            value={lang === "en" ? (sec.title_en ?? sec.title ?? "") : (sec.title_fr ?? sec.title ?? "")}
+                            onChange={(e) =>
+                              handleUpdateSection(
+                                idx,
+                                lang === "en"
+                                  ? { title_en: e.target.value }
+                                  : { title_fr: e.target.value, title: e.target.value }
+                              )
+                            }
                           />
                         </div>
 
                         <div>
                           <label className="text-[11px] uppercase tracking-wider font-semibold text-white block mb-1">
-                            Texte détaillé / Contenu
+                            Texte détaillé / Éditeur Riche [{lang.toUpperCase()}]
                           </label>
-                          <textarea
-                            rows={4}
-                            placeholder="Développez les informations, explications cliniques, témoignages ou résultats..."
-                            className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3 py-2 text-xs text-white outline-none transition-colors resize-none leading-relaxed"
-                            value={sec.content || ""}
-                            onChange={(e) => handleUpdateSection(idx, { content: e.target.value })}
+                          <RichContentEditor
+                            value={lang === "en" ? (sec.content_en ?? sec.content ?? "") : (sec.content_fr ?? sec.content ?? "")}
+                            onChange={(val) =>
+                              handleUpdateSection(
+                                idx,
+                                lang === "en"
+                                  ? { content_en: val }
+                                  : { content_fr: val, content: val }
+                              )
+                            }
+                            placeholder="Rédigez le texte de la section, insérez tableaux, gras, listes, liens internes..."
+                            minHeight="140px"
                           />
                         </div>
                       </div>
@@ -1730,17 +2019,16 @@ function ArticleForm({ item, onChange, lang }: any) {
           />
         </div>
 
-        {/* Corps complémentaire (Optionnel) */}
+        {/* Corps complémentaire / Synthèse (Optionnel) */}
         <div className="pt-4 border-t border-slate-800 space-y-1.5">
           <label className="text-xs uppercase tracking-wider font-semibold text-white block">
             Texte de conclusion / Corps complémentaire [{lang.toUpperCase()}]
           </label>
-          <textarea
-            rows={4}
-            placeholder="Texte complémentaire de fin d'article si vous souhaitez ajouter des précisions au-delà des sections..."
-            className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none transition-colors font-mono leading-relaxed"
+          <RichContentEditor
             value={lang === "en" ? (item.content_en || "") : (item.content_fr || "")}
-            onChange={(e) => onChange(lang === "en" ? { content_en: e.target.value } : { content_fr: e.target.value })}
+            onChange={(val) => onChange(lang === "en" ? { content_en: val } : { content_fr: val })}
+            placeholder="Texte de synthèse ou conclusion de l'article (tableaux, liens internes vers traitements...)..."
+            minHeight="140px"
           />
         </div>
       </div>
@@ -2674,14 +2962,103 @@ function AboutPageEditor({ dataFr, dataEn, onChangeFr, onChangeEn, lang }: any) 
 }
 
 // ======================================================================
-// FORMULAIRE CAS CLINIQUE (BILINGUE + PHOTO + LIVE PREVIEW)
+// FORMULAIRE CAS CLINIQUE (BILINGUE + TRAITEMENT ASSOCIÉ + PHOTO + LIVE PREVIEW)
 // ======================================================================
 function CasCliniqueForm({ item, onChange, lang }: any) {
   const currentTitle = lang === "en" ? (item.title_en || "") : (item.title_fr || "");
   const currentCategory = lang === "en" ? (item.category_en || "") : (item.category_fr || "");
+  const currentDesc = lang === "en" ? (item.short_desc_en || "") : (item.short_desc_fr || "");
+
+  const [isFlippedPreview, setIsFlippedPreview] = useState(false);
+
+  // Traitements & Pathologies pour association obligatoire
+  const treatmentOptions = [
+    { slug: "infiltrations-rachidiennes", name: "Infiltrations Rachidiennes Guidées" },
+    { slug: "infiltrations-articulaires", name: "Infiltrations Articulaires Échoguidées" },
+    { slug: "perfusion-lidocaine", name: "Perfusions de Lidocaïne / Kétamine" },
+    { slug: "stimulation-ganglion-dorsal", name: "Stimulation du Ganglion Spinal (DRG)" },
+    { slug: "cryoneurolyse", name: "Cryoneurolyse Percutanée" },
+    { slug: "rtms", name: "Stimulation Magnétique Transcrânienne (rTMS)" },
+    { slug: "blocs-anesthesiques", name: "Blocs Anesthésiques Diagnostiques & Thérapeutiques" },
+    { slug: "radiofrequence", name: "Radiofréquence Pulsée & Thermique" },
+    { slug: "toxine-botulique", name: "Injections de Toxine Botulique" },
+    { slug: "tens", name: "Neurostimulation Transcutanée (TENS)" },
+    { slug: "catheter-perinerveux", name: "Cathéters Périnerveux & Bloc Continu" },
+    { slug: "patch-capsaicine", name: "Patch de Capsaïcine Haute Concentration (8%)" },
+    { slug: "hypnovr", name: "Réalité Virtuelle Thérapeutique (HypnoVR)" },
+    { slug: "stimulation-medullaire", name: "Stimulation Médullaire Haute Définition" }
+  ];
+
+  const pathologyOptions = [
+    { slug: "lombalgie-chronique", name: "Lombalgie chronique & Sciatique" },
+    { slug: "nevralgie-arnold", name: "Névralgie d'Arnold (Occipitale)" },
+    { slug: "sdrc", name: "Syndrome Douloureux Régional Complexe (SDRC)" },
+    { slug: "endometriose", name: "Endométriose & Douleurs Pelviennes" },
+    { slug: "douleurs-articulaires", name: "Douleurs Articulaires & Arthrose" },
+    { slug: "fibromyalgie", name: "Fibromyalgie & Sensibilisation Centrale" },
+    { slug: "douleurs-neuropathiques", name: "Douleurs Neuropathiques Périphériques" },
+    { slug: "douleurs-post-op", name: "Douleurs Chroniques Post-Chirurgicales" },
+    { slug: "migraines", name: "Migraines & Céphalées Réfractaires" }
+  ];
+
+  const selectedTreatment = treatmentOptions.find(t => t.slug === item.traitement_slug) || treatmentOptions[0];
 
   return (
     <div className="space-y-6 text-xs">
+      {/* Association Métier Obligatoire : Cas Clinique -> Traitement & Pathologie */}
+      <div className="p-4 bg-gradient-to-r from-cyan-950/40 via-slate-900 to-slate-900 border border-[#48cae4]/40 rounded-2xl space-y-4 shadow-lg">
+        <div className="flex items-center gap-2 text-cyan-300 font-bold text-sm">
+          <span>💉</span>
+          <span>Liaison Métier Centrale : Traitement Associé (Obligatoire)</span>
+        </div>
+        <p className="text-slate-300 text-xs leading-relaxed">
+          Chaque cas clinique de l'accueil est directement rattaché à un traitement interventionnel précis.
+          Le bouton <strong>« En savoir plus »</strong> et la fiche détaillée redirigeront automatiquement vers la page de ce traitement.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+          <div>
+            <label className="block text-white font-semibold mb-1">
+              Traitement Médical Associé *
+            </label>
+            <select
+              value={item.traitement_slug || "infiltrations-rachidiennes"}
+              onChange={(e) => {
+                const found = treatmentOptions.find(t => t.slug === e.target.value);
+                onChange({
+                  traitement_slug: e.target.value,
+                  traitement_name: found ? found.name : e.target.value
+                });
+              }}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-[#48cae4]/60 rounded-xl text-white font-bold text-xs focus:border-[#48cae4] outline-none"
+            >
+              {treatmentOptions.map((tr) => (
+                <option key={tr.slug} value={tr.slug}>
+                  {tr.name} (/traitements/{tr.slug})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-white font-semibold mb-1">
+              Pathologie Concernée
+            </label>
+            <select
+              value={item.pathologie_slug || "lombalgie-chronique"}
+              onChange={(e) => onChange({ pathologie_slug: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-semibold text-xs focus:border-[#2a9d8f] outline-none"
+            >
+              {pathologyOptions.map((pa) => (
+                <option key={pa.slug} value={pa.slug}>
+                  {pa.name} (/pathologies/{pa.slug})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* Information bilingue & Statut */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Titre selon langue */}
@@ -2695,7 +3072,7 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
             onChange={(e) =>
               onChange(lang === "en" ? { title_en: e.target.value } : { title_fr: e.target.value })
             }
-            placeholder={lang === "en" ? "e.g. Clinical Case #1" : "ex: Cas Clinique #1"}
+            placeholder={lang === "en" ? "e.g. Guided Lumbar Infiltration" : "ex: Infiltration Lombaire Guidée"}
             className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-sm focus:border-[#2a9d8f] focus:outline-none transition-all"
           />
         </div>
@@ -2711,7 +3088,7 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
             onChange={(e) =>
               onChange(lang === "en" ? { category_en: e.target.value } : { category_fr: e.target.value })
             }
-            placeholder={lang === "en" ? "e.g. Lumbar Infiltration" : "ex: Infiltration lombaire"}
+            placeholder={lang === "en" ? "e.g. Spine & Low Back Pain" : "ex: Rachis & Lombalgie"}
             className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4] font-medium text-sm focus:border-[#2a9d8f] focus:outline-none transition-all"
           />
         </div>
@@ -2747,6 +3124,17 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
         </div>
       </div>
 
+      {/* Description clinique complète avec éditeur riche */}
+      <div className="space-y-2">
+        <RichContentEditor
+          label={`Description Clinique Détaillée du Cas [${lang.toUpperCase()}] *`}
+          placeholder="Ex: Patient de 54 ans présentant une lombosciatique L5-S1 hyperalgique résistante. Geste d'infiltration foraminale réalisé sous contrôle scopique millimétrique..."
+          value={currentDesc}
+          onChange={(val) => onChange(lang === "en" ? { short_desc_en: val } : { short_desc_fr: val })}
+          minHeight="160px"
+        />
+      </div>
+
       {/* Sélecteur de média pour la photo du cas clinique */}
       <div className="p-4 bg-slate-950/60 rounded-2xl border border-slate-800 space-y-4">
         <SingleMediaSelector
@@ -2756,39 +3144,97 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
         />
       </div>
 
-      {/* Aperçu en direct (Live Simulation) identique à la carte slider de la page principale */}
+      {/* Aperçu en direct (Live Simulation) avec Flip interactif */}
       <div className="p-5 bg-gradient-to-br from-[#071322] to-[#0a1628] rounded-2xl border border-slate-800 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
             <span>👁️</span>
-            <span>Aperçu en Direct sur la Page d'Accueil</span>
+            <span>Aperçu Interactif en Direct (Carte Recto / Verso)</span>
           </span>
-          <span className="text-[10px] text-slate-400">Rendu fidèle au slider du site</span>
+          <button
+            type="button"
+            onClick={() => setIsFlippedPreview(!isFlippedPreview)}
+            className="px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>🔄</span>
+            <span>{isFlippedPreview ? "Voir Recto" : "Voir Verso (Flip)"}</span>
+          </button>
         </div>
 
         <div className="flex justify-center p-4 bg-slate-950/50 rounded-xl">
-          <div className="relative w-[280px] h-[400px] md:w-[320px] md:h-[460px] rounded-2xl overflow-hidden shadow-2xl border border-white/20 group p-[1mm] bg-white/10 backdrop-blur-md hover:border-[#48cae4]/60 transition-all duration-500">
-            <div className="relative w-full h-full rounded-[calc(1rem-1mm)] overflow-hidden bg-[#0a1628]">
-              <img
-                src={item.image && !item.image.includes("unsplash.com") ? item.image : "/images/treatments/infiltrations_rachidiennes.jpg"}
-                alt={currentTitle || "Aperçu"}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a1628]/20 to-[#0a1628]/90" />
+          <div className="relative w-[300px] h-[460px] rounded-2xl overflow-hidden shadow-2xl border border-white/20 p-[1mm] bg-white/10 backdrop-blur-md">
+            {!isFlippedPreview ? (
+              // Face Avant
+              <div className="relative w-full h-full rounded-[calc(1rem-1mm)] overflow-hidden bg-[#0a1628]">
+                <img
+                  src={item.image && !item.image.includes("unsplash.com") ? item.image : "/images/treatments/infiltrations_rachidiennes.jpg"}
+                  alt={currentTitle || "Aperçu"}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a1628]/30 to-[#0a1628]/95" />
 
-              <div className="absolute bottom-6 left-6 right-6 z-10">
-                <span className="inline-block py-1 px-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] font-semibold text-[#48cae4] tracking-widest uppercase mb-2">
-                  {currentCategory || (lang === "en" ? "Procedure" : "Geste Thérapeutique")}
-                </span>
-                <h3 className="text-2xl font-bold text-white drop-shadow-md">
-                  {currentTitle || (lang === "en" ? "Clinical Case" : "Cas Clinique")}
-                </h3>
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="px-2.5 py-1 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-[10px] font-bold text-cyan-300">
+                    Recto
+                  </span>
+                </div>
+
+                <div className="absolute bottom-6 left-6 right-6 z-10 space-y-2">
+                  <span className="inline-block py-1 px-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] font-semibold text-[#48cae4] tracking-widest uppercase">
+                    {currentCategory || "Geste Thérapeutique"}
+                  </span>
+                  <h3 className="text-xl font-bold text-white drop-shadow-md">
+                    {currentTitle || "Cas Clinique"}
+                  </h3>
+                  <div className="pt-2">
+                    <span className="text-[11px] text-cyan-300 flex items-center gap-1">
+                      <span>🔗</span>
+                      <span>Lié à : {selectedTreatment.name}</span>
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              // Face Arrière
+              <div className="relative w-full h-full rounded-[calc(1rem-1mm)] p-6 bg-gradient-to-br from-[#10243e] to-[#0c1a2e] flex flex-col justify-between text-white">
+                <div className="space-y-3 overflow-y-auto">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-400/40 text-[10px] font-bold text-emerald-300">
+                      Verso (Détails)
+                    </span>
+                    <span className="text-[10px] text-slate-400">ITID Clinique</span>
+                  </div>
+
+                  <h4 className="text-base font-bold text-white">
+                    {currentTitle || "Cas Clinique"}
+                  </h4>
+
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-slate-300 leading-relaxed max-h-32 overflow-y-auto">
+                    {currentDesc ? (
+                      <div dangerouslySetInnerHTML={{ __html: currentDesc }} />
+                    ) : (
+                      <span className="italic text-slate-500">Aucune description saisie...</span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1 text-[11px]">
+                    <div className="text-slate-400">Traitement appliqué :</div>
+                    <div className="font-bold text-[#48cae4]">{selectedTreatment.name}</div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10">
+                  <div className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] text-center font-bold text-xs shadow-md">
+                    Voir la fiche du traitement →
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 

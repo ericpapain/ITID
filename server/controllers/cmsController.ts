@@ -12,6 +12,11 @@ export interface CasCliniqueItem {
   image: string;
   display_order: number;
   is_active: number;
+  traitement_slug: string;
+  traitement_name?: string;
+  pathologie_slug?: string;
+  short_desc_fr?: string;
+  short_desc_en?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -39,15 +44,100 @@ export function sanitizeCaseImage(img: string | undefined | null, index: number 
   return trimmed;
 }
 
-// Initial seed data for Cas Cliniques
+// Initial seed data for Cas Cliniques avec liaison directe Traitement & Pathologie
 const initialCasCliniques: CasCliniqueItem[] = [
-  { id: 1, title_fr: "Infiltration Lombaire Guidée", title_en: "Guided Lumbar Infiltration", category_fr: "Rachis", category_en: "Spine", image: "/images/treatments/infiltrations_rachidiennes.jpg", display_order: 1, is_active: 1 },
-  { id: 2, title_fr: "Radiofréquence Facettaire", title_en: "Facet Radiofrequency", category_fr: "Arthrose Rachidienne", category_en: "Spinal Osteoarthritis", image: "/images/treatments/radiofrequence.jpg", display_order: 2, is_active: 1 },
-  { id: 3, title_fr: "Prise en charge SDRC", title_en: "CRPS Management", category_fr: "Douleur Complexe", category_en: "Complex Pain", image: "/images/sdrc.jpg", display_order: 3, is_active: 1 },
-  { id: 4, title_fr: "Bloc Anesthésique d'Arnold", title_en: "Arnold Nerve Block", category_fr: "Céphalées", category_en: "Headaches", image: "/images/treatments/blocs_anesthesiques.jpg", display_order: 4, is_active: 1 },
-  { id: 5, title_fr: "HypnoVR en Séance", title_en: "HypnoVR Session", category_fr: "Thérapie Virtuelle", category_en: "Virtual Therapy", image: "/images/treatments/hypnovr.jpg", display_order: 5, is_active: 1 },
-  { id: 6, title_fr: "Traitement Migraine Réfractaire", title_en: "Refractory Migraine Care", category_fr: "Neurologie", category_en: "Neurology", image: "/images/migraine.jpg", display_order: 6, is_active: 1 },
+  {
+    id: 1,
+    title_fr: "Infiltration Lombaire Guidée",
+    title_en: "Guided Lumbar Infiltration",
+    category_fr: "Rachis & Lombalgie",
+    category_en: "Spine & Low Back Pain",
+    image: "/images/treatments/infiltrations_rachidiennes.jpg",
+    display_order: 1,
+    is_active: 1,
+    traitement_slug: "infiltrations-rachidiennes",
+    traitement_name: "Infiltrations Rachidiennes Guidées",
+    pathologie_slug: "lombalgie-chronique",
+    short_desc_fr: "Patient de 52 ans présentant une lombosciatique L5-S1 hyperalgique résistante aux antalgiques majeurs. Infiltration foraminale sous contrôle scopique millimétrique permettant une disparition de la douleur radiculaire à 48h et reprise des activités.",
+    short_desc_en: "52-year-old patient with severe L5-S1 sciatica resistant to conventional analgesics. Image-guided foraminal infiltration resulting in complete radicular pain relief within 48h."
+  },
+  {
+    id: 2,
+    title_fr: "Radiofréquence Facettaire Lombaire",
+    title_en: "Lumbar Facet Radiofrequency",
+    category_fr: "Arthrose Rachidienne",
+    category_en: "Spinal Osteoarthritis",
+    image: "/images/treatments/radiofrequence.jpg",
+    display_order: 2,
+    is_active: 1,
+    traitement_slug: "radiofrequence",
+    traitement_name: "Radiofréquence Pulsée & Thermique",
+    pathologie_slug: "lombalgie-chronique",
+    short_desc_fr: "Patiente de 64 ans avec lombalgie facettaire bilatérale chronique évoluant depuis 4 ans. Dénervation par thermocoagulation ciblée des rameaux médiaux L3-L4-L5 après bloc test anesthésique positif. Gain fonctionnel de 80% à 6 mois.",
+    short_desc_en: "64-year-old patient with chronic bilateral facet lumbar pain. Targeted medial branch thermal neurotomy following positive diagnostic block. 80% functional improvement sustained at 6 months."
+  },
+  {
+    id: 3,
+    title_fr: "Prise en charge Neurostimulative du SDRC",
+    title_en: "CRPS Neuromodulation Management",
+    category_fr: "Douleur Neuropathique Complexe",
+    category_en: "Complex Regional Pain",
+    image: "/images/sdrc.jpg",
+    display_order: 3,
+    is_active: 1,
+    traitement_slug: "stimulation-ganglion-dorsal",
+    traitement_name: "Stimulation du Ganglion Spinal (DRG)",
+    pathologie_slug: "sdrc",
+    short_desc_fr: "Syndrome douloureux régional complexe de type 1 du pied post-traumatique avec allodynie cutanée sévère et œdème. Implantation d'un système de stimulation du ganglion spinal (DRG) L4-L5 permettant le sevrage complet des opioïdes et rééducation active.",
+    short_desc_en: "Post-traumatic foot CRPS Type 1 with severe tactile allodynia and vasomotor changes. Dorsal root ganglion (DRG) stimulation yielding complete opioid cessation and active gait rehabilitation."
+  },
+  {
+    id: 4,
+    title_fr: "Bloc Diagnostique & Thérapeutique d'Arnold",
+    title_en: "Arnold Nerve Diagnostic & Therapeutic Block",
+    category_fr: "Céphalées & Névralgies",
+    category_en: "Headaches & Neuralgias",
+    image: "/images/treatments/blocs_anesthesiques.jpg",
+    display_order: 4,
+    is_active: 1,
+    traitement_slug: "blocs-anesthesiques",
+    traitement_name: "Blocs Anesthésiques Diagnostiques & Thérapeutiques",
+    pathologie_slug: "nevralgie-arnold",
+    short_desc_fr: "Névralgie occipitale unilatérale en coup d'éclair déclenchée par la rotation cervicale. Bloc échoguidé du grand nerf occipital avec anesthésique local et anti-inflammatoire ciblé, confirmant le diagnostic et stoppant les crises.",
+    short_desc_en: "Unilateral occipital paroxysmal electric shock pain. Ultrasound-guided greater occipital nerve block providing definitive diagnostic confirmation and immediate cessation of crises."
+  },
+  {
+    id: 5,
+    title_fr: "Hypnoanalgésie & Réalité Virtuelle en Séance",
+    title_en: "Medical Virtual Reality (HypnoVR) Session",
+    category_fr: "Thérapie Innovante & Gestion Anxiété",
+    category_en: "Virtual Therapy & Anxiety Control",
+    image: "/images/treatments/hypnovr.jpg",
+    display_order: 5,
+    is_active: 1,
+    traitement_slug: "hypnovr",
+    traitement_name: "Réalité Virtuelle Thérapeutique (HypnoVR)",
+    pathologie_slug: "douleurs-neuropathiques",
+    short_desc_fr: "Protocole associant casque immersif 3D et suggestions hypnotiques cliniques lors de gestes interventionnels pour désactiver l'anticipation anxieuse et moduler les voies cortico-limbiques de la douleur.",
+    short_desc_en: "Immersive 3D audio-visual protocol with clinical hypnotherapy suggestions during interventional procedures, reducing procedural anxiety and modulating pain pathways."
+  },
+  {
+    id: 6,
+    title_fr: "Traitement de la Migraine Réfractaire",
+    title_en: "Refractory Chronic Migraine Treatment",
+    category_fr: "Neurologie & Céphalées Chroniques",
+    category_en: "Neurology & Chronic Headaches",
+    image: "/images/migraine.jpg",
+    display_order: 6,
+    is_active: 1,
+    traitement_slug: "toxine-botulique",
+    traitement_name: "Injections de Toxine Botulique",
+    pathologie_slug: "migraines",
+    short_desc_fr: "Migraine chronique évoluant depuis plus de 6 ans, réfractaire aux triptans et bêtabloquants (>18 jours douloureux/mois). Application du protocole PREEMPT par micro-injections péricrâniennes avec diminution de 70% des crises.",
+    short_desc_en: "Chronic migraine persisting for over 6 years (>18 headache days/month). Specialized PREEMPT protocol pericranial botulinum toxin injections reducing monthly crisis frequency by 70%."
+  }
 ];
+
 
 const dataDir = path.resolve(process.cwd(), 'server/data');
 const casCliniquesFilePath = path.join(dataDir, 'cms_cas_cliniques.json');
@@ -285,6 +375,22 @@ export async function getPublicPathologies(req: Request, res: Response) {
         if (rows && rows.length > 0) {
           const item = rows[0];
           item.hero_gallery = typeof item.hero_gallery_json === 'string' ? JSON.parse(item.hero_gallery_json || '[]') : item.hero_gallery_json || [];
+          item.sections = typeof item.sections_json === 'string' ? JSON.parse(item.sections_json || '[]') : item.sections_json || item.sections || [];
+          const matchingTraitements = inMemoryTraitements.filter(t => (t.is_active ?? 1) !== 0 && (
+            (item.traitements_lies && Array.isArray(item.traitements_lies) && item.traitements_lies.includes(t.slug)) ||
+            (t.slug && slug && (
+              (slug === 'lombalgie-chronique' && ['infiltrations-rachidiennes', 'radiofrequence', 'perfusion-lidocaine'].includes(t.slug)) ||
+              (slug === 'nevralgie-arnold' && ['blocs-anesthesiques', 'radiofrequence', 'cryoneurolyse'].includes(t.slug)) ||
+              (slug === 'sdrc' && ['stimulation-ganglion-dorsal', 'perfusion-lidocaine', 'rtms'].includes(t.slug)) ||
+              (slug === 'migraines' && ['toxine-botulique', 'blocs-anesthesiques', 'rtms'].includes(t.slug)) ||
+              (slug === 'douleurs-articulaires' && ['infiltrations-articulaires', 'radiofrequence', 'cryoneurolyse'].includes(t.slug)) ||
+              (slug === 'endometriose' && ['blocs-anesthesiques', 'perfusion-lidocaine', 'hypnovr'].includes(t.slug)) ||
+              (slug === 'fibromyalgie' && ['rtms', 'perfusion-lidocaine', 'hypnovr', 'tens'].includes(t.slug)) ||
+              (slug === 'douleurs-neuropathiques' && ['patch-capsaicine', 'stimulation-ganglion-dorsal', 'catheter-perinerveux'].includes(t.slug)) ||
+              (slug === 'douleurs-post-op' && ['catheter-perinerveux', 'cryoneurolyse', 'perfusion-lidocaine'].includes(t.slug))
+            ))
+          ));
+          item.associated_traitements = matchingTraitements;
           return res.json({ success: true, pathology: item });
         }
       } else {
@@ -292,7 +398,8 @@ export async function getPublicPathologies(req: Request, res: Response) {
         if (rows && rows.length > 0) {
           const items = rows.map((r: any) => ({
             ...r,
-            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || []
+            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || [],
+            sections: typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || r.sections || []
           }));
           return res.json({ success: true, pathologies: items });
         }
@@ -302,7 +409,23 @@ export async function getPublicPathologies(req: Request, res: Response) {
     // Fallback mémoire / disque
     if (slug) {
       const found = inMemoryPathologies.find(p => p.slug === slug);
-      if (found) return res.json({ success: true, pathology: found });
+      if (found) {
+        const matchingTraitements = inMemoryTraitements.filter(t => (t.is_active ?? 1) !== 0 && (
+          (found.traitements_lies && Array.isArray(found.traitements_lies) && found.traitements_lies.includes(t.slug)) ||
+          (t.slug && slug && (
+            (slug === 'lombalgie-chronique' && ['infiltrations-rachidiennes', 'radiofrequence', 'perfusion-lidocaine'].includes(t.slug)) ||
+            (slug === 'nevralgie-arnold' && ['blocs-anesthesiques', 'radiofrequence', 'cryoneurolyse'].includes(t.slug)) ||
+            (slug === 'sdrc' && ['stimulation-ganglion-dorsal', 'perfusion-lidocaine', 'rtms'].includes(t.slug)) ||
+            (slug === 'migraines' && ['toxine-botulique', 'blocs-anesthesiques', 'rtms'].includes(t.slug)) ||
+            (slug === 'douleurs-articulaires' && ['infiltrations-articulaires', 'radiofrequence', 'cryoneurolyse'].includes(t.slug)) ||
+            (slug === 'endometriose' && ['blocs-anesthesiques', 'perfusion-lidocaine', 'hypnovr'].includes(t.slug)) ||
+            (slug === 'fibromyalgie' && ['rtms', 'perfusion-lidocaine', 'hypnovr', 'tens'].includes(t.slug)) ||
+            (slug === 'douleurs-neuropathiques' && ['patch-capsaicine', 'stimulation-ganglion-dorsal', 'catheter-perinerveux'].includes(t.slug)) ||
+            (slug === 'douleurs-post-op' && ['catheter-perinerveux', 'cryoneurolyse', 'perfusion-lidocaine'].includes(t.slug))
+          ))
+        ));
+        return res.json({ success: true, pathology: { ...found, associated_traitements: matchingTraitements } });
+      }
       return res.status(404).json({ success: false, error: 'Pathologie introuvable' });
     }
     return res.json({ success: true, pathologies: inMemoryPathologies });
@@ -320,6 +443,11 @@ export async function getPublicTraitements(req: Request, res: Response) {
         if (rows && rows.length > 0) {
           const item = rows[0];
           item.hero_gallery = typeof item.hero_gallery_json === 'string' ? JSON.parse(item.hero_gallery_json || '[]') : item.hero_gallery_json || [];
+          item.sections = typeof item.sections_json === 'string' ? JSON.parse(item.sections_json || '[]') : item.sections_json || item.sections || [];
+          const matchingCas = inMemoryCasCliniques
+            .filter(c => (c.is_active ?? 1) !== 0 && c.traitement_slug === slug)
+            .map((c, idx) => ({ ...c, image: sanitizeCaseImage(c.image, idx) }));
+          item.associated_cas_cliniques = matchingCas;
           return res.json({ success: true, traitement: item });
         }
       } else {
@@ -327,7 +455,8 @@ export async function getPublicTraitements(req: Request, res: Response) {
         if (rows && rows.length > 0) {
           const items = rows.map((r: any) => ({
             ...r,
-            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || []
+            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || [],
+            sections: typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || r.sections || []
           }));
           return res.json({ success: true, traitements: items });
         }
@@ -336,7 +465,12 @@ export async function getPublicTraitements(req: Request, res: Response) {
 
     if (slug) {
       const found = inMemoryTraitements.find(t => t.slug === slug);
-      if (found) return res.json({ success: true, traitement: found });
+      if (found) {
+        const matchingCas = inMemoryCasCliniques
+          .filter(c => (c.is_active ?? 1) !== 0 && c.traitement_slug === slug)
+          .map((c, idx) => ({ ...c, image: sanitizeCaseImage(c.image, idx) }));
+        return res.json({ success: true, traitement: { ...found, associated_cas_cliniques: matchingCas } });
+      }
       return res.status(404).json({ success: false, error: 'Traitement introuvable' });
     }
     return res.json({ success: true, traitements: inMemoryTraitements });
@@ -412,15 +546,27 @@ export async function handleAdminCms(req: Request, res: Response) {
         category_en: body.category_en || 'Interventional Procedure',
         image: sanitizeCaseImage(body.image, inMemoryCasCliniques.length),
         display_order: parseInt(body.display_order ?? 0, 10),
-        is_active: body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
+        is_active: body.is_active !== undefined ? parseInt(body.is_active, 10) : 1,
+        traitement_slug: body.traitement_slug || 'infiltrations-rachidiennes',
+        traitement_name: body.traitement_name || '',
+        pathologie_slug: body.pathologie_slug || 'lombalgie-chronique',
+        short_desc_fr: body.short_desc_fr || '',
+        short_desc_en: body.short_desc_en || '',
       };
 
       try {
         await executeQuery(
-          'INSERT INTO cms_cas_cliniques (title_fr, title_en, category_fr, category_en, image, display_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [newItem.title_fr, newItem.title_en, newItem.category_fr, newItem.category_en, newItem.image, newItem.display_order, newItem.is_active]
+          'INSERT INTO cms_cas_cliniques (title_fr, title_en, category_fr, category_en, image, display_order, is_active, traitement_slug, pathologie_slug, short_desc_fr, short_desc_en) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [newItem.title_fr, newItem.title_en, newItem.category_fr, newItem.category_en, newItem.image, newItem.display_order, newItem.is_active, newItem.traitement_slug, newItem.pathologie_slug, newItem.short_desc_fr, newItem.short_desc_en]
         );
-      } catch {}
+      } catch {
+        try {
+          await executeQuery(
+            'INSERT INTO cms_cas_cliniques (title_fr, title_en, category_fr, category_en, image, display_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [newItem.title_fr, newItem.title_en, newItem.category_fr, newItem.category_en, newItem.image, newItem.display_order, newItem.is_active]
+          );
+        } catch {}
+      }
       inMemoryCasCliniques.push(newItem);
       saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
       return res.json({ success: true, id: newItem.id, message: 'Cas clinique créé avec succès.' });
@@ -430,10 +576,17 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery(
-          'UPDATE cms_cas_cliniques SET title_fr = ?, title_en = ?, category_fr = ?, category_en = ?, image = ?, display_order = ?, is_active = ? WHERE id = ?',
-          [body.title_fr, body.title_en, body.category_fr, body.category_en, body.image, body.display_order, body.is_active, id]
+          'UPDATE cms_cas_cliniques SET title_fr = ?, title_en = ?, category_fr = ?, category_en = ?, image = ?, display_order = ?, is_active = ?, traitement_slug = ?, pathologie_slug = ?, short_desc_fr = ?, short_desc_en = ? WHERE id = ?',
+          [body.title_fr, body.title_en, body.category_fr, body.category_en, body.image, body.display_order, body.is_active, body.traitement_slug || 'infiltrations-rachidiennes', body.pathologie_slug || 'lombalgie-chronique', body.short_desc_fr || '', body.short_desc_en || '', id]
         );
-      } catch {}
+      } catch {
+        try {
+          await executeQuery(
+            'UPDATE cms_cas_cliniques SET title_fr = ?, title_en = ?, category_fr = ?, category_en = ?, image = ?, display_order = ?, is_active = ? WHERE id = ?',
+            [body.title_fr, body.title_en, body.category_fr, body.category_en, body.image, body.display_order, body.is_active, id]
+          );
+        } catch {}
+      }
       const idx = inMemoryCasCliniques.findIndex(c => c.id === id);
       if (idx !== -1) {
         inMemoryCasCliniques[idx] = { ...inMemoryCasCliniques[idx], ...body, id };
@@ -453,6 +606,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     }
   }
 
+
   // 2. PATHOLOGIES
   if (type === 'pathologies') {
     if (method === 'GET') {
@@ -461,7 +615,8 @@ export async function handleAdminCms(req: Request, res: Response) {
         if (rows && rows.length > 0) {
           const items = rows.map((r: any) => ({
             ...r,
-            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || []
+            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || [],
+            sections: typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || r.sections || []
           }));
           return res.json({ success: true, items });
         }
@@ -472,6 +627,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'POST') {
       const slug = body.slug || `pathologie-${Date.now()}`;
       const heroGalleryJson = JSON.stringify(body.hero_gallery || []);
+      const sectionsJson = JSON.stringify(body.sections || []);
       const newId = Date.now();
       try {
         await executeQuery(
@@ -481,8 +637,8 @@ export async function handleAdminCms(req: Request, res: Response) {
             section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
             section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
             section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
-            wikipedia_url, display_order, is_active
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            wikipedia_url, display_order, is_active, sections_json
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             slug, body.title_fr, body.title_en, body.icon || '🩺', body.color || '#48d1c2',
             body.short_desc_fr || '', body.short_desc_en || '', body.card_image || '/images/lombalgie.jpg', heroGalleryJson,
@@ -490,11 +646,34 @@ export async function handleAdminCms(req: Request, res: Response) {
             body.section2_title_fr || '', body.section2_title_en || '', body.section2_text_fr || '', body.section2_text_en || '', body.section2_image || '',
             body.section3_title_fr || '', body.section3_title_en || '', body.section3_text_fr || '', body.section3_text_en || '', body.section3_image || '',
             body.section4_title_fr || '', body.section4_title_en || '', body.section4_text_fr || '', body.section4_text_en || '', body.section4_image || '',
-            body.wikipedia_url || '', parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
+            body.wikipedia_url || '', parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1,
+            sectionsJson
           ]
         );
-      } catch {}
-      inMemoryPathologies.push({ ...body, id: newId, slug });
+      } catch {
+        try {
+          await executeQuery(
+            `INSERT INTO cms_pathologies (
+              slug, title_fr, title_en, icon, color, short_desc_fr, short_desc_en, card_image, hero_gallery_json,
+              section1_title_fr, section1_title_en, section1_text_fr, section1_text_en, section1_image,
+              section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
+              section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
+              section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
+              wikipedia_url, display_order, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              slug, body.title_fr, body.title_en, body.icon || '🩺', body.color || '#48d1c2',
+              body.short_desc_fr || '', body.short_desc_en || '', body.card_image || '/images/lombalgie.jpg', heroGalleryJson,
+              body.section1_title_fr || '', body.section1_title_en || '', body.section1_text_fr || '', body.section1_text_en || '', body.section1_image || '',
+              body.section2_title_fr || '', body.section2_title_en || '', body.section2_text_fr || '', body.section2_text_en || '', body.section2_image || '',
+              body.section3_title_fr || '', body.section3_title_en || '', body.section3_text_fr || '', body.section3_text_en || '', body.section3_image || '',
+              body.section4_title_fr || '', body.section4_title_en || '', body.section4_text_fr || '', body.section4_text_en || '', body.section4_image || '',
+              body.wikipedia_url || '', parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
+            ]
+          );
+        } catch {}
+      }
+      inMemoryPathologies.push({ ...body, id: newId, slug, sections: body.sections || [] });
       saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
       return res.json({ success: true, id: newId, message: 'Pathologie créée avec succès.' });
     }
@@ -502,6 +681,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'PUT') {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       const heroGalleryJson = JSON.stringify(body.hero_gallery || []);
+      const sectionsJson = JSON.stringify(body.sections || []);
       try {
         await executeQuery(
           `UPDATE cms_pathologies SET
@@ -510,7 +690,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             section2_title_fr = ?, section2_title_en = ?, section2_text_fr = ?, section2_text_en = ?, section2_image = ?,
             section3_title_fr = ?, section3_title_en = ?, section3_text_fr = ?, section3_text_en = ?, section3_image = ?,
             section4_title_fr = ?, section4_title_en = ?, section4_text_fr = ?, section4_text_en = ?, section4_image = ?,
-            wikipedia_url = ?, display_order = ?, is_active = ?
+            wikipedia_url = ?, display_order = ?, is_active = ?, sections_json = ?
           WHERE id = ?`,
           [
             body.slug, body.title_fr, body.title_en, body.icon, body.color,
@@ -519,13 +699,35 @@ export async function handleAdminCms(req: Request, res: Response) {
             body.section2_title_fr, body.section2_title_en, body.section2_text_fr, body.section2_text_en, body.section2_image,
             body.section3_title_fr, body.section3_title_en, body.section3_text_fr, body.section3_text_en, body.section3_image,
             body.section4_title_fr, body.section4_title_en, body.section4_text_fr, body.section4_text_en, body.section4_image,
-            body.wikipedia_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
+            body.wikipedia_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), sectionsJson, id
           ]
         );
-      } catch {}
+      } catch {
+        try {
+          await executeQuery(
+            `UPDATE cms_pathologies SET
+              slug = ?, title_fr = ?, title_en = ?, icon = ?, color = ?, short_desc_fr = ?, short_desc_en = ?, card_image = ?, hero_gallery_json = ?,
+              section1_title_fr = ?, section1_title_en = ?, section1_text_fr = ?, section1_text_en = ?, section1_image = ?,
+              section2_title_fr = ?, section2_title_en = ?, section2_text_fr = ?, section2_text_en = ?, section2_image = ?,
+              section3_title_fr = ?, section3_title_en = ?, section3_text_fr = ?, section3_text_en = ?, section3_image = ?,
+              section4_title_fr = ?, section4_title_en = ?, section4_text_fr = ?, section4_text_en = ?, section4_image = ?,
+              wikipedia_url = ?, display_order = ?, is_active = ?
+            WHERE id = ?`,
+            [
+              body.slug, body.title_fr, body.title_en, body.icon, body.color,
+              body.short_desc_fr, body.short_desc_en, body.card_image, heroGalleryJson,
+              body.section1_title_fr, body.section1_title_en, body.section1_text_fr, body.section1_text_en, body.section1_image,
+              body.section2_title_fr, body.section2_title_en, body.section2_text_fr, body.section2_text_en, body.section2_image,
+              body.section3_title_fr, body.section3_title_en, body.section3_text_fr, body.section3_text_en, body.section3_image,
+              body.section4_title_fr, body.section4_title_en, body.section4_text_fr, body.section4_text_en, body.section4_image,
+              body.wikipedia_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
+            ]
+          );
+        } catch {}
+      }
       const idx = inMemoryPathologies.findIndex(p => p.id === id);
       if (idx !== -1) {
-        inMemoryPathologies[idx] = { ...inMemoryPathologies[idx], ...body, id };
+        inMemoryPathologies[idx] = { ...inMemoryPathologies[idx], ...body, id, sections: body.sections || inMemoryPathologies[idx].sections || [] };
         saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
       }
       return res.json({ success: true, message: 'Pathologie mise à jour avec succès.' });
@@ -550,7 +752,8 @@ export async function handleAdminCms(req: Request, res: Response) {
         if (rows && rows.length > 0) {
           const items = rows.map((r: any) => ({
             ...r,
-            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || []
+            hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || [],
+            sections: typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || r.sections || []
           }));
           return res.json({ success: true, items });
         }
@@ -561,6 +764,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'POST') {
       const slug = body.slug || `traitement-${Date.now()}`;
       const heroGalleryJson = JSON.stringify(body.hero_gallery || []);
+      const sectionsJson = JSON.stringify(body.sections || []);
       const newId = Date.now();
       try {
         await executeQuery(
@@ -571,8 +775,8 @@ export async function handleAdminCms(req: Request, res: Response) {
             section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
             section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
             section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
-            cta_text_fr, cta_text_en, cta_url, display_order, is_active
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            cta_text_fr, cta_text_en, cta_url, display_order, is_active, sections_json
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             slug, body.num || '01', body.icon || '💉', body.title_fr, body.title_en,
             body.desc_front_fr || '', body.desc_front_en || '', body.desc_back_fr || '', body.desc_back_en || '',
@@ -582,11 +786,37 @@ export async function handleAdminCms(req: Request, res: Response) {
             body.section3_title_fr || '', body.section3_title_en || '', body.section3_text_fr || '', body.section3_text_en || '', body.section3_image || '',
             body.section4_title_fr || '', body.section4_title_en || '', body.section4_text_fr || '', body.section4_text_en || '', body.section4_image || '',
             body.cta_text_fr || 'Prendre rendez-vous', body.cta_text_en || 'Book Appointment', body.cta_url || '#contact',
-            parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
+            parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1,
+            sectionsJson
           ]
         );
-      } catch {}
-      inMemoryTraitements.push({ ...body, id: newId, slug });
+      } catch {
+        try {
+          await executeQuery(
+            `INSERT INTO cms_traitements (
+              slug, num, icon, title_fr, title_en, desc_front_fr, desc_front_en, desc_back_fr, desc_back_en,
+              card_image, hero_gallery_json,
+              section1_title_fr, section1_title_en, section1_text_fr, section1_text_en, section1_image,
+              section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
+              section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
+              section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
+              cta_text_fr, cta_text_en, cta_url, display_order, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              slug, body.num || '01', body.icon || '💉', body.title_fr, body.title_en,
+              body.desc_front_fr || '', body.desc_front_en || '', body.desc_back_fr || '', body.desc_back_en || '',
+              body.card_image || '/images/treatments/infiltrations_rachidiennes.jpg', heroGalleryJson,
+              body.section1_title_fr || '', body.section1_title_en || '', body.section1_text_fr || '', body.section1_text_en || '', body.section1_image || '',
+              body.section2_title_fr || '', body.section2_title_en || '', body.section2_text_fr || '', body.section2_text_en || '', body.section2_image || '',
+              body.section3_title_fr || '', body.section3_title_en || '', body.section3_text_fr || '', body.section3_text_en || '', body.section3_image || '',
+              body.section4_title_fr || '', body.section4_title_en || '', body.section4_text_fr || '', body.section4_text_en || '', body.section4_image || '',
+              body.cta_text_fr || 'Prendre rendez-vous', body.cta_text_en || 'Book Appointment', body.cta_url || '#contact',
+              parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
+            ]
+          );
+        } catch {}
+      }
+      inMemoryTraitements.push({ ...body, id: newId, slug, sections: body.sections || [] });
       saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
       return res.json({ success: true, id: newId, message: 'Traitement créé avec succès.' });
     }
@@ -594,6 +824,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'PUT') {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       const heroGalleryJson = JSON.stringify(body.hero_gallery || []);
+      const sectionsJson = JSON.stringify(body.sections || []);
       try {
         await executeQuery(
           `UPDATE cms_traitements SET
@@ -603,7 +834,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             section2_title_fr = ?, section2_title_en = ?, section2_text_fr = ?, section2_text_en = ?, section2_image = ?,
             section3_title_fr = ?, section3_title_en = ?, section3_text_fr = ?, section3_text_en = ?, section3_image = ?,
             section4_title_fr = ?, section4_title_en = ?, section4_text_fr = ?, section4_text_en = ?, section4_image = ?,
-            cta_text_fr = ?, cta_text_en = ?, cta_url = ?, display_order = ?, is_active = ?
+            cta_text_fr = ?, cta_text_en = ?, cta_url = ?, display_order = ?, is_active = ?, sections_json = ?
           WHERE id = ?`,
           [
             body.slug, body.num, body.icon, body.title_fr, body.title_en,
@@ -613,13 +844,37 @@ export async function handleAdminCms(req: Request, res: Response) {
             body.section2_title_fr, body.section2_title_en, body.section2_text_fr, body.section2_text_en, body.section2_image,
             body.section3_title_fr, body.section3_title_en, body.section3_text_fr, body.section3_text_en, body.section3_image,
             body.section4_title_fr, body.section4_title_en, body.section4_text_fr, body.section4_text_en, body.section4_image,
-            body.cta_text_fr, body.cta_text_en, body.cta_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
+            body.cta_text_fr, body.cta_text_en, body.cta_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), sectionsJson, id
           ]
         );
-      } catch {}
+      } catch {
+        try {
+          await executeQuery(
+            `UPDATE cms_traitements SET
+              slug = ?, num = ?, icon = ?, title_fr = ?, title_en = ?, desc_front_fr = ?, desc_front_en = ?, desc_back_fr = ?, desc_back_en = ?,
+              card_image = ?, hero_gallery_json = ?,
+              section1_title_fr = ?, section1_title_en = ?, section1_text_fr = ?, section1_text_en = ?, section1_image = ?,
+              section2_title_fr = ?, section2_title_en = ?, section2_text_fr = ?, section2_text_en = ?, section2_image = ?,
+              section3_title_fr = ?, section3_title_en = ?, section3_text_fr = ?, section3_text_en = ?, section3_image = ?,
+              section4_title_fr = ?, section4_title_en = ?, section4_text_fr = ?, section4_text_en = ?, section4_image = ?,
+              cta_text_fr = ?, cta_text_en = ?, cta_url = ?, display_order = ?, is_active = ?
+            WHERE id = ?`,
+            [
+              body.slug, body.num, body.icon, body.title_fr, body.title_en,
+              body.desc_front_fr, body.desc_front_en, body.desc_back_fr, body.desc_back_en,
+              body.card_image, heroGalleryJson,
+              body.section1_title_fr, body.section1_title_en, body.section1_text_fr, body.section1_text_en, body.section1_image,
+              body.section2_title_fr, body.section2_title_en, body.section2_text_fr, body.section2_text_en, body.section2_image,
+              body.section3_title_fr, body.section3_title_en, body.section3_text_fr, body.section3_text_en, body.section3_image,
+              body.section4_title_fr, body.section4_title_en, body.section4_text_fr, body.section4_text_en, body.section4_image,
+              body.cta_text_fr, body.cta_text_en, body.cta_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
+            ]
+          );
+        } catch {}
+      }
       const idx = inMemoryTraitements.findIndex(t => t.id === id);
       if (idx !== -1) {
-        inMemoryTraitements[idx] = { ...inMemoryTraitements[idx], ...body, id };
+        inMemoryTraitements[idx] = { ...inMemoryTraitements[idx], ...body, id, sections: body.sections || inMemoryTraitements[idx].sections || [] };
         saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
       }
       return res.json({ success: true, message: 'Traitement mis à jour avec succès.' });
@@ -784,6 +1039,84 @@ export async function handleAdminCms(req: Request, res: Response) {
       saveJsonToDisk(pagesFilePath, inMemoryPages);
       return res.json({ success: true, message: 'Page enregistrée avec succès.' });
     }
+  }
+
+  // 6. BACKUP & RESTORE CMS
+  if (type === 'backup') {
+    const action = (req.query.action as string) || 'export';
+
+    if (action === 'export') {
+      const backupPayload = {
+        export_version: '1.0',
+        exported_at: new Date().toISOString(),
+        source: 'ITID France CMS',
+        counts: {
+          pages: Object.keys(inMemoryPages).length,
+          articles: inMemoryArticles.length,
+          cas_cliniques: inMemoryCasCliniques.length,
+          pathologies: inMemoryPathologies.length,
+          traitements: inMemoryTraitements.length
+        },
+        data: {
+          pages: inMemoryPages,
+          articles: inMemoryArticles,
+          cas_cliniques: inMemoryCasCliniques,
+          pathologies: inMemoryPathologies,
+          traitements: inMemoryTraitements
+        }
+      };
+
+      if (req.query.download === '1') {
+        const filename = `itid_cms_backup_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`;
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        return res.send(JSON.stringify(backupPayload, null, 2));
+      }
+
+      return res.json({ success: true, backup: backupPayload });
+    }
+
+    if (action === 'restore' && method === 'POST') {
+      const data = body.data || body;
+      if (!data) {
+        return res.status(400).json({ success: false, error: 'Données de sauvegarde invalides.' });
+      }
+
+      if (data.pages && typeof data.pages === 'object') {
+        inMemoryPages = data.pages;
+        saveJsonToDisk(pagesFilePath, inMemoryPages);
+      }
+      if (Array.isArray(data.articles)) {
+        inMemoryArticles = data.articles;
+        saveJsonToDisk(articlesFilePath, inMemoryArticles);
+      }
+      if (Array.isArray(data.cas_cliniques)) {
+        inMemoryCasCliniques = data.cas_cliniques;
+        saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
+      }
+      if (Array.isArray(data.pathologies)) {
+        inMemoryPathologies = data.pathologies;
+        saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
+      }
+      if (Array.isArray(data.traitements)) {
+        inMemoryTraitements = data.traitements;
+        saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
+      }
+
+      return res.json({
+        success: true,
+        message: 'Restauration complète du CMS effectuée avec succès !',
+        counts: {
+          pages: Object.keys(inMemoryPages).length,
+          articles: inMemoryArticles.length,
+          cas_cliniques: inMemoryCasCliniques.length,
+          pathologies: inMemoryPathologies.length,
+          traitements: inMemoryTraitements.length
+        }
+      });
+    }
+
+    return res.status(400).json({ success: false, error: 'Action backup inconnue' });
   }
 
   return res.status(400).json({ success: false, error: `Type non supporté : ${type}` });

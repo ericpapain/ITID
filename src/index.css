@@ -141,3 +141,194 @@ body {
   box-shadow: 0 20px 45px -10px rgba(42, 157, 143, 0.4), 0 0 30px rgba(72, 209, 194, 0.35) !important;
   border-color: rgba(72, 209, 194, 0.6) !important;
 }
+
+/* ====================================================================== */
+/* Styles riches pour le CMS (Tableaux, Liens internes, Typographie)      */
+/* ====================================================================== */
+.rich-content-container {
+  line-height: 1.75;
+  color: inherit;
+}
+
+.rich-content-container p {
+  margin-bottom: 1rem;
+}
+
+.rich-content-container h1,
+.rich-content-container h2,
+.rich-content-container h3,
+.rich-content-container h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.rich-content-container h1 { font-size: 2rem; }
+.rich-content-container h2 { font-size: 1.5rem; color: #48cae4; }
+.rich-content-container h3 { font-size: 1.25rem; color: #3bb5a6; }
+
+.rich-content-container a,
+.rich-content-container [data-internal="true"] {
+  color: #48cae4;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.rich-content-container a:hover,
+.rich-content-container [data-internal="true"]:hover {
+  color: #3bb5a6;
+  text-shadow: 0 0 10px rgba(72, 202, 228, 0.5);
+}
+
+.rich-content-container blockquote {
+  border-left: 4px solid #2a9d8f;
+  background: rgba(42, 157, 143, 0.08);
+  padding: 0.75rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 0.75rem 0.75rem 0;
+  font-style: italic;
+  color: #e2e8f0;
+}
+
+.rich-content-container ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.rich-content-container ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.rich-content-container li {
+  margin-bottom: 0.35rem;
+}
+
+/* Tableaux Responsives & Élégants */
+.rich-content-container .table-responsive-wrapper,
+.rich-content-container table {
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.rich-content-container .table-responsive-wrapper {
+  overflow-x: auto;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(10, 22, 40, 0.75);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.rich-content-container table {
+  border-collapse: collapse;
+  min-width: 500px;
+  text-align: left;
+  font-size: 0.925rem;
+}
+
+.rich-content-container th {
+  background: linear-gradient(135deg, rgba(42, 157, 143, 0.25), rgba(72, 202, 228, 0.2));
+  color: #48cae4;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.rich-content-container td {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.rich-content-container tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rich-content-container tr:hover td {
+  background: rgba(72, 202, 228, 0.08);
+}
+
+/* ====================================================================== */
+/* Mode Thème Clair pour la Lecture Médicale (.rich-content-light)        */
+/* ====================================================================== */
+.rich-content-light {
+  color: #334155;
+  line-height: 1.8;
+}
+
+.rich-content-light .rich-content-container {
+  color: #334155;
+}
+
+.rich-content-light h1,
+.rich-content-light h2,
+.rich-content-light h3,
+.rich-content-light h4,
+.rich-content-light .rich-content-container h1,
+.rich-content-light .rich-content-container h2,
+.rich-content-light .rich-content-container h3,
+.rich-content-light .rich-content-container h4 {
+  color: #0c1a2e !important;
+}
+
+.rich-content-light .rich-content-container h2 {
+  color: #1b7a90 !important;
+}
+
+.rich-content-light .rich-content-container h3 {
+  color: #0d9488 !important;
+}
+
+.rich-content-light a,
+.rich-content-light [data-internal="true"] {
+  color: #0284c7 !important;
+}
+
+.rich-content-light a:hover,
+.rich-content-light [data-internal="true"]:hover {
+  color: #0f766e !important;
+  text-shadow: none;
+}
+
+.rich-content-light blockquote {
+  border-left: 4px solid #2a9d8f;
+  background: rgba(42, 157, 143, 0.06);
+  color: #1e293b !important;
+}
+
+.rich-content-light .table-responsive-wrapper {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+.rich-content-light th {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+.rich-content-light td {
+  border-color: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+.rich-content-light tr:nth-child(even) td {
+  background: #f8fafc !important;
+}
+
+.rich-content-light tr:hover td {
+  background: rgba(42, 157, 143, 0.08) !important;
+}
+

@@ -241,19 +241,18 @@ export function PathologiesPremium() {
 
             {/* Pied de carte avec bouton vers la fiche détaillée */}
             <div className="mt-3 pt-3 border-t border-white/10">
-              <button
-                type="button"
+              <Link
+                to={`/pathologies/${item.slug || 'lombalgie-chronique'}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/pathologies/${item.slug || 'lombalgie-chronique'}`);
                 }}
-                className="flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer"
+                className="flex w-full items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-md hover:brightness-110 transition-all group cursor-pointer"
               >
-                <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
+                <div className="flex items-center text-[#0c1a2e] font-bold group-hover:translate-x-1 transition-transform">
                   {t("common.readFullFile", "Lire la fiche détaillée")}
                   <ArrowRight size={14} className="ml-1" />
                 </div>
-              </button>
+              </Link>
             </div>
           </motion.article>
         ))}

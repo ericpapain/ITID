@@ -63,9 +63,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n======================================================`);
-  console.log(`🚀 Serveur ITID France démarré sur http://localhost:${PORT}`);
+  console.log(`🚀 Serveur ITID France démarré sur http://localhost:${PORT} (127.0.0.1:${PORT})`);
   console.log(`Mode : ${process.env.NODE_ENV || 'development'}`);
   console.log(`======================================================\n`);
 
@@ -76,4 +76,22 @@ app.listen(PORT, '0.0.0.0', async () => {
   } else {
     console.log(`[Base de données] ⚠️ ${dbStatus.message}`);
   }
+});
+
+server.on('error', (err: any) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n[Serveur] ⚠️ Le port ${PORT} est déjà utilisé par un autre processus (ex: ancienne session Node).`);
+    console.error(`[Serveur] 👉 Pour libérer le port sous Windows : npx kill-port ${PORT} 5173 ou fermez les fenêtres de terminal actives.\n`);
+    process.exit(1);
+  } else {
+    console.error('[Serveur] ❌ Erreur au démarrage :', err);
+    process.exit(1);
+  }
+});
+
+process.on('SIGTERM', () => {
+  server.close(() => process.exit(0));
+});
+process.on('SIGINT', () => {
+  server.close(() => process.exit(0));
 });

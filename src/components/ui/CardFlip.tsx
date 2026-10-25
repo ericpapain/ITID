@@ -12,22 +12,27 @@ export function Face({
   children,
   back = false,
   className,
+  active = false,
 }: {
   children: React.ReactNode;
   back?: boolean;
   className?: string;
+  active?: boolean;
 }) {
+  const isFacing = back ? active : !active;
+
   return (
     <div
       style={{
         backfaceVisibility: "hidden",
         WebkitBackfaceVisibility: "hidden",
-        transform: back ? "rotateY(180deg)" : undefined,
+        transform: back ? "rotateY(180deg) translateZ(1px)" : "translateZ(1px)",
       }}
       className={cn(
         "absolute inset-0 flex flex-col overflow-hidden rounded-[26px] border border-white/10",
-        back ? "bg-gradient-to-br from-[#2a5080] to-[#1a3a5c]" : "bg-[#0c1a2e]",
+        back ? "bg-gradient-to-br from-[#10243e] via-[#0d1c31] to-[#071322]" : "bg-[#0c1a2e]",
         "shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_20px_50px_-24px_rgba(0,0,0,0.9)]",
+        isFacing ? "pointer-events-auto z-20" : "pointer-events-none z-0",
         className
       )}
     >
@@ -56,7 +61,9 @@ export function Face({
           repeatDelay: 1.6,
         }}
       />
-      <div className="relative z-10 flex h-full flex-col p-6">{children}</div>
+      <div className={cn("relative flex h-full flex-col p-6", isFacing ? "z-30 pointer-events-auto" : "z-0 pointer-events-none")}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -137,8 +144,8 @@ export function CardFlip({
           animate={{ rotateY: active ? 180 : 0 }}
           transition={{ duration: 0.85, ease: EASE }}
         >
-          <Face>{front}</Face>
-          <Face back>{back}</Face>
+          <Face active={active}>{front}</Face>
+          <Face back active={active}>{back}</Face>
         </motion.div>
       </motion.div>
     </div>
