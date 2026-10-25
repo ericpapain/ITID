@@ -591,18 +591,6 @@
         "s4_1": "Do not use with a pacemaker (unless strict cardiology advice)",
         "s4_2": "Change electrodes as soon as they no longer stick well to avoid burns"
       }
-    },
-    "realite-virtuelle-analgesie": {
-      "title": "Virtual Reality Analgesia: The Future is Here",
-      "summary": "How immersion in computer-generated soothing universes manages to decrease the pain felt during our care.",
-      "authorRole": "Neurosurgeon / Algologist",
-      "readTime": "4 min",
-      "sections": {
-        "s0": "Pain is largely a cerebral experience. By saturating the brain's attention capabilities with an immersive visual and auditory environment, virtual reality acts as a powerful analgesic.",
-        "s1": "Use at ITID",
-        "s2": "We use therapeutic virtual reality headsets during potentially anxiety-provoking procedures (infiltrations, IV placement, radiofrequency). Patients choose their universe (beach, mountain, seabed).",
-        "s3": "It's impressive: some patients under virtual reality have a heart rate that decreases during care, instead of increasing."
-      }
     }
   },
   "carousel": {
