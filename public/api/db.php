@@ -863,6 +863,18 @@ function seedAdminUserIfEmpty(PDO $pdo): void {
 
 function seedCmsIfEmptySafe(PDO $pdo): void {
     try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS cms_system_flags (
+            flag_key VARCHAR(100) PRIMARY KEY,
+            flag_value VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $checkStmt = $pdo->prepare("SELECT flag_value FROM cms_system_flags WHERE flag_key = 'cms_initial_seeded' LIMIT 1");
+        $checkStmt->execute();
+        if ($checkStmt->fetchColumn()) {
+            return; // Déjà initialisé au préalable, ne jamais réinjecter les données supprimées par l'administrateur
+        }
+
         if (!function_exists('seedCmsIfEmpty')) {
             $seedFile = __DIR__ . '/admin/seed_cms.php';
             if (file_exists($seedFile)) {
@@ -871,6 +883,9 @@ function seedCmsIfEmptySafe(PDO $pdo): void {
         }
         if (function_exists('seedCmsIfEmpty')) {
             seedCmsIfEmpty($pdo);
+            try {
+                $pdo->exec("INSERT INTO cms_system_flags (flag_key, flag_value) VALUES ('cms_initial_seeded', '1')");
+            } catch (Throwable $e) {}
         }
     } catch (Throwable $t) {
         error_log("seedCmsIfEmptySafe error: " . $t->getMessage());

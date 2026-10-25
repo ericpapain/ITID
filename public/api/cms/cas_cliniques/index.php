@@ -23,13 +23,7 @@ try {
     $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques WHERE is_active = 1 ORDER BY display_order ASC, id ASC");
     $items = $stmt->fetchAll();
 
-    if (empty($items)) {
-        if (function_exists('seedCmsIfEmpty')) {
-            seedCmsIfEmpty($pdo);
-            $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques WHERE is_active = 1 ORDER BY display_order ASC, id ASC");
-            $items = $stmt->fetchAll();
-        }
-    } else {
+    if (!empty($items)) {
         if (function_exists('cleanupLegacyUnsplashCasCliniques')) {
             cleanupLegacyUnsplashCasCliniques($pdo);
         }

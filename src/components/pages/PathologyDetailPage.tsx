@@ -19,11 +19,17 @@ export function PathologyDetailPage() {
 
     async function loadPathology() {
       try {
-        const res = await fetch(`/api/cms/pathologies?slug=${slug}`);
+        const res = await fetch(`/api/cms/pathologies?slug=${encodeURIComponent(slug || "")}`);
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.pathology) {
-            setData(json.pathology);
+            const p = json.pathology;
+            if (!p.sections && p.sections_json) {
+              try {
+                p.sections = typeof p.sections_json === "string" ? JSON.parse(p.sections_json) : p.sections_json;
+              } catch {}
+            }
+            setData(p);
             setLoading(false);
             return;
           }
@@ -31,6 +37,34 @@ export function PathologyDetailPage() {
       } catch (err) {
         console.warn("Fallback on local pathology data", err);
       }
+
+      // Si recherche directe échoue, vérifier dans la liste globale du CMS
+      try {
+        const listRes = await fetch("/api/cms/pathologies");
+        if (listRes.ok) {
+          const listJson = await listRes.json();
+          const items = listJson.pathologies || listJson.items || [];
+          if (Array.isArray(items) && items.length > 0) {
+            const cleanSlug = (slug || "").toLowerCase().trim();
+            const foundInList = items.find((p: any) => {
+              const pSlug = (p.slug || "").toLowerCase().trim();
+              return pSlug === cleanSlug ||
+                (pSlug && (pSlug.includes(cleanSlug) || cleanSlug.includes(pSlug))) ||
+                (p.title_fr && p.title_fr.toLowerCase().includes(cleanSlug.replace(/-/g, " ")));
+            });
+            if (foundInList) {
+              if (!foundInList.sections && foundInList.sections_json) {
+                try {
+                  foundInList.sections = typeof foundInList.sections_json === "string" ? JSON.parse(foundInList.sections_json) : foundInList.sections_json;
+                } catch {}
+              }
+              setData(foundInList);
+              setLoading(false);
+              return;
+            }
+          }
+        }
+      } catch {}
 
       // Fallback local data if API not responding
       const cleanSlug = (slug || "").toLowerCase().trim();
@@ -124,8 +158,12 @@ export function PathologyDetailPage() {
   const legacyS4Title = lang === "en" ? (data.section4_title_en || data.section4_title_fr) : data.section4_title_fr;
   const legacyS4Text = lang === "en" ? (data.section4_text_en || data.section4_text_fr) : data.section4_text_fr;
 
-  const dynamicSections: any[] = (Array.isArray(data.sections) && data.sections.length > 0)
+  const parsedSections = (Array.isArray(data.sections) && data.sections.length > 0)
     ? data.sections
+    : (data.sections_json ? (typeof data.sections_json === "string" ? (JSON.parse(data.sections_json) || []) : data.sections_json) : []);
+
+  const dynamicSections: any[] = (Array.isArray(parsedSections) && parsedSections.length > 0)
+    ? parsedSections
     : [
         (legacyS1Title || legacyS1Text) && {
           title_fr: data.section1_title_fr,
@@ -296,7 +334,7 @@ export function PathologyDetailPage() {
                 className="bg-white rounded-2xl p-5 sm:p-6 md:p-7 border border-slate-200/80 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)]"
               >
                 {secPos === "none" ? (
-                  <div className="max-w-4xl mx-auto space-y-2.5 sm:space-y-3">
+                  <div className="w-full space-y-2.5 sm:space-y-3">
                     <div className={`inline-flex items-center gap-2 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${style.color}`}>
                       <span>{secNum}</span>
                       <span>{secTag}</span>

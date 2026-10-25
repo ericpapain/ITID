@@ -473,6 +473,7 @@ export default function AdminPagesEditor() {
           {currentSection === "pathologies" && (
             <MasterDetailEditor
               title="Fiches Pathologies"
+              currentSection="pathologies"
               items={itemsList}
               selectedItem={selectedItem}
               onSelect={setSelectedItem}
@@ -491,6 +492,7 @@ export default function AdminPagesEditor() {
           {currentSection === "traitements" && (
             <MasterDetailEditor
               title="Gestes Interventionnels & Traitements"
+              currentSection="traitements"
               items={itemsList}
               selectedItem={selectedItem}
               onSelect={setSelectedItem}
@@ -509,6 +511,7 @@ export default function AdminPagesEditor() {
           {currentSection === "articles" && (
             <MasterDetailEditor
               title="Articles Médicaux & Actualités"
+              currentSection="articles"
               items={itemsList}
               selectedItem={selectedItem}
               onSelect={setSelectedItem}
@@ -540,6 +543,7 @@ export default function AdminPagesEditor() {
           {currentSection === "cas_cliniques" && (
             <MasterDetailEditor
               title="Cas Cliniques (Slider Page d'Accueil)"
+              currentSection="cas_cliniques"
               items={itemsList}
               selectedItem={selectedItem}
               onSelect={setSelectedItem}
@@ -589,10 +593,19 @@ export default function AdminPagesEditor() {
   );
 }
 
+function slugify(text: string): string {
+  return (text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 // ======================================================================
 // COMPOSANT MASTER-DETAIL GÉNÉRIQUE (LISTE GAUCHE / FORMULAIRE DROITE)
 // ======================================================================
-function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, onDelete, onSave, saving, lang, renderForm }: any) {
+function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, onDelete, onSave, saving, lang, renderForm, currentSection }: any) {
   const [formData, setFormData] = useState<any>(selectedItem || {});
 
   useEffect(() => {
@@ -602,6 +615,14 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
   const handleChange = (updatedFields: any) => {
     setFormData((prev: any) => ({ ...prev, ...updatedFields }));
   };
+
+  const publicLink = (() => {
+    if (!formData || !formData.slug) return null;
+    if (currentSection === "pathologies") return `/pathologies/${formData.slug}`;
+    if (currentSection === "traitements") return `/traitements/${formData.slug}`;
+    if (currentSection === "articles") return `/actualites/${formData.slug}`;
+    return null;
+  })();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -713,19 +734,44 @@ function MasterDetailEditor({ title, items, selectedItem, onSelect, onAddNew, on
                 </h2>
               </div>
 
-              <button
-                type="button"
-                onClick={() => onSave(formData)}
-                disabled={saving}
-                className="px-6 py-2.5 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer les modifications</span>}
-              </button>
+              <div className="flex items-center gap-2">
+                {publicLink && (
+                  <a
+                    href={publicLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-[#48cae4] border border-[#2a9d8f]/30 hover:border-[#48cae4] font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    title="Voir la page publique en direct dans un nouvel onglet"
+                  >
+                    <ExternalLink size={13} />
+                    <span>Voir en direct</span>
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => onSave(formData)}
+                  disabled={saving}
+                  className="px-6 py-2.5 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer les modifications</span>}
+                </button>
+              </div>
             </div>
 
             {renderForm(formData, handleChange)}
 
-            <div className="pt-6 border-t border-slate-800 flex justify-end">
+            <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
+              {publicLink ? (
+                <a
+                  href={publicLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-[#48cae4] hover:underline font-semibold"
+                >
+                  <ExternalLink size={13} />
+                  <span>Accéder à la page en direct : {publicLink}</span>
+                </a>
+              ) : <div />}
               <button
                 type="button"
                 onClick={() => onSave(formData)}
@@ -759,19 +805,40 @@ function PathologyForm({ item, onChange, lang }: any) {
           <input
             type="text"
             value={lang === "en" ? (item.title_en || "") : (item.title_fr || "")}
-            onChange={(e) => onChange(lang === "en" ? { title_en: e.target.value } : { title_fr: e.target.value })}
+            onChange={(e) => {
+              const newTitle = e.target.value;
+              const updates: any = lang === "en" ? { title_en: newTitle } : { title_fr: newTitle };
+              if (lang === "fr" && (!item.slug || item.slug.startsWith("nouvelle-pathologie-") || item.slug.startsWith("pathologie-"))) {
+                const auto = slugify(newTitle);
+                if (auto) updates.slug = auto;
+              }
+              onChange(updates);
+            }}
             className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold"
           />
         </div>
 
         <div>
-          <label className="block text-slate-300 font-semibold mb-1">Identifiant d'URL (Slug) *</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-slate-300 font-semibold">Identifiant d'URL (Slug) *</label>
+            <button
+              type="button"
+              onClick={() => {
+                const auto = slugify(item.title_fr || item.title_en || "");
+                if (auto) onChange({ slug: auto });
+              }}
+              className="text-[10px] text-[#48cae4] hover:underline flex items-center gap-1 cursor-pointer"
+              title="Générer un slug propre depuis le titre"
+            >
+              <span>🪄 Auto-Slug</span>
+            </button>
+          </div>
           <input
             type="text"
             value={item.slug || ""}
-            onChange={(e) => onChange({ slug: e.target.value })}
+            onChange={(e) => onChange({ slug: slugify(e.target.value) })}
             placeholder="ex: lombalgie-chronique"
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4]"
+            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4] font-mono"
           />
         </div>
 
@@ -1259,19 +1326,40 @@ function TreatmentForm({ item, onChange, lang }: any) {
           <input
             type="text"
             value={lang === "en" ? (item.title_en || "") : (item.title_fr || "")}
-            onChange={(e) => onChange(lang === "en" ? { title_en: e.target.value } : { title_fr: e.target.value })}
+            onChange={(e) => {
+              const newTitle = e.target.value;
+              const updates: any = lang === "en" ? { title_en: newTitle } : { title_fr: newTitle };
+              if (lang === "fr" && (!item.slug || item.slug.startsWith("traitement-") || item.slug.startsWith("nouveau-traitement-"))) {
+                const auto = slugify(newTitle);
+                if (auto) updates.slug = auto;
+              }
+              onChange(updates);
+            }}
             className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold"
           />
         </div>
 
         <div>
-          <label className="block text-slate-300 font-semibold mb-1">Identifiant d'URL (Slug) *</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-slate-300 font-semibold">Identifiant d'URL (Slug) *</label>
+            <button
+              type="button"
+              onClick={() => {
+                const auto = slugify(item.title_fr || item.title_en || "");
+                if (auto) onChange({ slug: auto });
+              }}
+              className="text-[10px] text-[#48cae4] hover:underline flex items-center gap-1 cursor-pointer"
+              title="Générer un slug propre depuis le titre"
+            >
+              <span>🪄 Auto-Slug</span>
+            </button>
+          </div>
           <input
             type="text"
             value={item.slug || ""}
-            onChange={(e) => onChange({ slug: e.target.value })}
+            onChange={(e) => onChange({ slug: slugify(e.target.value) })}
             placeholder="ex: radiofrequence"
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4]"
+            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-[#48cae4] font-mono"
           />
         </div>
       </div>
@@ -1571,21 +1659,42 @@ function ArticleForm({ item, onChange, lang }: any) {
               className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2.5 text-xs text-white outline-none transition-colors"
               required
               value={lang === "en" ? (item.title_en || "") : (item.title_fr || "")}
-              onChange={(e) => onChange(lang === "en" ? { title_en: e.target.value } : { title_fr: e.target.value })}
+              onChange={(e) => {
+                const newTitle = e.target.value;
+                const updates: any = lang === "en" ? { title_en: newTitle } : { title_fr: newTitle };
+                if (lang === "fr" && (!item.slug || item.slug.startsWith("article-") || item.slug.startsWith("nouvel-article-"))) {
+                  const auto = slugify(newTitle);
+                  if (auto) updates.slug = auto;
+                }
+                onChange(updates);
+              }}
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs uppercase tracking-wider font-semibold text-white block">
-              Slug d'URL <span className="text-[#48cae4]">*</span>
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs uppercase tracking-wider font-semibold text-white block">
+                Slug d'URL <span className="text-[#48cae4]">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const auto = slugify(item.title_fr || item.title_en || "");
+                  if (auto) onChange({ slug: auto });
+                }}
+                className="text-[10px] text-[#48cae4] hover:underline flex items-center gap-1 cursor-pointer"
+                title="Générer un slug propre depuis le titre"
+              >
+                <span>🪄 Auto-Slug</span>
+              </button>
+            </div>
             <input
               type="text"
               placeholder="ex: lombalgie-chronique-recherche"
               className="w-full bg-slate-950 border border-slate-700 focus:border-[#48cae4] rounded-sm px-3.5 py-2.5 text-xs text-[#48cae4] font-mono outline-none transition-colors"
               required
               value={item.slug || ""}
-              onChange={(e) => onChange({ slug: e.target.value })}
+              onChange={(e) => onChange({ slug: slugify(e.target.value) })}
             />
           </div>
         </div>

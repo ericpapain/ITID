@@ -33,15 +33,48 @@ export function TreatmentDetailPage() {
     async function loadTreatment() {
       let treatmentData: any = null;
       try {
-        const res = await fetch(`/api/cms/traitements?slug=${slug}`);
+        const res = await fetch(`/api/cms/traitements?slug=${encodeURIComponent(slug || "")}`);
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.traitement) {
             treatmentData = json.traitement;
+            if (!treatmentData.sections && treatmentData.sections_json) {
+              try {
+                treatmentData.sections = typeof treatmentData.sections_json === "string" ? JSON.parse(treatmentData.sections_json) : treatmentData.sections_json;
+              } catch {}
+            }
           }
         }
       } catch (err) {
         console.warn("Fallback on local treatment data", err);
+      }
+
+      // Si recherche directe échoue, vérifier dans la liste globale du CMS
+      if (!treatmentData) {
+        try {
+          const listRes = await fetch("/api/cms/traitements");
+          if (listRes.ok) {
+            const listJson = await listRes.json();
+            const items = listJson.traitements || listJson.items || [];
+            if (Array.isArray(items) && items.length > 0) {
+              const cleanSlug = (slug || "").toLowerCase().trim();
+              const foundInList = items.find((t: any) => {
+                const tSlug = (t.slug || "").toLowerCase().trim();
+                return tSlug === cleanSlug ||
+                  (tSlug && (tSlug.includes(cleanSlug) || cleanSlug.includes(tSlug))) ||
+                  (t.title_fr && t.title_fr.toLowerCase().includes(cleanSlug.replace(/-/g, " ")));
+              });
+              if (foundInList) {
+                if (!foundInList.sections && foundInList.sections_json) {
+                  try {
+                    foundInList.sections = typeof foundInList.sections_json === "string" ? JSON.parse(foundInList.sections_json) : foundInList.sections_json;
+                  } catch {}
+                }
+                treatmentData = foundInList;
+              }
+            }
+          }
+        } catch {}
       }
 
       if (!treatmentData) {
@@ -159,8 +192,12 @@ export function TreatmentDetailPage() {
   const legacyS4Title = lang === "en" ? (data.section4_title_en || data.section4_title_fr) : data.section4_title_fr;
   const legacyS4Text = lang === "en" ? (data.section4_text_en || data.section4_text_fr) : data.section4_text_fr;
 
-  const dynamicSections: any[] = (Array.isArray(data.sections) && data.sections.length > 0)
+  const parsedSections = (Array.isArray(data.sections) && data.sections.length > 0)
     ? data.sections
+    : (data.sections_json ? (typeof data.sections_json === "string" ? (JSON.parse(data.sections_json) || []) : data.sections_json) : []);
+
+  const dynamicSections: any[] = (Array.isArray(parsedSections) && parsedSections.length > 0)
+    ? parsedSections
     : [
         (legacyS1Title || legacyS1Text) && {
           title_fr: data.section1_title_fr,
@@ -312,7 +349,7 @@ export function TreatmentDetailPage() {
                 className="bg-white rounded-2xl p-5 sm:p-6 md:p-7 border border-slate-200/80 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)]"
               >
                 {secPos === "none" ? (
-                  <div className="max-w-4xl mx-auto space-y-2.5 sm:space-y-3">
+                  <div className="w-full space-y-2.5 sm:space-y-3">
                     <div className={`inline-flex items-center gap-2 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${style.color}`}>
                       <span>{secNum}</span>
                       <span>{secTag}</span>

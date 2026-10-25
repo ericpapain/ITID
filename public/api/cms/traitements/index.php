@@ -24,11 +24,28 @@ try {
         $stmt->execute([$slug]);
         $item = $stmt->fetch();
         if (!$item) {
+            $clean = str_replace('-', ' ', $slug);
+            $stmt2 = $pdo->prepare("SELECT * FROM cms_traitements WHERE (title_fr LIKE ? OR slug LIKE ?) AND is_active = 1 LIMIT 1");
+            $stmt2->execute(["%$clean%", "%$slug%"]);
+            $item = $stmt2->fetch();
+        }
+        if (!$item) {
             http_response_code(404);
             echo json_encode(['success' => false, 'error' => 'Traitement introuvable']);
             exit;
         }
         $item['hero_gallery'] = json_decode($item['hero_gallery_json'] ?? '[]', true) ?: [];
+        $item['sections'] = json_decode($item['sections_json'] ?? '[]', true) ?: [];
+
+        // Cas cliniques associés au traitement
+        try {
+            $stmtCas = $pdo->prepare("SELECT * FROM cms_cas_cliniques WHERE (traitement_slug = ? OR traitement_slug = ?) AND is_active = 1 ORDER BY display_order ASC, id ASC");
+            $stmtCas->execute([$slug, $item['slug']]);
+            $item['associated_cas_cliniques'] = $stmtCas->fetchAll();
+        } catch (Throwable $t) {
+            $item['associated_cas_cliniques'] = [];
+        }
+
         echo json_encode(['success' => true, 'traitement' => $item]);
         exit;
     }
@@ -37,6 +54,7 @@ try {
     $items = $stmt->fetchAll();
     foreach ($items as &$it) {
         $it['hero_gallery'] = json_decode($it['hero_gallery_json'] ?? '[]', true) ?: [];
+        $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
     }
 
     echo json_encode(['success' => true, 'traitements' => $items]);

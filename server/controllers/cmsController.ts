@@ -158,9 +158,11 @@ function loadJsonFromDisk<T>(filePath: string, defaultVal: T): T {
     try {
       const content = fs.readFileSync(filePath, 'utf-8');
       const parsed = JSON.parse(content);
-      if (parsed) return parsed;
+      if (Array.isArray(parsed)) return parsed as unknown as T;
+      if (parsed !== null && parsed !== undefined && typeof parsed === 'object') return parsed;
     } catch {}
   }
+  saveJsonToDisk(filePath, defaultVal);
   return defaultVal;
 }
 
@@ -408,8 +410,16 @@ export async function getPublicPathologies(req: Request, res: Response) {
 
     // Fallback mémoire / disque
     if (slug) {
-      const found = inMemoryPathologies.find(p => p.slug === slug);
+      const cleanSlug = (slug as string).toLowerCase().trim();
+      const found = inMemoryPathologies.find(p => (
+        p.slug === cleanSlug ||
+        (p.slug && (p.slug.includes(cleanSlug) || cleanSlug.includes(p.slug))) ||
+        (p.title_fr && p.title_fr.toLowerCase().includes(cleanSlug.replace(/-/g, ' ')))
+      ));
       if (found) {
+        const sections = typeof found.sections_json === 'string'
+          ? JSON.parse(found.sections_json || '[]')
+          : (Array.isArray(found.sections) ? found.sections : []);
         const matchingTraitements = inMemoryTraitements.filter(t => (t.is_active ?? 1) !== 0 && (
           (found.traitements_lies && Array.isArray(found.traitements_lies) && found.traitements_lies.includes(t.slug)) ||
           (t.slug && slug && (
@@ -424,11 +434,17 @@ export async function getPublicPathologies(req: Request, res: Response) {
             (slug === 'douleurs-post-op' && ['catheter-perinerveux', 'cryoneurolyse', 'perfusion-lidocaine'].includes(t.slug))
           ))
         ));
-        return res.json({ success: true, pathology: { ...found, associated_traitements: matchingTraitements } });
+        return res.json({ success: true, pathology: { ...found, sections, associated_traitements: matchingTraitements } });
       }
       return res.status(404).json({ success: false, error: 'Pathologie introuvable' });
     }
-    return res.json({ success: true, pathologies: inMemoryPathologies });
+    return res.json({
+      success: true,
+      pathologies: inMemoryPathologies.map(p => ({
+        ...p,
+        sections: typeof p.sections_json === 'string' ? JSON.parse(p.sections_json || '[]') : (Array.isArray(p.sections) ? p.sections : [])
+      }))
+    });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
@@ -464,16 +480,30 @@ export async function getPublicTraitements(req: Request, res: Response) {
     } catch {}
 
     if (slug) {
-      const found = inMemoryTraitements.find(t => t.slug === slug);
+      const cleanSlug = (slug as string).toLowerCase().trim();
+      const found = inMemoryTraitements.find(t => (
+        t.slug === cleanSlug ||
+        (t.slug && (t.slug.includes(cleanSlug) || cleanSlug.includes(t.slug))) ||
+        (t.title_fr && t.title_fr.toLowerCase().includes(cleanSlug.replace(/-/g, ' ')))
+      ));
       if (found) {
+        const sections = typeof found.sections_json === 'string'
+          ? JSON.parse(found.sections_json || '[]')
+          : (Array.isArray(found.sections) ? found.sections : []);
         const matchingCas = inMemoryCasCliniques
           .filter(c => (c.is_active ?? 1) !== 0 && c.traitement_slug === slug)
           .map((c, idx) => ({ ...c, image: sanitizeCaseImage(c.image, idx) }));
-        return res.json({ success: true, traitement: { ...found, associated_cas_cliniques: matchingCas } });
+        return res.json({ success: true, traitement: { ...found, sections, associated_cas_cliniques: matchingCas } });
       }
       return res.status(404).json({ success: false, error: 'Traitement introuvable' });
     }
-    return res.json({ success: true, traitements: inMemoryTraitements });
+    return res.json({
+      success: true,
+      traitements: inMemoryTraitements.map(t => ({
+        ...t,
+        sections: typeof t.sections_json === 'string' ? JSON.parse(t.sections_json || '[]') : (Array.isArray(t.sections) ? t.sections : [])
+      }))
+    });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
@@ -530,7 +560,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'GET') {
       try {
         const rows: any = await executeQuery('SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC');
-        if (rows && rows.length > 0) {
+        if (Array.isArray(rows)) {
           return res.json({ success: true, items: rows.map((r: any, idx: number) => ({ ...r, image: sanitizeCaseImage(r.image, idx) })) });
         }
       } catch {}
@@ -612,7 +642,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'GET') {
       try {
         const rows: any = await executeQuery('SELECT * FROM cms_pathologies ORDER BY display_order ASC, id ASC');
-        if (rows && rows.length > 0) {
+        if (Array.isArray(rows)) {
           const items = rows.map((r: any) => ({
             ...r,
             hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || [],
@@ -749,7 +779,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'GET') {
       try {
         const rows: any = await executeQuery('SELECT * FROM cms_traitements ORDER BY display_order ASC, id ASC');
-        if (rows && rows.length > 0) {
+        if (Array.isArray(rows)) {
           const items = rows.map((r: any) => ({
             ...r,
             hero_gallery: typeof r.hero_gallery_json === 'string' ? JSON.parse(r.hero_gallery_json || '[]') : r.hero_gallery_json || [],
@@ -896,7 +926,7 @@ export async function handleAdminCms(req: Request, res: Response) {
     if (method === 'GET') {
       try {
         const rows: any = await executeQuery('SELECT * FROM cms_articles ORDER BY is_featured DESC, id DESC');
-        if (rows && rows.length > 0) {
+        if (Array.isArray(rows)) {
           const items = rows.map((r: any, idx: number) => {
             const cleanCover = sanitizeCaseImage(r.cover_image, idx);
             const rawGallery = typeof r.gallery_images_json === 'string' ? JSON.parse(r.gallery_images_json || '[]') : r.gallery_images_json || [];
