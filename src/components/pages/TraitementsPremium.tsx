@@ -56,23 +56,7 @@ function TreatmentFrontFace({ title, desc, img, index = 0 }: { title: string; de
 
 function TreatmentBackFace({ desc, slug }: { desc: string; slug?: string }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  const handleBook = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth" });
-    } else {
-      window.location.href = "/#contact";
-    }
-  };
-
-  const handleReadDetails = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const targetSlug = slug || "infiltrations-rachidiennes";
-    navigate(`/traitements/${targetSlug}`);
-  };
+  const targetSlug = slug || "infiltrations-rachidiennes";
 
   return (
     <>
@@ -80,31 +64,33 @@ function TreatmentBackFace({ desc, slug }: { desc: string; slug?: string }) {
         <h3 className="text-xl font-semibold tracking-tight text-[#48cae4]">
           {t("common.learnMore", "En savoir plus")}
         </h3>
-        <p className="mt-2 text-sm sm:text-base text-gray-300 leading-relaxed whitespace-pre-line">
+        <p className="mt-2 text-sm sm:text-base text-gray-200 leading-relaxed whitespace-pre-line">
           {desc}
         </p>
       </div>
 
       <div className="mt-auto flex flex-col gap-2 relative z-30">
-        <button
-          type="button"
-          onClick={handleReadDetails}
-          className="flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors group cursor-pointer"
+        <Link
+          to={`/traitements/${targetSlug}`}
+          onClick={(e) => e.stopPropagation()}
+          className="flex w-full items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-[0_0_20px_rgba(72,202,228,0.35)] hover:brightness-110 transition-all group cursor-pointer"
         >
-          <div className="flex items-center text-[#48cae4] font-medium group-hover:translate-x-1 transition-transform">
-            {t("common.readFullFile", "Lire la fiche détaillée")} 
-            <ArrowRight size={14} className="ml-1" />
-          </div>
-        </button>
+          <span className="flex items-center gap-1.5 font-bold">
+            {t("common.readFullFile", "Lire la fiche détaillée")}
+          </span>
+          <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+        </Link>
 
-        <button
-          type="button"
-          onClick={handleBook}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#48cae4]/20 border border-[#48cae4]/50 px-4 py-2.5 text-xs font-semibold text-white shadow-[0_10px_30px_-10px_rgba(72,202,228,0.3)] transition-colors duration-200 hover:bg-[#48cae4]/40 cursor-pointer"
+        <a
+          href="https://www.doctolib.fr"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all cursor-pointer"
         >
-          {t("buttons.bookAppointment", "Prendre rendez-vous")}
+          <span>{t("buttons.bookAppointment", "Prendre rendez-vous")}</span>
           <ArrowRight size={14} strokeWidth={2.25} />
-        </button>
+        </a>
       </div>
     </>
   );

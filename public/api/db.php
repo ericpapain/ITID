@@ -508,6 +508,7 @@ function initSqliteTables(PDO $pdo): void {
         }
     }
     migrateCmsArticlesColumns($pdo);
+    migrateCmsRelationsColumns($pdo);
     seedAdminUserIfEmpty($pdo);
     seedCmsIfEmptySafe($pdo);
     indexExistingLocalMediaIfEmpty($pdo);
@@ -786,10 +787,43 @@ function initMysqlTables(PDO $pdo): void {
     }
     upgradeMysqlColumnsSafe($pdo);
     migrateCmsArticlesColumns($pdo);
+    migrateCmsRelationsColumns($pdo);
     seedAdminUserIfEmpty($pdo);
     seedCmsIfEmptySafe($pdo);
     indexExistingLocalMediaIfEmpty($pdo);
 }
+
+function migrateCmsRelationsColumns(PDO $pdo): void {
+    $casColumns = [
+        'traitement_slug' => 'VARCHAR(191) DEFAULT "infiltrations-rachidiennes"',
+        'traitement_name' => 'VARCHAR(255) NULL',
+        'pathologie_slug' => 'VARCHAR(191) DEFAULT "lombalgie-chronique"',
+        'short_desc_fr'   => 'TEXT NULL',
+        'short_desc_en'   => 'TEXT NULL'
+    ];
+    foreach ($casColumns as $col => $def) {
+        try {
+            $pdo->exec("ALTER TABLE cms_cas_cliniques ADD COLUMN {$col} {$def}");
+        } catch (Throwable $e) {}
+    }
+
+    $posColumns = [
+        'section1_image_position' => 'VARCHAR(50) DEFAULT "left"',
+        'section2_image_position' => 'VARCHAR(50) DEFAULT "right"',
+        'section3_image_position' => 'VARCHAR(50) DEFAULT "left"',
+        'section4_image_position' => 'VARCHAR(50) DEFAULT "right"',
+        'sections_json'           => 'TEXT NULL'
+    ];
+    foreach ($posColumns as $col => $def) {
+        try {
+            $pdo->exec("ALTER TABLE cms_traitements ADD COLUMN {$col} {$def}");
+        } catch (Throwable $e) {}
+        try {
+            $pdo->exec("ALTER TABLE cms_pathologies ADD COLUMN {$col} {$def}");
+        } catch (Throwable $e) {}
+    }
+}
+
 
 function migrateCmsArticlesColumns(PDO $pdo): void {
     $columns = [

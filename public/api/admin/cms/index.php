@@ -46,6 +46,7 @@ try {
             }
             foreach ($items as &$it) {
                 $it['hero_gallery'] = json_decode($it['hero_gallery_json'] ?? '[]', true) ?: [];
+                $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
             }
             echo json_encode(['success' => true, 'items' => $items]);
             exit;
@@ -56,6 +57,7 @@ try {
         if ($method === 'POST') {
             $slug = trim($input['slug'] ?? ('pathologie-' . time()));
             $heroGallery = json_encode($input['hero_gallery'] ?? []);
+            $sectionsJson = json_encode($input['sections'] ?? []);
 
             $stmt = $pdo->prepare("INSERT INTO cms_pathologies (
                 slug, title_fr, title_en, icon, color, short_desc_fr, short_desc_en, card_image, hero_gallery_json,
@@ -63,14 +65,14 @@ try {
                 section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
                 section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
                 section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
-                wikipedia_url, display_order, is_active
+                wikipedia_url, display_order, is_active, sections_json
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
-                ?, ?, ?
+                ?, ?, ?, ?
             )");
 
             $stmt->execute([
@@ -89,7 +91,8 @@ try {
                 $input['section4_title_fr'] ?? '', $input['section4_title_en'] ?? '', $input['section4_text_fr'] ?? '', $input['section4_text_en'] ?? '', $input['section4_image'] ?? '',
                 $input['wikipedia_url'] ?? '',
                 (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1
+                isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                $sectionsJson
             ]);
 
             echo json_encode(['success' => true, 'id' => $pdo->lastInsertId(), 'message' => 'Pathologie créée avec succès.']);
@@ -104,6 +107,7 @@ try {
             }
 
             $heroGallery = json_encode($input['hero_gallery'] ?? []);
+            $sectionsJson = json_encode($input['sections'] ?? []);
 
             $stmt = $pdo->prepare("UPDATE cms_pathologies SET
                 slug = ?, title_fr = ?, title_en = ?, icon = ?, color = ?, short_desc_fr = ?, short_desc_en = ?, card_image = ?, hero_gallery_json = ?,
@@ -111,7 +115,7 @@ try {
                 section2_title_fr = ?, section2_title_en = ?, section2_text_fr = ?, section2_text_en = ?, section2_image = ?,
                 section3_title_fr = ?, section3_title_en = ?, section3_text_fr = ?, section3_text_en = ?, section3_image = ?,
                 section4_title_fr = ?, section4_title_en = ?, section4_text_fr = ?, section4_text_en = ?, section4_image = ?,
-                wikipedia_url = ?, display_order = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+                wikipedia_url = ?, display_order = ?, is_active = ?, sections_json = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?");
 
             $stmt->execute([
@@ -131,6 +135,7 @@ try {
                 $input['wikipedia_url'] ?? '',
                 (int)($input['display_order'] ?? 0),
                 isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                $sectionsJson,
                 $id
             ]);
 
@@ -168,6 +173,7 @@ try {
             }
             foreach ($items as &$it) {
                 $it['hero_gallery'] = json_decode($it['hero_gallery_json'] ?? '[]', true) ?: [];
+                $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
             }
             echo json_encode(['success' => true, 'items' => $items]);
             exit;
@@ -178,6 +184,7 @@ try {
         if ($method === 'POST') {
             $slug = trim($input['slug'] ?? ('traitement-' . time()));
             $heroGallery = json_encode($input['hero_gallery'] ?? []);
+            $sectionsJson = json_encode($input['sections'] ?? []);
 
             $stmt = $pdo->prepare("INSERT INTO cms_traitements (
                 slug, num, icon, title_fr, title_en, desc_front_fr, desc_front_en, desc_back_fr, desc_back_en,
@@ -186,7 +193,7 @@ try {
                 section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
                 section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
                 section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
-                cta_text_fr, cta_text_en, cta_url, display_order, is_active
+                cta_text_fr, cta_text_en, cta_url, display_order, is_active, sections_json
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?, ?,
                 ?, ?,
@@ -194,7 +201,7 @@ try {
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?
             )");
 
             $stmt->execute([
@@ -217,7 +224,8 @@ try {
                 $input['cta_text_en'] ?? 'Book Appointment',
                 $input['cta_url'] ?? '#contact',
                 (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1
+                isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                $sectionsJson
             ]);
 
             echo json_encode(['success' => true, 'id' => $pdo->lastInsertId(), 'message' => 'Traitement créé avec succès.']);
@@ -232,6 +240,7 @@ try {
             }
 
             $heroGallery = json_encode($input['hero_gallery'] ?? []);
+            $sectionsJson = json_encode($input['sections'] ?? []);
 
             $stmt = $pdo->prepare("UPDATE cms_traitements SET
                 slug = ?, num = ?, icon = ?, title_fr = ?, title_en = ?, desc_front_fr = ?, desc_front_en = ?, desc_back_fr = ?, desc_back_en = ?,
@@ -240,7 +249,7 @@ try {
                 section2_title_fr = ?, section2_title_en = ?, section2_text_fr = ?, section2_text_en = ?, section2_image = ?,
                 section3_title_fr = ?, section3_title_en = ?, section3_text_fr = ?, section3_text_en = ?, section3_image = ?,
                 section4_title_fr = ?, section4_title_en = ?, section4_text_fr = ?, section4_text_en = ?, section4_image = ?,
-                cta_text_fr = ?, cta_text_en = ?, cta_url = ?, display_order = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+                cta_text_fr = ?, cta_text_en = ?, cta_url = ?, display_order = ?, is_active = ?, sections_json = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?");
 
             $stmt->execute([
@@ -264,6 +273,7 @@ try {
                 $input['cta_url'] ?? '#contact',
                 (int)($input['display_order'] ?? 0),
                 isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                $sectionsJson,
                 $id
             ]);
 
@@ -541,10 +551,6 @@ try {
         $input = json_decode(file_get_contents('php://input'), true) ?: [];
 
         if ($method === 'POST') {
-            $stmt = $pdo->prepare("INSERT INTO cms_cas_cliniques (
-                title_fr, title_en, category_fr, category_en, image, display_order, is_active
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)");
-
             $postedImg = trim($input['image'] ?? '');
             if (empty($postedImg) || strpos($postedImg, 'unsplash') !== false) {
                 $postedImg = '/images/treatments/infiltrations_rachidiennes.jpg';
@@ -552,15 +558,38 @@ try {
                 $postedImg = '/' . $postedImg;
             }
 
-            $stmt->execute([
-                $input['title_fr'] ?? 'Nouveau Cas Clinique',
-                $input['title_en'] ?? 'New Clinical Case',
-                $input['category_fr'] ?? 'Geste Interventionnel',
-                $input['category_en'] ?? 'Interventional Procedure',
-                $postedImg,
-                (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1
-            ]);
+            try {
+                $stmt = $pdo->prepare("INSERT INTO cms_cas_cliniques (
+                    title_fr, title_en, category_fr, category_en, image, display_order, is_active,
+                    traitement_slug, pathologie_slug, short_desc_fr, short_desc_en
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([
+                    $input['title_fr'] ?? 'Nouveau Cas Clinique',
+                    $input['title_en'] ?? 'New Clinical Case',
+                    $input['category_fr'] ?? 'Geste Interventionnel',
+                    $input['category_en'] ?? 'Interventional Procedure',
+                    $postedImg,
+                    (int)($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                    $input['traitement_slug'] ?? 'infiltrations-rachidiennes',
+                    $input['pathologie_slug'] ?? 'lombalgie-chronique',
+                    $input['short_desc_fr'] ?? '',
+                    $input['short_desc_en'] ?? ''
+                ]);
+            } catch (Throwable $e) {
+                $stmt = $pdo->prepare("INSERT INTO cms_cas_cliniques (
+                    title_fr, title_en, category_fr, category_en, image, display_order, is_active
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([
+                    $input['title_fr'] ?? 'Nouveau Cas Clinique',
+                    $input['title_en'] ?? 'New Clinical Case',
+                    $input['category_fr'] ?? 'Geste Interventionnel',
+                    $input['category_en'] ?? 'Interventional Procedure',
+                    $postedImg,
+                    (int)($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int)$input['is_active'] : 1
+                ]);
+            }
 
             echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId(), 'message' => 'Cas clinique créé avec succès.']);
             exit;
@@ -573,31 +602,64 @@ try {
                 exit;
             }
 
-            $stmt = $pdo->prepare("UPDATE cms_cas_cliniques SET
-                title_fr = ?,
-                title_en = ?,
-                category_fr = ?,
-                category_en = ?,
-                image = ?,
-                display_order = ?,
-                is_active = ?,
-                updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?");
+            try {
+                $stmt = $pdo->prepare("UPDATE cms_cas_cliniques SET
+                    title_fr = ?,
+                    title_en = ?,
+                    category_fr = ?,
+                    category_en = ?,
+                    image = ?,
+                    display_order = ?,
+                    is_active = ?,
+                    traitement_slug = ?,
+                    pathologie_slug = ?,
+                    short_desc_fr = ?,
+                    short_desc_en = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?");
 
-            $stmt->execute([
-                $input['title_fr'] ?? '',
-                $input['title_en'] ?? '',
-                $input['category_fr'] ?? '',
-                $input['category_en'] ?? '',
-                $input['image'] ?? '',
-                (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1,
-                $id
-            ]);
+                $stmt->execute([
+                    $input['title_fr'] ?? '',
+                    $input['title_en'] ?? '',
+                    $input['category_fr'] ?? '',
+                    $input['category_en'] ?? '',
+                    $input['image'] ?? '',
+                    (int)($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                    $input['traitement_slug'] ?? 'infiltrations-rachidiennes',
+                    $input['pathologie_slug'] ?? 'lombalgie-chronique',
+                    $input['short_desc_fr'] ?? '',
+                    $input['short_desc_en'] ?? '',
+                    $id
+                ]);
+            } catch (Throwable $e) {
+                $stmt = $pdo->prepare("UPDATE cms_cas_cliniques SET
+                    title_fr = ?,
+                    title_en = ?,
+                    category_fr = ?,
+                    category_en = ?,
+                    image = ?,
+                    display_order = ?,
+                    is_active = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?");
+
+                $stmt->execute([
+                    $input['title_fr'] ?? '',
+                    $input['title_en'] ?? '',
+                    $input['category_fr'] ?? '',
+                    $input['category_en'] ?? '',
+                    $input['image'] ?? '',
+                    (int)($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                    $id
+                ]);
+            }
 
             echo json_encode(['success' => true, 'message' => 'Cas clinique mis à jour avec succès.']);
             exit;
         }
+
 
         if ($method === 'DELETE') {
             if (!$id) {

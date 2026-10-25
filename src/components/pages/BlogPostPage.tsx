@@ -4,6 +4,7 @@ import { BLOG_ARTICLES, BlogCategory } from "../../data/blogData";
 import { ArrowLeft, Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
+import RichContentRenderer from "../ui/RichContentRenderer";
 
 function ResilientArticleImage({
   src,
@@ -208,63 +209,94 @@ export default function BlogPostPage() {
         )}
 
         {/* ====================================================================== */}
-        {/* SECTIONS & IMAGES EN DISPOSITION ALTERNÉE G/D */}
+        {/* SECTIONS & IMAGES EN DISPOSITION CONFIGURABLE (GAUCHE / DROITE / AUCUNE) */}
         {/* ====================================================================== */}
         {article.dynamicSections && article.dynamicSections.length > 0 ? (
-          <div className="space-y-12 md:space-y-16">
+          <div className="space-y-6 sm:space-y-8">
             {article.dynamicSections.map((sec: any, idx: number) => {
-              // Section #1 (0) : Image à Gauche & Texte à Droite
-              // Section #2 (1) : Texte à Gauche & Image à Droite
-              const isImageLeft = idx % 2 === 0;
+              const position = sec.image_position || sec.disposition || (idx % 2 === 0 ? "left" : "right");
+              const isImageNone = position === "none";
+              const isImageLeft = position === "left";
+              const secTitle = lang === "en" ? (sec.title_en || sec.title_fr || sec.title) : (sec.title_fr || sec.title);
+              const secContent = lang === "en" ? (sec.content_en || sec.content_fr || sec.content || sec.text_en || sec.text_fr) : (sec.content_fr || sec.content || sec.text_fr);
+              const secBadge = sec.badge || `Section #${idx + 1}`;
+
+              if (!secTitle && !secContent) return null;
 
               return (
                 <section
                   key={sec.id || idx}
-                  className="bg-white rounded-3xl p-6 md:p-10 shadow-[0_10px_35px_rgba(0,0,0,0.04)] border border-slate-100 hover:border-[#48cae4]/40 transition-all duration-300"
+                  className="bg-white rounded-2xl p-5 sm:p-6 md:p-8 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)] border border-slate-200/80 hover:border-[#48cae4]/40 transition-all duration-300"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-center">
-                    {/* Bloc Image */}
-                    <div className={`${isImageLeft ? "md:order-1" : "md:order-2"} w-full`}>
-                      {sec.image ? (
-                        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-md group bg-slate-950">
-                          <ResilientArticleImage
-                            src={sec.image}
-                            alt={sec.title || article.title}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            fallbackIndex={idx + 1}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      ) : (
-                        <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 font-medium text-sm">
-                          <span>Illustration Section #{idx + 1}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bloc Texte & Sous-titre */}
-                    <div className={`${isImageLeft ? "md:order-2" : "md:order-1"} space-y-4`}>
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#48cae4]/10 text-[#0c1a2e] text-xs font-bold tracking-wider uppercase border border-[#48cae4]/20">
-                        <span className="w-2 h-2 rounded-full bg-[#48cae4]" />
-                        <span>Section #{idx + 1}</span>
+                  {isImageNone ? (
+                    /* Mise en page pleine largeur sans image */
+                    <div className="w-full space-y-3 max-w-4xl mx-auto">
+                      <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#48cae4]/10 text-[#0c1a2e] text-xs font-bold tracking-wider uppercase border border-[#48cae4]/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#48cae4]" />
+                        <span>{secBadge}</span>
                       </div>
 
-                      {sec.title && (
+                      {secTitle && (
                         <h2
-                          className="text-2xl md:text-3xl font-bold text-[#0c1a2e] leading-snug"
+                          className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0c1a2e] leading-snug"
                           style={{ fontFamily: "var(--font-display)" }}
                         >
-                          {sec.title}
+                          {secTitle}
                         </h2>
                       )}
 
-                      {sec.content && (
-                        <div className="text-slate-600 text-base md:text-lg leading-relaxed font-light whitespace-pre-line space-y-3">
-                          {sec.content}
+                      {secContent && (
+                        <div className="rich-content-light text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
+                          <RichContentRenderer content={secContent} />
                         </div>
                       )}
                     </div>
-                  </div>
+                  ) : (
+                    /* Mise en page 2 colonnes avec alternance G/D */
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-center">
+                      {/* Bloc Image */}
+                      <div className={`${isImageLeft ? "md:order-1" : "md:order-2"} w-full`}>
+                        {sec.image ? (
+                          <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-xs group bg-slate-950">
+                            <ResilientArticleImage
+                              src={sec.image}
+                              alt={secTitle || article.title}
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                              fallbackIndex={idx + 1}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        ) : (
+                          <div className="aspect-[4/3] rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 font-medium text-xs">
+                            <span>{secBadge}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bloc Texte & Sous-titre */}
+                      <div className={`${isImageLeft ? "md:order-2" : "md:order-1"} space-y-3`}>
+                        <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#48cae4]/10 text-[#0c1a2e] text-xs font-bold tracking-wider uppercase border border-[#48cae4]/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#48cae4]" />
+                          <span>{secBadge}</span>
+                        </div>
+
+                        {secTitle && (
+                          <h2
+                            className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0c1a2e] leading-snug"
+                            style={{ fontFamily: "var(--font-display)" }}
+                          >
+                            {secTitle}
+                          </h2>
+                        )}
+
+                        {secContent && (
+                          <div className="rich-content-light text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
+                            <RichContentRenderer content={secContent} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </section>
               );
             })}
@@ -307,8 +339,8 @@ export default function BlogPostPage() {
             <h3 className="text-xl font-bold text-[#0c1a2e]" style={{ fontFamily: "var(--font-display)" }}>
               Synthèse & Perspectives
             </h3>
-            <div className="text-slate-700 leading-relaxed font-light text-base md:text-lg whitespace-pre-line">
-              {article.content}
+            <div className="text-slate-700 leading-relaxed font-light text-base md:text-lg">
+              <RichContentRenderer content={article.content} />
             </div>
           </div>
         )}
