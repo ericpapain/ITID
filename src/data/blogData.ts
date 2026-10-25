@@ -226,34 +226,5 @@ export const BLOG_ARTICLES: Article[] = [
         ]
       }
     ]
-  },
-  {
-    id: "realite-virtuelle-analgesie",
-    title: "L'analgésie par Réalité Virtuelle : Le futur est là",
-    summary: "Comment l'immersion dans des univers apaisants générés par ordinateur parvient à diminuer la douleur ressentie pendant nos soins.",
-    author: "Dr. Marc Moreau",
-    authorRole: "Neurochirurgien / Algologue",
-    date: "02 Août 2026",
-    readTime: "4 min",
-    category: "Innovations",
-    coverImage: "/images/treatments/hypnovr.jpg",
-    sections: [
-      {
-        type: 'paragraph',
-        content: "La douleur est en grande partie une expérience cérébrale. En saturant les capacités d'attention du cerveau avec un environnement visuel et sonore immersif, la réalité virtuelle agit comme un analgésique puissant."
-      },
-      {
-        type: 'heading',
-        content: "Utilisation à l'ITID"
-      },
-      {
-        type: 'paragraph',
-        content: "Nous utilisons les casques de réalité virtuelle thérapeutique lors d'actes potentiellement anxiogènes (infiltrations, pose de voies veineuses, radiofréquence). Les patients choisissent leur univers (plage, montagne, fond marin)."
-      },
-      {
-        type: 'quote',
-        content: "C'est impressionnant : certains patients sous réalité virtuelle ont une fréquence cardiaque qui diminue pendant le soin, au lieu d'augmenter."
-      }
-    ]
   }
 ];

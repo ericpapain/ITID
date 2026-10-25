@@ -44,9 +44,12 @@ export default function BlogPostPage() {
   const { id } = useParams<{ id: string }>();
 
   const [dynamicArticle, setDynamicArticle] = useState<any>(null);
+  const [allCmsArticles, setAllCmsArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     async function loadArticle() {
       try {
         const res = await fetch(`/api/cms/articles?slug=${id}`);
@@ -63,7 +66,23 @@ export default function BlogPostPage() {
       }
       setLoading(false);
     }
+
+    async function loadAllCmsArticles() {
+      try {
+        const res = await fetch("/api/cms/articles");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.articles)) {
+            setAllCmsArticles(json.articles);
+          }
+        }
+      } catch {
+        // Fallback silencieux
+      }
+    }
+
     loadArticle();
+    loadAllCmsArticles();
   }, [id]);
   
   const rawArticle = BLOG_ARTICLES.find(a => a.id === id);
@@ -120,13 +139,38 @@ export default function BlogPostPage() {
         })
       };
 
-  const relatedArticles = BLOG_ARTICLES.filter(a => a.category === (rawArticle ? rawArticle.category : dynamicArticle?.category) && a.id !== (rawArticle ? rawArticle.id : dynamicArticle?.slug)).slice(0, 3).map((a, idx) => ({
-    ...a,
-    coverImage: getCleanImageSrc(a.coverImage, idx),
-    title: t(`blogData.${a.id}.title`),
-    summary: t(`blogData.${a.id}.summary`),
-    category: t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory,
-  }));
+  const currentCategory = dynamicArticle?.category || rawArticle?.category;
+  const currentSlug = dynamicArticle?.slug || rawArticle?.id || id;
+
+  const candidatePool = allCmsArticles.length > 0
+    ? allCmsArticles.filter((a: any) => a.slug !== currentSlug && a.is_published !== 0)
+    : BLOG_ARTICLES.filter((a: any) => a.id !== currentSlug);
+
+  const matchingCategory = candidatePool.filter((a: any) => a.category === currentCategory);
+  const poolToUse = matchingCategory.length > 0 ? matchingCategory : candidatePool;
+
+  const relatedArticles = poolToUse.slice(0, 3).map((a: any, idx: number) => {
+    const isDynamic = 'slug' in a;
+    const aId = isDynamic ? a.slug : a.id;
+    const aTitle = isDynamic
+      ? (lang === "en" ? (a.title_en || a.title_fr) : a.title_fr)
+      : t(`blogData.${a.id}.title`);
+    const aSummary = isDynamic
+      ? (lang === "en" ? (a.summary_en || a.summary_fr) : a.summary_fr)
+      : t(`blogData.${a.id}.summary`);
+    const aCategory = isDynamic
+      ? a.category
+      : t(`blogData.categories.${a.category === "Innovations" ? "innovations" : a.category === "Conseils Patients" ? "conseils" : a.category === "Traitements" ? "traitements" : "vie"}`) as BlogCategory;
+    const aCover = getCleanImageSrc(isDynamic ? a.cover_image : a.coverImage, idx);
+
+    return {
+      id: aId,
+      title: aTitle,
+      summary: aSummary,
+      category: aCategory,
+      coverImage: aCover,
+    };
+  });
 
   return (
     <main className="min-h-screen bg-[#f0f7f6] text-[#1a3a5c]">

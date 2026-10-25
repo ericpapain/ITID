@@ -591,18 +591,6 @@
         "s4_1": "Ne pas utiliser avec un pacemaker (sauf avis cardio strict)",
         "s4_2": "Changer les électrodes dès qu'elles ne collent plus bien pour éviter les brûlures"
       }
-    },
-    "realite-virtuelle-analgesie": {
-      "title": "L'analgésie par Réalité Virtuelle : Le futur est là",
-      "summary": "Comment l'immersion dans des univers apaisants générés par ordinateur parvient à diminuer la douleur ressentie pendant nos soins.",
-      "authorRole": "Neurochirurgien / Algologue",
-      "readTime": "4 min",
-      "sections": {
-        "s0": "La douleur est en grande partie une expérience cérébrale. En saturant les capacités d'attention du cerveau avec un environnement visuel et sonore immersif, la réalité virtuelle agit comme un analgésique puissant.",
-        "s1": "Utilisation à l'ITID",
-        "s2": "Nous utilisons les casques de réalité virtuelle thérapeutique lors d'actes potentiellement anxiogènes (infiltrations, pose de voies veineuses, radiofréquence). Les patients choisissent leur univers (plage, montagne, fond marin).",
-        "s3": "C'est impressionnant : certains patients sous réalité virtuelle ont une fréquence cardiaque qui diminue pendant le soin, au lieu d'augmenter."
-      }
     }
   },
   "carousel": {
