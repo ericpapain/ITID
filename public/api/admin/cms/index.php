@@ -36,14 +36,6 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_pathologies ORDER BY display_order ASC, id ASC");
             $items = $stmt->fetchAll();
-            if (empty($items)) {
-                require_once __DIR__ . '/../seed_cms.php';
-                if (function_exists('seedCmsIfEmpty')) {
-                    seedCmsIfEmpty($pdo);
-                    $stmt = $pdo->query("SELECT * FROM cms_pathologies ORDER BY display_order ASC, id ASC");
-                    $items = $stmt->fetchAll();
-                }
-            }
             foreach ($items as &$it) {
                 $it['hero_gallery'] = json_decode($it['hero_gallery_json'] ?? '[]', true) ?: [];
                 $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
@@ -163,14 +155,6 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_traitements ORDER BY display_order ASC, id ASC");
             $items = $stmt->fetchAll();
-            if (empty($items)) {
-                require_once __DIR__ . '/../seed_cms.php';
-                if (function_exists('seedCmsIfEmpty')) {
-                    seedCmsIfEmpty($pdo);
-                    $stmt = $pdo->query("SELECT * FROM cms_traitements ORDER BY display_order ASC, id ASC");
-                    $items = $stmt->fetchAll();
-                }
-            }
             foreach ($items as &$it) {
                 $it['hero_gallery'] = json_decode($it['hero_gallery_json'] ?? '[]', true) ?: [];
                 $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
@@ -301,14 +285,6 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY is_featured DESC, id DESC");
             $items = $stmt->fetchAll();
-            if (empty($items)) {
-                require_once __DIR__ . '/../seed_cms.php';
-                if (function_exists('seedCmsIfEmpty')) {
-                    seedCmsIfEmpty($pdo);
-                    $stmt = $pdo->query("SELECT * FROM cms_articles ORDER BY is_featured DESC, id DESC");
-                    $items = $stmt->fetchAll();
-                }
-            }
             foreach ($items as &$it) {
                 $it['gallery_images'] = json_decode($it['gallery_images_json'] ?? '[]', true) ?: [];
                 $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
@@ -506,18 +482,6 @@ try {
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC");
             $items = $stmt->fetchAll();
-            require_once __DIR__ . '/../seed_cms.php';
-            if (empty($items)) {
-                if (function_exists('seedCmsIfEmpty')) {
-                    seedCmsIfEmpty($pdo);
-                    $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC");
-                    $items = $stmt->fetchAll();
-                }
-            } else {
-                if (function_exists('cleanupLegacyUnsplashCasCliniques')) {
-                    cleanupLegacyUnsplashCasCliniques($pdo);
-                }
-            }
 
             $realDefaults = [
                 1 => '/images/treatments/infiltrations_rachidiennes.jpg',

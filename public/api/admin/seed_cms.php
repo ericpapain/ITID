@@ -6,7 +6,23 @@
 
 require_once __DIR__ . '/../../db.php';
 
-function seedCmsIfEmpty(PDO $pdo): void {
+function seedCmsIfEmpty(PDO $pdo, bool $force = false): void {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS cms_system_flags (
+            flag_key VARCHAR(100) PRIMARY KEY,
+            flag_value VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        if (!$force) {
+            $checkStmt = $pdo->prepare("SELECT flag_value FROM cms_system_flags WHERE flag_key = 'cms_initial_seeded' LIMIT 1");
+            $checkStmt->execute();
+            if ($checkStmt->fetchColumn()) {
+                return;
+            }
+        }
+    } catch (Throwable $e) {}
+
     cleanupAllLegacyUnsplashMedia($pdo);
     try {
         // 1. Vérifier si les pathologies sont déjà initialisées
@@ -40,6 +56,10 @@ function seedCmsIfEmpty(PDO $pdo): void {
         } else {
             cleanupLegacyUnsplashCasCliniques($pdo);
         }
+
+        try {
+            $pdo->exec("INSERT INTO cms_system_flags (flag_key, flag_value) VALUES ('cms_initial_seeded', '1')");
+        } catch (Throwable $e) {}
     } catch (Throwable $e) {
         error_log("seedCmsIfEmpty error: " . $e->getMessage());
     }

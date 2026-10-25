@@ -103,23 +103,27 @@ export function TraitementsPremium() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [dynamicItems, setDynamicItems] = useState<any[]>([]);
 
+  const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
     async function fetchTreatments() {
       try {
         const res = await fetch("/api/cms/traitements");
         if (res.ok) {
           const data = await res.json();
-          if (data.success && Array.isArray(data.traitements) && data.traitements.length > 0) {
+          if (data.success && Array.isArray(data.traitements)) {
             setDynamicItems(data.traitements);
+            setLoaded(true);
             return;
           }
         }
       } catch (e) {}
+      setLoaded(true);
     }
     fetchTreatments();
   }, []);
 
-  const items = dynamicItems.length > 0
+  const items = loaded
     ? dynamicItems.map((item, idx) => ({
         ...item,
         title: lang === "en" ? (item.title_en || item.title_fr) : item.title_fr,

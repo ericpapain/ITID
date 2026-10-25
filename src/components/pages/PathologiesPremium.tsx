@@ -26,23 +26,27 @@ export function PathologiesPremium() {
   const rotation = useMotionValue(0);
   const smoothRotation = useSpring(rotation, { stiffness: 50, damping: 20 });
 
+  const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
     async function fetchPathologies() {
       try {
         const res = await fetch("/api/cms/pathologies");
         if (res.ok) {
           const data = await res.json();
-          if (data.success && Array.isArray(data.pathologies) && data.pathologies.length > 0) {
+          if (data.success && Array.isArray(data.pathologies)) {
             setDynamicItems(data.pathologies);
+            setLoaded(true);
             return;
           }
         }
       } catch (e) {}
+      setLoaded(true);
     }
     fetchPathologies();
   }, []);
 
-  const items = dynamicItems.length > 0 
+  const items = loaded
     ? dynamicItems.map((item, idx) => ({
         ...item,
         title: lang === "en" ? (item.title_en || item.title_fr) : item.title_fr,
