@@ -26,9 +26,10 @@ interface ActiveSliderCardProps {
   index?: number;
   onExpand: (item: CaseItem, index: number) => void;
   isDraggingRef: React.MutableRefObject<boolean>;
+  hasTreatmentDescription?: boolean;
 }
 
-function ActiveSliderCard({ item, index = 0, onExpand, isDraggingRef }: ActiveSliderCardProps) {
+function ActiveSliderCard({ item, index = 0, onExpand, isDraggingRef, hasTreatmentDescription = false }: ActiveSliderCardProps) {
   const [imgError, setImgError] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const navigate = useNavigate();
@@ -131,14 +132,26 @@ function ActiveSliderCard({ item, index = 0, onExpand, isDraggingRef }: ActiveSl
 
             {/* Boutons d'actions clairement séparés */}
             <div className="pt-2 border-t border-white/15 flex items-center gap-2 pointer-events-auto">
-              <button
-                type="button"
-                onClick={handleNavigateTreatment}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-[0_0_20px_rgba(72,202,228,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <span>Voir le traitement</span>
-                <ArrowRight size={14} />
-              </button>
+              {hasTreatmentDescription ? (
+                <button
+                  type="button"
+                  onClick={handleNavigateTreatment}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-[0_0_20px_rgba(72,202,228,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>Voir le traitement</span>
+                  <ArrowRight size={14} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleFlipToggle}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  title="Fiche détaillée en cours de rédaction — Cliquez pour lire les détails du cas clinique"
+                >
+                  <RotateCw size={13} className="text-[#48cae4]" />
+                  <span>Détails du cas</span>
+                </button>
+              )}
 
               <button
                 type="button"
@@ -222,14 +235,24 @@ function ActiveSliderCard({ item, index = 0, onExpand, isDraggingRef }: ActiveSl
 
           {/* Actions Verso */}
           <div className="space-y-2 pt-4 border-t border-white/10 pointer-events-auto">
-            <button
-              type="button"
-              onClick={handleNavigateTreatment}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(72,202,228,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>Accéder au traitement</span>
-              <ArrowRight size={14} />
-            </button>
+            {hasTreatmentDescription ? (
+              <button
+                type="button"
+                onClick={handleNavigateTreatment}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(72,202,228,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Accéder au traitement</span>
+                <ArrowRight size={14} />
+              </button>
+            ) : (
+              <div
+                title="La fiche complète de ce traitement est en cours de rédaction par l'équipe médicale de l'ITID"
+                className="w-full py-2.5 px-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-xs font-medium text-center flex items-center justify-center gap-1.5 select-none"
+              >
+                <span>🔒</span>
+                <span>Fiche traitement en cours de rédaction</span>
+              </div>
+            )}
 
             <button
               type="button"
@@ -346,26 +369,54 @@ export function ProjectsMasonry() {
     }
   ];
 
-  // Chargement des cas cliniques dynamiques configurés dans l'admin CMS
+  const [publishedTreatments, setPublishedTreatments] = useState<any[]>([]);
+
+  // Chargement des cas cliniques et des traitements dynamiques configurés dans l'admin CMS
   useEffect(() => {
     let isMounted = true;
-    const fetchCases = async () => {
+    const loadAllData = async () => {
       try {
-        const res = await fetch("/api/cms/cas_cliniques");
-        if (res.ok) {
-          const data = await res.json();
+        const [resCases, resTreatments] = await Promise.all([
+          fetch("/api/cms/cas_cliniques").catch(() => null),
+          fetch("/api/cms/traitements").catch(() => null)
+        ]);
+
+        if (resCases && resCases.ok) {
+          const data = await resCases.json();
           const items = data.items || data.cases;
           if (isMounted && Array.isArray(items) && items.length > 0) {
             setDynamicCases(items);
+          }
+        }
+
+        if (resTreatments && resTreatments.ok) {
+          const dataT = await resTreatments.json();
+          const itemsT = dataT.traitements || dataT.items;
+          if (isMounted && Array.isArray(itemsT)) {
+            setPublishedTreatments(itemsT);
           }
         }
       } catch (e) {
         // Fallback silencieux vers PROJECTS statiques
       }
     };
-    fetchCases();
+    loadAllData();
     return () => { isMounted = false; };
   }, []);
+
+  const treatmentsWithDesc = React.useMemo(() => {
+    return new Set(
+      publishedTreatments
+        .filter((t: any) => {
+          const hasSecs = (Array.isArray(t.sections) && t.sections.length > 0) ||
+            (t.sections_json && t.sections_json !== "[]" && String(t.sections_json).trim() !== "");
+          const hasDesc = (t.desc_front_fr && t.desc_front_fr.trim().length > 20) || (t.desc_back_fr && t.desc_back_fr.trim().length > 20);
+          const hasLegacy = (t.section1_title_fr && t.section1_title_fr.trim().length > 0) || (t.section1_text_fr && t.section1_text_fr.trim().length > 0);
+          return hasSecs || hasDesc || hasLegacy;
+        })
+        .map((t: any) => (t.slug || "").toLowerCase().trim())
+    );
+  }, [publishedTreatments]);
 
   const currentLang = i18n.language || "fr";
 
@@ -547,16 +598,20 @@ export function ProjectsMasonry() {
             style={{ x: springScroll }}
             className="absolute left-[10%] top-0 flex gap-8 cursor-grab active:cursor-grabbing z-10 px-10"
           >
-            {displayList.map((item, idx) => (
-              <motion.div key={item.id || idx} style={{ skewX, scale }}>
-                <ActiveSliderCard
-                  item={item}
-                  index={idx}
-                  onExpand={() => setActiveLightboxIndex(idx)}
-                  isDraggingRef={isDraggingRef}
-                />
-              </motion.div>
-            ))}
+            {displayList.map((item, idx) => {
+              const hasTreatmentDesc = Boolean(item.traitement_slug && treatmentsWithDesc.has(item.traitement_slug.toLowerCase().trim()));
+              return (
+                <motion.div key={item.id || idx} style={{ skewX, scale }}>
+                  <ActiveSliderCard
+                    item={item}
+                    index={idx}
+                    onExpand={() => setActiveLightboxIndex(idx)}
+                    isDraggingRef={isDraggingRef}
+                    hasTreatmentDescription={hasTreatmentDesc}
+                  />
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </div>
@@ -703,18 +758,25 @@ export function ProjectsMasonry() {
                     Fermer
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = `/traitements/${currentModalItem.traitement_slug}`;
-                      setActiveLightboxIndex(null);
-                      navigate(url);
-                    }}
-                    className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-[0_0_25px_rgba(72,202,228,0.45)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>Voir le traitement complet</span>
-                    <ArrowRight size={15} />
-                  </button>
+                  {Boolean(currentModalItem?.traitement_slug && treatmentsWithDesc.has(currentModalItem.traitement_slug.toLowerCase().trim())) ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = `/traitements/${currentModalItem.traitement_slug}`;
+                        setActiveLightboxIndex(null);
+                        navigate(url);
+                      }}
+                      className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-[0_0_25px_rgba(72,202,228,0.45)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>Voir le traitement complet</span>
+                      <ArrowRight size={15} />
+                    </button>
+                  ) : (
+                    <div className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-xs font-semibold flex items-center gap-1.5 select-none">
+                      <span>🔒</span>
+                      <span>Fiche traitement bientôt disponible</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
