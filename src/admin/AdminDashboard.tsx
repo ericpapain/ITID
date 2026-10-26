@@ -18,6 +18,47 @@ export default function AdminDashboard() {
   const [seedLoading, setSeedLoading] = useState(false);
   const [discoveredFiles, setDiscoveredFiles] = useState<any[] | null>(null);
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
+  const [autoSnapshot, setAutoSnapshot] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("itid_cms_auto_backup");
+      if (raw) {
+        setAutoSnapshot(JSON.parse(raw));
+      }
+    } catch {}
+  }, []);
+
+  const handleRestoreAutoSnapshot = async () => {
+    if (!autoSnapshot?.backup) return;
+    const dateStr = new Date(autoSnapshot.saved_at).toLocaleString("fr-FR");
+    if (!window.confirm(`Voulez-vous restaurer vos contenus et textes enrichis mémorisés dans votre navigateur le ${dateStr} ?\n\nCela réinjectera tous les articles, cas cliniques et réglages enregistrés.`)) {
+      return;
+    }
+    setScanLoading(true);
+    setRestoreMessage("Restauration de votre sauvegarde navigateur en cours...");
+    try {
+      const res = await fetch("/api/admin/cms?type=backup&action=restore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(autoSnapshot.backup),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRestoreMessage(`🎉 Succès : Vos données enrichies du navigateur ont été réinjectées avec succès !`);
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        alert("Erreur de réinjection : " + (data.error || "Inconnu"));
+      }
+    } catch (e: any) {
+      alert("Erreur réseau : " + e.message);
+    } finally {
+      setScanLoading(false);
+    }
+  };
 
   const handleScan = async () => {
     setScanLoading(true);
@@ -377,6 +418,30 @@ export default function AdminDashboard() {
           Si des anciennes données manquent, cliquez sur <strong className="text-indigo-400">"Scanner & Récupérer Anciennes Données"</strong> pour les retrouver sur le serveur et les réinjecter immédiatement.
         </p>
 
+        {/* Bannière de secours navigateur (instantané local) */}
+        {autoSnapshot && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-amber-950/70 via-orange-950/50 to-slate-900 border border-amber-500/50 rounded-xl flex items-center justify-between flex-wrap gap-3 shadow-lg shadow-amber-950/30">
+            <div className="space-y-1">
+              <div className="text-sm font-bold text-amber-300 flex items-center gap-2">
+                <span>⚡ Instantané automatique trouvé dans votre navigateur</span>
+                <span className="text-[11px] text-amber-400/80 font-mono">
+                  ({new Date(autoSnapshot.saved_at).toLocaleString("fr-FR")})
+                </span>
+              </div>
+              <p className="text-xs text-amber-200/80">
+                Votre navigateur a conservé une copie de vos fiches, textes enrichis et réglages lors de vos dernières modifications.
+              </p>
+            </div>
+            <button
+              onClick={handleRestoreAutoSnapshot}
+              disabled={scanLoading}
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer flex items-center gap-2"
+            >
+              <span>🚀 Réinjecter mes contenus du navigateur</span>
+            </button>
+          </div>
+        )}
+
         {restoreMessage && (
           <div className="mb-4 p-3.5 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-medium">
             {restoreMessage}
@@ -397,7 +462,9 @@ export default function AdminDashboard() {
                   <div
                     key={idx}
                     className={`p-3.5 rounded-xl border text-xs space-y-2 transition-all ${
-                      item.is_active
+                      item.has_custom_enrichment && !item.is_active
+                        ? "bg-slate-900/95 border-amber-500/70 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/40"
+                        : item.is_active
                         ? "bg-slate-900/95 border-emerald-500/60 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30"
                         : "bg-slate-800/80 border-slate-700"
                     }`}
@@ -409,7 +476,12 @@ export default function AdminDashboard() {
                         {item.is_active && (
                           <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Base Active en Production
+                            Base Active Actuelle
+                          </span>
+                        )}
+                        {item.has_custom_enrichment && (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                            🌟 {item.custom_media_count} médias réels (non IA)
                           </span>
                         )}
                       </div>
@@ -417,16 +489,28 @@ export default function AdminDashboard() {
                         onClick={() => handleRestoreDiscovered(item.path, item.filename, item.is_active)}
                         disabled={scanLoading}
                         className={`px-3 py-1.5 font-bold text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                          item.is_active
+                          item.has_custom_enrichment && !item.is_active
+                            ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-md shadow-amber-500/30"
+                            : item.is_active
                             ? "bg-emerald-600/90 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 border border-emerald-400/40"
                             : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30"
                         }`}
                       >
-                        {item.is_active ? "🛡️ Vérifier cette base" : "🔄 Restaurer cette sauvegarde"}
+                        {item.is_active
+                          ? "🛡️ Vérifier cette base"
+                          : item.has_custom_enrichment
+                          ? "🌟 Restaurer mes photos & textes réels"
+                          : "🔄 Restaurer cette sauvegarde"}
                       </button>
                     </div>
 
                     <div className="text-[11px] text-slate-400 break-all font-mono">{item.path}</div>
+
+                    {item.sample_titles && item.sample_titles.length > 0 && (
+                      <div className="text-[11px] text-cyan-300/90 italic pt-0.5 bg-slate-950/40 px-2.5 py-1 rounded-md border border-cyan-500/20">
+                        <strong className="text-cyan-400 not-italic">Fiches détectées :</strong> {item.sample_titles.join(" • ")}
+                      </div>
+                    )}
 
                     {item.counts && Object.keys(item.counts).length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1">

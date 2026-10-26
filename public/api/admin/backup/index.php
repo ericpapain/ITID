@@ -236,12 +236,75 @@ if ($action === "scan") {
                                         $rowCounts[$t] = $c;
                                     } catch (Throwable $e) {}
                                 }
+
+                                // Analyse approfondie des contenus personnalisés (médias réels et titres)
+                                $customMediaCount = 0;
+                                $sampleTitles = [];
+
+                                try {
+                                    $stmtP = $checkPdo->query("SELECT title_fr, card_image, section1_image, section2_image, section3_image, section4_image, hero_gallery_json FROM cms_pathologies LIMIT 6");
+                                    if ($stmtP) {
+                                        while ($row = $stmtP->fetch(PDO::FETCH_ASSOC)) {
+                                            if (!empty($row['title_fr']) && count($sampleTitles) < 4) {
+                                                $sampleTitles[] = $row['title_fr'];
+                                            }
+                                            foreach ($row as $k => $v) {
+                                                if (is_string($v) && (strpos($v, '/uploads/') !== false || strpos($v, '/image_itid/') !== false || strpos($v, 'data:image') !== false)) {
+                                                    $customMediaCount++;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    $stmtT = $checkPdo->query("SELECT title_fr, card_image, section1_image, section2_image, section3_image, section4_image, hero_gallery_json FROM cms_traitements LIMIT 6");
+                                    if ($stmtT) {
+                                        while ($row = $stmtT->fetch(PDO::FETCH_ASSOC)) {
+                                            if (!empty($row['title_fr']) && count($sampleTitles) < 6) {
+                                                $sampleTitles[] = $row['title_fr'];
+                                            }
+                                            foreach ($row as $k => $v) {
+                                                if (is_string($v) && (strpos($v, '/uploads/') !== false || strpos($v, '/image_itid/') !== false || strpos($v, 'data:image') !== false)) {
+                                                    $customMediaCount++;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    $stmtC = $checkPdo->query("SELECT title_fr, image, gallery_json FROM cms_cas_cliniques LIMIT 6");
+                                    if ($stmtC) {
+                                        while ($row = $stmtC->fetch(PDO::FETCH_ASSOC)) {
+                                            if (!empty($row['title_fr']) && count($sampleTitles) < 8) {
+                                                $sampleTitles[] = $row['title_fr'];
+                                            }
+                                            foreach ($row as $k => $v) {
+                                                if (is_string($v) && (strpos($v, '/uploads/') !== false || strpos($v, '/image_itid/') !== false || strpos($v, 'data:image') !== false)) {
+                                                    $customMediaCount++;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    $stmtA = $checkPdo->query("SELECT title_fr, cover_image, gallery_images_json FROM cms_articles LIMIT 6");
+                                    if ($stmtA) {
+                                        while ($row = $stmtA->fetch(PDO::FETCH_ASSOC)) {
+                                            if (!empty($row['title_fr']) && count($sampleTitles) < 10) {
+                                                $sampleTitles[] = $row['title_fr'];
+                                            }
+                                            foreach ($row as $k => $v) {
+                                                if (is_string($v) && (strpos($v, '/uploads/') !== false || strpos($v, '/image_itid/') !== false || strpos($v, 'data:image') !== false)) {
+                                                    $customMediaCount++;
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (Throwable $e) {}
                             }
                             $checkPdo = null;
                         } catch (Throwable $e) {}
 
                         $realActive = $activeSqlitePath ? realpath($activeSqlitePath) : "";
                         $isActive = ($realF && $realActive && $realF === $realActive);
+                        $hasCustomEnrichment = ($customMediaCount > 0);
 
                         $foundFiles[] = [
                             "path" => $full,
@@ -251,17 +314,25 @@ if ($action === "scan") {
                             "modified" => $mtime,
                             "is_valid_sqlite" => $isValid,
                             "is_active" => $isActive,
-                            "counts" => $rowCounts
+                            "counts" => $rowCounts,
+                            "custom_media_count" => $customMediaCount,
+                            "has_custom_enrichment" => $hasCustomEnrichment,
+                            "sample_titles" => array_slice(array_unique($sampleTitles), 0, 5)
                         ];
                     }
                 }
             }
         }
 
-        // Trier avec la base active en premier, puis par date de modification décroissante
+        // Trier : priorité absolue aux bases contenant vos médias personnalisés/enrichis, puis base active, puis date
         usort($foundFiles, function($a, $b) {
+            $scoreA = (($a['custom_media_count'] ?? 0) * 100) + (!empty($a['has_custom_enrichment']) ? 50 : 0);
+            $scoreB = (($b['custom_media_count'] ?? 0) * 100) + (!empty($b['has_custom_enrichment']) ? 50 : 0);
+            if ($scoreA !== $scoreB) return $scoreB - $scoreA;
+
             if (!empty($a['is_active']) && empty($b['is_active'])) return -1;
             if (empty($a['is_active']) && !empty($b['is_active'])) return 1;
+
             return strcmp($b['modified'], $a['modified']);
         });
 
