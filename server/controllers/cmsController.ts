@@ -1106,6 +1106,36 @@ export async function handleAdminCms(req: Request, res: Response) {
       return res.json({ success: true, backup: backupPayload });
     }
 
+    if (action === 'export_images') {
+      try {
+        const archiverModule = await import('archiver');
+        const archiver = archiverModule.default;
+        const filename = `itid_images_backup_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.zip`;
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+        const archive = archiver('zip', { zlib: { level: 9 } });
+        archive.pipe(res);
+
+        archive.append(`ITID France — Sauvegarde Médias\nDate: ${new Date().toISOString()}\n`, { name: 'INFO_ARCHIVE_ITID.txt' });
+
+        const uploadsPath = path.join(process.cwd(), 'public', 'uploads');
+        if (fs.existsSync(uploadsPath)) {
+          archive.directory(uploadsPath, 'uploads');
+        }
+
+        const imagesPath = path.join(process.cwd(), 'public', 'images');
+        if (fs.existsSync(imagesPath)) {
+          archive.directory(imagesPath, 'images');
+        }
+
+        await archive.finalize();
+        return;
+      } catch (err: any) {
+        return res.status(500).json({ success: false, error: "Erreur d'exportation des images : " + err.message });
+      }
+    }
+
     if (action === 'restore' && method === 'POST') {
       const data = body.data || body;
       if (!data) {
