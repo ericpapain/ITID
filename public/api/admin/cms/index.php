@@ -863,89 +863,182 @@ try {
             }
         }
 
-        // C. Export ZIP de toutes les images de uploads/
-        if ($action === 'export_images') {
-            $uploadsDir = realpath(__DIR__ . '/../../uploads');
-            if (!$uploadsDir || !is_dir($uploadsDir)) {
-                $uploadsDir = __DIR__ . '/../../uploads';
-                @mkdir($uploadsDir, 0755, true);
-            }
-
-            if (!class_exists('ZipArchive')) {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'error' => 'L\'extension PHP ZipArchive n\'est pas activée sur le serveur.']);
-                exit;
-            }
-
-            $zipFile = tempnam(sys_get_temp_dir(), 'itid_img_') . '.zip';
-            $zip = new ZipArchive();
-            if ($zip->open($zipFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'error' => 'Impossible d\'initialiser l\'archive ZIP.']);
-                exit;
-            }
-
-            $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($uploadsDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::LEAVES_ONLY
-            );
-
-            $fileCount = 0;
-            foreach ($files as $name => $file) {
-                if (!$file->isDir()) {
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($uploadsDir) + 1);
-                    if (basename($filePath) === '.htaccess') continue;
-                    $zip->addFile($filePath, $relativePath);
-                    $fileCount++;
+        // Helper interne : Résolution robuste du dossier uploads physique
+        $resolveUploadsDir = function() {
+            $candidates = [
+                dirname(__DIR__, 3) . '/uploads',
+                rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/\\') . '/uploads',
+                dirname(__DIR__, 4) . '/public/uploads',
+                dirname(__DIR__, 2) . '/uploads',
+                __DIR__ . '/../../../uploads'
+            ];
+            foreach ($candidates as $cand) {
+                if (!empty($cand) && is_dir($cand)) {
+                    $rp = realpath($cand);
+                    if ($rp && is_dir($rp)) return $rp;
                 }
             }
-            $zip->close();
+            $target = dirname(__DIR__, 3) . '/uploads';
+            if (!is_dir($target)) {
+                @mkdir($target, 0775, true);
+            }
+            return is_dir($target) ? $target : dirname(__DIR__, 3);
+        };
 
-            $downloadName = "itid_images_backup_" . date("Ymd_His") . ".zip";
-            if (ob_get_length()) ob_end_clean();
-            header("Content-Type: application/zip");
-            header("Content-Disposition: attachment; filename=\"" . $downloadName . "\"");
-            header("Content-Length: " . filesize($zipFile));
-            header("Cache-Control: no-cache");
-            readfile($zipFile);
-            @unlink($zipFile);
-            exit;
+        // C. Export ZIP de toutes les images de uploads/ et images/
+        if ($action === 'export_images') {
+            try {
+                $uploadsDir = $resolveUploadsDir();
+
+                if (!class_exists('ZipArchive')) {
+                    http_response_code(500);
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode([
+                        'success' => false,
+                        'error' => "L'extension PHP 'zip' (ZipArchive) n'est pas activée sur votre hébergement Hostinger. Veuillez l'activer dans le hPanel Hostinger > Configuration PHP > Extensions > cocher 'zip'."
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                $tmpDir = (is_dir(sys_get_temp_dir()) && is_writable(sys_get_temp_dir())) ? sys_get_temp_dir() : $uploadsDir;
+                $zipFile = rtrim($tmpDir, '/\\') . DIRECTORY_SEPARATOR . 'itid_img_' . date('Ymd_His') . '_' . mt_rand(1000, 9999) . '.zip';
+
+                $zip = new ZipArchive();
+                $openRes = $zip->open($zipFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+                if ($openRes !== true) {
+                    http_response_code(500);
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode([
+                        'success' => false,
+                        'error' => "Impossible de créer le fichier d'archive ZIP temporaire sur le serveur (code: {$openRes})."
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Toujours ajouter un fichier manifeste pour garantir que le ZIP contient au moins 1 fichier
+                $zip->addFromString('INFO_ARCHIVE_ITID.txt', "ITID France — Sauvegarde des Médias & Photos\nDate d'export : " . date('d/m/Y H:i:s') . "\n");
+
+                $fileCount = 0;
+
+                // 1. Fichiers téléversés dans uploads/
+                if (is_dir($uploadsDir)) {
+                    try {
+                        $files = new RecursiveIteratorIterator(
+                            new RecursiveDirectoryIterator($uploadsDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                            RecursiveIteratorIterator::LEAVES_ONLY
+                        );
+                        foreach ($files as $name => $file) {
+                            if (!$file->isDir()) {
+                                $filePath = $file->getRealPath();
+                                if (!$filePath || !is_readable($filePath)) continue;
+                                $base = basename($filePath);
+                                if ($base === '.htaccess' || $base === 'web.config' || str_ends_with(strtolower($base), '.zip')) continue;
+
+                                $relativePath = substr($filePath, strlen($uploadsDir) + 1);
+                                $zip->addFile($filePath, 'uploads/' . str_replace('\\', '/', $relativePath));
+                                $fileCount++;
+                            }
+                        }
+                    } catch (Throwable $eDir) {
+                        // Tolérance sur dossier vide ou inaccessible
+                    }
+                }
+
+                // 2. Photos officielles du site dans public/images/
+                $imagesDir = dirname(__DIR__, 3) . '/images';
+                if (is_dir($imagesDir)) {
+                    try {
+                        $imgFiles = new RecursiveIteratorIterator(
+                            new RecursiveDirectoryIterator($imagesDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                            RecursiveIteratorIterator::LEAVES_ONLY
+                        );
+                        foreach ($imgFiles as $name => $file) {
+                            if (!$file->isDir()) {
+                                $filePath = $file->getRealPath();
+                                if (!$filePath || !is_readable($filePath)) continue;
+                                $base = basename($filePath);
+                                if ($base === '.htaccess' || str_ends_with(strtolower($base), '.zip')) continue;
+
+                                $relativePath = substr($filePath, strlen($imagesDir) + 1);
+                                $zip->addFile($filePath, 'images/' . str_replace('\\', '/', $relativePath));
+                                $fileCount++;
+                            }
+                        }
+                    } catch (Throwable $eImg) {
+                        // Tolérance
+                    }
+                }
+
+                $closeRes = $zip->close();
+                if (!$closeRes || !file_exists($zipFile) || filesize($zipFile) === 0) {
+                    throw new Exception("Échec de la fermeture ou de l'écriture du fichier ZIP.");
+                }
+
+                $downloadName = "itid_photos_backup_" . date("Ymd_His") . ".zip";
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+
+                header("Content-Type: application/zip");
+                header("Content-Disposition: attachment; filename=\"" . $downloadName . "\"");
+                header("Content-Length: " . filesize($zipFile));
+                header("Cache-Control: no-cache, must-revalidate");
+                header("Pragma: no-cache");
+                header("Expires: 0");
+
+                readfile($zipFile);
+                @unlink($zipFile);
+                exit;
+
+            } catch (Throwable $e) {
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                http_response_code(500);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode([
+                    'success' => false,
+                    'error' => "Erreur lors de la compression des images : " . $e->getMessage()
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
         }
 
         // D. Restauration ZIP des images
         if ($action === 'restore_images' && $method === 'POST') {
-            if (empty($_FILES['zip']) || $_FILES['zip']['error'] !== UPLOAD_ERR_OK) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'error' => 'Aucun fichier ZIP valide reçu.']);
-                exit;
-            }
+            try {
+                if (empty($_FILES['zip']) || $_FILES['zip']['error'] !== UPLOAD_ERR_OK) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Aucun fichier ZIP valide reçu.']);
+                    exit;
+                }
 
-            if (!class_exists('ZipArchive')) {
+                if (!class_exists('ZipArchive')) {
+                    http_response_code(500);
+                    echo json_encode(['success' => false, 'error' => 'Extension ZipArchive non disponible sur le serveur.']);
+                    exit;
+                }
+
+                $uploadsDir = $resolveUploadsDir();
+
+                $zip = new ZipArchive();
+                if ($zip->open($_FILES['zip']['tmp_name']) === true) {
+                    $zip->extractTo($uploadsDir);
+                    $extractedCount = $zip->numFiles;
+                    $zip->close();
+                    echo json_encode([
+                        'success' => true,
+                        'message' => "Archive d'images restaurée avec succès ({$extractedCount} fichiers extraits)."
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                } else {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Impossible d\'ouvrir l\'archive ZIP envoyée.']);
+                    exit;
+                }
+            } catch (Throwable $e) {
                 http_response_code(500);
-                echo json_encode(['success' => false, 'error' => 'Extension ZipArchive non disponible.']);
-                exit;
-            }
-
-            $uploadsDir = realpath(__DIR__ . '/../../uploads');
-            if (!$uploadsDir) {
-                $uploadsDir = __DIR__ . '/../../uploads';
-                @mkdir($uploadsDir, 0755, true);
-            }
-
-            $zip = new ZipArchive();
-            if ($zip->open($_FILES['zip']['tmp_name']) === true) {
-                $zip->extractTo($uploadsDir);
-                $extractedCount = $zip->numFiles;
-                $zip->close();
-                echo json_encode([
-                    'success' => true,
-                    'message' => "Archive d'images restaurée avec succès ({$extractedCount} fichiers extraits)."
-                ], JSON_UNESCAPED_UNICODE);
-                exit;
-            } else {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'error' => 'Impossible d\'ouvrir l\'archive ZIP envoyée.']);
+                echo json_encode(['success' => false, 'error' => "Erreur lors de l'extraction ZIP : " . $e->getMessage()]);
                 exit;
             }
         }

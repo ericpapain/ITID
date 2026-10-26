@@ -3079,9 +3079,21 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
   const currentDesc = lang === "en" ? (item.short_desc_en || "") : (item.short_desc_fr || "");
 
   const [isFlippedPreview, setIsFlippedPreview] = useState(false);
+  const [cmsTreatments, setCmsTreatments] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/cms/traitements")
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && Array.isArray(d.traitements)) {
+          setCmsTreatments(d.traitements);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Traitements & Pathologies pour association obligatoire
-  const treatmentOptions = [
+  const baseTreatmentOptions = [
     { slug: "infiltrations-rachidiennes", name: "Infiltrations Rachidiennes Guidées" },
     { slug: "infiltrations-articulaires", name: "Infiltrations Articulaires Échoguidées" },
     { slug: "perfusion-lidocaine", name: "Perfusions de Lidocaïne / Kétamine" },
@@ -3097,6 +3109,16 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
     { slug: "hypnovr", name: "Réalité Virtuelle Thérapeutique (HypnoVR)" },
     { slug: "stimulation-medullaire", name: "Stimulation Médullaire Haute Définition" }
   ];
+
+  const treatmentOptions = useMemo(() => {
+    const list = [...baseTreatmentOptions];
+    cmsTreatments.forEach((ct: any) => {
+      if (ct.slug && !list.some(t => t.slug === ct.slug)) {
+        list.unshift({ slug: ct.slug, name: ct.title_fr || ct.title_en || ct.slug });
+      }
+    });
+    return list;
+  }, [cmsTreatments]);
 
   const pathologyOptions = [
     { slug: "lombalgie-chronique", name: "Lombalgie chronique & Sciatique" },

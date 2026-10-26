@@ -130,8 +130,20 @@ export function CmsBackupRestorePanel({ lang = "fr", onRestored }: CmsBackupRest
         headers: getAuthHeaders(),
       });
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Erreur HTTP ${res.status}: ${text.slice(0, 120)}`);
+        let errText = `Erreur HTTP ${res.status}`;
+        try {
+          const contentType = res.headers.get("content-type") || "";
+          if (contentType.includes("application/json")) {
+            const json = await res.json();
+            if (json.error) errText = json.error;
+          } else {
+            const raw = await res.text();
+            const doc = new DOMParser().parseFromString(raw, "text/html");
+            const clean = doc.body.textContent?.trim() || "";
+            if (clean) errText = `${errText}: ${clean.slice(0, 160)}`;
+          }
+        } catch {}
+        throw new Error(errText);
       }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);

@@ -78,59 +78,21 @@ export function TreatmentDetailPage() {
       }
 
       if (!treatmentData) {
-        // Fallback local data
-        const cleanSlug = (slug || "").toLowerCase().trim();
-        const found = TRAITEMENTS.find((tr: any) => {
-          if (tr.slug && tr.slug === cleanSlug) return true;
-          if (tr.title) {
-            const keyPart = tr.title.replace("treatments.", "").replace(".title", "").toLowerCase();
-            if (cleanSlug.includes(keyPart)) return true;
+        // Le traitement n'existe pas encore dans le CMS
+        setData(null);
+        // Charger les cas cliniques associés si certains portent ce slug
+        try {
+          const resCases = await fetch("/api/cms/cas_cliniques");
+          if (resCases.ok) {
+            const jsonCases = await resCases.json();
+            const items = jsonCases.items || jsonCases.cases || [];
+            const cleanSlug = (slug || "").toLowerCase().trim();
+            const matched = items.filter((c: any) => (c.traitement_slug || "").toLowerCase().trim() === cleanSlug);
+            setAssociatedCases(matched);
           }
-          const trSlug = t(tr.title).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
-          const normClean = cleanSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          return trSlug.includes(normClean) || normClean.includes(trSlug) || (slug && tr.title.includes(slug));
-        }) || TRAITEMENTS[0];
-
-        treatmentData = {
-          slug: (found as any).slug || slug || "infiltrations-rachidiennes",
-          num: found.num || "01",
-          icon: found.icon || "💉",
-          title_fr: t(found.title),
-          title_en: t(found.title),
-          desc_front_fr: t(found.desc),
-          desc_front_en: t(found.desc),
-          desc_back_fr: t(found.desc) + "\n\nTraitement réalisé en ambulatoire sous anesthésie locale et guidage millimétrique par imagerie.",
-          desc_back_en: t(found.desc) + "\n\nOutpatient procedure performed under local anesthesia and high-definition image guidance.",
-          card_image: found.img || "/images/treatments/infiltrations_rachidiennes.jpg",
-          hero_gallery: [
-            found.img || "/images/treatments/infiltrations_rachidiennes.jpg",
-            "/images/treatments/infiltrations_articulaires.jpg",
-            "/images/glowing_3d_spine.jpg"
-          ],
-          section1_title_fr: "Indications & Douleurs Ciblées",
-          section1_title_en: "Indications & Targeted Conditions",
-          section1_text_fr: t(found.desc) + "\n\nCe geste s'adresse aux patients souffrant de douleurs chroniques rebelles lorsque les traitements médicamenteux se révèlent insuffisants.",
-          section1_text_en: t(found.desc) + "\n\nThis interventional procedure is designed for patients with refractory pain when standard medications fail to deliver sufficient relief.",
-          section1_image: found.img || "/images/treatments/infiltrations_rachidiennes.jpg",
-
-          section2_title_fr: "Déroulement Précis du Geste sous Imagerie",
-          section2_title_en: "Step-by-Step Guided Procedure",
-          section2_text_fr: "Réalisé au bloc interventionnel stérile sous contrôle échographique ou scopique en temps réel. Le positionnement de précision garantit une sécurité maximale et un confort optimal.",
-          section2_text_en: "Performed in a sterile interventional suite under real-time ultrasound or fluoroscopic imaging. Precision guidance ensures maximal clinical safety.",
-          section2_image: "/images/treatments/radiofrequence.jpg",
-
-          section3_title_fr: "Bénéfices Attendus & Suites Post-Interventionnelles",
-          section3_title_en: "Expected Benefits & Recovery",
-          section3_text_fr: "Soulagement significatif et rapide, permettant de reprendre les activités quotidiennes et le reconditionnement physique en toute sécurité.",
-          section3_text_en: "Significant and sustained pain reduction, facilitating early rehabilitation and return to active daily living.",
-          section3_image: "/images/glowing_3d_spine.jpg",
-
-          section4_title_fr: "Pathologies Associées Prises en Charge",
-          section4_title_en: "Related Conditions Managed",
-          section4_text_fr: "Ce geste est fréquemment associé à la prise en charge des lombalgies, arthropathies, névralgies et douleurs neuropathiques.",
-          section4_text_en: "This procedure is regularly combined in the comprehensive management of spinal, joint, and neuropathic disorders.",
-          section4_image: "/images/lombalgie.jpg"
-        };
+        } catch {}
+        setLoading(false);
+        return;
       }
 
       setData(treatmentData);
@@ -159,7 +121,7 @@ export function TreatmentDetailPage() {
     loadTreatment();
   }, [slug, t]);
 
-  if (loading || !data) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#f0f7f6] flex items-center justify-center text-[#1a3a5c]">
         <div className="flex items-center gap-3">
@@ -167,6 +129,106 @@ export function TreatmentDetailPage() {
           <span className="font-medium text-slate-700">{t("common.loading", "Chargement du traitement...")}</span>
         </div>
       </div>
+    );
+  }
+
+  const hasSections = (Array.isArray(data?.sections) && data.sections.length > 0) ||
+    (data?.sections_json && data.sections_json !== "[]" && String(data.sections_json).trim() !== "");
+  const hasTextDesc = Boolean(
+    (data?.desc_back_fr && data.desc_back_fr.trim().length > 20) ||
+    (data?.desc_front_fr && data.desc_front_fr.trim().length > 20) ||
+    (data?.section1_title_fr && data.section1_title_fr.trim().length > 0)
+  );
+  const hasActiveDescription = Boolean(data && (hasSections || hasTextDesc));
+
+  if (!data || !hasActiveDescription) {
+    const displayTitle = data
+      ? (lang === "en" ? (data.title_en || data.title_fr) : data.title_fr)
+      : (slug ? slug.replace(/-/g, " ") : "Traitement Thérapeutique");
+
+    return (
+      <main className="min-h-screen bg-[#f0f7f6] text-[#1a3a5c] pt-24 md:pt-28 pb-16 relative overflow-hidden">
+        {/* Background Decor */}
+        <div className="fixed inset-0 pointer-events-none z-0">
+          <div className="absolute top-1/4 -right-40 w-[600px] h-[600px] bg-[#48cae4]/10 rounded-full blur-[140px]" />
+          <div className="absolute bottom-1/3 -left-40 w-[600px] h-[600px] bg-[#2a9d8f]/10 rounded-full blur-[140px]" />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          <Link
+            to="/traitements"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-[#1a3a5c] border border-slate-200/90 text-sm font-semibold shadow-xs transition-colors"
+          >
+            <ArrowLeft size={16} />
+            <span>← Retour aux traitements</span>
+          </Link>
+
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/80 shadow-sm text-center space-y-5">
+            <div className="w-16 h-16 rounded-2xl bg-[#2a9d8f]/10 text-[#0d9488] border border-[#2a9d8f]/20 mx-auto flex items-center justify-center text-3xl shadow-xs">
+              💉
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold uppercase tracking-wider">
+              <span>Geste Interventionnel ITID</span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0c1a2e] capitalize leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+              {displayTitle}
+            </h1>
+
+            <p className="text-base text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto">
+              Ce geste thérapeutique fait partie des interventions de pointe pratiquées par l'équipe d'algologues de l'Institut du Traitement Interventionnel de la Douleur (ITID). 
+              La fiche clinique complète et les recommandations détaillées sont actuellement en cours de finalisation par nos praticiens.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <a
+                href="https://www.doctolib.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-[0_8px_20px_rgba(72,202,228,0.4)] hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Calendar size={17} />
+                <span>Prendre rendez-vous sur Doctolib</span>
+              </a>
+
+              <Link
+                to="/traitements"
+                className="px-5 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm border border-slate-200 transition-all cursor-pointer"
+              >
+                Tous les traitements
+              </Link>
+            </div>
+          </div>
+
+          {/* Si des cas cliniques existent pour ce geste, on les affiche */}
+          {associatedCases.length > 0 && (
+            <div className="space-y-4 pt-4">
+              <h2 className="text-xl font-bold text-[#0c1a2e] flex items-center gap-2">
+                <span>Cas cliniques d'interventions associés ({associatedCases.length})</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {associatedCases.map((cs: any, idx: number) => (
+                  <div
+                    key={cs.id || idx}
+                    onClick={() => setSelectedModalCase(cs)}
+                    className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-[#2a9d8f] hover:shadow-md transition-all cursor-pointer flex items-center gap-4"
+                  >
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0">
+                      <img src={getCleanImageSrc(cs.image, idx)} alt={cs.title_fr} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] uppercase font-bold text-[#0d9488] block truncate">{cs.category_fr || "Cas Clinique"}</span>
+                      <h4 className="font-bold text-sm text-[#0c1a2e] truncate">{cs.title_fr}</h4>
+                      <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{cs.short_desc_fr}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
     );
   }
 
