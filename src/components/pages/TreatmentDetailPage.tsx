@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Calendar, ShieldCheck, CheckCircle2, Activity, HelpCircle, ArrowRight, X } from "lucide-react";
 import { ImageCarousel } from "../ui/ImageCarousel";
-import { TRAITEMENTS } from "../../data";
+import { TRAITEMENTS, DEFAULT_TRAITEMENTS } from "../../data";
 import { getCleanImageSrc, getCleanGallery, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 import RichContentRenderer from "../ui/RichContentRenderer";
 
@@ -78,21 +78,27 @@ export function TreatmentDetailPage() {
       }
 
       if (!treatmentData) {
-        // Le traitement n'existe pas encore dans le CMS
-        setData(null);
-        // Charger les cas cliniques associés si certains portent ce slug
-        try {
-          const resCases = await fetch("/api/cms/cas_cliniques");
-          if (resCases.ok) {
-            const jsonCases = await resCases.json();
-            const items = jsonCases.items || jsonCases.cases || [];
-            const cleanSlug = (slug || "").toLowerCase().trim();
-            const matched = items.filter((c: any) => (c.traitement_slug || "").toLowerCase().trim() === cleanSlug);
-            setAssociatedCases(matched);
-          }
-        } catch {}
-        setLoading(false);
-        return;
+        const cleanSlug = (slug || "").toLowerCase().trim();
+        const foundCanonical = DEFAULT_TRAITEMENTS.find((dt) => {
+          const dtSlug = (dt.slug || "").toLowerCase().trim();
+          return dtSlug === cleanSlug || (dtSlug && (dtSlug.includes(cleanSlug) || cleanSlug.includes(dtSlug)));
+        });
+        if (foundCanonical) {
+          treatmentData = foundCanonical;
+        } else {
+          setData(null);
+          try {
+            const resCases = await fetch("/api/cms/cas_cliniques");
+            if (resCases.ok) {
+              const jsonCases = await resCases.json();
+              const items = jsonCases.items || jsonCases.cases || [];
+              const matched = items.filter((c: any) => (c.traitement_slug || "").toLowerCase().trim() === cleanSlug);
+              setAssociatedCases(matched);
+            }
+          } catch {}
+          setLoading(false);
+          return;
+        }
       }
 
       setData(treatmentData);

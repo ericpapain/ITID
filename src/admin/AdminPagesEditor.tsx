@@ -4,7 +4,7 @@ import { getAuthHeaders, getAdminToken } from "./auth";
 import { SingleMediaSelector, GalleryMediaSelector } from "./MediaSelector";
 import { CmsBackupRestorePanel } from "./CmsBackupRestorePanel";
 import { RichContentEditor } from "./RichContentEditor";
-import { TRAITEMENTS, PATHOLOGIES } from "../data";
+import { TRAITEMENTS, PATHOLOGIES, DEFAULT_CAS_CLINIQUES, DEFAULT_PATHOLOGIES, DEFAULT_TRAITEMENTS } from "../data";
 import {
   Plus,
   Trash2,
@@ -118,11 +118,113 @@ export default function AdminPagesEditor() {
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.items)) {
-            setItemsList(data.items);
-            if (data.items.length > 0) {
+            let loadedItems = [...data.items];
+
+            if (currentSection === "cas_cliniques") {
+              if (loadedItems.length === 0) {
+                loadedItems = DEFAULT_CAS_CLINIQUES.map((c, i) => ({ ...c, id: c.id || i + 1 }));
+              } else {
+                loadedItems = loadedItems.map((c, i) => {
+                  const fallback = DEFAULT_CAS_CLINIQUES[i] || DEFAULT_CAS_CLINIQUES[0];
+                  return {
+                    ...c,
+                    traitement_slug: c.traitement_slug || fallback.traitement_slug,
+                    traitement_name: c.traitement_name || fallback.traitement_name,
+                    pathologie_slug: c.pathologie_slug || fallback.pathologie_slug,
+                    short_desc_fr: (c.short_desc_fr && c.short_desc_fr.trim().length > 10) ? c.short_desc_fr : fallback.short_desc_fr,
+                    short_desc_en: (c.short_desc_en && c.short_desc_en.trim().length > 10) ? c.short_desc_en : fallback.short_desc_en,
+                  };
+                });
+              }
+            } else if (currentSection === "pathologies") {
+              if (loadedItems.length === 0) {
+                loadedItems = DEFAULT_PATHOLOGIES.map((p, i) => ({ ...p, id: p.id || i + 1 }));
+              } else {
+                loadedItems = loadedItems.map((p, i) => {
+                  const def = DEFAULT_PATHOLOGIES.find(dp => dp.slug === p.slug) || DEFAULT_PATHOLOGIES[i];
+                  if (!def) return p;
+                  const hasSections = (Array.isArray(p.sections) && p.sections.length > 0) ||
+                    (p.sections_json && p.sections_json !== "[]" && String(p.sections_json).trim() !== "");
+                  const hasText = p.section1_text_fr && p.section1_text_fr.trim().length > 10;
+                  if (!hasSections && !hasText) {
+                    return {
+                      ...p,
+                      hero_gallery: Array.isArray(p.hero_gallery) && p.hero_gallery.length > 0 ? p.hero_gallery : def.hero_gallery,
+                      section1_title_fr: p.section1_title_fr || def.section1_title_fr,
+                      section1_title_en: p.section1_title_en || def.section1_title_en,
+                      section1_text_fr: p.section1_text_fr || def.section1_text_fr,
+                      section1_text_en: p.section1_text_en || def.section1_text_en,
+                      section1_image: p.section1_image || def.section1_image,
+                      section2_title_fr: p.section2_title_fr || def.section2_title_fr,
+                      section2_title_en: p.section2_title_en || def.section2_title_en,
+                      section2_text_fr: p.section2_text_fr || def.section2_text_fr,
+                      section2_text_en: p.section2_text_en || def.section2_text_en,
+                      section2_image: p.section2_image || def.section2_image,
+                      section3_title_fr: p.section3_title_fr || def.section3_title_fr,
+                      section3_title_en: p.section3_title_en || def.section3_title_en,
+                      section3_text_fr: p.section3_text_fr || def.section3_text_fr,
+                      section3_text_en: p.section3_text_en || def.section3_text_en,
+                      section3_image: p.section3_image || def.section3_image,
+                      section4_title_fr: p.section4_title_fr || def.section4_title_fr,
+                      section4_title_en: p.section4_title_en || def.section4_title_en,
+                      section4_text_fr: p.section4_text_fr || def.section4_text_fr,
+                      section4_text_en: p.section4_text_en || def.section4_text_en,
+                      section4_image: p.section4_image || def.section4_image,
+                    };
+                  }
+                  return p;
+                });
+              }
+            } else if (currentSection === "traitements") {
+              if (loadedItems.length === 0) {
+                loadedItems = DEFAULT_TRAITEMENTS.map((t, i) => ({ ...t, id: t.id || i + 1 }));
+              } else {
+                loadedItems = loadedItems.map((t, i) => {
+                  const def = DEFAULT_TRAITEMENTS.find(dt => dt.slug === t.slug) || DEFAULT_TRAITEMENTS[i];
+                  if (!def) return t;
+                  const hasSections = (Array.isArray(t.sections) && t.sections.length > 0) ||
+                    (t.sections_json && t.sections_json !== "[]" && String(t.sections_json).trim() !== "");
+                  const hasText = (t.desc_front_fr && t.desc_front_fr.trim().length > 10) || (t.section1_text_fr && t.section1_text_fr.trim().length > 10);
+                  if (!hasSections && !hasText) {
+                    return {
+                      ...t,
+                      desc_front_fr: t.desc_front_fr || def.desc_front_fr,
+                      desc_front_en: t.desc_front_en || def.desc_front_en,
+                      desc_back_fr: t.desc_back_fr || def.desc_back_fr,
+                      desc_back_en: t.desc_back_en || def.desc_back_en,
+                      hero_gallery: Array.isArray(t.hero_gallery) && t.hero_gallery.length > 0 ? t.hero_gallery : def.hero_gallery,
+                      section1_title_fr: t.section1_title_fr || def.section1_title_fr,
+                      section1_title_en: t.section1_title_en || def.section1_title_en,
+                      section1_text_fr: t.section1_text_fr || def.section1_text_fr,
+                      section1_text_en: t.section1_text_en || def.section1_text_en,
+                      section1_image: t.section1_image || def.section1_image,
+                      section2_title_fr: t.section2_title_fr || def.section2_title_fr,
+                      section2_title_en: t.section2_title_en || def.section2_title_en,
+                      section2_text_fr: t.section2_text_fr || def.section2_text_fr,
+                      section2_text_en: t.section2_text_en || def.section2_text_en,
+                      section2_image: t.section2_image || def.section2_image,
+                      section3_title_fr: t.section3_title_fr || def.section3_title_fr,
+                      section3_title_en: t.section3_title_en || def.section3_title_en,
+                      section3_text_fr: t.section3_text_fr || def.section3_text_fr,
+                      section3_text_en: t.section3_text_en || def.section3_text_en,
+                      section3_image: t.section3_image || def.section3_image,
+                      section4_title_fr: t.section4_title_fr || def.section4_title_fr,
+                      section4_title_en: t.section4_title_en || def.section4_title_en,
+                      section4_text_fr: t.section4_text_fr || def.section4_text_fr,
+                      section4_text_en: t.section4_text_en || def.section4_text_en,
+                      section4_image: t.section4_image || def.section4_image,
+                    };
+                  }
+                  return t;
+                });
+              }
+            }
+
+            setItemsList(loadedItems);
+            if (loadedItems.length > 0) {
               const targetId = preferredId ?? selectedItem?.id;
-              const found = targetId ? data.items.find((it: any) => it.id === targetId) : null;
-              setSelectedItem(found || data.items[0]);
+              const found = targetId ? loadedItems.find((it: any) => it.id === targetId) : null;
+              setSelectedItem(found || loadedItems[0]);
             } else {
               setSelectedItem(null);
             }
