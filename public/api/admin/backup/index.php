@@ -60,7 +60,19 @@ if ($action === "info") {
                 : "OK: DB stockee hors du webroot. Donnees persistantes entre les deployments.";
         }
 
-        $tables = ["visitors","visitor_sessions","page_views","contact_messages","newsletter_subscribers","admin_users"];
+        $tables = [
+            "cms_pathologies",
+            "cms_traitements",
+            "cms_cas_cliniques",
+            "cms_articles",
+            "cms_pages_content",
+            "visitors",
+            "visitor_sessions",
+            "page_views",
+            "contact_messages",
+            "newsletter_subscribers",
+            "admin_users"
+        ];
         $counts = [];
         foreach ($tables as $t) {
             try { $counts[$t] = (int)$pdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn(); }
@@ -174,7 +186,17 @@ if ($action === "scan") {
             sys_get_temp_dir()
         ]));
 
+        $activeSqlitePath = "";
+        try {
+            $actPdo = getItidDb();
+            $actStmt = $actPdo->query("PRAGMA database_list");
+            $actList = $actStmt->fetchAll();
+            $activeSqlitePath = $actList[0]["file"] ?? "";
+        } catch (Throwable $e) {}
+
         $foundFiles = [];
+        $seenPaths = [];
+
         foreach ($searchDirs as $dir) {
             if (!is_dir($dir)) continue;
             $files = @scandir($dir);
@@ -183,6 +205,10 @@ if ($action === "scan") {
                 if ($f === "." || $f === "..") continue;
                 if (preg_match('/\.(sqlite|sqlite3|db)(\.bak.*)?$/i', $f) || strpos($f, 'itid') !== false) {
                     $full = $dir . '/' . $f;
+                    $realF = realpath($full) ?: $full;
+                    if (isset($seenPaths[$realF])) continue;
+                    $seenPaths[$realF] = true;
+
                     if (is_file($full)) {
                         $size = filesize($full);
                         $mtime = date("Y-m-d H:i:s", filemtime($full));
@@ -194,14 +220,28 @@ if ($action === "scan") {
                             $tables = $checkPdo->query("SELECT name FROM sqlite_master WHERE type='table'")->fetchAll(PDO::FETCH_COLUMN);
                             if (!empty($tables)) {
                                 $isValid = true;
-                                foreach (["visitors", "contact_messages", "visitor_sessions", "newsletter_subscribers"] as $t) {
+                                $checkTables = [
+                                    "cms_pathologies",
+                                    "cms_traitements",
+                                    "cms_cas_cliniques",
+                                    "cms_articles",
+                                    "visitors",
+                                    "contact_messages",
+                                    "visitor_sessions",
+                                    "newsletter_subscribers"
+                                ];
+                                foreach ($checkTables as $t) {
                                     try {
-                                        $rowCounts[$t] = (int)$checkPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                                        $c = (int)$checkPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                                        $rowCounts[$t] = $c;
                                     } catch (Throwable $e) {}
                                 }
                             }
                             $checkPdo = null;
                         } catch (Throwable $e) {}
+
+                        $realActive = $activeSqlitePath ? realpath($activeSqlitePath) : "";
+                        $isActive = ($realF && $realActive && $realF === $realActive);
 
                         $foundFiles[] = [
                             "path" => $full,
@@ -210,12 +250,20 @@ if ($action === "scan") {
                             "size_kb" => round($size / 1024, 2),
                             "modified" => $mtime,
                             "is_valid_sqlite" => $isValid,
+                            "is_active" => $isActive,
                             "counts" => $rowCounts
                         ];
                     }
                 }
             }
         }
+
+        // Trier avec la base active en premier, puis par date de modification décroissante
+        usort($foundFiles, function($a, $b) {
+            if (!empty($a['is_active']) && empty($b['is_active'])) return -1;
+            if (empty($a['is_active']) && !empty($b['is_active'])) return 1;
+            return strcmp($b['modified'], $a['modified']);
+        });
 
         echo json_encode(["success" => true, "found" => $foundFiles], JSON_UNESCAPED_UNICODE);
     } catch (Throwable $e) {
@@ -235,7 +283,7 @@ if ($action === "restore_discovered" && $_SERVER["REQUEST_METHOD"] === "POST") {
 
         if (!$sourcePath || !file_exists($sourcePath)) {
             http_response_code(400);
-            echo json_encode(["success" => false, "error" => "Fichier source introuvable."]);
+            echo json_encode(["success" => false, "error" => "Fichier source introuvable : " . htmlspecialchars($sourcePath)]);
             exit;
         }
 
@@ -243,34 +291,99 @@ if ($action === "restore_discovered" && $_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt = $pdo->query("PRAGMA database_list");
         $dbList = $stmt->fetchAll();
         $sqlitePath = $dbList[0]["file"] ?? "";
-        $pdo = null;
 
         if (!$sqlitePath) {
             http_response_code(500);
-            echo json_encode(["success" => false, "error" => "Chemin DB cible inconnu."]);
+            echo json_encode(["success" => false, "error" => "Chemin de la base de données active introuvable."]);
             exit;
         }
 
+        $realSource = realpath($sourcePath);
+        $realTarget = realpath($sqlitePath);
+        $isSameFile = ($realSource !== false && $realTarget !== false && $realSource === $realTarget);
+
+        // 1. Si la source est DÉJÀ la base active : sécurité absolue, confirmation rassurante
+        if ($isSameFile) {
+            $checkTables = ["cms_pathologies", "cms_traitements", "cms_cas_cliniques", "cms_articles", "visitors", "contact_messages"];
+            $counts = [];
+            foreach ($checkTables as $t) {
+                try {
+                    $counts[$t] = (int)$pdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                } catch (Throwable $e) {}
+            }
+            $totalCms = ($counts["cms_pathologies"] ?? 0) + ($counts["cms_traitements"] ?? 0) + ($counts["cms_cas_cliniques"] ?? 0) + ($counts["cms_articles"] ?? 0);
+
+            echo json_encode([
+                "success" => true,
+                "already_active" => true,
+                "message" => "Cette base est DÉJÀ votre base active en production ! Aucune donnée n'a été perdue : vos " . $totalCms . " fiches CMS et " . ($counts["visitors"] ?? 0) . " visites sont parfaitement intactes et en ligne.",
+                "source" => $sourcePath,
+                "target" => $sqlitePath,
+                "counts" => $counts
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // 2. Si la source est une sauvegarde différente : Restauration transactionnelle sans verrou de fichier
         $backupPath = $sqlitePath . ".bak_before_restore_" . date("Ymd_His");
         if (file_exists($sqlitePath)) {
-            copy($sqlitePath, $backupPath);
+            @copy($sqlitePath, $backupPath);
         }
 
-        if (!copy($sourcePath, $sqlitePath)) {
-            http_response_code(500);
-            echo json_encode(["success" => false, "error" => "Échec de la restauration."]);
+        $sourcePdo = new PDO("sqlite:" . $sourcePath);
+        $sourcePdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $sourceTables = $sourcePdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($sourceTables)) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Le fichier sélectionné ne contient aucune table SQLite exploitable."]);
             exit;
+        }
+
+        $restoredCounts = [];
+        $pdo->beginTransaction();
+        try {
+            foreach ($sourceTables as $t) {
+                $createSql = $sourcePdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name=" . $sourcePdo->quote($t))->fetchColumn();
+                if ($createSql) {
+                    $pdo->exec($createSql);
+                }
+
+                $pdo->exec("DELETE FROM {$t}");
+
+                $stmtSrc = $sourcePdo->query("SELECT * FROM {$t}");
+                $rows = $stmtSrc->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($rows)) {
+                    $cols = array_keys($rows[0]);
+                    $quotedCols = array_map(function($c) { return '"' . str_replace('"', '""', $c) . '"'; }, $cols);
+                    $colList = implode(", ", $quotedCols);
+                    $paramList = implode(", ", array_fill(0, count($cols), '?'));
+                    $insStmt = $pdo->prepare("INSERT INTO {$t} ({$colList}) VALUES ({$paramList})");
+                    foreach ($rows as $row) {
+                        $insStmt->execute(array_values($row));
+                    }
+                }
+                $restoredCounts[$t] = count($rows);
+            }
+            $pdo->commit();
+        } catch (Throwable $syncErr) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $syncErr;
         }
 
         echo json_encode([
             "success" => true,
-            "message" => "Base de données restaurée avec succès depuis " . basename($sourcePath),
+            "message" => "Restauration terminée avec succès depuis " . basename($sourcePath) . " (" . count($sourceTables) . " tables synchronisées).",
             "source" => $sourcePath,
-            "target" => $sqlitePath
+            "target" => $sqlitePath,
+            "restored_counts" => $restoredCounts,
+            "safety_backup" => $backupPath
         ], JSON_UNESCAPED_UNICODE);
     } catch (Throwable $e) {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => $e->getMessage()]);
+        echo json_encode(["success" => false, "error" => "Erreur lors de la restauration : " . $e->getMessage()]);
     }
     exit;
 }

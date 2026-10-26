@@ -46,11 +46,16 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleRestoreDiscovered = async (path: string, filename: string) => {
-    if (!window.confirm(`Voulez-vous vraiment restaurer les données depuis le fichier :\n${filename} ?\n\nUne sauvegarde de secours de la base actuelle sera conservée.`)) {
-      return;
+  const handleRestoreDiscovered = async (path: string, filename: string, isActive?: boolean) => {
+    if (isActive) {
+      setRestoreMessage("Vérification de l'intégrité de la base active...");
+    } else {
+      if (!window.confirm(`Voulez-vous vraiment restaurer les données depuis le fichier de sauvegarde :\n${filename} ?\n\nUne copie de secours de votre base actuelle sera automatiquement conservée.`)) {
+        return;
+      }
     }
     setScanLoading(true);
+    setRestoreMessage(null);
     try {
       const token = getAdminToken() || "";
       const res = await fetch(`/api/admin/backup?action=restore_discovered&token=${encodeURIComponent(token)}`, {
@@ -70,12 +75,14 @@ export default function AdminDashboard() {
       }
       if (data.success) {
         setRestoreMessage(`✅ ${data.message}`);
-        setTimeout(() => window.location.reload(), 1200);
+        if (!data.already_active) {
+          setTimeout(() => window.location.reload(), 1500);
+        }
       } else {
         alert("Erreur de restauration : " + (data.error || "Inconnu"));
       }
     } catch (e: any) {
-      alert("Erreur lors de la restauration: " + e.message);
+      alert("Erreur lors de l'opération: " + e.message);
     } finally {
       setScanLoading(false);
     }
@@ -387,28 +394,84 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-3">
                 {discoveredFiles.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-slate-800/80 rounded-lg border border-slate-700 text-xs flex-wrap gap-2">
-                    <div className="space-y-1">
-                      <div className="font-bold text-white flex items-center gap-2">
+                  <div
+                    key={idx}
+                    className={`p-3.5 rounded-xl border text-xs space-y-2 transition-all ${
+                      item.is_active
+                        ? "bg-slate-900/95 border-emerald-500/60 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/30"
+                        : "bg-slate-800/80 border-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="font-bold text-white flex items-center gap-2 flex-wrap">
                         <span>📄 {item.filename}</span>
                         <span className="text-slate-400 text-[11px]">({item.size_kb} Ko — Modifié : {item.modified})</span>
+                        {item.is_active && (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Base Active en Production
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[11px] text-slate-400 break-all">{item.path}</div>
-                      {item.counts && Object.keys(item.counts).length > 0 && (
-                        <div className="flex gap-3 text-[11px] text-emerald-400 font-medium pt-1">
-                          {Object.entries(item.counts).map(([tbl, cnt]) => (
-                            <span key={tbl}>{tbl}: <strong>{String(cnt)}</strong></span>
-                          ))}
-                        </div>
-                      )}
+                      <button
+                        onClick={() => handleRestoreDiscovered(item.path, item.filename, item.is_active)}
+                        disabled={scanLoading}
+                        className={`px-3 py-1.5 font-bold text-xs rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                          item.is_active
+                            ? "bg-emerald-600/90 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 border border-emerald-400/40"
+                            : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30"
+                        }`}
+                      >
+                        {item.is_active ? "🛡️ Vérifier cette base" : "🔄 Restaurer cette sauvegarde"}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleRestoreDiscovered(item.path, item.filename)}
-                      disabled={scanLoading}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
-                    >
-                      🔄 Restaurer cette base
-                    </button>
+
+                    <div className="text-[11px] text-slate-400 break-all font-mono">{item.path}</div>
+
+                    {item.counts && Object.keys(item.counts).length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {item.counts.cms_pathologies !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-[10px] font-medium">
+                            🩺 Pathologies: <strong className="text-white">{item.counts.cms_pathologies}</strong>
+                          </span>
+                        )}
+                        {item.counts.cms_traitements !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-teal-950/80 border border-teal-500/30 text-teal-300 text-[10px] font-medium">
+                            💉 Traitements: <strong className="text-white">{item.counts.cms_traitements}</strong>
+                          </span>
+                        )}
+                        {item.counts.cms_cas_cliniques !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px] font-medium">
+                            🔬 Cas Cliniques: <strong className="text-white">{item.counts.cms_cas_cliniques}</strong>
+                          </span>
+                        )}
+                        {item.counts.cms_articles !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/30 text-amber-300 text-[10px] font-medium">
+                            📰 Articles: <strong className="text-white">{item.counts.cms_articles}</strong>
+                          </span>
+                        )}
+                        {item.counts.visitors !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-slate-700/60 border border-slate-600/40 text-slate-300 text-[10px] font-medium">
+                            👥 Visiteurs: <strong className="text-white">{item.counts.visitors}</strong>
+                          </span>
+                        )}
+                        {item.counts.contact_messages !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-slate-700/60 border border-slate-600/40 text-slate-300 text-[10px] font-medium">
+                            ✉️ Messages: <strong className="text-white">{item.counts.contact_messages}</strong>
+                          </span>
+                        )}
+                        {item.counts.visitor_sessions !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-slate-700/60 border border-slate-600/40 text-slate-300 text-[10px] font-medium">
+                            🌐 Sessions: <strong className="text-white">{item.counts.visitor_sessions}</strong>
+                          </span>
+                        )}
+                        {item.counts.newsletter_subscribers !== undefined && (
+                          <span className="px-2 py-0.5 rounded bg-slate-700/60 border border-slate-600/40 text-slate-300 text-[10px] font-medium">
+                            📬 Newsletters: <strong className="text-white">{item.counts.newsletter_subscribers}</strong>
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
