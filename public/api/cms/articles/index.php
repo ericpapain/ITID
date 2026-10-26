@@ -17,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 try {
     $pdo = getItidDb();
-    require_once __DIR__ . '/../../admin/seed_cms.php';
 
     $realArticleFallbacks = [
         '/images/lombalgie.jpg',

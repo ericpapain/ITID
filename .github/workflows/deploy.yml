@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - blog_modif
+      - refonte_cms_25102026
   workflow_dispatch: # Permet de déclencher le déploiement manuellement depuis l'onglet Actions de GitHub
 
 concurrency:
@@ -36,10 +37,10 @@ jobs:
         run: |
           echo "Vérification des dossiers clés dans dist/:"
           ls -la dist/ || { echo "::error::Le dossier dist/ est manquant."; exit 1; }
-          # Supprimer tout fichier .sqlite ou .db résiduel dans dist/ pour ne jamais écraser les données réelles du serveur
+          # Supprimer tout fichier .sqlite, .db ou dossier de données résiduel dans dist/ pour ne JAMAIS toucher aux données réelles du serveur
           find dist -name "*.sqlite*" -delete 2>/dev/null || true
           find dist -name "*.db*" -delete 2>/dev/null || true
-          rm -rf dist/uploads dist/itid_data 2>/dev/null || true
+          rm -rf dist/uploads dist/itid_data dist/api/data 2>/dev/null || true
           if [ -d "dist/api" ]; then
             echo "✅ dist/api trouvé avec succès"
             ls -la dist/api/
@@ -146,7 +147,7 @@ jobs:
             if [ -n "$TARGET_DIR" ]; then
               echo "cd \"$TARGET_DIR\";"
             fi
-            echo "mirror -R --continue --verbose --parallel=2 --no-perms --no-umask --exclude-glob .git* --exclude-glob *.sqlite* --exclude-glob *.db* --exclude-glob */itid.sqlite* --exclude-glob itid_data/ --exclude-glob uploads/ --exclude-glob api/config.php --exclude-glob api/data/*.sqlite* --exclude-glob api/data/*.db* --exclude-glob *.bak* dist ."
+            echo "mirror -R --continue --verbose --parallel=2 --no-perms --no-umask --exclude-glob .git* --exclude-glob *.sqlite* --exclude-glob *.db* --exclude-glob */itid.sqlite* --exclude-glob itid_data/ --exclude-glob uploads/ --exclude-glob api/data/ --exclude-glob api/config.php --exclude-glob *.bak* dist ."
             echo "bye"
           } > deploy_script.lftp
 

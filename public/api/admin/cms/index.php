@@ -434,14 +434,6 @@ try {
             $stmt = $pdo->prepare("SELECT * FROM cms_pages_content WHERE page_key = ? LIMIT 1");
             $stmt->execute([$pageKey]);
             $row = $stmt->fetch();
-            if (!$row) {
-                require_once __DIR__ . '/../seed_cms.php';
-                if (function_exists('seedCmsIfEmpty')) {
-                    seedCmsIfEmpty($pdo);
-                    $stmt->execute([$pageKey]);
-                    $row = $stmt->fetch();
-                }
-            }
             echo json_encode([
                 'success' => true,
                 'page_key' => $pageKey,

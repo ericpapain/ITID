@@ -18,16 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 try {
     $pdo = getItidDb();
 
-    require_once __DIR__ . '/../../admin/seed_cms.php';
-
     $stmt = $pdo->query("SELECT * FROM cms_cas_cliniques WHERE is_active = 1 ORDER BY display_order ASC, id ASC");
     $items = $stmt->fetchAll();
-
-    if (!empty($items)) {
-        if (function_exists('cleanupLegacyUnsplashCasCliniques')) {
-            cleanupLegacyUnsplashCasCliniques($pdo);
-        }
-    }
 
     $realDefaults = [
         1 => '/images/treatments/infiltrations_rachidiennes.jpg',
