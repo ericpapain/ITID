@@ -157,10 +157,16 @@ function getItidDb(): PDO {
     $pdo = new PDO("sqlite:" . $sqliteFile, null, null, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 10,
     ]);
 
     try {
-        @$pdo->exec("PRAGMA journal_mode = DELETE;");
+        @$pdo->exec("PRAGMA busy_timeout = 10000;");
+        // Tenter le mode WAL pour supporter les écritures concurrentes sans verrouillage
+        $journalMode = @$pdo->query("PRAGMA journal_mode = WAL;")->fetchColumn();
+        if (strtoupper((string)$journalMode) !== 'WAL') {
+            @$pdo->exec("PRAGMA journal_mode = DELETE;");
+        }
         @$pdo->exec("PRAGMA synchronous = NORMAL;");
     } catch (Throwable $t) {}
 
@@ -510,7 +516,6 @@ function initSqliteTables(PDO $pdo): void {
     migrateCmsArticlesColumns($pdo);
     migrateCmsRelationsColumns($pdo);
     seedAdminUserIfEmpty($pdo);
-    seedCmsIfEmptySafe($pdo);
     indexExistingLocalMediaIfEmpty($pdo);
 }
 
@@ -789,7 +794,6 @@ function initMysqlTables(PDO $pdo): void {
     migrateCmsArticlesColumns($pdo);
     migrateCmsRelationsColumns($pdo);
     seedAdminUserIfEmpty($pdo);
-    seedCmsIfEmptySafe($pdo);
     indexExistingLocalMediaIfEmpty($pdo);
 }
 
@@ -862,34 +866,9 @@ function seedAdminUserIfEmpty(PDO $pdo): void {
 }
 
 function seedCmsIfEmptySafe(PDO $pdo): void {
-    try {
-        $pdo->exec("CREATE TABLE IF NOT EXISTS cms_system_flags (
-            flag_key VARCHAR(100) PRIMARY KEY,
-            flag_value VARCHAR(255),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )");
-
-        $checkStmt = $pdo->prepare("SELECT flag_value FROM cms_system_flags WHERE flag_key = 'cms_initial_seeded' LIMIT 1");
-        $checkStmt->execute();
-        if ($checkStmt->fetchColumn()) {
-            return; // Déjà initialisé au préalable, ne jamais réinjecter les données supprimées par l'administrateur
-        }
-
-        if (!function_exists('seedCmsIfEmpty')) {
-            $seedFile = __DIR__ . '/admin/seed_cms.php';
-            if (file_exists($seedFile)) {
-                require_once $seedFile;
-            }
-        }
-        if (function_exists('seedCmsIfEmpty')) {
-            seedCmsIfEmpty($pdo);
-            try {
-                $pdo->exec("INSERT INTO cms_system_flags (flag_key, flag_value) VALUES ('cms_initial_seeded', '1')");
-            } catch (Throwable $e) {}
-        }
-    } catch (Throwable $t) {
-        error_log("seedCmsIfEmptySafe error: " . $t->getMessage());
-    }
+    // STRICTEMENT DÉSACTIVÉ : les contenus réels, cas cliniques et photos enrichis par l'utilisateur
+    // ne doivent JAMAIS être écrasés automatiquement par des données de démonstration.
+    return;
 }
 
 function upgradeMysqlColumnsSafe(PDO $pdo): void {

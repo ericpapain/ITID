@@ -88,8 +88,15 @@ export function CmsBackupRestorePanel({ lang = "fr", onRestored }: CmsBackupRest
         headers: getAuthHeaders(),
       });
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Erreur HTTP ${res.status}: ${text.slice(0, 100)}`);
+        let errDetails = `Erreur HTTP ${res.status}`;
+        try {
+          const jsonErr = await res.json();
+          if (jsonErr.error) errDetails = jsonErr.error;
+        } catch {
+          const text = await res.text();
+          if (text) errDetails = text.slice(0, 150);
+        }
+        throw new Error(errDetails);
       }
       const data = await res.json();
       const backupData = data.backup || data;
@@ -107,9 +114,14 @@ export function CmsBackupRestorePanel({ lang = "fr", onRestored }: CmsBackupRest
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      const counts = backupData.counts || {};
+      const countsSummary = Object.keys(counts).length > 0
+        ? ` (${counts.articles ?? 0} articles, ${counts.cas_cliniques ?? 0} cas cliniques, ${counts.pathologies ?? 0} pathologies, ${counts.traitements ?? 0} traitements, ${counts.pages ?? 0} pages)`
+        : "";
+
       setMessage({
         type: "success",
-        text: "Sauvegarde complète JSON téléchargée avec succès sur votre ordinateur !",
+        text: `Sauvegarde complète JSON téléchargée avec succès sur votre ordinateur !${countsSummary}`,
       });
     } catch (e: any) {
       setMessage({
@@ -200,14 +212,24 @@ export function CmsBackupRestorePanel({ lang = "fr", onRestored }: CmsBackupRest
         body: JSON.stringify(parsed),
       });
 
-      const result = await res.json();
+      let result: any = null;
+      try {
+        result = await res.json();
+      } catch {
+        const raw = await res.text();
+        throw new Error(`Réponse serveur non JSON (HTTP ${res.status}): ${raw.slice(0, 120)}`);
+      }
+
       if (!res.ok || !result.success) {
         throw new Error(result.error || `Erreur HTTP ${res.status}`);
       }
 
+      const c = result.restored_counts || result.counts;
+      const details = c ? ` (${c.articles ?? 0} articles, ${c.cas_cliniques ?? 0} cas cliniques, ${c.pathologies ?? 0} pathologies, ${c.traitements ?? 0} traitements, ${c.pages ?? 0} pages)` : "";
+
       setMessage({
         type: "success",
-        text: `✅ ${result.message || "Restauration terminée avec succès !"}`
+        text: `✅ ${result.message || "Restauration terminée avec succès !"}${details}`
       });
 
       await refreshStatus();

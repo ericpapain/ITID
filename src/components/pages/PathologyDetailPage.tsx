@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Calendar, ShieldCheck, CheckCircle2, Activity, HelpCircle, ArrowRight } from "lucide-react";
 import { ImageCarousel } from "../ui/ImageCarousel";
-import { PATHOLOGIES } from "../../data";
+import { PATHOLOGIES, DEFAULT_PATHOLOGIES } from "../../data";
 import { getCleanImageSrc, getCleanGallery, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 import RichContentRenderer from "../ui/RichContentRenderer";
 
@@ -66,59 +66,16 @@ export function PathologyDetailPage() {
         }
       } catch {}
 
-      // Fallback local data if API not responding
+      // Recherche dans les fiches de repli de base si le serveur n'a pas répondu
       const cleanSlug = (slug || "").toLowerCase().trim();
-      const found = PATHOLOGIES.find((p: any) => {
-        if (p.slug && (p.slug === cleanSlug || (cleanSlug === "migraine" && p.slug === "migraines") || (cleanSlug === "migraines" && p.slug === "migraine"))) {
-          return true;
-        }
-        if (p.title) {
-          const keyPart = p.title.replace("pathologies.", "").replace(".title", "").toLowerCase();
-          if (cleanSlug.includes(keyPart) || keyPart.includes(cleanSlug)) return true;
-        }
-        const pSlug = t(p.title).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
-        const normClean = cleanSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        return pSlug.includes(normClean) || normClean.includes(pSlug);
-      }) || PATHOLOGIES[0];
-
-      setData({
-        slug: (found as any).slug || slug || "lombalgie-chronique",
-        title_fr: t(found.title),
-        title_en: t(found.title),
-        icon: found.icon || "🩺",
-        color: found.color || "#2a9d8f",
-        short_desc_fr: t(found.desc),
-        short_desc_en: t(found.desc),
-        card_image: found.img || "/images/lombalgie.jpg",
-        hero_gallery: [
-          found.img || "/images/lombalgie.jpg",
-          "/images/glowing_3d_spine.jpg",
-          "/images/spine_isolated.png"
-        ],
-        section1_title_fr: "Comprendre la Pathologie",
-        section1_title_en: "Understanding the Condition",
-        section1_text_fr: t(found.desc) + "\n\nÀ l'ITID, notre approche repose sur une évaluation ciblée permettant d'identifier précisément les générateurs de douleur anatomiques.",
-        section1_text_en: t(found.desc) + "\n\nAt ITID, our approach is based on targeted assessment to precisely pinpoint anatomical pain generators.",
-        section1_image: found.img || "/images/lombalgie.jpg",
-
-        section2_title_fr: "Quand et Comment se faire Diagnostiquer ?",
-        section2_title_en: "When & How to Get Diagnosed?",
-        section2_text_fr: "Une consultation spécialisée est recommandée dès lors que la douleur persiste plus de 6 semaines ou impacte le sommeil et l'activité professionnelle.\n\nLe diagnostic algologique associe examen clinique minutieux et imagerie moderne haute résolution.",
-        section2_text_en: "Specialist consultation is recommended when pain persists over 6 weeks or disrupts sleep and daily activities.\n\nDiagnosis pairs precise clinical evaluation with modern high-resolution imaging.",
-        section2_image: "/images/glowing_3d_spine.jpg",
-
-        section3_title_fr: "Prise en Charge Interventionnelle à l'ITID",
-        section3_title_en: "Interventional Care at ITID",
-        section3_text_fr: "Nous proposons des techniques guidées par imagerie de pointe :\n• Infiltrations ciblées sous guidage millimétrique\n• Radiofréquence pulsée et cryoneurolyse\n• Protocoles individualisés de neuromodulation.",
-        section3_text_en: "We offer advanced image-guided interventional therapies:\n• Targeted injections under millimeter guidance\n• Pulsed radiofrequency & cryoneurolysis\n• Customized neuromodulation protocols.",
-        section3_image: "/images/treatments/infiltrations_rachidiennes.jpg",
-
-        section4_title_fr: "Prévention & Conseils au Quotidien",
-        section4_title_en: "Prevention & Daily Advice",
-        section4_text_fr: "La réadaptation active, la posture ergonomique et la nutrition anti-inflammatoire permettent de maintenir un soulagement durable et de prévenir les récidives.",
-        section4_text_en: "Active rehabilitation, ergonomic posture, and anti-inflammatory lifestyle measures sustain long-term relief and prevent recurrences.",
-        section4_image: "/images/spine_isolated.png"
+      const detailed = DEFAULT_PATHOLOGIES.find((dp) => {
+        const dpSlug = (dp.slug || "").toLowerCase().trim();
+        return dpSlug === cleanSlug ||
+          (dpSlug && (dpSlug.includes(cleanSlug) || cleanSlug.includes(dpSlug))) ||
+          (dp.title_fr && dp.title_fr.toLowerCase().includes(cleanSlug.replace(/-/g, " ")));
       });
+
+      setData(detailed || null);
       setLoading(false);
     }
 

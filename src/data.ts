@@ -190,3 +190,10 @@ export const CATEGORIES_FORMATIONS = [
 
 export type Video = { id: string; title: string; duration: string; price: string; img: string; subVideos: { title: string; index: number; duration: string }[] };
 export type Category = typeof CATEGORIES_FORMATIONS[0];
+
+export { DEFAULT_CAS_CLINIQUES } from "./data/casCliniquesData";
+export type { CasCliniqueItem } from "./data/casCliniquesData";
+export { DEFAULT_PATHOLOGIES } from "./data/pathologiesData";
+export type { PathologyDetailedItem } from "./data/pathologiesData";
+export { DEFAULT_TRAITEMENTS } from "./data/treatmentsData";
+export type { TreatmentDetailedItem } from "./data/treatmentsData";

@@ -1,12 +1,38 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import { executeQuery, isConnected } from '../config/db';
 import { sendContactNotification } from '../config/mail';
 
-// En mémoire de secours pour le développement local si MySQL n'est pas encore démarré
-const inMemoryMessages: any[] = [];
-let memId = 1;
+const MESSAGES_FILE = path.join(__dirname, '../data/contact_messages.json');
+
+function getLocalMessages(): any[] {
+  try {
+    if (fs.existsSync(MESSAGES_FILE)) {
+      const raw = fs.readFileSync(MESSAGES_FILE, 'utf-8');
+      return JSON.parse(raw);
+    }
+  } catch {}
+  return [];
+}
+
+function saveLocalMessages(msgs: any[]): void {
+  try {
+    const dir = path.dirname(MESSAGES_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(msgs, null, 2), 'utf-8');
+  } catch (err: any) {
+    console.error('Erreur écriture contact_messages.json:', err.message);
+  }
+}
+
+// Initialisation des messages locaux
+let inMemoryMessages: any[] = getLocalMessages();
+let memId = inMemoryMessages.reduce((max, m) => Math.max(max, Number(m.id) || 0), 0) + 1;
 
 export const contactSchema = z.object({
   formName: z.string().min(1).max(100).default('contact_general'),
@@ -81,6 +107,7 @@ export async function handleContactSubmission(req: Request, res: Response) {
         email_sent: false,
         created_at: new Date(),
       });
+      saveLocalMessages(inMemoryMessages);
     }
 
     // 2. Envoi de la notification par email vers contact@itid-france.com
@@ -112,6 +139,7 @@ export async function handleContactSubmission(req: Request, res: Response) {
         if (memItem) {
           memItem.email_sent = emailSent;
           memItem.email_error = emailError;
+          saveLocalMessages(inMemoryMessages);
         }
       }
     }
@@ -218,7 +246,10 @@ export async function updateMessageStatus(req: Request, res: Response) {
       await executeQuery('UPDATE contact_messages SET status = ? WHERE id = ?', [status, id]);
     } catch {
       const item = inMemoryMessages.find((m) => String(m.id) === String(id));
-      if (item) item.status = status;
+      if (item) {
+        item.status = status;
+        saveLocalMessages(inMemoryMessages);
+      }
     }
 
     return res.json({ success: true, message: 'Statut mis à jour avec succès.' });

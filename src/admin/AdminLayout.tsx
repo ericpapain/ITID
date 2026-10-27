@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getAdminToken, getAdminUser, clearAdminSession } from "./auth";
+import { getAdminToken, getAdminUser, clearAdminSession, getAuthHeaders } from "./auth";
 import logo from "../logos/logo ITID 3.png";
 
 interface AdminLayoutProps {
@@ -12,12 +12,28 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navigate = useNavigate();
   const token = getAdminToken();
   const user = getAdminUser();
+  const [unreadCount, setUnreadCount] = React.useState(0);
 
   React.useEffect(() => {
     if (!token) {
       navigate("/admin/login");
+      return;
     }
-  }, [token, navigate]);
+
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch("/api/admin/messages?status=unread&limit=1", { headers: getAuthHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadCount(data?.pagination?.total || 0);
+        }
+      } catch {}
+    };
+
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [token, navigate, location.pathname]);
 
   const handleLogout = () => {
     clearAdminSession();
@@ -64,6 +80,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <span className="text-base">{item.icon}</span>
                 <span>{item.label}</span>
+                {item.path === "/admin/messages" && unreadCount > 0 && (
+                  <span className="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-500 text-white shadow-sm animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}

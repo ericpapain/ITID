@@ -1137,42 +1137,50 @@ export async function handleAdminCms(req: Request, res: Response) {
     }
 
     if (action === 'restore' && method === 'POST') {
-      const data = body.data || body;
-      if (!data) {
+      const data = body.data || (body.backup?.data || (body.backup || body));
+      if (!data || typeof data !== 'object') {
         return res.status(400).json({ success: false, error: 'Données de sauvegarde invalides.' });
       }
+
+      const restoredCounts = {
+        pages: 0,
+        articles: 0,
+        cas_cliniques: 0,
+        pathologies: 0,
+        traitements: 0
+      };
 
       if (data.pages && typeof data.pages === 'object') {
         inMemoryPages = data.pages;
         saveJsonToDisk(pagesFilePath, inMemoryPages);
+        restoredCounts.pages = Object.keys(inMemoryPages).length;
       }
       if (Array.isArray(data.articles)) {
         inMemoryArticles = data.articles;
         saveJsonToDisk(articlesFilePath, inMemoryArticles);
+        restoredCounts.articles = inMemoryArticles.length;
       }
       if (Array.isArray(data.cas_cliniques)) {
         inMemoryCasCliniques = data.cas_cliniques;
         saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
+        restoredCounts.cas_cliniques = inMemoryCasCliniques.length;
       }
       if (Array.isArray(data.pathologies)) {
         inMemoryPathologies = data.pathologies;
         saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
+        restoredCounts.pathologies = inMemoryPathologies.length;
       }
       if (Array.isArray(data.traitements)) {
         inMemoryTraitements = data.traitements;
         saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
+        restoredCounts.traitements = inMemoryTraitements.length;
       }
 
       return res.json({
         success: true,
         message: 'Restauration complète du CMS effectuée avec succès !',
-        counts: {
-          pages: Object.keys(inMemoryPages).length,
-          articles: inMemoryArticles.length,
-          cas_cliniques: inMemoryCasCliniques.length,
-          pathologies: inMemoryPathologies.length,
-          traitements: inMemoryTraitements.length
-        }
+        restored_counts: restoredCounts,
+        counts: restoredCounts
       });
     }
 

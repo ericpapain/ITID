@@ -22,7 +22,7 @@ return [
     // ====================================================================
     // PERSISTANCE SQLITE — IMPORTANT POUR ÉVITER LA PERTE DE DONNÉES
     // ====================================================================
-    'sqlite_path' => __DIR__ . '/data/itid.sqlite',
+    'sqlite_path' => getenv('SQLITE_PATH') ?: (getenv('DATABASE_PATH') ?: (__DIR__ . '/data/itid.sqlite')),
 
     // Paramètres MySQL (lus depuis l'environnement Hostinger ou renseignés ici)
     'mysql_host'     => $envHost ?: 'localhost',

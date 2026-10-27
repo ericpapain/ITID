@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAuthHeaders, getAdminToken } from "./auth";
 import { SingleMediaSelector, GalleryMediaSelector } from "./MediaSelector";
@@ -118,11 +118,16 @@ export default function AdminPagesEditor() {
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.items)) {
-            setItemsList(data.items);
-            if (data.items.length > 0) {
+            let loadedItems = [...data.items];
+
+            // Aucun écrasement artificiel par des données mockées :
+            // Seules les données réelles saisies et sauvegardées dans la base de données sont affichées.
+
+            setItemsList(loadedItems);
+            if (loadedItems.length > 0) {
               const targetId = preferredId ?? selectedItem?.id;
-              const found = targetId ? data.items.find((it: any) => it.id === targetId) : null;
-              setSelectedItem(found || data.items[0]);
+              const found = targetId ? loadedItems.find((it: any) => it.id === targetId) : null;
+              setSelectedItem(found || loadedItems[0]);
             } else {
               setSelectedItem(null);
             }
@@ -3113,7 +3118,7 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
   const treatmentOptions = useMemo(() => {
     const list = [...baseTreatmentOptions];
     cmsTreatments.forEach((ct: any) => {
-      if (ct.slug && !list.some(t => t.slug === ct.slug)) {
+      if (ct.slug && !list.some((t: any) => t.slug === ct.slug)) {
         list.unshift({ slug: ct.slug, name: ct.title_fr || ct.title_en || ct.slug });
       }
     });
@@ -3132,7 +3137,7 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
     { slug: "migraines", name: "Migraines & Céphalées Réfractaires" }
   ];
 
-  const selectedTreatment = treatmentOptions.find(t => t.slug === item.traitement_slug) || treatmentOptions[0];
+  const selectedTreatment = treatmentOptions.find((t: any) => t.slug === item.traitement_slug) || treatmentOptions[0];
 
   return (
     <div className="space-y-6 text-xs">
@@ -3155,7 +3160,7 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
             <select
               value={item.traitement_slug || "infiltrations-rachidiennes"}
               onChange={(e) => {
-                const found = treatmentOptions.find(t => t.slug === e.target.value);
+                const found = treatmentOptions.find((t: any) => t.slug === e.target.value);
                 onChange({
                   traitement_slug: e.target.value,
                   traitement_name: found ? found.name : e.target.value
@@ -3163,7 +3168,7 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
               }}
               className="w-full px-3.5 py-2.5 bg-slate-950 border border-[#48cae4]/60 rounded-xl text-white font-bold text-xs focus:border-[#48cae4] outline-none"
             >
-              {treatmentOptions.map((tr) => (
+              {treatmentOptions.map((tr: any) => (
                 <option key={tr.slug} value={tr.slug}>
                   {tr.name} (/traitements/{tr.slug})
                 </option>
