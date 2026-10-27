@@ -76,7 +76,7 @@ export function Footer() {
         style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
       >
         <span>{t("footer.info.rights")}</span>
-        <span style={{ color: "#5a7a98" }}>{t("footer.info.address")} • Excellence Interventionnelle</span>
+        <span style={{ color: "#5a7a98" }}>{t("footer.info.address")} • Excellence Interventionnelle & Innovation</span>
       </div>
     </footer>
   );
