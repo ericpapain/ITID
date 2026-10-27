@@ -69,29 +69,37 @@ $recipientEmail = $config['admin_email'] ?? 'contact@itid-france.com';
 $insertedId = null;
 $dbError = null;
 
-try {
-    $pdo = getItidDb();
-    $stmt = $pdo->prepare("
-        INSERT INTO contact_messages 
-          (form_name, name, email, phone, subject, message, metadata, status, email_sent, ip_hash)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'unread', 0, ?)
-    ");
-    $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-    $ipHash = hash('sha256', (string)$clientIp);
-    $stmt->execute([
-        'contact_general',
-        $name ?: null,
-        $email,
-        $phone ?: null,
-        $subject ?: null,
-        $message,
-        !empty($metadata) ? json_encode($metadata, JSON_UNESCAPED_UNICODE) : null,
-        $ipHash,
-    ]);
-    $insertedId = (int)$pdo->lastInsertId();
-} catch (Exception $e) {
-    $dbError = $e->getMessage();
-    error_log("ITID Contact DB Insert Error: " . $dbError);
+$maxAttempts = 3;
+for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+    try {
+        $pdo = getItidDb();
+        $stmt = $pdo->prepare("
+            INSERT INTO contact_messages 
+              (form_name, name, email, phone, subject, message, metadata, status, email_sent, ip_hash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'unread', 0, ?)
+        ");
+        $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+        $ipHash = hash('sha256', (string)$clientIp);
+        $stmt->execute([
+            'contact_general',
+            $name ?: null,
+            $email,
+            $phone ?: null,
+            $subject ?: null,
+            $message,
+            !empty($metadata) ? json_encode($metadata, JSON_UNESCAPED_UNICODE) : null,
+            $ipHash,
+        ]);
+        $insertedId = (int)$pdo->lastInsertId();
+        $dbError = null;
+        break;
+    } catch (Throwable $t) {
+        $dbError = $t->getMessage();
+        error_log("ITID Contact DB Insert Error (tentative {$attempt}/{$maxAttempts}): " . $dbError);
+        if ($attempt < $maxAttempts) {
+            usleep(150000); // 150ms
+        }
+    }
 }
 
 // ----------------------------------------------------------------------

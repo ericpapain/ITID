@@ -157,10 +157,16 @@ function getItidDb(): PDO {
     $pdo = new PDO("sqlite:" . $sqliteFile, null, null, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 10,
     ]);
 
     try {
-        @$pdo->exec("PRAGMA journal_mode = DELETE;");
+        @$pdo->exec("PRAGMA busy_timeout = 10000;");
+        // Tenter le mode WAL pour supporter les écritures concurrentes sans verrouillage
+        $journalMode = @$pdo->query("PRAGMA journal_mode = WAL;")->fetchColumn();
+        if (strtoupper((string)$journalMode) !== 'WAL') {
+            @$pdo->exec("PRAGMA journal_mode = DELETE;");
+        }
         @$pdo->exec("PRAGMA synchronous = NORMAL;");
     } catch (Throwable $t) {}
 
