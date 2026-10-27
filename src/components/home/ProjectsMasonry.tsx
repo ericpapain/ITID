@@ -424,15 +424,14 @@ export function ProjectsMasonry() {
   const casesSource = dynamicCases.length > 0 ? dynamicCases : DEFAULT_CAS_CLINIQUES;
 
   const displayList: CaseItem[] = casesSource.map((item, idx) => {
-    const fallbackCase = DEFAULT_CAS_CLINIQUES[idx] || DEFAULT_CAS_CLINIQUES[0];
     return {
       id: item.id || `case-${idx}`,
-      title: currentLang.startsWith("en") ? (item.title_en || item.title_fr || fallbackCase.title_en) : (item.title_fr || item.title_en || fallbackCase.title_fr),
-      category: currentLang.startsWith("en") ? (item.category_en || item.category_fr || fallbackCase.category_en) : (item.category_fr || item.category_en || fallbackCase.category_fr),
-      image: item.image || fallbackCase.image,
-      traitement_slug: item.traitement_slug || fallbackCase.traitement_slug || "infiltrations-rachidiennes",
-      pathologie_slug: item.pathologie_slug || fallbackCase.pathologie_slug,
-      short_desc: currentLang.startsWith("en") ? (item.short_desc_en || item.short_desc_fr || fallbackCase.short_desc_en) : (item.short_desc_fr || item.short_desc_en || fallbackCase.short_desc_fr)
+      title: currentLang.startsWith("en") ? (item.title_en || item.title_fr || "") : (item.title_fr || item.title_en || ""),
+      category: currentLang.startsWith("en") ? (item.category_en || item.category_fr || "") : (item.category_fr || item.category_en || ""),
+      image: item.image || "/images/treatments/infiltrations_rachidiennes.jpg",
+      traitement_slug: item.traitement_slug || "infiltrations-rachidiennes",
+      pathologie_slug: item.pathologie_slug || "lombalgie-chronique",
+      short_desc: currentLang.startsWith("en") ? (item.short_desc_en || item.short_desc_fr || "") : (item.short_desc_fr || item.short_desc_en || "")
     };
   });
 

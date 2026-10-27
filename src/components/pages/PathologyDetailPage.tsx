@@ -66,16 +66,16 @@ export function PathologyDetailPage() {
         }
       } catch {}
 
-      // Fallback vers les fiches canoniques riches pré-rédigées
+      // Recherche dans les fiches de repli de base si le serveur n'a pas répondu
       const cleanSlug = (slug || "").toLowerCase().trim();
       const detailed = DEFAULT_PATHOLOGIES.find((dp) => {
         const dpSlug = (dp.slug || "").toLowerCase().trim();
         return dpSlug === cleanSlug ||
           (dpSlug && (dpSlug.includes(cleanSlug) || cleanSlug.includes(dpSlug))) ||
           (dp.title_fr && dp.title_fr.toLowerCase().includes(cleanSlug.replace(/-/g, " ")));
-      }) || DEFAULT_PATHOLOGIES[0];
+      });
 
-      setData(detailed);
+      setData(detailed || null);
       setLoading(false);
     }
 

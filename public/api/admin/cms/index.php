@@ -638,7 +638,7 @@ try {
 
         // A. Export JSON complet (Pages, Articles, Cas Cliniques, Pathologies, Traitements)
         if ($action === 'export') {
-            $pagesRows = $pdo->query("SELECT * FROM cms_pages_content")->fetchAll();
+            $pagesRows = $pdo->query("SELECT * FROM cms_pages_content")->fetchAll(PDO::FETCH_ASSOC);
             $pagesMap = [];
             foreach ($pagesRows as $pr) {
                 $pagesMap[$pr['page_key']] = [
@@ -647,13 +647,31 @@ try {
                 ];
             }
 
-            $articles = $pdo->query("SELECT * FROM cms_articles ORDER BY is_featured DESC, published_at DESC, id DESC")->fetchAll();
-            $casCliniques = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC")->fetchAll();
-            $pathologies = $pdo->query("SELECT * FROM cms_pathologies ORDER BY display_order ASC, id ASC")->fetchAll();
-            $traitements = $pdo->query("SELECT * FROM cms_traitements ORDER BY display_order ASC, id ASC")->fetchAll();
+            $articles = $pdo->query("SELECT * FROM cms_articles ORDER BY is_featured DESC, date_published DESC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($articles as &$art) {
+                $art['gallery_images'] = json_decode($art['gallery_images_json'] ?? '[]', true) ?: [];
+                $art['sections'] = json_decode($art['sections_json'] ?? '[]', true) ?: [];
+            }
+            unset($art);
+
+            $casCliniques = $pdo->query("SELECT * FROM cms_cas_cliniques ORDER BY display_order ASC, id ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+            $pathologies = $pdo->query("SELECT * FROM cms_pathologies ORDER BY display_order ASC, id ASC")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($pathologies as &$p) {
+                $p['hero_gallery'] = json_decode($p['hero_gallery_json'] ?? '[]', true) ?: [];
+                $p['sections'] = json_decode($p['sections_json'] ?? '[]', true) ?: [];
+            }
+            unset($p);
+
+            $traitements = $pdo->query("SELECT * FROM cms_traitements ORDER BY display_order ASC, id ASC")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($traitements as &$tr) {
+                $tr['hero_gallery'] = json_decode($tr['hero_gallery_json'] ?? '[]', true) ?: [];
+                $tr['sections'] = json_decode($tr['sections_json'] ?? '[]', true) ?: [];
+            }
+            unset($tr);
 
             $backupPayload = [
-                'export_version' => '1.0',
+                'export_version' => '2.0',
                 'exported_at' => date('c'),
                 'source' => 'ITID France CMS',
                 'counts' => [
@@ -677,7 +695,7 @@ try {
                 if (ob_get_length()) ob_end_clean();
                 header("Content-Type: application/json; charset=utf-8");
                 header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
-                header("Cache-Control: no-cache");
+                header("Cache-Control: no-cache, no-store, must-revalidate");
                 echo json_encode($backupPayload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
                 exit;
             }
@@ -691,10 +709,10 @@ try {
             $rawInput = file_get_contents('php://input');
             $payload = json_decode($rawInput, true);
 
-            // Si c'est imbriqué dans 'backup' ou direct
-            $data = $payload['data'] ?? $payload;
+            // Si c'est imbriqué dans 'data', 'backup.data', ou 'backup'
+            $data = $payload['data'] ?? ($payload['backup']['data'] ?? ($payload['backup'] ?? $payload));
 
-            if (empty($data)) {
+            if (empty($data) || !is_array($data)) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'Données de sauvegarde invalides ou vides.']);
                 exit;
@@ -706,14 +724,13 @@ try {
             try {
                 // 1. Pages
                 if (!empty($data['pages']) && is_array($data['pages'])) {
-                    $pageStmt = $pdo->prepare("INSERT INTO cms_pages_content (page_key, content_fr, content_en) 
-                        VALUES (?, ?, ?) 
-                        ON DUPLICATE KEY UPDATE content_fr = VALUES(content_fr), content_en = VALUES(content_en), updated_at = CURRENT_TIMESTAMP");
-                    
-                    // Fallback SQLite si ON DUPLICATE KEY n'est pas supporté
                     $isSqlite = ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite');
                     if ($isSqlite) {
                         $pageStmt = $pdo->prepare("INSERT OR REPLACE INTO cms_pages_content (page_key, content_fr, content_en, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)");
+                    } else {
+                        $pageStmt = $pdo->prepare("INSERT INTO cms_pages_content (page_key, content_fr, content_en) 
+                            VALUES (?, ?, ?) 
+                            ON DUPLICATE KEY UPDATE content_fr = VALUES(content_fr), content_en = VALUES(content_en), updated_at = CURRENT_TIMESTAMP");
                     }
 
                     foreach ($data['pages'] as $pageKey => $pContent) {
@@ -725,38 +742,63 @@ try {
                 }
 
                 // 2. Articles
-                if (!empty($data['articles']) && is_array($data['articles'])) {
+                if (isset($data['articles']) && is_array($data['articles'])) {
                     $pdo->exec("DELETE FROM cms_articles");
-                    $artStmt = $pdo->prepare("INSERT INTO cms_articles (id, slug, title_fr, title_en, excerpt_fr, excerpt_en, content_fr, content_en, cover_image, gallery_images_json, sections_json, author, category, published_at, is_featured, is_published)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $artStmt = $pdo->prepare("INSERT INTO cms_articles (
+                        id, slug, title_fr, title_en, summary_fr, summary_en, content_fr, content_en,
+                        category, author, author_role_fr, author_role_en, date_published, read_time_fr, read_time_en,
+                        cover_image, gallery_images_json, is_published, show_in_home, is_featured,
+                        home_title_fr, home_title_en, home_desc_fr, home_desc_en, sections_json, tags
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
                     foreach ($data['articles'] as $art) {
+                        $gallery = is_string($art['gallery_images_json'] ?? null) 
+                            ? $art['gallery_images_json'] 
+                            : json_encode($art['gallery_images'] ?? $art['gallery_images_json'] ?? []);
+                        $sections = is_string($art['sections_json'] ?? null) 
+                            ? $art['sections_json'] 
+                            : json_encode($art['sections'] ?? $art['sections_json'] ?? []);
+
                         $artStmt->execute([
                             $art['id'] ?? null,
                             $art['slug'] ?? ('article-' . uniqid()),
                             $art['title_fr'] ?? '',
                             $art['title_en'] ?? '',
-                            $art['excerpt_fr'] ?? '',
-                            $art['excerpt_en'] ?? '',
+                            $art['summary_fr'] ?? $art['excerpt_fr'] ?? '',
+                            $art['summary_en'] ?? $art['excerpt_en'] ?? '',
                             $art['content_fr'] ?? '',
                             $art['content_en'] ?? '',
-                            $art['cover_image'] ?? '',
-                            is_string($art['gallery_images_json'] ?? null) ? $art['gallery_images_json'] : json_encode($art['gallery_images_json'] ?? []),
-                            is_string($art['sections_json'] ?? null) ? $art['sections_json'] : json_encode($art['sections_json'] ?? []),
+                            $art['category'] ?? 'Innovations',
                             $art['author'] ?? 'Dr. Jerry Ngong',
-                            $art['category'] ?? 'Vie de l’Institut',
-                            $art['published_at'] ?? date('Y-m-d H:i:s'),
-                            (int)($art['is_featured'] ?? 0),
-                            (int)($art['is_published'] ?? 1)
+                            $art['author_role_fr'] ?? 'Radiologue Interventionnel',
+                            $art['author_role_en'] ?? 'Interventional Radiologist',
+                            $art['date_published'] ?? $art['published_at'] ?? date('Y-m-d H:i:s'),
+                            $art['read_time_fr'] ?? '3 min',
+                            $art['read_time_en'] ?? '3 min',
+                            $art['cover_image'] ?? '',
+                            $gallery,
+                            isset($art['is_published']) ? (int)$art['is_published'] : 1,
+                            isset($art['show_in_home']) ? (int)$art['show_in_home'] : 1,
+                            isset($art['is_featured']) ? (int)$art['is_featured'] : 0,
+                            $art['home_title_fr'] ?? null,
+                            $art['home_title_en'] ?? null,
+                            $art['home_desc_fr'] ?? null,
+                            $art['home_desc_en'] ?? null,
+                            $sections,
+                            $art['tags'] ?? ''
                         ]);
                         $restoredCounts['articles']++;
                     }
                 }
 
                 // 3. Cas Cliniques
-                if (!empty($data['cas_cliniques']) && is_array($data['cas_cliniques'])) {
+                if (isset($data['cas_cliniques']) && is_array($data['cas_cliniques'])) {
                     $pdo->exec("DELETE FROM cms_cas_cliniques");
-                    $casStmt = $pdo->prepare("INSERT INTO cms_cas_cliniques (id, title_fr, title_en, category_fr, category_en, age, profession, diagnostic_fr, diagnostic_en, traitement_fr, traitement_en, resultat_fr, resultat_en, delai, image, gallery_json, video, full_story_fr, full_story_en, display_order, is_active)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $casStmt = $pdo->prepare("INSERT INTO cms_cas_cliniques (
+                        id, title_fr, title_en, category_fr, category_en, image, display_order, is_active,
+                        traitement_slug, traitement_name, pathologie_slug, short_desc_fr, short_desc_en
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
                     foreach ($data['cas_cliniques'] as $cas) {
                         $casStmt->execute([
                             $cas['id'] ?? null,
@@ -764,33 +806,46 @@ try {
                             $cas['title_en'] ?? '',
                             $cas['category_fr'] ?? '',
                             $cas['category_en'] ?? '',
-                            $cas['age'] ?? null,
-                            $cas['profession'] ?? null,
-                            $cas['diagnostic_fr'] ?? null,
-                            $cas['diagnostic_en'] ?? null,
-                            $cas['traitement_fr'] ?? null,
-                            $cas['traitement_en'] ?? null,
-                            $cas['resultat_fr'] ?? null,
-                            $cas['resultat_en'] ?? null,
-                            $cas['delai'] ?? null,
                             $cas['image'] ?? '',
-                            is_string($cas['gallery_json'] ?? null) ? $cas['gallery_json'] : json_encode($cas['gallery_json'] ?? []),
-                            $cas['video'] ?? null,
-                            $cas['full_story_fr'] ?? null,
-                            $cas['full_story_en'] ?? null,
                             (int)($cas['display_order'] ?? 0),
-                            (int)($cas['is_active'] ?? 1)
+                            isset($cas['is_active']) ? (int)$cas['is_active'] : 1,
+                            $cas['traitement_slug'] ?? 'infiltrations-rachidiennes',
+                            $cas['traitement_name'] ?? null,
+                            $cas['pathologie_slug'] ?? 'lombalgie-chronique',
+                            $cas['short_desc_fr'] ?? '',
+                            $cas['short_desc_en'] ?? ''
                         ]);
                         $restoredCounts['cas_cliniques']++;
                     }
                 }
 
                 // 4. Pathologies
-                if (!empty($data['pathologies']) && is_array($data['pathologies'])) {
+                if (isset($data['pathologies']) && is_array($data['pathologies'])) {
                     $pdo->exec("DELETE FROM cms_pathologies");
-                    $pathoStmt = $pdo->prepare("INSERT INTO cms_pathologies (id, slug, title_fr, title_en, icon, color, short_desc_fr, short_desc_en, card_image, hero_gallery_json, s1_t_fr, s1_t_en, s1_txt_fr, s1_txt_en, s1_img, s2_t_fr, s2_t_en, s2_txt_fr, s2_txt_en, s2_img, s3_t_fr, s3_t_en, s3_txt_fr, s3_txt_en, s3_img, display_order, is_active)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $pathoStmt = $pdo->prepare("INSERT INTO cms_pathologies (
+                        id, slug, title_fr, title_en, icon, color, short_desc_fr, short_desc_en, card_image, hero_gallery_json,
+                        section1_title_fr, section1_title_en, section1_text_fr, section1_text_en, section1_image,
+                        section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
+                        section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
+                        section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
+                        wikipedia_url, display_order, is_active, sections_json
+                    ) VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?
+                    )");
+
                     foreach ($data['pathologies'] as $p) {
+                        $heroGal = is_string($p['hero_gallery_json'] ?? null) 
+                            ? $p['hero_gallery_json'] 
+                            : json_encode($p['hero_gallery'] ?? $p['hero_gallery_json'] ?? []);
+                        $secs = is_string($p['sections_json'] ?? null) 
+                            ? $p['sections_json'] 
+                            : json_encode($p['sections'] ?? $p['sections_json'] ?? []);
+
                         $pathoStmt->execute([
                             $p['id'] ?? null,
                             $p['slug'] ?? ('patho-' . uniqid()),
@@ -801,39 +856,104 @@ try {
                             $p['short_desc_fr'] ?? '',
                             $p['short_desc_en'] ?? '',
                             $p['card_image'] ?? '',
-                            is_string($p['hero_gallery_json'] ?? null) ? $p['hero_gallery_json'] : json_encode($p['hero_gallery_json'] ?? []),
-                            $p['s1_t_fr'] ?? '', $p['s1_t_en'] ?? '', $p['s1_txt_fr'] ?? '', $p['s1_txt_en'] ?? '', $p['s1_img'] ?? '',
-                            $p['s2_t_fr'] ?? '', $p['s2_t_en'] ?? '', $p['s2_txt_fr'] ?? '', $p['s2_txt_en'] ?? '', $p['s2_img'] ?? '',
-                            $p['s3_t_fr'] ?? '', $p['s3_t_en'] ?? '', $p['s3_txt_fr'] ?? '', $p['s3_txt_en'] ?? '', $p['s3_img'] ?? '',
+                            $heroGal,
+                            $p['section1_title_fr'] ?? $p['s1_t_fr'] ?? '',
+                            $p['section1_title_en'] ?? $p['s1_t_en'] ?? '',
+                            $p['section1_text_fr'] ?? $p['s1_txt_fr'] ?? '',
+                            $p['section1_text_en'] ?? $p['s1_txt_en'] ?? '',
+                            $p['section1_image'] ?? $p['s1_img'] ?? '',
+                            $p['section2_title_fr'] ?? $p['s2_t_fr'] ?? '',
+                            $p['section2_title_en'] ?? $p['s2_t_en'] ?? '',
+                            $p['section2_text_fr'] ?? $p['s2_txt_fr'] ?? '',
+                            $p['section2_text_en'] ?? $p['s2_txt_en'] ?? '',
+                            $p['section2_image'] ?? $p['s2_img'] ?? '',
+                            $p['section3_title_fr'] ?? $p['s3_t_fr'] ?? '',
+                            $p['section3_title_en'] ?? $p['s3_t_en'] ?? '',
+                            $p['section3_text_fr'] ?? $p['s3_txt_fr'] ?? '',
+                            $p['section3_text_en'] ?? $p['s3_txt_en'] ?? '',
+                            $p['section3_image'] ?? $p['s3_img'] ?? '',
+                            $p['section4_title_fr'] ?? '',
+                            $p['section4_title_en'] ?? '',
+                            $p['section4_text_fr'] ?? '',
+                            $p['section4_text_en'] ?? '',
+                            $p['section4_image'] ?? '',
+                            $p['wikipedia_url'] ?? '',
                             (int)($p['display_order'] ?? 0),
-                            (int)($p['is_active'] ?? 1)
+                            isset($p['is_active']) ? (int)$p['is_active'] : 1,
+                            $secs
                         ]);
                         $restoredCounts['pathologies']++;
                     }
                 }
 
                 // 5. Traitements
-                if (!empty($data['traitements']) && is_array($data['traitements'])) {
+                if (isset($data['traitements']) && is_array($data['traitements'])) {
                     $pdo->exec("DELETE FROM cms_traitements");
-                    $traitStmt = $pdo->prepare("INSERT INTO cms_traitements (id, slug, title_fr, title_en, icon, category, short_desc_fr, short_desc_en, card_image, hero_gallery_json, s1_t_fr, s1_t_en, s1_txt_fr, s1_txt_en, s1_img, s2_t_fr, s2_t_en, s2_txt_fr, s2_txt_en, s2_img, s3_t_fr, s3_t_en, s3_txt_fr, s3_txt_en, s3_img, display_order, is_active)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $traitStmt = $pdo->prepare("INSERT INTO cms_traitements (
+                        id, slug, num, icon, title_fr, title_en, desc_front_fr, desc_front_en, desc_back_fr, desc_back_en,
+                        card_image, hero_gallery_json,
+                        section1_title_fr, section1_title_en, section1_text_fr, section1_text_en, section1_image,
+                        section2_title_fr, section2_title_en, section2_text_fr, section2_text_en, section2_image,
+                        section3_title_fr, section3_title_en, section3_text_fr, section3_text_en, section3_image,
+                        section4_title_fr, section4_title_en, section4_text_fr, section4_text_en, section4_image,
+                        cta_text_fr, cta_text_en, cta_url, display_order, is_active, sections_json
+                    ) VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                        ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?, ?
+                    )");
+
                     foreach ($data['traitements'] as $tr) {
+                        $heroGal = is_string($tr['hero_gallery_json'] ?? null) 
+                            ? $tr['hero_gallery_json'] 
+                            : json_encode($tr['hero_gallery'] ?? $tr['hero_gallery_json'] ?? []);
+                        $secs = is_string($tr['sections_json'] ?? null) 
+                            ? $tr['sections_json'] 
+                            : json_encode($tr['sections'] ?? $tr['sections_json'] ?? []);
+
                         $traitStmt->execute([
                             $tr['id'] ?? null,
                             $tr['slug'] ?? ('trait-' . uniqid()),
+                            $tr['num'] ?? '01',
+                            $tr['icon'] ?? '💉',
                             $tr['title_fr'] ?? '',
                             $tr['title_en'] ?? '',
-                            $tr['icon'] ?? '💉',
-                            $tr['category'] ?? 'Interventionnel',
-                            $tr['short_desc_fr'] ?? '',
-                            $tr['short_desc_en'] ?? '',
+                            $tr['desc_front_fr'] ?? $tr['short_desc_fr'] ?? '',
+                            $tr['desc_front_en'] ?? $tr['short_desc_en'] ?? '',
+                            $tr['desc_back_fr'] ?? '',
+                            $tr['desc_back_en'] ?? '',
                             $tr['card_image'] ?? '',
-                            is_string($tr['hero_gallery_json'] ?? null) ? $tr['hero_gallery_json'] : json_encode($tr['hero_gallery_json'] ?? []),
-                            $tr['s1_t_fr'] ?? '', $tr['s1_t_en'] ?? '', $tr['s1_txt_fr'] ?? '', $tr['s1_txt_en'] ?? '', $tr['s1_img'] ?? '',
-                            $tr['s2_t_fr'] ?? '', $tr['s2_t_en'] ?? '', $tr['s2_txt_fr'] ?? '', $tr['s2_txt_en'] ?? '', $tr['s2_img'] ?? '',
-                            $tr['s3_t_fr'] ?? '', $tr['s3_t_en'] ?? '', $tr['s3_txt_fr'] ?? '', $tr['s3_txt_en'] ?? '', $tr['s3_img'] ?? '',
+                            $heroGal,
+                            $tr['section1_title_fr'] ?? $tr['s1_t_fr'] ?? '',
+                            $tr['section1_title_en'] ?? $tr['s1_t_en'] ?? '',
+                            $tr['section1_text_fr'] ?? $tr['s1_txt_fr'] ?? '',
+                            $tr['section1_text_en'] ?? $tr['s1_txt_en'] ?? '',
+                            $tr['section1_image'] ?? $tr['s1_img'] ?? '',
+                            $tr['section2_title_fr'] ?? $tr['s2_t_fr'] ?? '',
+                            $tr['section2_title_en'] ?? $tr['s2_t_en'] ?? '',
+                            $tr['section2_text_fr'] ?? $tr['s2_txt_fr'] ?? '',
+                            $tr['section2_text_en'] ?? $tr['s2_txt_en'] ?? '',
+                            $tr['section2_image'] ?? $tr['s2_img'] ?? '',
+                            $tr['section3_title_fr'] ?? $tr['s3_t_fr'] ?? '',
+                            $tr['section3_title_en'] ?? $tr['s3_t_en'] ?? '',
+                            $tr['section3_text_fr'] ?? $tr['s3_txt_fr'] ?? '',
+                            $tr['section3_text_en'] ?? $tr['s3_txt_en'] ?? '',
+                            $tr['section3_image'] ?? $tr['s3_img'] ?? '',
+                            $tr['section4_title_fr'] ?? '',
+                            $tr['section4_title_en'] ?? '',
+                            $tr['section4_text_fr'] ?? '',
+                            $tr['section4_text_en'] ?? '',
+                            $tr['section4_image'] ?? '',
+                            $tr['cta_text_fr'] ?? 'Prendre rendez-vous',
+                            $tr['cta_text_en'] ?? 'Book Appointment',
+                            $tr['cta_url'] ?? '#contact',
                             (int)($tr['display_order'] ?? 0),
-                            (int)($tr['is_active'] ?? 1)
+                            isset($tr['is_active']) ? (int)$tr['is_active'] : 1,
+                            $secs
                         ]);
                         $restoredCounts['traitements']++;
                     }
