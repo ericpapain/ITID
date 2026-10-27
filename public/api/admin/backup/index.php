@@ -203,7 +203,12 @@ if ($action === "scan") {
             if (!$files) continue;
             foreach ($files as $f) {
                 if ($f === "." || $f === "..") continue;
-                if (preg_match('/\.(sqlite|sqlite3|db)(\.bak.*)?$/i', $f) || strpos($f, 'itid') !== false) {
+                // Exclure impérativement les fichiers internes SQLite WAL / SHM / JOURNAL
+                if (preg_match('/-(wal|shm|journal)$/i', $f)) continue;
+                if (preg_match('/\.(lock|tmp|temp|log)$/i', $f)) continue;
+                if (preg_match('/\.(php|js|ts|tsx|css|html|json|png|jpg|jpeg|webp|svg|gif|txt|map)$/i', $f)) continue;
+
+                if (preg_match('/\.(sqlite|sqlite3|db)(\.bak.*)?$/i', $f) || (strpos($f, 'itid') !== false && !is_dir($dir . '/' . $f))) {
                     $full = $dir . '/' . $f;
                     $realF = realpath($full) ?: $full;
                     if (isset($seenPaths[$realF])) continue;
@@ -355,6 +360,12 @@ if ($action === "restore_discovered" && $_SERVER["REQUEST_METHOD"] === "POST") {
         if (!$sourcePath || !file_exists($sourcePath)) {
             http_response_code(400);
             echo json_encode(["success" => false, "error" => "Fichier source introuvable : " . htmlspecialchars($sourcePath)]);
+            exit;
+        }
+
+        if (preg_match('/-(wal|shm|journal)$/i', $sourcePath) || preg_match('/\.(lock|tmp|temp)$/i', $sourcePath)) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Opération rejetée : les fichiers temporaires SQLite (-shm, -wal) sont des index internes et ne constituent pas une base restaurable."]);
             exit;
         }
 
