@@ -409,12 +409,12 @@ export function PathologiesPremium() {
           </div>
 
           {/* Droite : Menu déroulant de choix direct */}
-          <div className="w-full lg:w-72 xl:w-80 text-left">
+          <div className="w-full sm:w-72 md:w-80 text-left">
             <ContentNavigator
               items={items}
               placeholder={t('common.chooseCondition', 'Choisir une pathologie')}
               onSelect={handleSelect}
-              theme="dark"
+              theme="light"
             />
           </div>
         </div>
