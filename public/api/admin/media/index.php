@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Gestion Centralisée des Médias (Upload, List, Delete, Audit)
+// ITID France || API Gestion Centralisée des Médias (Upload, List, Delete, Audit)
 // Source de vérité : Table media_files (MySQL Hostinger / SQLite)
 // ======================================================================
 
@@ -29,7 +29,8 @@ $pdo = getItidDb();
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Helper : Détermination du dossier uploads physique
-function getUploadsDirectory(): string {
+function getUploadsDirectory(): string
+{
     $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/\\');
     $possibleDirs = [];
     if (!empty($docRoot)) {
@@ -261,11 +262,11 @@ if ($method === 'POST') {
             $targetPath,
             $publicUrl,
             $mimeType ?: ('image/' . $ext),
-            (int)$file['size'],
+            (int) $file['size'],
             $fileHash,
             $mediaType
         ]);
-        $insertedId = (int)$pdo->lastInsertId();
+        $insertedId = (int) $pdo->lastInsertId();
     } catch (Throwable $dbErr) {
         error_log("media_files DB insert error: " . $dbErr->getMessage());
         $insertedId = 0;
@@ -289,7 +290,7 @@ if ($method === 'POST') {
 // 3. DELETE — Suppression Sécurisée du Média (Disque + DB)
 // ----------------------------------------------------------------------
 if ($method === 'DELETE') {
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
     $filename = trim($_GET['filename'] ?? '');
 
     if (!$id && empty($filename)) {

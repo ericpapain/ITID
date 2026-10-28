@@ -1,5 +1,5 @@
 // ======================================================================
-// ITID France — Données Canoniques des Pathologies (Fiches Médicales Détaillées)
+// ITID France || Données Canoniques des Pathologies (Fiches Médicales Détaillées)
 // Contenu médical riche pré-rempli garantissant zéro perte et zéro régression
 // ======================================================================
 

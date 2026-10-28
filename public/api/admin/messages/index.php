@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — Administration des Messages (PHP / LiteSpeed)
+// ITID France || Administration des Messages (PHP / LiteSpeed)
 // GET: Liste & recherche | PATCH/POST: Changement de statut | CSV Export
 // ======================================================================
 
@@ -27,13 +27,13 @@ $pdo = getItidDb();
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="messages_itid_' . date('Ymd_His') . '.csv"');
-    
+
     // BOM UTF-8 pour Excel
     echo "\xEF\xBB\xBF";
-    
+
     $out = fopen('php://output', 'w');
     fputcsv($out, ['ID', 'Date', 'Statut', 'Nom', 'Email', 'Téléphone', 'Sujet', 'Message']);
-    
+
     $stmt = $pdo->query("SELECT id, created_at, status, name, email, phone, subject, message FROM contact_messages ORDER BY created_at DESC");
     while ($row = $stmt->fetch()) {
         fputcsv($out, [
@@ -55,11 +55,11 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 // 2. Suppression de Message (DELETE ou POST avec action=delete)
 // ----------------------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['action']) && $_GET['action'] === 'delete')) {
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
     if (!$id) {
         $raw = file_get_contents('php://input');
         $body = json_decode($raw, true) ?: [];
-        $id = (int)($body['id'] ?? 0);
+        $id = (int) ($body['id'] ?? 0);
     }
 
     if (!$id) {
@@ -89,9 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['action']) && $_GET[
 if ($_SERVER['REQUEST_METHOD'] === 'PATCH' || (isset($_GET['action']) && $_GET['action'] === 'status')) {
     $raw = file_get_contents('php://input');
     $body = json_decode($raw, true) ?: [];
-    
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : (int)($body['id'] ?? 0);
-    $status = trim((string)($body['status'] ?? ''));
+
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : (int) ($body['id'] ?? 0);
+    $status = trim((string) ($body['status'] ?? ''));
 
     if (!$id || !in_array($status, ['unread', 'read', 'archived'], true)) {
         http_response_code(400);
@@ -116,12 +116,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'PATCH' || (isset($_GET['action']) && $_GET['
 // ----------------------------------------------------------------------
 // 3. Consultation paginée avec filtres (GET)
 // ----------------------------------------------------------------------
-$page = max(1, (int)($_GET['page'] ?? 1));
-$limit = min(100, max(1, (int)($_GET['limit'] ?? 20)));
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$limit = min(100, max(1, (int) ($_GET['limit'] ?? 20)));
 $offset = ($page - 1) * $limit;
 
-$statusFilter = isset($_GET['status']) ? trim((string)$_GET['status']) : '';
-$search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
+$statusFilter = isset($_GET['status']) ? trim((string) $_GET['status']) : '';
+$search = isset($_GET['search']) ? trim((string) $_GET['search']) : '';
 
 $where = ["1=1"];
 $params = [];
@@ -146,7 +146,7 @@ try {
     // Calcul du total
     $countStmt = $pdo->prepare("SELECT COUNT(*) AS total FROM contact_messages WHERE {$whereSql}");
     $countStmt->execute($params);
-    $total = (int)$countStmt->fetchColumn();
+    $total = (int) $countStmt->fetchColumn();
 
     // Récupération des données
     $dataSql = "
@@ -162,8 +162,8 @@ try {
 
     // Formatage des métadonnées JSON
     foreach ($rows as &$r) {
-        $r['id'] = (int)$r['id'];
-        $r['email_sent'] = (bool)$r['email_sent'];
+        $r['id'] = (int) $r['id'];
+        $r['email_sent'] = (bool) $r['email_sent'];
         if (!empty($r['metadata']) && is_string($r['metadata'])) {
             $decoded = json_decode($r['metadata'], true);
             if (is_array($decoded)) {

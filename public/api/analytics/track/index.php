@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — Endpoint Public de Collecte Analytics (/api/analytics/track)
+// ITID France || Endpoint Public de Collecte Analytics (/api/analytics/track)
 // Traite les événements : pageview, heartbeat, leave, custom event
 // ======================================================================
 
@@ -34,8 +34,8 @@ if (!$body || !is_array($body)) {
 }
 
 $type = $body['type'] ?? 'pageview';
-$visitorToken = trim((string)($body['visitor_token'] ?? ''));
-$sessionToken = trim((string)($body['session_token'] ?? ''));
+$visitorToken = trim((string) ($body['visitor_token'] ?? ''));
+$sessionToken = trim((string) ($body['session_token'] ?? ''));
 
 if (empty($visitorToken) || empty($sessionToken)) {
     http_response_code(400);
@@ -43,20 +43,20 @@ if (empty($visitorToken) || empty($sessionToken)) {
     exit;
 }
 
-$pageUrl = trim((string)($body['page_url'] ?? '/'));
-$pagePath = trim((string)($body['page_path'] ?? '/'));
-$pageTitle = isset($body['page_title']) ? trim((string)$body['page_title']) : null;
-$referrer = isset($body['referrer']) ? trim((string)$body['referrer']) : null;
-$durationSeconds = isset($body['duration_seconds']) ? max(0, (int)$body['duration_seconds']) : 0;
+$pageUrl = trim((string) ($body['page_url'] ?? '/'));
+$pagePath = trim((string) ($body['page_path'] ?? '/'));
+$pageTitle = isset($body['page_title']) ? trim((string) $body['page_title']) : null;
+$referrer = isset($body['referrer']) ? trim((string) $body['referrer']) : null;
+$durationSeconds = isset($body['duration_seconds']) ? max(0, (int) $body['duration_seconds']) : 0;
 
 $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $ip = getClientIp();
 $isBot = isBot($ua) ? 1 : 0;
 $uaData = parseUserAgent($ua);
 
-$screenWidth = isset($body['screen_width']) ? (int)$body['screen_width'] : null;
-$screenHeight = isset($body['screen_height']) ? (int)$body['screen_height'] : null;
-$language = isset($body['language']) ? substr(trim((string)$body['language']), 0, 10) : 'fr';
+$screenWidth = isset($body['screen_width']) ? (int) $body['screen_width'] : null;
+$screenHeight = isset($body['screen_height']) ? (int) $body['screen_height'] : null;
+$language = isset($body['language']) ? substr(trim((string) $body['language']), 0, 10) : 'fr';
 
 try {
     $pdo = getItidDb();
@@ -70,7 +70,7 @@ try {
     $visitorId = null;
 
     if ($visitor) {
-        $visitorId = (int)$visitor['id'];
+        $visitorId = (int) $visitor['id'];
         $upV = $pdo->prepare("
             UPDATE visitors 
             SET last_seen_at = CURRENT_TIMESTAMP, 
@@ -100,7 +100,7 @@ try {
             $uaData['os'],
             $language
         ]);
-        $visitorId = (int)$pdo->lastInsertId();
+        $visitorId = (int) $pdo->lastInsertId();
     }
 
     // ------------------------------------------------------------------
@@ -113,7 +113,7 @@ try {
     $sessionId = null;
 
     if ($session) {
-        $sessionId = (int)$session['id'];
+        $sessionId = (int) $session['id'];
         $upS = $pdo->prepare("
             UPDATE visitor_sessions 
             SET last_activity_at = CURRENT_TIMESTAMP,
@@ -155,7 +155,7 @@ try {
             $pageUrl,
             $isBot,
         ]);
-        $sessionId = (int)$pdo->lastInsertId();
+        $sessionId = (int) $pdo->lastInsertId();
 
         // Mettre à jour le nombre total de sessions du visiteur s'il existait déjà
         if ($visitor) {
@@ -174,7 +174,7 @@ try {
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 0)
         ");
         $insPv->execute([$sessionId, $visitorId, $pageUrl, $pagePath, $pageTitle, $referrer]);
-        $pageViewId = (int)$pdo->lastInsertId();
+        $pageViewId = (int) $pdo->lastInsertId();
 
         // Mettre à jour page_views de la session et du visiteur
         if ($session) {
@@ -206,7 +206,7 @@ try {
             ");
             $upPv->execute([$durationSeconds, $sessionId]);
         }
-        
+
         $pdo->prepare("UPDATE visitor_sessions SET last_activity_at = CURRENT_TIMESTAMP, exit_page = ? WHERE id = ?")->execute([$pagePath, $sessionId]);
 
         echo json_encode(['success' => true]);
@@ -223,7 +223,7 @@ try {
     }
 
     if ($type === 'event') {
-        $eventName = trim((string)($body['event_name'] ?? 'click'));
+        $eventName = trim((string) ($body['event_name'] ?? 'click'));
         $eventData = isset($body['event_data']) ? json_encode($body['event_data'], JSON_UNESCAPED_UNICODE) : null;
 
         $insEv = $pdo->prepare("

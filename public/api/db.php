@@ -1,10 +1,11 @@
 <?php
 // ======================================================================
-// ITID France — Gestionnaire de Base de Données Centralisé (PHP / PDO)
+// ITID France || Gestionnaire de Base de Données Centralisé (PHP / PDO)
 // Supporte SQLite natif (zéro config) et MySQL / MariaDB Hostinger
 // ======================================================================
 
-function getItidConfig(): array {
+function getItidConfig(): array
+{
     static $config = null;
     if ($config === null) {
         $configFile = __DIR__ . '/config.php';
@@ -24,7 +25,8 @@ function getItidConfig(): array {
     return $config;
 }
 
-function getItidDb(): PDO {
+function getItidDb(): PDO
+{
     static $pdo = null;
     if ($pdo !== null) {
         return $pdo;
@@ -112,7 +114,7 @@ function getItidDb(): PDO {
         foreach ($candidateDirs as $dir) {
             $candidateFile = $dir . '/itid.sqlite';
             if (file_exists($candidateFile)) {
-                $sz = (int)@filesize($candidateFile);
+                $sz = (int) @filesize($candidateFile);
                 if ($sz > 2048 && $sz > $bestCandidateSize) {
                     @chmod($candidateFile, 0666);
                     @chmod($dir, 0777);
@@ -164,11 +166,12 @@ function getItidDb(): PDO {
         @$pdo->exec("PRAGMA busy_timeout = 10000;");
         // Tenter le mode WAL pour supporter les écritures concurrentes sans verrouillage
         $journalMode = @$pdo->query("PRAGMA journal_mode = WAL;")->fetchColumn();
-        if (strtoupper((string)$journalMode) !== 'WAL') {
+        if (strtoupper((string) $journalMode) !== 'WAL') {
             @$pdo->exec("PRAGMA journal_mode = DELETE;");
         }
         @$pdo->exec("PRAGMA synchronous = NORMAL;");
-    } catch (Throwable $t) {}
+    } catch (Throwable $t) {
+    }
 
     initSqliteTables($pdo);
     return $pdo;
@@ -178,23 +181,31 @@ function getItidDb(): PDO {
  * Scanne les anciens emplacements potentiels UNIQUEMENT si la base active est totalement vide (0 octet).
  * Ne remplace JAMAIS une base existante qui contient des tables ou des données CMS.
  */
-function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
+function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void
+{
     // Si la base cible existe déjà et n'est pas vide (> 0 octet)
     if (file_exists($targetSqliteFile) && filesize($targetSqliteFile) > 0) {
         try {
             $testPdo = new PDO("sqlite:" . $targetSqliteFile);
             $tables = $testPdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")->fetchAll(PDO::FETCH_COLUMN);
-            
+
             // Si des tables existent déjà, vérifier si la base contient des données
             if (!empty($tables)) {
                 $checkTables = [
-                    'cms_cas_cliniques', 'cms_articles', 'cms_pathologies', 'cms_traitements',
-                    'cms_pages_content', 'contact_messages', 'visitors', 'visitor_sessions',
-                    'newsletter_subscribers', 'admin_users'
+                    'cms_cas_cliniques',
+                    'cms_articles',
+                    'cms_pathologies',
+                    'cms_traitements',
+                    'cms_pages_content',
+                    'contact_messages',
+                    'visitors',
+                    'visitor_sessions',
+                    'newsletter_subscribers',
+                    'admin_users'
                 ];
                 foreach ($checkTables as $t) {
                     if (in_array($t, $tables, true)) {
-                        $count = (int)$testPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                        $count = (int) $testPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
                         if ($count > 0) {
                             // Données actives présentes : INTERDICTION FORMELLE d'écraser la base !
                             return;
@@ -230,9 +241,11 @@ function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
     $bestSize = 0;
 
     foreach ($legacyCandidates as $legacyPath) {
-        if (!file_exists($legacyPath)) continue;
-        if (realpath($legacyPath) === realpath($targetSqliteFile)) continue;
-        
+        if (!file_exists($legacyPath))
+            continue;
+        if (realpath($legacyPath) === realpath($targetSqliteFile))
+            continue;
+
         $size = filesize($legacyPath);
         if ($size > $bestSize && $size > 4096) {
             try {
@@ -243,7 +256,8 @@ function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
                     $bestSize = $size;
                 }
                 $legacyPdo = null;
-            } catch (Throwable $e) {}
+            } catch (Throwable $e) {
+            }
         }
     }
 
@@ -256,7 +270,8 @@ function autoMigrateLegacySqliteIfEmpty(string $targetSqliteFile): void {
     }
 }
 
-function initSqliteTables(PDO $pdo): void {
+function initSqliteTables(PDO $pdo): void
+{
     $queries = [
         "CREATE TABLE IF NOT EXISTS contact_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -519,7 +534,8 @@ function initSqliteTables(PDO $pdo): void {
     indexExistingLocalMediaIfEmpty($pdo);
 }
 
-function initMysqlTables(PDO $pdo): void {
+function initMysqlTables(PDO $pdo): void
+{
     $queries = [
         "CREATE TABLE IF NOT EXISTS contact_messages (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -797,18 +813,20 @@ function initMysqlTables(PDO $pdo): void {
     indexExistingLocalMediaIfEmpty($pdo);
 }
 
-function migrateCmsRelationsColumns(PDO $pdo): void {
+function migrateCmsRelationsColumns(PDO $pdo): void
+{
     $casColumns = [
         'traitement_slug' => 'VARCHAR(191) DEFAULT "infiltrations-rachidiennes"',
         'traitement_name' => 'VARCHAR(255) NULL',
         'pathologie_slug' => 'VARCHAR(191) DEFAULT "lombalgie-chronique"',
-        'short_desc_fr'   => 'TEXT NULL',
-        'short_desc_en'   => 'TEXT NULL'
+        'short_desc_fr' => 'TEXT NULL',
+        'short_desc_en' => 'TEXT NULL'
     ];
     foreach ($casColumns as $col => $def) {
         try {
             $pdo->exec("ALTER TABLE cms_cas_cliniques ADD COLUMN {$col} {$def}");
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
     }
 
     $posColumns = [
@@ -816,29 +834,32 @@ function migrateCmsRelationsColumns(PDO $pdo): void {
         'section2_image_position' => 'VARCHAR(50) DEFAULT "right"',
         'section3_image_position' => 'VARCHAR(50) DEFAULT "left"',
         'section4_image_position' => 'VARCHAR(50) DEFAULT "right"',
-        'sections_json'           => 'TEXT NULL'
+        'sections_json' => 'TEXT NULL'
     ];
     foreach ($posColumns as $col => $def) {
         try {
             $pdo->exec("ALTER TABLE cms_traitements ADD COLUMN {$col} {$def}");
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
         try {
             $pdo->exec("ALTER TABLE cms_pathologies ADD COLUMN {$col} {$def}");
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
     }
 }
 
 
-function migrateCmsArticlesColumns(PDO $pdo): void {
+function migrateCmsArticlesColumns(PDO $pdo): void
+{
     $columns = [
-        'show_in_home'   => 'INTEGER DEFAULT 1',
-        'is_featured'    => 'INTEGER DEFAULT 0',
-        'home_title_fr'  => 'TEXT NULL',
-        'home_title_en'  => 'TEXT NULL',
-        'home_desc_fr'   => 'TEXT NULL',
-        'home_desc_en'   => 'TEXT NULL',
-        'sections_json'  => 'TEXT NULL',
-        'tags'           => 'TEXT NULL'
+        'show_in_home' => 'INTEGER DEFAULT 1',
+        'is_featured' => 'INTEGER DEFAULT 0',
+        'home_title_fr' => 'TEXT NULL',
+        'home_title_en' => 'TEXT NULL',
+        'home_desc_fr' => 'TEXT NULL',
+        'home_desc_en' => 'TEXT NULL',
+        'sections_json' => 'TEXT NULL',
+        'tags' => 'TEXT NULL'
     ];
     foreach ($columns as $col => $def) {
         try {
@@ -849,9 +870,10 @@ function migrateCmsArticlesColumns(PDO $pdo): void {
     }
 }
 
-function seedAdminUserIfEmpty(PDO $pdo): void {
+function seedAdminUserIfEmpty(PDO $pdo): void
+{
     try {
-        $count = (int)$pdo->query("SELECT COUNT(*) FROM admin_users")->fetchColumn();
+        $count = (int) $pdo->query("SELECT COUNT(*) FROM admin_users")->fetchColumn();
         if ($count === 0) {
             $config = getItidConfig();
             $adminEmail = strtolower(trim($config['admin_user'] ?? $config['admin_email'] ?? 'contact@itid-france.com'));
@@ -865,13 +887,15 @@ function seedAdminUserIfEmpty(PDO $pdo): void {
     }
 }
 
-function seedCmsIfEmptySafe(PDO $pdo): void {
+function seedCmsIfEmptySafe(PDO $pdo): void
+{
     // STRICTEMENT DÉSACTIVÉ : les contenus réels, cas cliniques et photos enrichis par l'utilisateur
     // ne doivent JAMAIS être écrasés automatiquement par des données de démonstration.
     return;
 }
 
-function upgradeMysqlColumnsSafe(PDO $pdo): void {
+function upgradeMysqlColumnsSafe(PDO $pdo): void
+{
     $alterQueries = [
         "ALTER TABLE cms_pathologies MODIFY card_image TEXT",
         "ALTER TABLE cms_pathologies MODIFY wikipedia_url TEXT",
@@ -890,13 +914,15 @@ function upgradeMysqlColumnsSafe(PDO $pdo): void {
     foreach ($alterQueries as $sql) {
         try {
             $pdo->exec($sql);
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
     }
 }
 
-function indexExistingLocalMediaIfEmpty(PDO $pdo): void {
+function indexExistingLocalMediaIfEmpty(PDO $pdo): void
+{
     try {
-        $count = (int)$pdo->query("SELECT COUNT(*) FROM media_files")->fetchColumn();
+        $count = (int) $pdo->query("SELECT COUNT(*) FROM media_files")->fetchColumn();
         if ($count > 0) {
             return;
         }
@@ -1085,7 +1111,7 @@ function indexExistingLocalMediaIfEmpty(PDO $pdo): void {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
         foreach ($itemsToIndex as $m) {
-            $fSize = file_exists($m['path']) ? (int)filesize($m['path']) : 102400;
+            $fSize = file_exists($m['path']) ? (int) filesize($m['path']) : 102400;
             $fHash = file_exists($m['path']) ? md5_file($m['path']) : md5($m['filename']);
             try {
                 $stmt->execute([
@@ -1098,7 +1124,8 @@ function indexExistingLocalMediaIfEmpty(PDO $pdo): void {
                     $fHash ?: 'hash_init',
                     $m['type']
                 ]);
-            } catch (Throwable $e) {}
+            } catch (Throwable $e) {
+            }
         }
     } catch (Throwable $t) {
         error_log("indexExistingLocalMediaIfEmpty error: " . $t->getMessage());

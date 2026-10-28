@@ -160,7 +160,7 @@ function loadJsonFromDisk<T>(filePath: string, defaultVal: T): T {
       const parsed = JSON.parse(content);
       if (Array.isArray(parsed)) return parsed as unknown as T;
       if (parsed !== null && parsed !== undefined && typeof parsed === 'object') return parsed;
-    } catch {}
+    } catch { }
   }
   saveJsonToDisk(filePath, defaultVal);
   return defaultVal;
@@ -170,7 +170,7 @@ function saveJsonToDisk(filePath: string, data: any) {
   try {
     ensureDataDir();
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch {}
+  } catch { }
 }
 
 const defaultPathologies = [
@@ -425,7 +425,7 @@ export async function getPublicCasCliniques(req: Request, res: Response) {
           items: rows.map((r: any, idx: number) => ({ ...r, image: sanitizeCaseImage(r.image, idx) }))
         });
       }
-    } catch {}
+    } catch { }
 
     const items = inMemoryCasCliniques
       .filter(c => c.is_active !== 0)
@@ -452,7 +452,7 @@ export async function getPublicPageContent(req: Request, res: Response) {
           content_en: typeof row.content_en === 'string' ? JSON.parse(row.content_en || '{}') : row.content_en,
         });
       }
-    } catch {}
+    } catch { }
 
     const pageData = inMemoryPages[pageKey] || { content_fr: {}, content_en: {} };
     return res.json({
@@ -504,7 +504,7 @@ export async function getPublicPathologies(req: Request, res: Response) {
           return res.json({ success: true, pathologies: items });
         }
       }
-    } catch {}
+    } catch { }
 
     // Fallback mémoire / disque
     if (slug) {
@@ -575,7 +575,7 @@ export async function getPublicTraitements(req: Request, res: Response) {
           return res.json({ success: true, traitements: items });
         }
       }
-    } catch {}
+    } catch { }
 
     if (slug) {
       const cleanSlug = (slug as string).toLowerCase().trim();
@@ -630,7 +630,7 @@ export async function getPublicArticles(req: Request, res: Response) {
           return res.json({ success: true, articles: items });
         }
       }
-    } catch {}
+    } catch { }
 
     if (slug) {
       const found = inMemoryArticles.find(a => a.slug === slug);
@@ -661,7 +661,7 @@ export async function handleAdminCms(req: Request, res: Response) {
         if (Array.isArray(rows)) {
           return res.json({ success: true, items: rows.map((r: any, idx: number) => ({ ...r, image: sanitizeCaseImage(r.image, idx) })) });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryCasCliniques });
     }
 
@@ -693,7 +693,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             'INSERT INTO cms_cas_cliniques (title_fr, title_en, category_fr, category_en, image, display_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [newItem.title_fr, newItem.title_en, newItem.category_fr, newItem.category_en, newItem.image, newItem.display_order, newItem.is_active]
           );
-        } catch {}
+        } catch { }
       }
       inMemoryCasCliniques.push(newItem);
       saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
@@ -713,7 +713,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             'UPDATE cms_cas_cliniques SET title_fr = ?, title_en = ?, category_fr = ?, category_en = ?, image = ?, display_order = ?, is_active = ? WHERE id = ?',
             [body.title_fr, body.title_en, body.category_fr, body.category_en, body.image, body.display_order, body.is_active, id]
           );
-        } catch {}
+        } catch { }
       }
       const idx = inMemoryCasCliniques.findIndex(c => c.id === id);
       if (idx !== -1) {
@@ -727,7 +727,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_cas_cliniques WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryCasCliniques = inMemoryCasCliniques.filter(c => c.id !== id);
       saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
       return res.json({ success: true, message: 'Cas clinique supprimé avec succès.' });
@@ -748,7 +748,7 @@ export async function handleAdminCms(req: Request, res: Response) {
           }));
           return res.json({ success: true, items });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryPathologies });
     }
 
@@ -799,7 +799,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               body.wikipedia_url || '', parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
             ]
           );
-        } catch {}
+        } catch { }
       }
       inMemoryPathologies.push({ ...body, id: newId, slug, sections: body.sections || [] });
       saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
@@ -851,7 +851,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               body.wikipedia_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
             ]
           );
-        } catch {}
+        } catch { }
       }
       const idx = inMemoryPathologies.findIndex(p => p.id === id);
       if (idx !== -1) {
@@ -865,7 +865,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_pathologies WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryPathologies = inMemoryPathologies.filter(p => p.id !== id);
       saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
       return res.json({ success: true, message: 'Pathologie supprimée avec succès.' });
@@ -885,7 +885,7 @@ export async function handleAdminCms(req: Request, res: Response) {
           }));
           return res.json({ success: true, items });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryTraitements });
     }
 
@@ -942,7 +942,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
             ]
           );
-        } catch {}
+        } catch { }
       }
       inMemoryTraitements.push({ ...body, id: newId, slug, sections: body.sections || [] });
       saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
@@ -998,7 +998,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               body.cta_text_fr, body.cta_text_en, body.cta_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
             ]
           );
-        } catch {}
+        } catch { }
       }
       const idx = inMemoryTraitements.findIndex(t => t.id === id);
       if (idx !== -1) {
@@ -1012,7 +1012,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_traitements WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryTraitements = inMemoryTraitements.filter(t => t.id !== id);
       saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
       return res.json({ success: true, message: 'Traitement supprimé avec succès.' });
@@ -1031,7 +1031,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             const cleanGallery = Array.isArray(rawGallery) && rawGallery.length > 0
               ? rawGallery.map((img: string, gIdx: number) => sanitizeCaseImage(img, gIdx))
               : [cleanCover, '/images/glowing_3d_spine.jpg', '/images/treatments/infiltrations_rachidiennes.jpg'];
-            
+
             const rawSections = typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || [];
             const cleanSections = Array.isArray(rawSections) ? rawSections.map((s: any, sIdx: number) => ({
               ...s,
@@ -1047,7 +1047,7 @@ export async function handleAdminCms(req: Request, res: Response) {
           });
           return res.json({ success: true, items });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryArticles });
     }
 
@@ -1075,7 +1075,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             sectionsJson, body.tags || ''
           ]
         );
-      } catch {}
+      } catch { }
       inMemoryArticles.push({ ...body, id: newId, slug });
       saveJsonToDisk(articlesFilePath, inMemoryArticles);
       return res.json({ success: true, id: newId, message: 'Article créé avec succès.' });
@@ -1102,7 +1102,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             body.home_desc_fr || null, body.home_desc_en || null, sectionsJson, body.tags || '', id
           ]
         );
-      } catch {}
+      } catch { }
       const idx = inMemoryArticles.findIndex(a => a.id === id);
       if (idx !== -1) {
         inMemoryArticles[idx] = { ...inMemoryArticles[idx], ...body, id };
@@ -1115,7 +1115,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_articles WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryArticles = inMemoryArticles.filter(a => a.id !== id);
       saveJsonToDisk(articlesFilePath, inMemoryArticles);
       return res.json({ success: true, message: 'Article supprimé avec succès.' });
@@ -1138,7 +1138,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             content_en: typeof row.content_en === 'string' ? JSON.parse(row.content_en || '{}') : row.content_en,
           });
         }
-      } catch {}
+      } catch { }
 
       const pageData = inMemoryPages[pageKey] || { content_fr: {}, content_en: {} };
       return res.json({
@@ -1158,7 +1158,7 @@ export async function handleAdminCms(req: Request, res: Response) {
            ON DUPLICATE KEY UPDATE content_fr = VALUES(content_fr), content_en = VALUES(content_en)`,
           [pageKey, contentFrStr, contentEnStr]
         );
-      } catch {}
+      } catch { }
 
       inMemoryPages[pageKey] = {
         content_fr: body.content_fr || {},
@@ -1215,7 +1215,7 @@ export async function handleAdminCms(req: Request, res: Response) {
         const archive = archiver('zip', { zlib: { level: 9 } });
         archive.pipe(res);
 
-        archive.append(`ITID France — Sauvegarde Médias\nDate: ${new Date().toISOString()}\n`, { name: 'INFO_ARCHIVE_ITID.txt' });
+        archive.append(`ITID France || Sauvegarde Médias\nDate: ${new Date().toISOString()}\n`, { name: 'INFO_ARCHIVE_ITID.txt' });
 
         const uploadsPath = path.join(process.cwd(), 'public', 'uploads');
         if (fs.existsSync(uploadsPath)) {

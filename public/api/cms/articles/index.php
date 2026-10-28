@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Publique Articles & Actualités
+// ITID France || API Publique Articles & Actualités
 // ======================================================================
 
 require_once __DIR__ . '/../../db.php';
@@ -122,8 +122,8 @@ try {
         }
         $it['sections'] = $rawSections;
         $it['tags'] = $it['tags'] ?? '';
-        $it['show_in_home'] = isset($it['show_in_home']) ? (int)$it['show_in_home'] : 1;
-        $it['is_featured'] = isset($it['is_featured']) ? (int)$it['is_featured'] : 0;
+        $it['show_in_home'] = isset($it['show_in_home']) ? (int) $it['show_in_home'] : 1;
+        $it['is_featured'] = isset($it['is_featured']) ? (int) $it['is_featured'] : 0;
     }
     unset($it);
 

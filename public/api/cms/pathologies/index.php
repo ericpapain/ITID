@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Publique Pathologies
+// ITID France || API Publique Pathologies
 // ======================================================================
 
 require_once __DIR__ . '/../../db.php';
@@ -48,7 +48,8 @@ try {
                     $matching[] = $t;
                 }
             }
-        } catch (Throwable $t) {}
+        } catch (Throwable $t) {
+        }
         $item['associated_traitements'] = $matching;
 
         echo json_encode(['success' => true, 'pathology' => $item]);

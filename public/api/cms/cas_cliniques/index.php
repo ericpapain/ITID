@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Publique Cas Cliniques
+// ITID France || API Publique Cas Cliniques
 // ======================================================================
 
 require_once __DIR__ . '/../../db.php';
@@ -35,7 +35,7 @@ try {
 
     foreach ($items as $idx => &$it) {
         $img = trim($it['image'] ?? '');
-        $order = (int)($it['display_order'] ?? ($idx + 1));
+        $order = (int) ($it['display_order'] ?? ($idx + 1));
         $fallback = $realDefaults[$order] ?? '/images/treatments/infiltrations_rachidiennes.jpg';
 
         if (empty($img) || strpos($img, 'unsplash') !== false) {

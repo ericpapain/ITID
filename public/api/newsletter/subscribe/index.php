@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — Endpoint Newsletter Natif Hostinger (PHP / LiteSpeed)
+// ITID France || Endpoint Newsletter Natif Hostinger (PHP / LiteSpeed)
 // ======================================================================
 
 header('Content-Type: application/json; charset=UTF-8');
@@ -31,7 +31,7 @@ if (!$data || empty($data['email'])) {
     exit;
 }
 
-$email = trim(filter_var((string)$data['email'], FILTER_SANITIZE_EMAIL));
+$email = trim(filter_var((string) $data['email'], FILTER_SANITIZE_EMAIL));
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
@@ -39,12 +39,12 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-$firstName = isset($data['firstName']) ? trim(strip_tags((string)$data['firstName'])) : null;
+$firstName = isset($data['firstName']) ? trim(strip_tags((string) $data['firstName'])) : null;
 $token = bin2hex(random_bytes(24));
 
 try {
     $pdo = getItidDb();
-    
+
     // Vérifier si l'abonné existe déjà
     $chk = $pdo->prepare("SELECT id, status FROM newsletter_subscribers WHERE email = ?");
     $chk->execute([$email]);

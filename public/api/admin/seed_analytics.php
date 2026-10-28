@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — Script de Seeding & Reconstitution Analytique (18 Sep - 1 Oct 2026)
+// ITID France || Script de Seeding & Reconstitution Analytique (18 Sep - 1 Oct 2026)
 // Total exact : 504 sessions réparties organiquement
 // Endpoint sécurisé : /api/admin/seed_analytics.php
 // ======================================================================
@@ -34,7 +34,7 @@ try {
 }
 
 // Vérifier si des sessions du 18 au 30 septembre existent déjà pour éviter les doublons
-$existingCount = (int)$pdo->query("SELECT COUNT(*) FROM visitor_sessions WHERE started_at >= '2026-09-18 00:00:00' AND started_at < '2026-10-01 00:00:00'")->fetchColumn();
+$existingCount = (int) $pdo->query("SELECT COUNT(*) FROM visitor_sessions WHERE started_at >= '2026-09-18 00:00:00' AND started_at < '2026-10-01 00:00:00'")->fetchColumn();
 
 // Si l'utilisateur force le re-seed via ?force=1, nettoyer les anciennes données de la période
 if (isset($_GET['force']) && $_GET['force'] === '1') {
@@ -110,13 +110,15 @@ $pagesPool = [
     ['path' => '/contact', 'title' => 'Contact & Prise de Rendez-Vous — ITID France', 'weight' => 2],
 ];
 
-function pickWeighted(array $pool) {
+function pickWeighted(array $pool)
+{
     $total = array_sum(array_column($pool, 'weight'));
     $rand = mt_rand(1, $total);
     $cur = 0;
     foreach ($pool as $item) {
         $cur += $item['weight'];
-        if ($rand <= $cur) return $item;
+        if ($rand <= $cur)
+            return $item;
     }
     return $pool[0];
 }
@@ -182,11 +184,19 @@ foreach ($dailyPlan as $dateStr => $sessionCount) {
                 VALUES (?, ?, ?, 1, 1, 0, ?, ?, ?, ?, ?, ?, ?, ?, 'fr')
             ");
             $stmtV->execute([
-                $visitorToken, $startedAt, $startedAt, $ip, $ip,
-                $geo['country'], $geo['country_code'], $geo['city'],
-                $dev['device'], $dev['browser'], $dev['os']
+                $visitorToken,
+                $startedAt,
+                $startedAt,
+                $ip,
+                $ip,
+                $geo['country'],
+                $geo['country_code'],
+                $geo['city'],
+                $dev['device'],
+                $dev['browser'],
+                $dev['os']
             ]);
-            $visitorId = (int)$pdo->lastInsertId();
+            $visitorId = (int) $pdo->lastInsertId();
             $createdVisitors[] = ['id' => $visitorId, 'token' => $visitorToken, 'ip' => $ip];
             $totalVisitorsInserted++;
         }
@@ -206,16 +216,34 @@ foreach ($dailyPlan as $dateStr => $sessionCount) {
             VALUES (?, ?, ?, datetime(?, '+' || ? || ' seconds'), ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Europe/Paris', ?, ?, ?, ?, ?, ?, ?, 'fr', 'https://www.google.fr/', ?, 0)
         ");
         $stmtS->execute([
-            $visitorId, $sessionToken, $startedAt, $startedAt, $sessionDuration, $sessionDuration, $numPages,
-            $entryPage, $exitPage, $ip, $geo['country'], $geo['country_code'], $geo['city'], $geo['region'],
-            $dev['device'], $dev['browser'], $dev['browser_version'], $dev['os'], $dev['os_version'],
-            $dev['w'], $dev['h'], 'https://itid-france.com' . $entryPage
+            $visitorId,
+            $sessionToken,
+            $startedAt,
+            $startedAt,
+            $sessionDuration,
+            $sessionDuration,
+            $numPages,
+            $entryPage,
+            $exitPage,
+            $ip,
+            $geo['country'],
+            $geo['country_code'],
+            $geo['city'],
+            $geo['region'],
+            $dev['device'],
+            $dev['browser'],
+            $dev['browser_version'],
+            $dev['os'],
+            $dev['os_version'],
+            $dev['w'],
+            $dev['h'],
+            'https://itid-france.com' . $entryPage
         ]);
-        $sessionId = (int)$pdo->lastInsertId();
+        $sessionId = (int) $pdo->lastInsertId();
         $totalSessionsInserted++;
 
         // Page views
-        $pageDuration = (int)($sessionDuration / max(1, $numPages));
+        $pageDuration = (int) ($sessionDuration / max(1, $numPages));
         for ($p = 0; $p < $numPages; $p++) {
             $pageInfo = pickWeighted($pagesPool);
             $stmtPv = $pdo->prepare("
@@ -224,8 +252,14 @@ foreach ($dailyPlan as $dateStr => $sessionCount) {
                 VALUES (?, ?, ?, ?, ?, 'https://www.google.fr/', datetime(?, '+' || ? || ' seconds'), ?)
             ");
             $stmtPv->execute([
-                $sessionId, $visitorId, 'https://itid-france.com' . $pageInfo['path'],
-                $pageInfo['path'], $pageInfo['title'], $startedAt, $p * $pageDuration, $pageDuration
+                $sessionId,
+                $visitorId,
+                'https://itid-france.com' . $pageInfo['path'],
+                $pageInfo['path'],
+                $pageInfo['title'],
+                $startedAt,
+                $p * $pageDuration,
+                $pageDuration
             ]);
             $totalPageViewsInserted++;
         }

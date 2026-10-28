@@ -1,9 +1,10 @@
 <?php
 // ======================================================================
-// ITID France — Fonctions Utilitaires Analytics & Géolocalisation
+// ITID France || Fonctions Utilitaires Analytics & Géolocalisation
 // ======================================================================
 
-function getClientIp(): string {
+function getClientIp(): string
+{
     $headers = [
         'HTTP_CF_CONNECTING_IP', // Cloudflare
         'HTTP_X_REAL_IP',        // Nginx proxy
@@ -26,13 +27,16 @@ function getClientIp(): string {
     return '127.0.0.1';
 }
 
-function isBot(string $userAgent): bool {
-    if (empty($userAgent)) return false;
+function isBot(string $userAgent): bool
+{
+    if (empty($userAgent))
+        return false;
     $pattern = '/(bot|crawler|spider|crawling|slurp|duckduckbot|baiduspider|yandex|bingbot|googlebot|lighthouse|headless|ptst|mediapartners-google)/i';
-    return (bool)preg_match($pattern, $userAgent);
+    return (bool) preg_match($pattern, $userAgent);
 }
 
-function parseUserAgent(string $ua): array {
+function parseUserAgent(string $ua): array
+{
     $device = 'desktop';
     if (preg_match('/(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk)/i', $ua)) {
         $device = 'tablet';
@@ -44,9 +48,11 @@ function parseUserAgent(string $ua): array {
     $os = 'Inconnu';
     $osVersion = '';
     if (preg_match('/windows nt 10\.0/i', $ua)) {
-        $os = 'Windows'; $osVersion = '10/11';
+        $os = 'Windows';
+        $osVersion = '10/11';
     } elseif (preg_match('/windows nt 6\.[1-3]/i', $ua)) {
-        $os = 'Windows'; $osVersion = '7/8';
+        $os = 'Windows';
+        $osVersion = '7/8';
     } elseif (preg_match('/windows/i', $ua)) {
         $os = 'Windows';
     } elseif (preg_match('/macintosh|mac os x/i', $ua)) {
@@ -63,15 +69,20 @@ function parseUserAgent(string $ua): array {
     $browser = 'Inconnu';
     $browserVersion = '';
     if (preg_match('/edg\/([\d\.]+)/i', $ua, $m)) {
-        $browser = 'Edge'; $browserVersion = $m[1];
+        $browser = 'Edge';
+        $browserVersion = $m[1];
     } elseif (preg_match('/chrome\/([\d\.]+)/i', $ua, $m) && !preg_match('/edg|opr/i', $ua)) {
-        $browser = 'Chrome'; $browserVersion = $m[1];
+        $browser = 'Chrome';
+        $browserVersion = $m[1];
     } elseif (preg_match('/firefox\/([\d\.]+)/i', $ua, $m)) {
-        $browser = 'Firefox'; $browserVersion = $m[1];
+        $browser = 'Firefox';
+        $browserVersion = $m[1];
     } elseif (preg_match('/safari\/([\d\.]+)/i', $ua, $m) && !preg_match('/chrome|android/i', $ua)) {
-        $browser = 'Safari'; $browserVersion = $m[1];
+        $browser = 'Safari';
+        $browserVersion = $m[1];
     } elseif (preg_match('/opr\/([\d\.]+)/i', $ua, $m)) {
-        $browser = 'Opera'; $browserVersion = $m[1];
+        $browser = 'Opera';
+        $browserVersion = $m[1];
     }
 
     return [
@@ -83,7 +94,8 @@ function parseUserAgent(string $ua): array {
     ];
 }
 
-function getIpLocation(string $ip): array {
+function getIpLocation(string $ip): array
+{
     // Adresses privées ou boucle locale
     if (
         $ip === '127.0.0.1' ||
@@ -139,7 +151,7 @@ function getIpLocation(string $ip): array {
                     'region' => $data['regionName'] ?? '',
                     'timezone' => $data['timezone'] ?? 'Europe/Paris',
                 ];
-                
+
                 // Mettre en cache (limité à 1000 entrées récentes)
                 if (count($cache) > 1000) {
                     $cache = array_slice($cache, -500, null, true);

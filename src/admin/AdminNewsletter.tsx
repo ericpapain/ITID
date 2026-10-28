@@ -158,11 +158,10 @@ export default function AdminNewsletter() {
             <button
               key={f.val}
               onClick={() => setStatusFilter(f.val)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                statusFilter === f.val
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${statusFilter === f.val
                   ? "bg-[#2a9d8f] text-white"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-              }`}
+                }`}
             >
               {f.label}
             </button>
@@ -197,19 +196,18 @@ export default function AdminNewsletter() {
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          s.status === "subscribed"
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${s.status === "subscribed"
                             ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                             : s.status === "pending"
-                            ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                            : "bg-red-500/20 text-red-300 border border-red-500/30"
-                        }`}
+                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                              : "bg-red-500/20 text-red-300 border border-red-500/30"
+                          }`}
                       >
                         {s.status === "subscribed"
                           ? "Actif"
                           : s.status === "pending"
-                          ? "En attente"
-                          : "Désinscrit"}
+                            ? "En attente"
+                            : "Désinscrit"}
                       </span>
                     </td>
                     <td className="p-4 text-slate-400 whitespace-nowrap">{s.source}</td>
@@ -262,7 +260,7 @@ export default function AdminNewsletter() {
                   required
                   value={campaignSubject}
                   onChange={(e) => setCampaignSubject(e.target.value)}
-                  placeholder="ex: ITID France — Nouvelle avancée sur la neuromodulation"
+                  placeholder="ex: ITID France || Nouvelle avancée sur la neuromodulation"
                   className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#2a9d8f]"
                 />
               </div>

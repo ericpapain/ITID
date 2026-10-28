@@ -1,5 +1,5 @@
 # RAPPORT COMPLET — REFONTE DU SYSTÈME CAS CLINIQUES / TRAITEMENTS / PATHOLOGIES / CMS
-**Projet :** ITID France — Institut du Traitement Interventionnel de la Douleur  
+**Projet :** ITID France || Institut du Traitement Interventionnel de la Douleur  
 **Date :** Octobre 2026  
 **Statut :** ✅ Validé & Déployable (Tests de build, tests API et tests E2E sous navigateur réussis)
 

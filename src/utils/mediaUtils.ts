@@ -1,5 +1,5 @@
 // ======================================================================
-// ITID France — Utilitaires Détection & Format Médias (Image, Vidéo, YouTube)
+// ITID France || Utilitaires Détection & Format Médias (Image, Vidéo, YouTube)
 // ======================================================================
 
 export interface HeroMediaItem {

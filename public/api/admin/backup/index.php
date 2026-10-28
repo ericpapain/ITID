@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Sauvegarde & Diagnostic de la Base de Données
+// ITID France || API Sauvegarde & Diagnostic de la Base de Données
 // Endpoint : GET /api/admin/backup?action=info|download|scan
 //            POST /api/admin/backup?action=restore|restore_discovered
 // ======================================================================
@@ -50,12 +50,12 @@ if ($action === "info") {
             $docRoot = $_SERVER["DOCUMENT_ROOT"] ?? "";
             $isInWebroot = $docRoot && strpos($sqlitePath, rtrim($docRoot, "/\\")) === 0;
 
-            $info["sqlite_path"]   = $sqlitePath;
-            $info["file_exists"]   = file_exists($sqlitePath);
-            $info["file_size_kb"]  = file_exists($sqlitePath) ? round(filesize($sqlitePath) / 1024, 2) : 0;
+            $info["sqlite_path"] = $sqlitePath;
+            $info["file_exists"] = file_exists($sqlitePath);
+            $info["file_size_kb"] = file_exists($sqlitePath) ? round(filesize($sqlitePath) / 1024, 2) : 0;
             $info["file_modified"] = file_exists($sqlitePath) ? date("Y-m-d H:i:s", filemtime($sqlitePath)) : null;
             $info["is_in_webroot"] = $isInWebroot;
-            $info["status"]        = $isInWebroot
+            $info["status"] = $isInWebroot
                 ? "WARNING: DB dans le webroot. Configurez sqlite_path dans config.php pour la mettre hors de public_html."
                 : "OK: DB stockee hors du webroot. Donnees persistantes entre les deployments.";
         }
@@ -75,8 +75,11 @@ if ($action === "info") {
         ];
         $counts = [];
         foreach ($tables as $t) {
-            try { $counts[$t] = (int)$pdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn(); }
-            catch (Throwable $e) { $counts[$t] = "N/A"; }
+            try {
+                $counts[$t] = (int) $pdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+            } catch (Throwable $e) {
+                $counts[$t] = "N/A";
+            }
         }
         $info["record_counts"] = $counts;
         echo json_encode($info, JSON_UNESCAPED_UNICODE);
@@ -106,9 +109,13 @@ if ($action === "download") {
             echo json_encode(["success" => false, "error" => "Fichier DB introuvable: " . $sqlitePath]);
             exit;
         }
-        try { $pdo->exec("PRAGMA wal_checkpoint(FULL);"); } catch (Throwable $e) {}
+        try {
+            $pdo->exec("PRAGMA wal_checkpoint(FULL);");
+        } catch (Throwable $e) {
+        }
         $filename = "itid_backup_" . date("Ymd_His") . ".sqlite";
-        if (ob_get_length()) ob_end_clean();
+        if (ob_get_length())
+            ob_end_clean();
         header("Content-Type: application/octet-stream");
         header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
         header("Content-Length: " . filesize($sqlitePath));
@@ -152,7 +159,8 @@ if ($action === "restore" && $_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
         $backupPath = $sqlitePath . ".bak_" . date("Ymd_His");
-        if (file_exists($sqlitePath)) copy($sqlitePath, $backupPath);
+        if (file_exists($sqlitePath))
+            copy($sqlitePath, $backupPath);
         if (!copy($uploadedFile, $sqlitePath)) {
             http_response_code(500);
             echo json_encode(["success" => false, "error" => "Echec copie. Sauvegarde: " . $backupPath]);
@@ -192,26 +200,34 @@ if ($action === "scan") {
             $actStmt = $actPdo->query("PRAGMA database_list");
             $actList = $actStmt->fetchAll();
             $activeSqlitePath = $actList[0]["file"] ?? "";
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
 
         $foundFiles = [];
         $seenPaths = [];
 
         foreach ($searchDirs as $dir) {
-            if (!is_dir($dir)) continue;
+            if (!is_dir($dir))
+                continue;
             $files = @scandir($dir);
-            if (!$files) continue;
+            if (!$files)
+                continue;
             foreach ($files as $f) {
-                if ($f === "." || $f === "..") continue;
+                if ($f === "." || $f === "..")
+                    continue;
                 // Exclure impérativement les fichiers internes SQLite WAL / SHM / JOURNAL
-                if (preg_match('/-(wal|shm|journal)$/i', $f)) continue;
-                if (preg_match('/\.(lock|tmp|temp|log)$/i', $f)) continue;
-                if (preg_match('/\.(php|js|ts|tsx|css|html|json|png|jpg|jpeg|webp|svg|gif|txt|map)$/i', $f)) continue;
+                if (preg_match('/-(wal|shm|journal)$/i', $f))
+                    continue;
+                if (preg_match('/\.(lock|tmp|temp|log)$/i', $f))
+                    continue;
+                if (preg_match('/\.(php|js|ts|tsx|css|html|json|png|jpg|jpeg|webp|svg|gif|txt|map)$/i', $f))
+                    continue;
 
                 if (preg_match('/\.(sqlite|sqlite3|db)(\.bak.*)?$/i', $f) || (strpos($f, 'itid') !== false && !is_dir($dir . '/' . $f))) {
                     $full = $dir . '/' . $f;
                     $realF = realpath($full) ?: $full;
-                    if (isset($seenPaths[$realF])) continue;
+                    if (isset($seenPaths[$realF]))
+                        continue;
                     $seenPaths[$realF] = true;
 
                     if (is_file($full)) {
@@ -237,9 +253,10 @@ if ($action === "scan") {
                                 ];
                                 foreach ($checkTables as $t) {
                                     try {
-                                        $c = (int)$checkPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                                        $c = (int) $checkPdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
                                         $rowCounts[$t] = $c;
-                                    } catch (Throwable $e) {}
+                                    } catch (Throwable $e) {
+                                    }
                                 }
 
                                 // Analyse approfondie des contenus personnalisés (médias réels et titres)
@@ -302,10 +319,12 @@ if ($action === "scan") {
                                             }
                                         }
                                     }
-                                } catch (Throwable $e) {}
+                                } catch (Throwable $e) {
+                                }
                             }
                             $checkPdo = null;
-                        } catch (Throwable $e) {}
+                        } catch (Throwable $e) {
+                        }
 
                         $realActive = $activeSqlitePath ? realpath($activeSqlitePath) : "";
                         $isActive = ($realF && $realActive && $realF === $realActive);
@@ -330,13 +349,16 @@ if ($action === "scan") {
         }
 
         // Trier : priorité absolue aux bases contenant vos médias personnalisés/enrichis, puis base active, puis date
-        usort($foundFiles, function($a, $b) {
+        usort($foundFiles, function ($a, $b) {
             $scoreA = (($a['custom_media_count'] ?? 0) * 100) + (!empty($a['has_custom_enrichment']) ? 50 : 0);
             $scoreB = (($b['custom_media_count'] ?? 0) * 100) + (!empty($b['has_custom_enrichment']) ? 50 : 0);
-            if ($scoreA !== $scoreB) return $scoreB - $scoreA;
+            if ($scoreA !== $scoreB)
+                return $scoreB - $scoreA;
 
-            if (!empty($a['is_active']) && empty($b['is_active'])) return -1;
-            if (empty($a['is_active']) && !empty($b['is_active'])) return 1;
+            if (!empty($a['is_active']) && empty($b['is_active']))
+                return -1;
+            if (empty($a['is_active']) && !empty($b['is_active']))
+                return 1;
 
             return strcmp($b['modified'], $a['modified']);
         });
@@ -390,8 +412,9 @@ if ($action === "restore_discovered" && $_SERVER["REQUEST_METHOD"] === "POST") {
             $counts = [];
             foreach ($checkTables as $t) {
                 try {
-                    $counts[$t] = (int)$pdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
-                } catch (Throwable $e) {}
+                    $counts[$t] = (int) $pdo->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+                } catch (Throwable $e) {
+                }
             }
             $totalCms = ($counts["cms_pathologies"] ?? 0) + ($counts["cms_traitements"] ?? 0) + ($counts["cms_cas_cliniques"] ?? 0) + ($counts["cms_articles"] ?? 0);
 
@@ -437,7 +460,8 @@ if ($action === "restore_discovered" && $_SERVER["REQUEST_METHOD"] === "POST") {
                 $rows = $stmtSrc->fetchAll(PDO::FETCH_ASSOC);
                 if (!empty($rows)) {
                     $cols = array_keys($rows[0]);
-                    $quotedCols = array_map(function($c) { return '"' . str_replace('"', '""', $c) . '"'; }, $cols);
+                    $quotedCols = array_map(function ($c) {
+                        return '"' . str_replace('"', '""', $c) . '"'; }, $cols);
                     $colList = implode(", ", $quotedCols);
                     $paramList = implode(", ", array_fill(0, count($cols), '?'));
                     $insStmt = $pdo->prepare("INSERT INTO {$t} ({$colList}) VALUES ({$paramList})");

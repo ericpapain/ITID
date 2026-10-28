@@ -1,5 +1,5 @@
 // ======================================================================
-// ITID France — Données Canoniques des Cas Cliniques (Page d'Accueil)
+// ITID France || Données Canoniques des Cas Cliniques (Page d'Accueil)
 // Contenu médical riche pré-rempli garantissant zéro perte et zéro régression
 // ======================================================================
 

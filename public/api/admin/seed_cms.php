@@ -1,12 +1,13 @@
 <?php
 // ======================================================================
-// ITID France — Script de Seeding & Migration CMS (Pathologies, Traitements, Blog, Pages)
+// ITID France || Script de Seeding & Migration CMS (Pathologies, Traitements, Blog, Pages)
 // Initialise automatiquement la base avec toutes les fiches bilingues FR/EN
 // ======================================================================
 
 require_once __DIR__ . '/../../db.php';
 
-function seedCmsIfEmpty(PDO $pdo, bool $force = false): void {
+function seedCmsIfEmpty(PDO $pdo, bool $force = false): void
+{
     try {
         $pdo->exec("CREATE TABLE IF NOT EXISTS cms_system_flags (
             flag_key VARCHAR(100) PRIMARY KEY,
@@ -21,36 +22,37 @@ function seedCmsIfEmpty(PDO $pdo, bool $force = false): void {
                 return;
             }
         }
-    } catch (Throwable $e) {}
+    } catch (Throwable $e) {
+    }
 
     cleanupAllLegacyUnsplashMedia($pdo);
     try {
         // 1. Vérifier si les pathologies sont déjà initialisées
-        $pathoCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_pathologies")->fetchColumn();
+        $pathoCount = (int) $pdo->query("SELECT COUNT(*) FROM cms_pathologies")->fetchColumn();
         if ($pathoCount === 0) {
             seedPathologiesData($pdo);
         }
 
         // 2. Traitements
-        $traitCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_traitements")->fetchColumn();
+        $traitCount = (int) $pdo->query("SELECT COUNT(*) FROM cms_traitements")->fetchColumn();
         if ($traitCount === 0) {
             seedTraitementsData($pdo);
         }
 
         // 3. Articles (Actualités)
-        $artCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_articles")->fetchColumn();
+        $artCount = (int) $pdo->query("SELECT COUNT(*) FROM cms_articles")->fetchColumn();
         if ($artCount === 0) {
             seedArticlesData($pdo);
         }
 
         // 4. Pages globales
-        $pageCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_pages_content")->fetchColumn();
+        $pageCount = (int) $pdo->query("SELECT COUNT(*) FROM cms_pages_content")->fetchColumn();
         if ($pageCount === 0) {
             seedPagesData($pdo);
         }
 
         // 5. Cas Cliniques (Accueil)
-        $casCount = (int)$pdo->query("SELECT COUNT(*) FROM cms_cas_cliniques")->fetchColumn();
+        $casCount = (int) $pdo->query("SELECT COUNT(*) FROM cms_cas_cliniques")->fetchColumn();
         if ($casCount === 0) {
             seedCasCliniquesData($pdo);
         } else {
@@ -59,13 +61,15 @@ function seedCmsIfEmpty(PDO $pdo, bool $force = false): void {
 
         try {
             $pdo->exec("INSERT INTO cms_system_flags (flag_key, flag_value) VALUES ('cms_initial_seeded', '1')");
-        } catch (Throwable $e) {}
+        } catch (Throwable $e) {
+        }
     } catch (Throwable $e) {
         error_log("seedCmsIfEmpty error: " . $e->getMessage());
     }
 }
 
-function seedPathologiesData(PDO $pdo): void {
+function seedPathologiesData(PDO $pdo): void
+{
     $pathologies = [
         [
             'slug' => 'lombalgie-chronique',
@@ -423,17 +427,43 @@ function seedPathologiesData(PDO $pdo): void {
 
     foreach ($pathologies as $p) {
         $stmt->execute([
-            $p['slug'], $p['title_fr'], $p['title_en'], $p['icon'], $p['color'], $p['short_desc_fr'], $p['short_desc_en'], $p['card_image'], json_encode($p['hero_gallery']),
-            $p['s1_t_fr'], $p['s1_t_en'], $p['s1_txt_fr'], $p['s1_txt_en'], $p['s1_img'],
-            $p['s2_t_fr'], $p['s2_t_en'], $p['s2_txt_fr'], $p['s2_txt_en'], $p['s2_img'],
-            $p['s3_t_fr'], $p['s3_t_en'], $p['s3_txt_fr'], $p['s3_txt_en'], $p['s3_img'],
-            $p['s4_t_fr'], $p['s4_t_en'], $p['s4_txt_fr'], $p['s4_txt_en'], $p['s4_img'],
-            $p['wiki'], $p['order']
+            $p['slug'],
+            $p['title_fr'],
+            $p['title_en'],
+            $p['icon'],
+            $p['color'],
+            $p['short_desc_fr'],
+            $p['short_desc_en'],
+            $p['card_image'],
+            json_encode($p['hero_gallery']),
+            $p['s1_t_fr'],
+            $p['s1_t_en'],
+            $p['s1_txt_fr'],
+            $p['s1_txt_en'],
+            $p['s1_img'],
+            $p['s2_t_fr'],
+            $p['s2_t_en'],
+            $p['s2_txt_fr'],
+            $p['s2_txt_en'],
+            $p['s2_img'],
+            $p['s3_t_fr'],
+            $p['s3_t_en'],
+            $p['s3_txt_fr'],
+            $p['s3_txt_en'],
+            $p['s3_img'],
+            $p['s4_t_fr'],
+            $p['s4_t_en'],
+            $p['s4_txt_fr'],
+            $p['s4_txt_en'],
+            $p['s4_img'],
+            $p['wiki'],
+            $p['order']
         ]);
     }
 }
 
-function seedTraitementsData(PDO $pdo): void {
+function seedTraitementsData(PDO $pdo): void
+{
     $traitements = [
         [
             'slug' => 'infiltrations-rachidiennes',
@@ -680,18 +710,44 @@ function seedTraitementsData(PDO $pdo): void {
 
     foreach ($traitements as $t) {
         $stmt->execute([
-            $t['slug'], $t['num'], $t['icon'], $t['title_fr'], $t['title_en'], $t['desc_front_fr'], $t['desc_front_en'], $t['desc_back_fr'], $t['desc_back_en'],
-            $t['card_image'], json_encode($t['hero_gallery']),
-            $t['s1_t_fr'], $t['s1_t_en'], $t['s1_txt_fr'], $t['s1_txt_en'], $t['s1_img'],
-            $t['s2_t_fr'], $t['s2_t_en'], $t['s2_txt_fr'], $t['s2_txt_en'], $t['s2_img'],
-            $t['s3_t_fr'], $t['s3_t_en'], $t['s3_txt_fr'], $t['s3_txt_en'], $t['s3_img'],
-            $t['s4_t_fr'], $t['s4_t_en'], $t['s4_txt_fr'], $t['s4_txt_en'], $t['s4_img'],
+            $t['slug'],
+            $t['num'],
+            $t['icon'],
+            $t['title_fr'],
+            $t['title_en'],
+            $t['desc_front_fr'],
+            $t['desc_front_en'],
+            $t['desc_back_fr'],
+            $t['desc_back_en'],
+            $t['card_image'],
+            json_encode($t['hero_gallery']),
+            $t['s1_t_fr'],
+            $t['s1_t_en'],
+            $t['s1_txt_fr'],
+            $t['s1_txt_en'],
+            $t['s1_img'],
+            $t['s2_t_fr'],
+            $t['s2_t_en'],
+            $t['s2_txt_fr'],
+            $t['s2_txt_en'],
+            $t['s2_img'],
+            $t['s3_t_fr'],
+            $t['s3_t_en'],
+            $t['s3_txt_fr'],
+            $t['s3_txt_en'],
+            $t['s3_img'],
+            $t['s4_t_fr'],
+            $t['s4_t_en'],
+            $t['s4_txt_fr'],
+            $t['s4_txt_en'],
+            $t['s4_img'],
             $t['order']
         ]);
     }
 }
 
-function seedArticlesData(PDO $pdo): void {
+function seedArticlesData(PDO $pdo): void
+{
     $articles = [
         [
             'slug' => 'nouvelle-approche-neuromodulation',
@@ -828,9 +884,22 @@ function seedArticlesData(PDO $pdo): void {
 
     foreach ($articles as $a) {
         $stmt->execute([
-            $a['slug'], $a['title_fr'], $a['title_en'], $a['summary_fr'], $a['summary_en'], $a['content_fr'], $a['content_en'],
-            $a['category'], $a['author'], $a['author_role_fr'], $a['author_role_en'], $a['date_published'], $a['read_time_fr'], $a['read_time_en'],
-            $a['cover_image'], json_encode($a['gallery']),
+            $a['slug'],
+            $a['title_fr'],
+            $a['title_en'],
+            $a['summary_fr'],
+            $a['summary_en'],
+            $a['content_fr'],
+            $a['content_en'],
+            $a['category'],
+            $a['author'],
+            $a['author_role_fr'],
+            $a['author_role_en'],
+            $a['date_published'],
+            $a['read_time_fr'],
+            $a['read_time_en'],
+            $a['cover_image'],
+            json_encode($a['gallery']),
             $a['show_in_home'] ?? 1,
             $a['is_featured'] ?? 0,
             json_encode($a['sections'] ?? []),
@@ -838,7 +907,8 @@ function seedArticlesData(PDO $pdo): void {
         ]);
     }
 }
-function seedPagesData(PDO $pdo): void {
+function seedPagesData(PDO $pdo): void
+{
     $defaultHeroMedia = [
         [
             'id' => 'media-1',
@@ -990,7 +1060,8 @@ function seedPagesData(PDO $pdo): void {
     $stmt->execute(['about', json_encode($aboutFr), json_encode($aboutEn)]);
 }
 
-function cleanupLegacyUnsplashCasCliniques(PDO $pdo): void {
+function cleanupLegacyUnsplashCasCliniques(PDO $pdo): void
+{
     try {
         $realImages = [
             1 => '/images/treatments/infiltrations_rachidiennes.jpg',
@@ -1015,7 +1086,8 @@ function cleanupLegacyUnsplashCasCliniques(PDO $pdo): void {
     }
 }
 
-function seedCasCliniquesData(PDO $pdo): void {
+function seedCasCliniquesData(PDO $pdo): void
+{
     $cases = [
         [
             'title_fr' => 'Infiltration Lombaire Guidée',
@@ -1105,8 +1177,16 @@ function seedCasCliniquesData(PDO $pdo): void {
 
         foreach ($cases as $c) {
             $stmt->execute([
-                $c['title_fr'], $c['title_en'], $c['category_fr'], $c['category_en'], $c['image'], $c['order'],
-                $c['traitement_slug'], $c['pathologie_slug'], $c['short_desc_fr'], $c['short_desc_en']
+                $c['title_fr'],
+                $c['title_en'],
+                $c['category_fr'],
+                $c['category_en'],
+                $c['image'],
+                $c['order'],
+                $c['traitement_slug'],
+                $c['pathologie_slug'],
+                $c['short_desc_fr'],
+                $c['short_desc_en']
             ]);
         }
     } catch (Throwable $t) {
@@ -1115,7 +1195,12 @@ function seedCasCliniquesData(PDO $pdo): void {
         ) VALUES (?, ?, ?, ?, ?, ?, 1)");
         foreach ($cases as $c) {
             $stmtLegacy->execute([
-                $c['title_fr'], $c['title_en'], $c['category_fr'], $c['category_en'], $c['image'], $c['order']
+                $c['title_fr'],
+                $c['title_en'],
+                $c['category_fr'],
+                $c['category_en'],
+                $c['image'],
+                $c['order']
             ]);
         }
     }
@@ -1129,7 +1214,8 @@ if (php_sapi_name() !== 'cli' && isset($_GET['run'])) {
     echo json_encode(['success' => true, 'message' => 'CMS seeding complete.']);
 }
 
-function cleanupAllLegacyUnsplashMedia(PDO $pdo): void {
+function cleanupAllLegacyUnsplashMedia(PDO $pdo): void
+{
     try {
         // 1. cms_pages_content (heroMediaList et autres)
         $pages = $pdo->query("SELECT page_key, content_fr, content_en FROM cms_pages_content")->fetchAll(PDO::FETCH_ASSOC);

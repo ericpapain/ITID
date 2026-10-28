@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — Authentification Administrateur (PHP / LiteSpeed)
+// ITID France || Authentification Administrateur (PHP / LiteSpeed)
 // ======================================================================
 
 header('Content-Type: application/json; charset=UTF-8');
@@ -43,8 +43,8 @@ try {
     $rateLimit = $stmt->fetch();
 
     if ($rateLimit) {
-        $attempts = (int)$rateLimit['attempts'];
-        $lastAttempt = (int)$rateLimit['last_attempt'];
+        $attempts = (int) $rateLimit['attempts'];
+        $lastAttempt = (int) $rateLimit['last_attempt'];
 
         // Si la période de 15 minutes est expirée, réinitialiser
         if ($now - $lastAttempt > $windowSeconds) {
@@ -69,8 +69,8 @@ try {
 $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
 
-$email = isset($data['email']) ? trim(strtolower((string)$data['email'])) : '';
-$password = isset($data['password']) ? (string)$data['password'] : '';
+$email = isset($data['email']) ? trim(strtolower((string) $data['email'])) : '';
+$password = isset($data['password']) ? (string) $data['password'] : '';
 
 if (empty($email) || empty($password)) {
     http_response_code(400);
@@ -92,13 +92,14 @@ try {
         if (password_verify($password, $row['password_hash'])) {
             $authenticated = true;
             $userData = [
-                'id' => (int)$row['id'],
+                'id' => (int) $row['id'],
                 'email' => $row['email'],
                 'role' => $row['role'] ?? 'superadmin',
             ];
         }
     }
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+}
 
 // 2. Repli sécurisé sur la configuration si la table n'a pas encore été migrée
 if (!$authenticated) {
@@ -120,7 +121,8 @@ if (!$authenticated) {
                 $hash = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT OR REPLACE INTO admin_users (id, email, password_hash, role) VALUES (1, ?, ?, 'superadmin')");
                 $stmt->execute([$email, $hash]);
-            } catch (Throwable $t) {}
+            } catch (Throwable $t) {
+            }
         }
     }
 }
@@ -131,7 +133,8 @@ if (!$authenticated) {
         $pdo->prepare("INSERT INTO login_rate_limits (ip_hash, attempts, last_attempt) VALUES (?, 1, ?)
             ON CONFLICT(ip_hash) DO UPDATE SET attempts = attempts + 1, last_attempt = ?")
             ->execute([$ipHash, $now, $now]);
-    } catch (Throwable $t) {}
+    } catch (Throwable $t) {
+    }
 
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Identifiants incorrects.']);
@@ -141,7 +144,8 @@ if (!$authenticated) {
 // Réinitialiser les tentatives après connexion réussie
 try {
     $pdo->prepare("DELETE FROM login_rate_limits WHERE ip_hash = ?")->execute([$ipHash]);
-} catch (Throwable $t) {}
+} catch (Throwable $t) {
+}
 
 // Génération du token de session sécurisé HMAC-SHA256
 $tokenPayload = [
