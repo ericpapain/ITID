@@ -4,6 +4,7 @@ import { getAuthHeaders, getAdminToken } from "./auth";
 import { SingleMediaSelector, GalleryMediaSelector } from "./MediaSelector";
 import { CmsBackupRestorePanel } from "./CmsBackupRestorePanel";
 import { RichContentEditor } from "./RichContentEditor";
+import { SectionImportModal, ImportedSectionData } from "./SectionImportModal";
 import { TRAITEMENTS, PATHOLOGIES } from "../data";
 import {
   Plus,
@@ -1057,6 +1058,28 @@ function DynamicSectionsManager({
   defaultBadges?: string[];
   placeholder?: string;
 }) {
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  const handleImportSection = (imported: ImportedSectionData) => {
+    const newIdx = sections.length;
+    const titleFrVal = imported.title_fr || imported.title || "";
+    const titleEnVal = imported.title_en || imported.title || titleFrVal;
+    const textFrVal = imported.text_fr || imported.content_fr || imported.text || imported.content || "";
+    const textEnVal = imported.text_en || imported.content_en || imported.text || imported.content || textFrVal;
+
+    const newSec: DynamicSectionItem = {
+      id: "sec-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4),
+      badge: imported.badge || imported.source_title || (defaultBadges[newIdx] || `Section #${newIdx + 1}`),
+      title_fr: titleFrVal,
+      title_en: titleEnVal,
+      text_fr: textFrVal,
+      text_en: textEnVal,
+      image: imported.image || "",
+      image_position: imported.image_position || (imported.image ? (newIdx % 2 === 0 ? "left" : "right") : "none")
+    };
+    onChangeSections([...sections, newSec]);
+  };
+
   const handleAdd = () => {
     const newIdx = sections.length;
     const defaultBadge = defaultBadges[newIdx] || `Section #${newIdx + 1}`;
@@ -1122,30 +1145,52 @@ function DynamicSectionsManager({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 self-start sm:self-auto"
-        >
-          <Plus size={15} />
-          <span>Ajouter une section</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap shrink-0 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => setShowImportModal(true)}
+            className="px-3.5 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 transition-all flex items-center gap-1.5 cursor-pointer"
+            title="Importer une section existante d'un article, d'un traitement ou d'une pathologie"
+          >
+            <Layers size={14} />
+            <span>📥 Importer depuis un article / autre</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Plus size={15} />
+            <span>Ajouter une section</span>
+          </button>
+        </div>
       </div>
 
       {sections.length === 0 ? (
         <div className="p-8 border border-dashed border-slate-700 rounded-2xl text-center space-y-3 bg-slate-950/40">
           <Layers size={32} className="mx-auto text-slate-500 opacity-60" />
           <p className="text-slate-400 text-xs">
-            Aucune section configurée pour l'instant. Cliquez ci-dessous pour ajouter votre première section.
+            Aucune section configurée pour l'instant. Vous pouvez créer une section vierge ou en importer une depuis un article/traitement existant.
           </p>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="px-4 py-2 bg-[#2a9d8f]/10 border border-[#2a9d8f]/40 text-[#2a9d8f] hover:bg-[#2a9d8f]/20 text-xs rounded-xl font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
-          >
-            <Plus size={14} />
-            <span>Ajouter la section #1</span>
-          </button>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setShowImportModal(true)}
+              className="px-4 py-2 bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900 text-xs rounded-xl font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
+            >
+              <Layers size={14} />
+              <span>📥 Importer une section d'article / autre</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="px-4 py-2 bg-[#2a9d8f]/10 border border-[#2a9d8f]/40 text-[#2a9d8f] hover:bg-[#2a9d8f]/20 text-xs rounded-xl font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
+            >
+              <Plus size={14} />
+              <span>Ajouter la section #1</span>
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -1329,6 +1374,15 @@ function DynamicSectionsManager({
           })}
         </div>
       )}
+
+      {/* MODAL D'IMPORT DE SECTION DANS CETTE PAGE */}
+      <SectionImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleImportSection}
+        title="Importer une section dans cette page"
+        subtitle="Sélectionnez une section depuis n'importe quel article, traitement ou pathologie pour l'insérer ici."
+      />
     </div>
   );
 }
@@ -1593,9 +1647,31 @@ function ArticleImageUploader({
 // ======================================================================
 function ArticleForm({ item, onChange, lang }: any) {
   const [customCatMode, setCustomCatMode] = useState(false);
+  const [showImportSectionModal, setShowImportSectionModal] = useState(false);
 
   // Sections dynamiques alternées G/D
   const sections: any[] = Array.isArray(item.sections) ? item.sections : [];
+
+  const handleImportSection = (imported: ImportedSectionData) => {
+    const isImageLeft = sections.length % 2 === 0;
+    const titleVal = imported.title_fr || imported.title || "";
+    const titleEnVal = imported.title_en || imported.title || titleVal;
+    const contentVal = imported.text_fr || imported.content_fr || imported.text || imported.content || "";
+    const contentEnVal = imported.text_en || imported.content_en || imported.text || imported.content || contentVal;
+    const newSec = {
+      id: "sec-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4),
+      image: imported.image || "",
+      title: titleVal,
+      title_fr: titleVal,
+      title_en: titleEnVal,
+      content: contentVal,
+      content_fr: contentVal,
+      content_en: contentEnVal,
+      image_position: imported.image_position || (imported.image ? (isImageLeft ? "left" : "right") : "none"),
+      disposition: isImageLeft ? "image-left" : "image-right"
+    };
+    onChange({ sections: [...sections, newSec] });
+  };
 
   const handleAddSection = () => {
     const isImageLeft = sections.length % 2 === 0;
@@ -1977,27 +2053,49 @@ function ArticleForm({ item, onChange, lang }: any) {
                 Ajoutez autant d'images et de paragraphes que vous le souhaitez. Ils s'afficheront sur la page de lecture complète de façon alternée (Image à gauche → Image à droite → etc.).
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleAddSection}
-              className="px-3.5 py-1.5 rounded-sm bg-[#48cae4]/10 hover:bg-[#48cae4]/20 border border-[#48cae4]/40 text-[#48cae4] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
-            >
-              <Plus size={14} /> Ajouter une image / section
-            </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setShowImportSectionModal(true)}
+                className="px-3 py-1.5 rounded-sm bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Importer une section depuis un autre article, un traitement ou une pathologie"
+              >
+                <Layers size={13} />
+                <span>📥 Importer d'un autre article / contenu</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleAddSection}
+                className="px-3.5 py-1.5 rounded-sm bg-[#48cae4]/10 hover:bg-[#48cae4]/20 border border-[#48cae4]/40 text-[#48cae4] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+              >
+                <Plus size={14} /> Ajouter une image / section
+              </button>
+            </div>
           </div>
 
           {sections.length === 0 ? (
             <div className="p-8 border border-dashed border-slate-700 rounded-sm text-center space-y-3 bg-slate-950/40">
               <p className="text-slate-400 text-xs">
-                Aucune section alternée pour l'instant. Cliquez ci-dessous pour ajouter votre premier bloc image/texte.
+                Aucune section alternée pour l'instant. Vous pouvez créer un bloc vierge ou en importer un depuis un autre contenu existant.
               </p>
-              <button
-                type="button"
-                onClick={handleAddSection}
-                className="px-4 py-2 bg-[#48cae4]/10 border border-[#48cae4]/40 text-[#48cae4] hover:bg-[#48cae4]/20 text-xs rounded-sm font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
-              >
-                <Plus size={14} /> Ajouter la section #1
-              </button>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setShowImportSectionModal(true)}
+                  className="px-4 py-2 bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900 text-xs rounded-sm font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
+                >
+                  <Layers size={14} />
+                  <span>📥 Importer d'un autre article / contenu</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddSection}
+                  className="px-4 py-2 bg-[#48cae4]/10 border border-[#48cae4]/40 text-[#48cae4] hover:bg-[#48cae4]/20 text-xs rounded-sm font-semibold transition-all cursor-pointer inline-flex items-center gap-2"
+                >
+                  <Plus size={14} /> Ajouter la section #1
+                </button>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -2170,6 +2268,15 @@ function ArticleForm({ item, onChange, lang }: any) {
           />
         </div>
       </div>
+
+      {/* MODAL D'IMPORT DE SECTION DANS CET ARTICLE */}
+      <SectionImportModal
+        isOpen={showImportSectionModal}
+        onClose={() => setShowImportSectionModal(false)}
+        onImport={handleImportSection}
+        title="Importer une section dans cet article"
+        subtitle="Sélectionnez un autre article, un traitement ou une pathologie pour réutiliser et insérer l'une de ses sections."
+      />
     </div>
   );
 }
@@ -3662,6 +3769,34 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
 
   const [isFlippedPreview, setIsFlippedPreview] = useState(false);
   const [cmsTreatments, setCmsTreatments] = useState<any[]>([]);
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  const handleImportSection = (imported: ImportedSectionData) => {
+    const textFr = imported.text_fr || imported.content_fr || imported.text || imported.content || "";
+    const textEn = imported.text_en || imported.content_en || imported.text || imported.content || textFr;
+    
+    const updates: any = {};
+    if (textFr) {
+      updates.short_desc_fr = item.short_desc_fr 
+        ? `${item.short_desc_fr}\n\n${textFr}` 
+        : textFr;
+    }
+    if (textEn) {
+      updates.short_desc_en = item.short_desc_en 
+        ? `${item.short_desc_en}\n\n${textEn}` 
+        : textEn;
+    }
+    if (imported.image && !item.image) {
+      updates.image = imported.image;
+    }
+    if ((imported.title_fr || imported.title) && !item.title_fr) {
+      updates.title_fr = imported.title_fr || imported.title;
+    }
+    if ((imported.title_en || imported.title) && !item.title_en) {
+      updates.title_en = imported.title_en || imported.title;
+    }
+    onChange(updates);
+  };
 
   useEffect(() => {
     fetch("/api/cms/traitements")
@@ -3839,8 +3974,21 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
 
       {/* Description clinique complète avec éditeur riche */}
       <div className="space-y-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <label className="text-slate-300 font-semibold text-xs">
+            Description Clinique Détaillée du Cas [{lang.toUpperCase()}] *
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowImportModal(true)}
+            className="px-2.5 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-semibold text-[11px] flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Importer une section depuis un article, un traitement ou une pathologie"
+          >
+            <Layers size={13} />
+            <span>📥 Importer section d'article / traitement</span>
+          </button>
+        </div>
         <RichContentEditor
-          label={`Description Clinique Détaillée du Cas [${lang.toUpperCase()}] *`}
           placeholder="Ex: Patient de 54 ans présentant une lombosciatique L5-S1 hyperalgique résistante. Geste d'infiltration foraminale réalisé sous contrôle scopique millimétrique..."
           value={currentDesc}
           onChange={(val) => onChange(lang === "en" ? { short_desc_en: val } : { short_desc_fr: val })}
@@ -3946,6 +4094,15 @@ function CasCliniqueForm({ item, onChange, lang }: any) {
           </div>
         </div>
       </div>
+
+      {/* MODAL D'IMPORT DE SECTION DANS CE CAS CLINIQUE */}
+      <SectionImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleImportSection}
+        title="Importer une section dans ce cas clinique"
+        subtitle="Sélectionnez une section depuis un article, un traitement ou une pathologie pour remplir ou enrichir la description clinique."
+      />
     </div>
   );
 }
