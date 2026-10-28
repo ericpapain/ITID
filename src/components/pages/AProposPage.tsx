@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ShimmerButton } from "../ui/ShimmerButton";
 import { Carousel } from "../ui/Carousel";
@@ -8,12 +8,30 @@ import { VISITE_SLIDES } from "../../constants/carousel";
 import { useTranslation } from "react-i18next";
 
 export function AProposPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language.startsWith("en") ? "en" : "fr";
   const [nlEmail, setNlEmail] = useState("");
   const [nlLoading, setNlLoading] = useState(false);
   const [nlSuccess, setNlSuccess] = useState(false);
   const [nlError, setNlError] = useState<string | null>(null);
   const [selectedMapIndex, setSelectedMapIndex] = useState(0);
+  const [dynamicSlides, setDynamicSlides] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    async function fetchAboutContent() {
+      try {
+        const res = await fetch("/api/cms/pages?page=about");
+        if (res.ok) {
+          const data = await res.json();
+          const content = lang === "en" ? data.content_en : data.content_fr;
+          if (content?.visiteSlides && Array.isArray(content.visiteSlides) && content.visiteSlides.length > 0) {
+            setDynamicSlides(content.visiteSlides);
+          }
+        }
+      } catch {}
+    }
+    fetchAboutContent();
+  }, [lang]);
 
   const locations = [
     {
@@ -188,12 +206,26 @@ export function AProposPage() {
         </div>
 
         <div className="w-full">
-          <Carousel slides={VISITE_SLIDES.map(slide => ({
-            ...slide,
-            kicker: t(`carousel.${slide.id}.kicker`),
-            title: t(`carousel.${slide.id}.title`),
-            description: t(`carousel.${slide.id}.description`),
-          }))} />
+          <Carousel slides={
+            dynamicSlides && dynamicSlides.length > 0
+              ? dynamicSlides.map((slide, idx) => ({
+                  ...slide,
+                  id: slide.id || `slide-${idx}`,
+                  index: slide.index || String(idx + 1).padStart(2, "0"),
+                  kicker: slide.kicker || "Lieu ITID",
+                  title: slide.title || "Espace du Centre",
+                  description: slide.description || "",
+                  image: slide.image || VISITE_SLIDES[idx % VISITE_SLIDES.length]?.image || "/image_itid/img.jpg",
+                  accent: slide.accent || (idx % 2 === 0 ? "#2a9d8f" : "#48d1c2"),
+                  background: slide.background || "linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)",
+                }))
+              : VISITE_SLIDES.map(slide => ({
+                  ...slide,
+                  kicker: t(`carousel.${slide.id}.kicker`),
+                  title: t(`carousel.${slide.id}.title`),
+                  description: t(`carousel.${slide.id}.description`),
+                }))
+          } />
         </div>
       </div>
 

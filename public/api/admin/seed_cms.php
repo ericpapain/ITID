@@ -887,14 +887,102 @@ function seedPagesData(PDO $pdo): void {
         'parcoursTitle' => "Your Care Pathway at ITID",
     ];
 
+    $visiteSlidesFr = [
+        [
+            'id' => 'accueil',
+            'index' => '01',
+            'kicker' => 'Accueil',
+            'title' => 'Espace apaisant',
+            'description' => "Dès votre arrivée, notre équipe vous accueille dans un environnement conçu pour réduire l'anxiété.",
+            'background' => 'linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)',
+            'accent' => '#2a9d8f',
+            'image' => '/image_itid/img.jpg',
+        ],
+        [
+            'id' => 'salle',
+            'index' => '02',
+            'kicker' => 'Consultation',
+            'title' => 'Salles modernes',
+            'description' => 'Des espaces de consultation équipés pour un diagnostic précis et une prise en charge optimale.',
+            'background' => 'linear-gradient(160deg, #1a3a5c 0%, #0f2440 100%)',
+            'accent' => '#48d1c2',
+            'image' => '/image_itid/rf.jpg',
+        ],
+        [
+            'id' => 'itid1',
+            'index' => '03',
+            'kicker' => 'Interventionnel',
+            'title' => 'Plateau technique',
+            'description' => 'Des équipements de pointe pour réaliser des infiltrations et interventions guidées par imagerie.',
+            'background' => 'linear-gradient(160deg, #0f2440 0%, #0a1628 100%)',
+            'accent' => '#2a9d8f',
+            'image' => '/image_itid/imo.webp',
+        ],
+        [
+            'id' => 'ext',
+            'index' => '04',
+            'kicker' => 'Environnement',
+            'title' => 'Cadre verdoyant',
+            'description' => "Le centre est entouré d'espaces verts pour favoriser la sérénité et le calme des patients.",
+            'background' => 'linear-gradient(160deg, #1a3a5c 0%, #0a1628 100%)',
+            'accent' => '#48d1c2',
+            'image' => '/image_itid/rrty.webp',
+        ]
+    ];
+
+    $visiteSlidesEn = [
+        [
+            'id' => 'accueil',
+            'index' => '01',
+            'kicker' => 'Reception',
+            'title' => 'Soothing Environment',
+            'description' => 'Upon your arrival, our medical team welcomes you in a calming atmosphere designed to ease anxiety.',
+            'background' => 'linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)',
+            'accent' => '#2a9d8f',
+            'image' => '/image_itid/img.jpg',
+        ],
+        [
+            'id' => 'salle',
+            'index' => '02',
+            'kicker' => 'Consultation',
+            'title' => 'Modern Exam Rooms',
+            'description' => 'Dedicated consultation suites equipped for accurate diagnosis and personalized pain evaluation.',
+            'background' => 'linear-gradient(160deg, #1a3a5c 0%, #0f2440 100%)',
+            'accent' => '#48d1c2',
+            'image' => '/image_itid/rf.jpg',
+        ],
+        [
+            'id' => 'itid1',
+            'index' => '03',
+            'kicker' => 'Interventional',
+            'title' => 'Technical Platform',
+            'description' => 'State-of-the-art medical equipment for imaging-guided infiltrations and advanced procedures.',
+            'background' => 'linear-gradient(160deg, #0f2440 0%, #0a1628 100%)',
+            'accent' => '#2a9d8f',
+            'image' => '/image_itid/imo.webp',
+        ],
+        [
+            'id' => 'ext',
+            'index' => '04',
+            'kicker' => 'Surroundings',
+            'title' => 'Greenery & Calm',
+            'description' => 'Our center is nestled in serene green surroundings to foster comfort, healing, and peace of mind.',
+            'background' => 'linear-gradient(160deg, #1a3a5c 0%, #0a1628 100%)',
+            'accent' => '#48d1c2',
+            'image' => '/image_itid/rrty.webp',
+        ]
+    ];
+
     $aboutFr = [
         'aboutTitle' => "L'Excellence Médicale au Service du Patient Douloureux",
         'aboutDesc' => "Fondé par une équipe de médecins spécialistes en anesthésie, réanimation et algologie interventionnelle, l'ITID est né de la volonté d'offrir des solutions concrètes, minimalement invasives et personnalisées aux patients en échec thérapeutique.",
+        'visiteSlides' => $visiteSlidesFr,
     ];
 
     $aboutEn = [
         'aboutTitle' => "Medical Excellence Dedicated to Patients in Pain",
         'aboutDesc' => "Founded by an expert team of pain physicians, anesthesiologists, and interventional algologists, ITID provides advanced, minimally invasive, and personalized therapies for refractory pain conditions.",
+        'visiteSlides' => $visiteSlidesEn,
     ];
 
     $stmt = $pdo->prepare("INSERT INTO cms_pages_content (page_key, content_fr, content_en) VALUES (?, ?, ?)");

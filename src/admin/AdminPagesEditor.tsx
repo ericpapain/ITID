@@ -40,6 +40,8 @@ import {
   getYouTubeThumbnailUrl,
   getYouTubeEmbedUrl
 } from "../utils/mediaUtils";
+import { Carousel, CarouselSlide } from "../components/ui/Carousel";
+import { VISITE_SLIDES } from "../constants/carousel";
 
 type LangTab = "fr" | "en";
 
@@ -60,6 +62,7 @@ export default function AdminPagesEditor() {
 
   const sectionsList = [
     { id: "hero_media", label: "Médias Défilants (Accueil)", icon: "🎬" },
+    { id: "visite_slides", label: "Galerie des Lieux (Carrousel)", icon: "🖼️" },
     { id: "cas_cliniques", label: "Cas Cliniques (Accueil)", icon: "🔬" },
     { id: "pathologies", label: "Pathologies", icon: "🦴" },
     { id: "traitements", label: "Traitements", icon: "💉" },
@@ -97,8 +100,12 @@ export default function AdminPagesEditor() {
     setSaveMessage(null);
 
     try {
-      if (currentSection === "home" || currentSection === "about" || currentSection === "hero_media") {
-        const pageKey = (currentSection === "hero_media" || currentSection === "home") ? "home" : currentSection;
+      if (currentSection === "home" || currentSection === "about" || currentSection === "hero_media" || currentSection === "visite_slides") {
+        const pageKey = (currentSection === "hero_media" || currentSection === "home") 
+          ? "home" 
+          : (currentSection === "visite_slides" || currentSection === "about") 
+          ? "about" 
+          : currentSection;
         const res = await fetch(`/api/admin/cms?type=pages&page=${pageKey}`, {
           headers: getAuthHeaders(),
         });
@@ -150,13 +157,17 @@ export default function AdminPagesEditor() {
     loadData();
   }, [currentSection]);
 
-  // Sauvegarde globale pour Home, Hero Media & About
+  // Sauvegarde globale pour Home, Hero Media, Visite Slides & About
   const handleSavePage = async () => {
     setSaving(true);
     setSaveMessage(null);
 
     try {
-      const pageKey = (currentSection === "hero_media" || currentSection === "home") ? "home" : currentSection;
+      const pageKey = (currentSection === "hero_media" || currentSection === "home") 
+        ? "home" 
+        : (currentSection === "visite_slides" || currentSection === "about") 
+        ? "about" 
+        : currentSection;
       const res = await fetch(`/api/admin/cms?type=pages&page=${pageKey}`, {
         method: "PUT",
         headers: getAuthHeaders(),
@@ -424,7 +435,7 @@ export default function AdminPagesEditor() {
             </button>
           </div>
 
-          {(currentSection === "home" || currentSection === "about" || currentSection === "hero_media") && (
+          {(currentSection === "home" || currentSection === "about" || currentSection === "hero_media" || currentSection === "visite_slides") && (
             <button
               onClick={handleSavePage}
               disabled={saving}
@@ -534,6 +545,19 @@ export default function AdminPagesEditor() {
           {/* Rubrique MÉDIAS DÉFILANTS ACCUEIL (IMAGES / VIDÉOS) */}
           {currentSection === "hero_media" && (
             <HeroMediaDedicatedPageEditor
+              dataFr={pageContentFr}
+              dataEn={pageContentEn}
+              onChangeFr={(data: any) => setPageContentFr((prev: any) => ({ ...prev, ...data }))}
+              onChangeEn={(data: any) => setPageContentEn((prev: any) => ({ ...prev, ...data }))}
+              onSave={handleSavePage}
+              saving={saving}
+              lang={lang}
+            />
+          )}
+
+          {/* Rubrique GALERIE DES LIEUX (CARROUSEL 3D) */}
+          {currentSection === "visite_slides" && (
+            <VisiteSlidesDedicatedPageEditor
               dataFr={pageContentFr}
               dataEn={pageContentEn}
               onChangeFr={(data: any) => setPageContentFr((prev: any) => ({ ...prev, ...data }))}
@@ -3044,31 +3068,584 @@ function AboutPageEditor({ dataFr, dataEn, onChangeFr, onChangeEn, lang }: any) 
   const onChange = lang === "fr" ? onChangeFr : onChangeEn;
 
   return (
-    <div className="space-y-6 text-xs p-6 bg-[#0c1a2e] border border-slate-800 rounded-3xl">
-      <div className="border-b border-slate-800 pb-4">
-        <h3 className="text-base font-bold text-white mb-1">Édition Page À Propos & Présentation Clinique</h3>
-        <p className="text-slate-400">Présentation des fondateurs, de la vision médicale et de l'institut.</p>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <label className="block text-slate-300 font-semibold mb-1">Titre Principal [{lang.toUpperCase()}]</label>
-          <input
-            type="text"
-            value={activeData.aboutTitle || ""}
-            onChange={(e) => onChange({ aboutTitle: e.target.value })}
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold"
-          />
+    <div className="space-y-8">
+      {/* 1. Présentation générale */}
+      <div className="space-y-6 text-xs p-6 bg-[#0c1a2e] border border-slate-800 rounded-3xl shadow-xl">
+        <div className="border-b border-slate-800 pb-4">
+          <h3 className="text-base font-bold text-white mb-1">Édition Page À Propos & Présentation Clinique</h3>
+          <p className="text-slate-400">Présentation des fondateurs, de la vision médicale et de l'institut.</p>
         </div>
 
+        <div className="space-y-4">
+          <div>
+            <label className="block text-slate-300 font-semibold mb-1">Titre Principal [{lang.toUpperCase()}]</label>
+            <input
+              type="text"
+              value={activeData.aboutTitle || ""}
+              onChange={(e) => onChange({ aboutTitle: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-300 font-semibold mb-1">Texte de Présentation [{lang.toUpperCase()}]</label>
+            <textarea
+              rows={5}
+              value={activeData.aboutDesc || ""}
+              onChange={(e) => onChange({ aboutDesc: e.target.value })}
+              className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Galerie des Lieux ITID (Carrousel 3D) */}
+      <VisiteSlidesManager
+        dataFr={dataFr}
+        dataEn={dataEn}
+        onChangeFr={onChangeFr}
+        onChangeEn={onChangeEn}
+        lang={lang}
+      />
+    </div>
+  );
+}
+
+// ======================================================================
+// PAGE DÉDIÉE GALERIE DES LIEUX (CARROUSEL 3D)
+// ======================================================================
+function VisiteSlidesDedicatedPageEditor({
+  dataFr,
+  dataEn,
+  onChangeFr,
+  onChangeEn,
+  onSave,
+  saving,
+  lang,
+}: any) {
+  return (
+    <div className="space-y-6">
+      {/* Barre d'en-tête de la rubrique */}
+      <div className="p-6 bg-gradient-to-r from-[#0c1a2e] via-[#10243e] to-[#0c1a2e] border border-slate-800 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <label className="block text-slate-300 font-semibold mb-1">Texte de Présentation [{lang.toUpperCase()}]</label>
-          <textarea
-            rows={5}
-            value={activeData.aboutDesc || ""}
-            onChange={(e) => onChange({ aboutDesc: e.target.value })}
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-200"
-          />
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-2xl">🖼️</span>
+            <h2 className="text-xl font-bold text-white">Galerie des Lieux (Carrousel 3D de la Page À Propos)</h2>
+            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30 font-bold">
+              Carrousel 3D Actif
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 max-w-3xl">
+            Ajoutez, personnalisez et réorganisez les photos des espaces de l'institut (Accueil, Salles de consultation, Plateau interventionnel, Environnement).
+            Toutes les modifications se reflètent instantanément dans l'aperçu 3D ci-dessous.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="px-6 py-3 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
+        >
+          {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer la Galerie</span>}
+        </button>
+      </div>
+
+      <VisiteSlidesManager
+        dataFr={dataFr}
+        dataEn={dataEn}
+        onChangeFr={onChangeFr}
+        onChangeEn={onChangeEn}
+        lang={lang}
+        onSave={onSave}
+        saving={saving}
+      />
+
+      {/* Barre de sauvegarde basse */}
+      <div className="flex items-center justify-between p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+        <span className="text-xs text-slate-400">
+          N'oubliez pas d'enregistrer après avoir ajouté, supprimé ou réordonné vos lieux.
+        </span>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="px-6 py-3 bg-[#2a9d8f] hover:bg-[#238276] text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          {saving ? <RefreshCw size={14} className="animate-spin" /> : <span>💾 Enregistrer la Galerie des Lieux</span>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ======================================================================
+// GESTIONNAIRE COMPLET DES SLIDES DU CARROUSEL DE VISITE (AVEC APERÇU 3D)
+// ======================================================================
+function VisiteSlidesManager({
+  dataFr,
+  dataEn,
+  onChangeFr,
+  onChangeEn,
+  lang,
+  onSave,
+  saving,
+}: any) {
+  const [openSlideIdx, setOpenSlideIdx] = useState<number | null>(0);
+  const [showPreview, setShowPreview] = useState(true);
+
+  // Récupération des slides avec fallback sécurisé
+  const slidesFr: CarouselSlide[] = useMemo(() => {
+    if (Array.isArray(dataFr?.visiteSlides) && dataFr.visiteSlides.length > 0) {
+      return dataFr.visiteSlides;
+    }
+    return VISITE_SLIDES;
+  }, [dataFr?.visiteSlides]);
+
+  const slidesEn: CarouselSlide[] = useMemo(() => {
+    if (Array.isArray(dataEn?.visiteSlides) && dataEn.visiteSlides.length > 0) {
+      return dataEn.visiteSlides;
+    }
+    return slidesFr.map((s, idx) => ({
+      ...s,
+      kicker: idx === 0 ? "Reception" : idx === 1 ? "Consultation" : idx === 2 ? "Interventional" : "Environment",
+      title: idx === 0 ? "Soothing Space" : idx === 1 ? "Modern Rooms" : idx === 2 ? "Technical Platform" : "Green Setting",
+    }));
+  }, [dataEn?.visiteSlides, slidesFr]);
+
+  const activeSlides = lang === "fr" ? slidesFr : slidesEn;
+
+  const updateSlides = (newFr: CarouselSlide[], newEn: CarouselSlide[]) => {
+    onChangeFr({ visiteSlides: newFr });
+    onChangeEn({ visiteSlides: newEn });
+  };
+
+  const handleUpdateSlideField = (index: number, field: keyof CarouselSlide, value: any) => {
+    const updatedFr = [...slidesFr];
+    const updatedEn = [...slidesEn];
+
+    // Pour les propriétés visuelles (image, accent, background, index, id), synchroniser les 2 langues
+    if (field === "image" || field === "accent" || field === "background" || field === "index" || field === "id") {
+      if (updatedFr[index]) updatedFr[index] = { ...updatedFr[index], [field]: value };
+      if (updatedEn[index]) updatedEn[index] = { ...updatedEn[index], [field]: value };
+    } else {
+      // Pour les textes (title, kicker, description)
+      if (lang === "fr") {
+        if (updatedFr[index]) updatedFr[index] = { ...updatedFr[index], [field]: value };
+        if (!updatedEn[index]) updatedEn[index] = { ...updatedFr[index] };
+      } else {
+        if (updatedEn[index]) updatedEn[index] = { ...updatedEn[index], [field]: value };
+        if (!updatedFr[index]) updatedFr[index] = { ...updatedEn[index] };
+      }
+    }
+
+    updateSlides(updatedFr, updatedEn);
+  };
+
+  const handleAddSlide = () => {
+    const nextIdxNum = activeSlides.length + 1;
+    const nextIdxStr = String(nextIdxNum).padStart(2, "0");
+    const newId = `lieu_${Date.now()}`;
+
+    const newSlideFr: CarouselSlide = {
+      id: newId,
+      index: nextIdxStr,
+      kicker: "Nouvel Espace",
+      title: `Espace Médical ${nextIdxNum}`,
+      description: "Description de ce lieu de soins ou de repos conçu pour le bien-être et la sécurité des patients de l'institut.",
+      image: "/image_itid/img.jpg",
+      accent: nextIdxNum % 2 === 0 ? "#48d1c2" : "#2a9d8f",
+      background: "linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)",
+    };
+
+    const newSlideEn: CarouselSlide = {
+      ...newSlideFr,
+      kicker: "New Area",
+      title: `Medical Suite ${nextIdxNum}`,
+      description: "Description of this specialized area dedicated to patient comfort and state-of-the-art care.",
+    };
+
+    updateSlides([...slidesFr, newSlideFr], [...slidesEn, newSlideEn]);
+    setOpenSlideIdx(activeSlides.length);
+  };
+
+  const handleDeleteSlide = (index: number) => {
+    if (activeSlides.length <= 1) {
+      alert("Le carrousel doit comporter au minimum 1 lieu.");
+      return;
+    }
+    if (!window.confirm("Supprimer ce lieu du carrousel de visite ?")) return;
+
+    const newFr = slidesFr.filter((_, i) => i !== index).map((s, idx) => ({ ...s, index: String(idx + 1).padStart(2, "0") }));
+    const newEn = slidesEn.filter((_, i) => i !== index).map((s, idx) => ({ ...s, index: String(idx + 1).padStart(2, "0") }));
+    updateSlides(newFr, newEn);
+
+    if (openSlideIdx === index) {
+      setOpenSlideIdx(null);
+    } else if (openSlideIdx !== null && openSlideIdx > index) {
+      setOpenSlideIdx(openSlideIdx - 1);
+    }
+  };
+
+  const handleMoveSlide = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (target < 0 || target >= activeSlides.length) return;
+
+    const reorder = (arr: CarouselSlide[]) => {
+      const copy = [...arr];
+      const [item] = copy.splice(index, 1);
+      copy.splice(target, 0, item);
+      return copy.map((s, idx) => ({ ...s, index: String(idx + 1).padStart(2, "0") }));
+    };
+
+    updateSlides(reorder(slidesFr), reorder(slidesEn));
+    setOpenSlideIdx(target);
+  };
+
+  const handleResetDefaults = () => {
+    if (!window.confirm("Réinitialiser aux 4 lieux originaux par défaut ?")) return;
+    updateSlides([...VISITE_SLIDES], VISITE_SLIDES.map((s, idx) => ({
+      ...s,
+      kicker: idx === 0 ? "Reception" : idx === 1 ? "Consultation" : idx === 2 ? "Interventional" : "Environment",
+      title: idx === 0 ? "Soothing Space" : idx === 1 ? "Modern Rooms" : idx === 2 ? "Technical Platform" : "Green Setting",
+      description: s.description,
+    })));
+    setOpenSlideIdx(0);
+  };
+
+  const ACCENT_COLORS = [
+    { label: "Émeraude ITID", color: "#2a9d8f" },
+    { label: "Cyan Clinique", color: "#48d1c2" },
+    { label: "Bleu Cobalt", color: "#3a86ff" },
+    { label: "Violet Moderne", color: "#8b5cf6" },
+    { label: "Ambre Chaud", color: "#e76f51" },
+  ];
+
+  const GRADIENT_PRESETS = [
+    { label: "Nuit Bleue ITID", value: "linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)" },
+    { label: "Cyan Sombre", value: "linear-gradient(160deg, #1a3a5c 0%, #0f2440 100%)" },
+    { label: "Noir Abyssal", value: "linear-gradient(160deg, #0f2440 0%, #0a1628 100%)" },
+    { label: "Nuit Arctique", value: "linear-gradient(160deg, #1a3a5c 0%, #0a1628 100%)" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* 1. Aperçu Carrousel 3D en Temps Réel */}
+      <div className="p-6 bg-[#0c1a2e] border border-slate-800 rounded-3xl shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#2a9d8f]/20 border border-[#2a9d8f]/40 flex items-center justify-center text-[#48cae4]">
+              <Eye size={18} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>Aperçu Carrousel 3D en Temps Réel</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                  En Direct
+                </span>
+              </h4>
+              <p className="text-[11px] text-slate-400">
+                Visualisez le rendu 3D avec perspective, halo néon et photos réelles exactement comme sur la page « À Propos ».
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowPreview(!showPreview)}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Eye size={13} />
+              <span>{showPreview ? "Masquer le 3D" : "Afficher le 3D"}</span>
+            </button>
+          </div>
+        </div>
+
+        {showPreview && (
+          <div className="w-full max-w-4xl mx-auto py-2">
+            <Carousel slides={activeSlides} />
+          </div>
+        )}
+      </div>
+
+      {/* 2. Liste & Éditeur des Cartes / Lieux */}
+      <div className="p-6 bg-[#0c1a2e] border border-slate-800 rounded-3xl shadow-xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🖼️</span>
+              <h3 className="text-base font-bold text-white">
+                Cartes de la Galerie ({activeSlides.length} lieu{activeSlides.length > 1 ? "x" : ""})
+              </h3>
+            </div>
+            <p className="text-xs text-slate-400">
+              Chaque carte représente une vue ou un espace du centre avec son image, son titre et sa description [{lang.toUpperCase()}].
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleResetDefaults}
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-medium transition-colors cursor-pointer"
+              title="Restaurer les 4 lieux originaux"
+            >
+              ↺ Rétablir défauts
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAddSlide}
+              className="px-4 py-2 bg-[#2a9d8f] hover:bg-[#238276] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
+            >
+              <Plus size={15} />
+              <span>Ajouter un Lieu</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Liste accordéon des slides */}
+        <div className="space-y-3">
+          {activeSlides.map((slide, idx) => {
+            const isOpen = openSlideIdx === idx;
+            return (
+              <div
+                key={slide.id || idx}
+                className={`rounded-2xl border transition-all ${
+                  isOpen
+                    ? "bg-slate-900/90 border-[#2a9d8f]/50 shadow-xl"
+                    : "bg-slate-900/50 border-slate-800 hover:border-slate-700"
+                }`}
+              >
+                {/* En-tête de la carte */}
+                <div
+                  onClick={() => setOpenSlideIdx(isOpen ? null : idx)}
+                  className="p-4 flex items-center justify-between cursor-pointer select-none gap-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Miniature */}
+                    <div className="w-16 h-11 rounded-lg overflow-hidden border border-white/10 shrink-0 relative bg-slate-950">
+                      {slide.image ? (
+                        <img
+                          src={slide.image}
+                          alt={slide.title}
+                          className="w-full h-full object-cover"
+                          onError={(e: any) => {
+                            e.currentTarget.src = "/image_itid/img.jpg";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs">
+                          Photo
+                        </div>
+                      )}
+                      <span
+                        className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full border border-black/40"
+                        style={{ backgroundColor: slide.accent || "#2a9d8f" }}
+                        title="Couleur d'accent"
+                      />
+                    </div>
+
+                    {/* Badge index + Titre */}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-white/10 text-white/80">
+                          {slide.index || String(idx + 1).padStart(2, "0")}
+                        </span>
+                        <span className="text-[11px] font-medium text-[#48cae4] truncate">
+                          {slide.kicker || "Lieu"}
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-bold text-white truncate mt-0.5">
+                        {slide.title || `Lieu ${idx + 1}`}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Boutons d'action rapide */}
+                  <div
+                    className="flex items-center gap-1.5 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      disabled={idx === 0}
+                      onClick={() => handleMoveSlide(idx, "up")}
+                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors cursor-pointer"
+                      title="Monter"
+                    >
+                      <ArrowUp size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={idx === activeSlides.length - 1}
+                      onClick={() => handleMoveSlide(idx, "down")}
+                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-30 disabled:hover:bg-slate-800 transition-colors cursor-pointer"
+                      title="Descendre"
+                    >
+                      <ArrowDown size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSlide(idx)}
+                      disabled={activeSlides.length <= 1}
+                      className="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-800/40 disabled:opacity-30 transition-colors cursor-pointer ml-1"
+                      title="Supprimer ce lieu"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Formulaire complet déplié */}
+                {isOpen && (
+                  <div className="p-5 border-t border-slate-800 space-y-5 bg-slate-950/60 rounded-b-2xl">
+                    {/* Sélecteur d'image via SingleMediaSelector */}
+                    <div className="space-y-2">
+                      <SingleMediaSelector
+                        label={`Photo du Lieu ${slide.index || idx + 1} (Upload PC ou Choix Médiathèque) *`}
+                        value={slide.image || ""}
+                        onChange={(url) => handleUpdateSlideField(idx, "image", url)}
+                      />
+                    </div>
+
+                    {/* Ligne 1 : Numéro & Kicker */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-slate-300 font-semibold mb-1 text-xs">
+                          Numéro d'Index (ex: 01)
+                        </label>
+                        <input
+                          type="text"
+                          value={slide.index || ""}
+                          onChange={(e) => handleUpdateSlideField(idx, "index", e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono text-xs"
+                          placeholder="01"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-slate-300 font-semibold mb-1 text-xs">
+                          Badge / Kicker [{lang.toUpperCase()}] (ex: Accueil, Consultation, Plateau technique)
+                        </label>
+                        <input
+                          type="text"
+                          value={slide.kicker || ""}
+                          onChange={(e) => handleUpdateSlideField(idx, "kicker", e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs"
+                          placeholder="Accueil"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Titre Principal */}
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1 text-xs">
+                        Titre du Lieu [{lang.toUpperCase()}] (ex: Espace apaisant, Salles modernes) *
+                      </label>
+                      <input
+                        type="text"
+                        value={slide.title || ""}
+                        onChange={(e) => handleUpdateSlideField(idx, "title", e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-xs"
+                        placeholder="Espace apaisant"
+                      />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1 text-xs">
+                        Description de l'Espace [{lang.toUpperCase()}] (Texte explicatif pour les patients)
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={slide.description || ""}
+                        onChange={(e) => handleUpdateSlideField(idx, "description", e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 text-xs leading-relaxed"
+                        placeholder="Dès votre arrivée, notre équipe vous accueille dans un environnement conçu pour réduire l'anxiété..."
+                      />
+                    </div>
+
+                    {/* Style Visuel & Effets 3D */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+                      {/* Accent Glow Blob */}
+                      <div className="space-y-2">
+                        <label className="block text-slate-300 font-semibold text-xs">
+                          Couleur d'Accent Néon (Halo & Reflet)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={slide.accent || "#2a9d8f"}
+                            onChange={(e) => handleUpdateSlideField(idx, "accent", e.target.value)}
+                            className="w-9 h-9 rounded-lg border border-slate-700 bg-transparent cursor-pointer p-0.5"
+                          />
+                          <input
+                            type="text"
+                            value={slide.accent || "#2a9d8f"}
+                            onChange={(e) => handleUpdateSlideField(idx, "accent", e.target.value)}
+                            className="w-28 px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono text-xs"
+                          />
+                        </div>
+                        {/* Chips couleurs rapides */}
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {ACCENT_COLORS.map((ac) => (
+                            <button
+                              key={ac.color}
+                              type="button"
+                              onClick={() => handleUpdateSlideField(idx, "accent", ac.color)}
+                              className={`px-2 py-0.5 rounded text-[10px] font-semibold border transition-all flex items-center gap-1 cursor-pointer ${
+                                slide.accent === ac.color
+                                  ? "border-white text-white bg-white/10"
+                                  : "border-slate-700 text-slate-400 hover:text-white"
+                              }`}
+                            >
+                              <span
+                                className="w-2 h-2 rounded-full"
+                                style={{ backgroundColor: ac.color }}
+                              />
+                              <span>{ac.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Dégradé de fond */}
+                      <div className="space-y-2">
+                        <label className="block text-slate-300 font-semibold text-xs">
+                          Dégradé d'Arrière-Plan (Ambiance Carte)
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {GRADIENT_PRESETS.map((gp) => (
+                            <button
+                              key={gp.label}
+                              type="button"
+                              onClick={() => handleUpdateSlideField(idx, "background", gp.value)}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all cursor-pointer ${
+                                slide.background === gp.value
+                                  ? "border-[#2a9d8f] bg-[#2a9d8f]/20 text-white font-bold"
+                                  : "border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
+                              }`}
+                            >
+                              {gp.label}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="text"
+                          value={slide.background || "linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)"}
+                          onChange={(e) => handleUpdateSlideField(idx, "background", e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-300 font-mono text-[10px]"
+                          placeholder="linear-gradient(...)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
