@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, PanInfo, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Sparkles, RotateCw, Maximize2 } from "lucide-react";
 import { ShimmerButton } from "../ui/ShimmerButton";
 import { PATHOLOGIES } from "../../data";
 import { MedicalCard } from "../Cards";
@@ -11,6 +11,237 @@ import bgVideo from "../../images/pathologie-2.mp4";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
+
+interface PathologySliderCardProps {
+  item: any;
+  idx: number;
+  isActive: boolean;
+  cardWidth: number;
+  onSelect: () => void;
+  onExpand: () => void;
+  isDraggingRef: React.MutableRefObject<boolean>;
+}
+
+function PathologySliderCard({
+  item,
+  idx,
+  isActive,
+  cardWidth,
+  onSelect,
+  onExpand,
+  isDraggingRef,
+}: PathologySliderCardProps) {
+  const { t } = useTranslation();
+  const [flipped, setFlipped] = useState(false);
+  const detailSlug = item.slug || "lombalgie-chronique";
+
+  const handleFlipToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isDraggingRef.current) return;
+    setFlipped(!flipped);
+  };
+
+  const handleOpenModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isDraggingRef.current) return;
+    onExpand();
+  };
+
+  const handleCardClick = () => {
+    if (isDraggingRef.current) return;
+    if (!isActive) {
+      onSelect();
+    } else {
+      setFlipped(!flipped);
+    }
+  };
+
+  return (
+    <motion.article
+      animate={{
+        scale: isActive ? 1 : 0.94,
+        opacity: isActive ? 1 : 0.6,
+      }}
+      transition={{ duration: 0.3 }}
+      onClick={handleCardClick}
+      style={{ width: `${cardWidth}px`, perspective: 1400 }}
+      className="h-[380px] sm:h-[400px] shrink-0 pointer-events-auto select-none"
+    >
+      <div
+        className={`w-full h-full relative transition-transform duration-500 rounded-3xl ${
+          isActive ? "shadow-[0_0_35px_rgba(72,202,228,0.35)]" : ""
+        }`}
+        style={{
+          transformStyle: "preserve-3d",
+          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        }}
+      >
+        {/* ========================================================= */}
+        {/* FACE AVANT (RECTO)                                        */}
+        {/* ========================================================= */}
+        <div
+          className={`absolute inset-0 w-full h-full rounded-3xl overflow-hidden border transition-colors duration-300 flex flex-col justify-between bg-gradient-to-br from-[#10243e]/95 via-[#0d1c31]/95 to-[#091524]/95 backdrop-blur-md cursor-pointer ${
+            isActive ? "border-[#48cae4]" : "border-white/15 hover:border-white/30"
+          }`}
+          style={{
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
+        >
+          {/* Liseré supérieur coloré */}
+          <div
+            className="h-1 w-full shrink-0"
+            style={{ backgroundColor: item.color || "#48cae4" }}
+          />
+
+          {/* Zone Image compacte */}
+          <div className="relative h-44 sm:h-48 w-full shrink-0 overflow-hidden bg-slate-950">
+            <img
+              src={item.img}
+              alt={item.title}
+              loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = REAL_FALLBACK_IMAGES[idx % REAL_FALLBACK_IMAGES.length];
+              }}
+              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e] via-transparent to-black/30" />
+
+            {/* Badge numéro & Icône */}
+            <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md border border-white/20 text-[#48cae4]">
+              #{String(idx + 1).padStart(2, "0")}
+            </div>
+
+            <div className="absolute top-3 right-3 flex items-center gap-1.5">
+              {item.icon && (
+                <div className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-sm text-white">
+                  {item.icon}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={handleOpenModal}
+                title="Agrandir la carte"
+                className="w-8 h-8 rounded-full bg-black/60 hover:bg-[#48cae4] hover:text-[#0c1a2e] text-white backdrop-blur-md border border-white/20 flex items-center justify-center text-xs transition-colors cursor-pointer pointer-events-auto"
+              >
+                <Maximize2 size={13} />
+              </button>
+            </div>
+          </div>
+
+          {/* Zone Titre et Actions Recto */}
+          <div className="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <h3
+                className="text-base sm:text-lg font-bold text-white leading-snug line-clamp-2 group-hover:text-[#48cae4] transition-colors"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {item.title}
+              </h3>
+            </div>
+
+            {/* Boutons d'actions Recto */}
+            <div className="space-y-2 mt-2">
+              <button
+                type="button"
+                onClick={handleFlipToggle}
+                className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-cyan-200 hover:text-white flex items-center justify-center gap-1.5 text-xs font-semibold transition-all cursor-pointer shadow-xs group"
+              >
+                <RotateCw size={12} className="text-[#48cae4] group-hover:rotate-180 transition-transform duration-500" />
+                <span>Voir la description (Verso)</span>
+              </button>
+
+              {/* Bouton Lire la fiche toujours en évidence */}
+              <Link
+                to={`/pathologies/${detailSlug}`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-md hover:brightness-110 active:scale-98 transition-all cursor-pointer group"
+              >
+                <span className="font-bold">
+                  {t("common.readFullFile", "Lire la fiche détaillée")}
+                </span>
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================= */}
+        {/* FACE ARRIÈRE (VERSO) : LA DESCRIPTION CLINIQUE           */}
+        {/* ========================================================= */}
+        <div
+          className={`absolute inset-0 w-full h-full rounded-3xl overflow-hidden border p-4 sm:p-5 flex flex-col justify-between bg-gradient-to-br from-[#10243e] via-[#0d1c31] to-[#08121f] text-left cursor-pointer ${
+            isActive ? "border-[#48cae4] shadow-[0_0_35px_rgba(72,202,228,0.35)]" : "border-white/20"
+          }`}
+          style={{
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
+        >
+          {/* Header Verso */}
+          <div>
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+              <div className="flex items-center gap-1.5">
+                <span className="text-base">{item.icon || "🦴"}</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-300 font-bold">
+                  Description Clinique
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleFlipToggle}
+                  className="text-xs text-cyan-300 hover:text-white px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 transition-colors flex items-center gap-1 cursor-pointer"
+                  title="Voir la photo au recto"
+                >
+                  <RotateCw size={11} />
+                  <span>Recto</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenModal}
+                  title="Agrandir la carte"
+                  className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <Maximize2 size={13} />
+                </button>
+              </div>
+            </div>
+
+            <h4
+              className="text-sm sm:text-base font-bold text-white mt-2 leading-snug line-clamp-2"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {item.title}
+            </h4>
+          </div>
+
+          {/* Description complète Verso */}
+          <div className="flex-1 overflow-y-auto my-2 pr-1 text-xs sm:text-sm text-gray-200 leading-relaxed custom-scrollbar">
+            {item.desc}
+          </div>
+
+          {/* BOUTON LIRE LA FICHE DÉTAILLÉE : TOUJOURS EN ÉVIDENCE AU VERSO */}
+          <div className="pt-2 border-t border-white/10">
+            <Link
+              to={`/pathologies/${detailSlug}`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-md hover:brightness-110 active:scale-98 transition-all cursor-pointer group"
+            >
+              <span className="font-bold">
+                {t("common.readFullFile", "Lire la fiche détaillée")}
+              </span>
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
 
 export function PathologiesPremium() {
   const { t, i18n } = useTranslation();
@@ -229,94 +460,18 @@ export function PathologiesPremium() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="flex gap-5 cursor-grab active:cursor-grabbing z-10"
           >
-            {items.map((item, idx) => {
-              const isActive = idx === activeIdx;
-              const detailSlug = item.slug || "lombalgie-chronique";
-
-              return (
-                <motion.article
-                  key={item.title || idx}
-                  animate={{
-                    scale: isActive ? 1 : 0.94,
-                    opacity: isActive ? 1 : 0.6
-                  }}
-                  transition={{ duration: 0.3 }}
-                  onClick={() => {
-                    if (!isActive) {
-                      setActiveIdx(idx);
-                    } else {
-                      setSelectedItem(item);
-                    }
-                  }}
-                  style={{ width: `${cardWidth}px` }}
-                  className={`h-[360px] sm:h-[375px] shrink-0 rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between bg-gradient-to-br from-[#10243e]/95 via-[#0d1c31]/95 to-[#091524]/95 backdrop-blur-md cursor-pointer select-none ${
-                    isActive
-                      ? "border-[#48cae4] shadow-[0_0_35px_rgba(72,202,228,0.35)]"
-                      : "border-white/15 hover:border-white/30"
-                  }`}
-                >
-                  {/* Liseré supérieur coloré */}
-                  <div
-                    className="h-1 w-full shrink-0"
-                    style={{ backgroundColor: item.color || "#48cae4" }}
-                  />
-
-                  {/* Zone Image compacte (hauteur réduite) */}
-                  <div className="relative h-40 sm:h-44 w-full shrink-0 overflow-hidden bg-slate-950">
-                    <img
-                      src={item.img}
-                      alt={item.title}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.src = REAL_FALLBACK_IMAGES[idx % REAL_FALLBACK_IMAGES.length];
-                      }}
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e] via-transparent to-black/30" />
-
-                    {/* Badge numéro & Icône */}
-                    <div className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md border border-white/20 text-[#48cae4]">
-                      #{String(idx + 1).padStart(2, "0")}
-                    </div>
-                    {item.icon && (
-                      <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-sm text-white">
-                        {item.icon}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Zone Texte et Action compacte */}
-                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      <h3
-                        className="text-base sm:text-lg font-bold text-white leading-snug line-clamp-1 group-hover:text-[#48cae4] transition-colors"
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {item.title}
-                      </h3>
-                      <p className="mt-1 text-xs text-gray-300 leading-relaxed line-clamp-2 font-light">
-                        {item.desc}
-                      </p>
-                    </div>
-
-                    {/* Bouton direct vers la fiche complète */}
-                    <div className="mt-3">
-                      <Link
-                        to={`/pathologies/${detailSlug}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-xs shadow-md hover:brightness-110 transition-all cursor-pointer group"
-                      >
-                        <span className="font-bold">
-                          {t("common.readFullFile", "Lire la fiche détaillée")}
-                        </span>
-                        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.article>
-              );
-            })}
+            {items.map((item, idx) => (
+              <PathologySliderCard
+                key={item.title || idx}
+                item={item}
+                idx={idx}
+                isActive={idx === activeIdx}
+                cardWidth={cardWidth}
+                onSelect={() => setActiveIdx(idx)}
+                onExpand={() => setSelectedItem(item)}
+                isDraggingRef={isDraggingRef}
+              />
+            ))}
           </motion.div>
         </div>
 
@@ -343,7 +498,7 @@ export function PathologiesPremium() {
         </div>
       </div>
 
-      {/* Modale plein écran au clic sur une carte */}
+      {/* Modale au clic sur une carte (Taille réduite et compacte) */}
       <AnimatePresence>
         {selectedItem && (
           <motion.div
@@ -358,7 +513,7 @@ export function PathologiesPremium() {
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="w-[900px] h-[85vh] max-h-[850px] max-w-[96vw] sm:max-w-[90vw] pointer-events-auto flex flex-col"
+              className="w-full max-w-[420px] sm:max-w-[440px] md:max-w-[460px] h-[520px] sm:h-[550px] max-h-[90vh] pointer-events-auto flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <MedicalCard
