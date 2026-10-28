@@ -7,6 +7,7 @@ export interface ContactFormData {
   email: string;
   phone: string;
   message: string;
+  urgentCondition?: string;
   _website_hp?: string;
 }
 
@@ -28,6 +29,7 @@ export function useContactForm(): UseContactFormReturn {
     email: "",
     phone: "",
     message: "",
+    urgentCondition: "",
     _website_hp: "",
   });
   const [sent, setSent] = useState(false);
@@ -38,10 +40,24 @@ export function useContactForm(): UseContactFormReturn {
     e.preventDefault();
     if (loading) return;
 
+    const isUrgent = formData.subject.includes("urgent") || formData.subject.includes("🚨");
+    if (isUrgent && !formData.urgentCondition) {
+      setError("Veuillez sélectionner la pathologie ou le geste concerné par votre situation d'urgence.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
+      const finalSubject = isUrgent && formData.urgentCondition
+        ? `${formData.subject} — [${formData.urgentCondition}]`
+        : (formData.subject || `Demande de contact — ${formData.category}`);
+
+      const finalMessage = isUrgent && formData.urgentCondition
+        ? `[PRISE EN CHARGE URGENTE : ${formData.urgentCondition}]\n\n${formData.message}`
+        : formData.message;
+
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
@@ -52,11 +68,12 @@ export function useContactForm(): UseContactFormReturn {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          subject: formData.subject || `Demande de contact — ${formData.category}`,
-          message: formData.message,
+          subject: finalSubject,
+          message: finalMessage,
           metadata: {
             category: formData.category,
             subject: formData.subject,
+            urgentCondition: formData.urgentCondition || "",
           },
           _website_hp: formData._website_hp,
         }),
@@ -90,6 +107,7 @@ export function useContactForm(): UseContactFormReturn {
       email: "",
       phone: "",
       message: "",
+      urgentCondition: "",
       _website_hp: "",
     });
     setSent(false);

@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — Endpoint Contact Natif Hostinger (PHP / LiteSpeed)
+// ITID France || Endpoint Contact Natif Hostinger (PHP / LiteSpeed)
 // Reçoit les formulaires de contact, enregistre en BDD et envoie par mail
 // ======================================================================
 
@@ -10,15 +10,15 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    echo json_encode(['status' => 'ok']);
-    exit;
+  http_response_code(200);
+  echo json_encode(['status' => 'ok']);
+  exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'error' => 'Méthode non autorisée. Utilisez POST.']);
-    exit;
+  http_response_code(405);
+  echo json_encode(['success' => false, 'error' => 'Méthode non autorisée. Utilisez POST.']);
+  exit;
 }
 
 require_once __DIR__ . '/../db.php';
@@ -27,37 +27,37 @@ $rawInput = file_get_contents('php://input');
 $data = json_decode($rawInput, true);
 
 if (!$data || !is_array($data)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Données JSON invalides']);
-    exit;
+  http_response_code(400);
+  echo json_encode(['success' => false, 'error' => 'Données JSON invalides']);
+  exit;
 }
 
 // Honeypot anti-spam : si rempli par un robot, on simule le succès
 if (!empty($data['_website_hp'])) {
-    http_response_code(200);
-    echo json_encode(['success' => true, 'message' => 'Votre message a été transmis avec succès.']);
-    exit;
+  http_response_code(200);
+  echo json_encode(['success' => true, 'message' => 'Votre message a été transmis avec succès.']);
+  exit;
 }
 
 // Extraction et assainissement des champs
-$name = isset($data['name']) ? trim(strip_tags((string)$data['name'])) : '';
-$email = isset($data['email']) ? trim(filter_var((string)$data['email'], FILTER_SANITIZE_EMAIL)) : '';
-$phone = isset($data['phone']) ? trim(strip_tags((string)$data['phone'])) : '';
-$subject = isset($data['subject']) ? trim(strip_tags((string)$data['subject'])) : 'Nouveau message de contact — ITID France';
-$message = isset($data['message']) ? trim((string)$data['message']) : '';
+$name = isset($data['name']) ? trim(strip_tags((string) $data['name'])) : '';
+$email = isset($data['email']) ? trim(filter_var((string) $data['email'], FILTER_SANITIZE_EMAIL)) : '';
+$phone = isset($data['phone']) ? trim(strip_tags((string) $data['phone'])) : '';
+$subject = isset($data['subject']) ? trim(strip_tags((string) $data['subject'])) : 'Nouveau message de contact — ITID France';
+$message = isset($data['message']) ? trim((string) $data['message']) : '';
 $metadata = isset($data['metadata']) && is_array($data['metadata']) ? $data['metadata'] : [];
-$category = isset($metadata['category']) ? trim(strip_tags((string)$metadata['category'])) : 'Patient';
+$category = isset($metadata['category']) ? trim(strip_tags((string) $metadata['category'])) : 'Patient';
 
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Veuillez saisir une adresse email valide.']);
-    exit;
+  http_response_code(400);
+  echo json_encode(['success' => false, 'error' => 'Veuillez saisir une adresse email valide.']);
+  exit;
 }
 
 if (empty($message)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Le message ne peut pas être vide.']);
-    exit;
+  http_response_code(400);
+  echo json_encode(['success' => false, 'error' => 'Le message ne peut pas être vide.']);
+  exit;
 }
 
 $config = getItidConfig();
@@ -71,35 +71,35 @@ $dbError = null;
 
 $maxAttempts = 3;
 for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-    try {
-        $pdo = getItidDb();
-        $stmt = $pdo->prepare("
+  try {
+    $pdo = getItidDb();
+    $stmt = $pdo->prepare("
             INSERT INTO contact_messages 
               (form_name, name, email, phone, subject, message, metadata, status, email_sent, ip_hash)
             VALUES (?, ?, ?, ?, ?, ?, ?, 'unread', 0, ?)
         ");
-        $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-        $ipHash = hash('sha256', (string)$clientIp);
-        $stmt->execute([
-            'contact_general',
-            $name ?: null,
-            $email,
-            $phone ?: null,
-            $subject ?: null,
-            $message,
-            !empty($metadata) ? json_encode($metadata, JSON_UNESCAPED_UNICODE) : null,
-            $ipHash,
-        ]);
-        $insertedId = (int)$pdo->lastInsertId();
-        $dbError = null;
-        break;
-    } catch (Throwable $t) {
-        $dbError = $t->getMessage();
-        error_log("ITID Contact DB Insert Error (tentative {$attempt}/{$maxAttempts}): " . $dbError);
-        if ($attempt < $maxAttempts) {
-            usleep(150000); // 150ms
-        }
+    $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+    $ipHash = hash('sha256', (string) $clientIp);
+    $stmt->execute([
+      'contact_general',
+      $name ?: null,
+      $email,
+      $phone ?: null,
+      $subject ?: null,
+      $message,
+      !empty($metadata) ? json_encode($metadata, JSON_UNESCAPED_UNICODE) : null,
+      $ipHash,
+    ]);
+    $insertedId = (int) $pdo->lastInsertId();
+    $dbError = null;
+    break;
+  } catch (Throwable $t) {
+    $dbError = $t->getMessage();
+    error_log("ITID Contact DB Insert Error (tentative {$attempt}/{$maxAttempts}): " . $dbError);
+    if ($attempt < $maxAttempts) {
+      usleep(150000); // 150ms
     }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -174,17 +174,18 @@ $mailSent = @mail($recipientEmail, '=?UTF-8?B?' . base64_encode($emailSubject) .
 
 // Si l'email a été envoyé et qu'on a un id en base, on met à jour email_sent
 if ($mailSent && $insertedId) {
-    try {
-        $pdo = getItidDb();
-        $up = $pdo->prepare("UPDATE contact_messages SET email_sent = 1 WHERE id = ?");
-        $up->execute([$insertedId]);
-    } catch (Exception $e) {}
+  try {
+    $pdo = getItidDb();
+    $up = $pdo->prepare("UPDATE contact_messages SET email_sent = 1 WHERE id = ?");
+    $up->execute([$insertedId]);
+  } catch (Exception $e) {
+  }
 }
 
 http_response_code(200);
 echo json_encode([
-    'success' => true,
-    'message' => 'Votre message a été transmis avec succès à l\'équipe médicale de l\'ITID.',
-    'email_sent' => (bool)$mailSent,
-    'id' => $insertedId,
+  'success' => true,
+  'message' => 'Votre message a été transmis avec succès à l\'équipe médicale de l\'ITID.',
+  'email_sent' => (bool) $mailSent,
+  'id' => $insertedId,
 ]);

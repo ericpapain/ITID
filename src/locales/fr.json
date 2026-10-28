@@ -347,7 +347,7 @@
     "info": {
       "desc1": "Institut du Traitement Interventionnel de la Douleur — Troyes, Aube.",
       "desc2": "Espace Médical de Spécialistes de Champagne",
-      "rights": "© 2025 ITID France — Tous droits réservés",
+      "rights": "© 2025 ITID France || Tous droits réservés",
       "address": "25 av. des Mailles, 10800 TROYES — 03 51 53 20 26"
     }
   },
@@ -437,15 +437,42 @@
     "title1": "Cas ",
     "title2": "Cliniques",
     "discoverMore": "Découvrir plus",
-    "p1": { "title": "Cas Clinique #1", "cat": "Infiltration lombaire" },
-    "p2": { "title": "Cas Clinique #2", "cat": "Radiofréquence" },
-    "p3": { "title": "Cas Clinique #3", "cat": "Douleur pelvienne" },
-    "p4": { "title": "Cas Clinique #4", "cat": "Bloc nerveux" },
-    "p5": { "title": "Innovation #5", "cat": "Réalité Virtuelle" },
-    "p6": { "title": "Cas Clinique #6", "cat": "Céphalées chroniques" },
-    "p7": { "title": "Cas Clinique #7", "cat": "Névralgie cervico-brachiale" },
-    "p8": { "title": "Cas Clinique #8", "cat": "SDRC Type 1" },
-    "p9": { "title": "Innovation #9", "cat": "Neuromodulation" }
+    "p1": {
+      "title": "Cas Clinique #1",
+      "cat": "Infiltration lombaire"
+    },
+    "p2": {
+      "title": "Cas Clinique #2",
+      "cat": "Radiofréquence"
+    },
+    "p3": {
+      "title": "Cas Clinique #3",
+      "cat": "Douleur pelvienne"
+    },
+    "p4": {
+      "title": "Cas Clinique #4",
+      "cat": "Bloc nerveux"
+    },
+    "p5": {
+      "title": "Innovation #5",
+      "cat": "Réalité Virtuelle"
+    },
+    "p6": {
+      "title": "Cas Clinique #6",
+      "cat": "Céphalées chroniques"
+    },
+    "p7": {
+      "title": "Cas Clinique #7",
+      "cat": "Névralgie cervico-brachiale"
+    },
+    "p8": {
+      "title": "Cas Clinique #8",
+      "cat": "SDRC Type 1"
+    },
+    "p9": {
+      "title": "Innovation #9",
+      "cat": "Neuromodulation"
+    }
   },
   "auth": {
     "loginTitle": "Connexion",

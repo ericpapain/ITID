@@ -1,11 +1,12 @@
 <?php
 // ======================================================================
-// ITID France — Vérification centralisée de l'authentification Admin
+// ITID France || Vérification centralisée de l'authentification Admin
 // ======================================================================
 
 require_once __DIR__ . '/db.php';
 
-function verifyAdminToken(?string $authHeader): ?array {
+function verifyAdminToken(?string $authHeader): ?array
+{
     if (!$authHeader) {
         return null;
     }
@@ -21,11 +22,14 @@ function verifyAdminToken(?string $authHeader): ?array {
     // Format 1 : Token HMAC PHP à 2 parties (base64_payload . signature)
     if (count($parts) === 2) {
         $payloadJson = base64_decode($parts[0], true);
-        if (!$payloadJson) return null;
+        if (!$payloadJson)
+            return null;
         $expectedSig = hash_hmac('sha256', $payloadJson, $secret);
-        if (!hash_equals($expectedSig, $parts[1])) return null;
+        if (!hash_equals($expectedSig, $parts[1]))
+            return null;
         $payload = json_decode($payloadJson, true);
-        if (!$payload || !isset($payload['exp']) || $payload['exp'] < time()) return null;
+        if (!$payload || !isset($payload['exp']) || $payload['exp'] < time())
+            return null;
         $payload['authenticated'] = true;
         return $payload;
     }
@@ -33,7 +37,8 @@ function verifyAdminToken(?string $authHeader): ?array {
     // Format 2 : Token JWT standard à 3 parties (header . payload . signature)
     if (count($parts) === 3) {
         $payloadJson = base64_decode(strtr($parts[1], '-_', '+/'), true);
-        if (!$payloadJson) return null;
+        if (!$payloadJson)
+            return null;
         $expectedSig = hash_hmac('sha256', $parts[0] . '.' . $parts[1], $secret, true);
         $expectedB64 = rtrim(strtr(base64_encode($expectedSig), '+/', '-_'), '=');
         $rawSig = rtrim($parts[2], '=');
@@ -49,7 +54,8 @@ function verifyAdminToken(?string $authHeader): ?array {
     return null;
 }
 
-function requireAdminAuth(): array {
+function requireAdminAuth(): array
+{
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? null;
     if (!$authHeader && function_exists('apache_request_headers')) {
         $headers = apache_request_headers();

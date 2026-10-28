@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Publique Traitements
+// ITID France || API Publique Traitements
 // ======================================================================
 
 require_once __DIR__ . '/../../db.php';

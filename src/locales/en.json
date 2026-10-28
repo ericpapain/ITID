@@ -347,7 +347,7 @@
     "info": {
       "desc1": "Institute for Interventional Pain Treatment — Troyes, Aube.",
       "desc2": "Medical Space of Champagne Specialists",
-      "rights": "© 2025 ITID France — All rights reserved",
+      "rights": "© 2025 ITID France || All rights reserved",
       "address": "25 av. des Mailles, 10800 TROYES — 03 51 53 20 26"
     }
   },
@@ -437,15 +437,42 @@
     "title1": "Clinical ",
     "title2": "Cases",
     "discoverMore": "Discover more",
-    "p1": { "title": "Clinical Case #1", "cat": "Lumbar Infiltration" },
-    "p2": { "title": "Clinical Case #2", "cat": "Radiofrequency" },
-    "p3": { "title": "Clinical Case #3", "cat": "Pelvic Pain" },
-    "p4": { "title": "Clinical Case #4", "cat": "Nerve Block" },
-    "p5": { "title": "Innovation #5", "cat": "Virtual Reality" },
-    "p6": { "title": "Clinical Case #6", "cat": "Chronic Headaches" },
-    "p7": { "title": "Clinical Case #7", "cat": "Cervicobrachial Neuralgia" },
-    "p8": { "title": "Clinical Case #8", "cat": "CRPS Type 1" },
-    "p9": { "title": "Innovation #9", "cat": "Neuromodulation" }
+    "p1": {
+      "title": "Clinical Case #1",
+      "cat": "Lumbar Infiltration"
+    },
+    "p2": {
+      "title": "Clinical Case #2",
+      "cat": "Radiofrequency"
+    },
+    "p3": {
+      "title": "Clinical Case #3",
+      "cat": "Pelvic Pain"
+    },
+    "p4": {
+      "title": "Clinical Case #4",
+      "cat": "Nerve Block"
+    },
+    "p5": {
+      "title": "Innovation #5",
+      "cat": "Virtual Reality"
+    },
+    "p6": {
+      "title": "Clinical Case #6",
+      "cat": "Chronic Headaches"
+    },
+    "p7": {
+      "title": "Clinical Case #7",
+      "cat": "Cervicobrachial Neuralgia"
+    },
+    "p8": {
+      "title": "Clinical Case #8",
+      "cat": "CRPS Type 1"
+    },
+    "p9": {
+      "title": "Innovation #9",
+      "cat": "Neuromodulation"
+    }
   },
   "auth": {
     "loginTitle": "Login",

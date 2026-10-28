@@ -76,7 +76,11 @@ export default function AdminDashboard() {
         throw new Error(`Réponse non valide du serveur (${res.status}): ${text.slice(0, 150)}`);
       }
       if (data.success && data.found) {
-        setDiscoveredFiles(data.found);
+        const cleanFiles = data.found.filter((item: any) => {
+          const fn = (item.filename || "").toLowerCase();
+          return !fn.endsWith("-shm") && !fn.endsWith("-wal") && !fn.endsWith("-journal");
+        });
+        setDiscoveredFiles(cleanFiles);
       } else {
         alert("Erreur lors du scan : " + (data.error || "Inconnu"));
       }

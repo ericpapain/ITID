@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Admin CMS (Gestion complète CRUD)
+// ITID France || API Admin CMS (Gestion complète CRUD)
 // ======================================================================
 
 require_once __DIR__ . '/../../db.php';
@@ -26,7 +26,7 @@ if (!$auth) {
 $pdo = getItidDb();
 $method = $_SERVER['REQUEST_METHOD'];
 $type = trim($_GET['type'] ?? 'pathologies'); // pathologies, traitements, articles, pages
-$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+$id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 
 try {
     // -------------------------------------------------------------
@@ -77,13 +77,29 @@ try {
                 $input['short_desc_en'] ?? '',
                 $input['card_image'] ?? '/images/lombalgie.jpg',
                 $heroGallery,
-                $input['section1_title_fr'] ?? '', $input['section1_title_en'] ?? '', $input['section1_text_fr'] ?? '', $input['section1_text_en'] ?? '', $input['section1_image'] ?? '',
-                $input['section2_title_fr'] ?? '', $input['section2_title_en'] ?? '', $input['section2_text_fr'] ?? '', $input['section2_text_en'] ?? '', $input['section2_image'] ?? '',
-                $input['section3_title_fr'] ?? '', $input['section3_title_en'] ?? '', $input['section3_text_fr'] ?? '', $input['section3_text_en'] ?? '', $input['section3_image'] ?? '',
-                $input['section4_title_fr'] ?? '', $input['section4_title_en'] ?? '', $input['section4_text_fr'] ?? '', $input['section4_text_en'] ?? '', $input['section4_image'] ?? '',
+                $input['section1_title_fr'] ?? '',
+                $input['section1_title_en'] ?? '',
+                $input['section1_text_fr'] ?? '',
+                $input['section1_text_en'] ?? '',
+                $input['section1_image'] ?? '',
+                $input['section2_title_fr'] ?? '',
+                $input['section2_title_en'] ?? '',
+                $input['section2_text_fr'] ?? '',
+                $input['section2_text_en'] ?? '',
+                $input['section2_image'] ?? '',
+                $input['section3_title_fr'] ?? '',
+                $input['section3_title_en'] ?? '',
+                $input['section3_text_fr'] ?? '',
+                $input['section3_text_en'] ?? '',
+                $input['section3_image'] ?? '',
+                $input['section4_title_fr'] ?? '',
+                $input['section4_title_en'] ?? '',
+                $input['section4_text_fr'] ?? '',
+                $input['section4_text_en'] ?? '',
+                $input['section4_image'] ?? '',
                 $input['wikipedia_url'] ?? '',
-                (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                (int) ($input['display_order'] ?? 0),
+                isset($input['is_active']) ? (int) $input['is_active'] : 1,
                 $sectionsJson
             ]);
 
@@ -120,13 +136,29 @@ try {
                 $input['short_desc_en'] ?? '',
                 $input['card_image'] ?? '',
                 $heroGallery,
-                $input['section1_title_fr'] ?? '', $input['section1_title_en'] ?? '', $input['section1_text_fr'] ?? '', $input['section1_text_en'] ?? '', $input['section1_image'] ?? '',
-                $input['section2_title_fr'] ?? '', $input['section2_title_en'] ?? '', $input['section2_text_fr'] ?? '', $input['section2_text_en'] ?? '', $input['section2_image'] ?? '',
-                $input['section3_title_fr'] ?? '', $input['section3_title_en'] ?? '', $input['section3_text_fr'] ?? '', $input['section3_text_en'] ?? '', $input['section3_image'] ?? '',
-                $input['section4_title_fr'] ?? '', $input['section4_title_en'] ?? '', $input['section4_text_fr'] ?? '', $input['section4_text_en'] ?? '', $input['section4_image'] ?? '',
+                $input['section1_title_fr'] ?? '',
+                $input['section1_title_en'] ?? '',
+                $input['section1_text_fr'] ?? '',
+                $input['section1_text_en'] ?? '',
+                $input['section1_image'] ?? '',
+                $input['section2_title_fr'] ?? '',
+                $input['section2_title_en'] ?? '',
+                $input['section2_text_fr'] ?? '',
+                $input['section2_text_en'] ?? '',
+                $input['section2_image'] ?? '',
+                $input['section3_title_fr'] ?? '',
+                $input['section3_title_en'] ?? '',
+                $input['section3_text_fr'] ?? '',
+                $input['section3_text_en'] ?? '',
+                $input['section3_image'] ?? '',
+                $input['section4_title_fr'] ?? '',
+                $input['section4_title_en'] ?? '',
+                $input['section4_text_fr'] ?? '',
+                $input['section4_text_en'] ?? '',
+                $input['section4_image'] ?? '',
                 $input['wikipedia_url'] ?? '',
-                (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                (int) ($input['display_order'] ?? 0),
+                isset($input['is_active']) ? (int) $input['is_active'] : 1,
                 $sectionsJson,
                 $id
             ]);
@@ -200,15 +232,31 @@ try {
                 $input['desc_back_en'] ?? '',
                 $input['card_image'] ?? '/images/treatments/infiltrations_rachidiennes.jpg',
                 $heroGallery,
-                $input['section1_title_fr'] ?? '', $input['section1_title_en'] ?? '', $input['section1_text_fr'] ?? '', $input['section1_text_en'] ?? '', $input['section1_image'] ?? '',
-                $input['section2_title_fr'] ?? '', $input['section2_title_en'] ?? '', $input['section2_text_fr'] ?? '', $input['section2_text_en'] ?? '', $input['section2_image'] ?? '',
-                $input['section3_title_fr'] ?? '', $input['section3_title_en'] ?? '', $input['section3_text_fr'] ?? '', $input['section3_text_en'] ?? '', $input['section3_image'] ?? '',
-                $input['section4_title_fr'] ?? '', $input['section4_title_en'] ?? '', $input['section4_text_fr'] ?? '', $input['section4_text_en'] ?? '', $input['section4_image'] ?? '',
+                $input['section1_title_fr'] ?? '',
+                $input['section1_title_en'] ?? '',
+                $input['section1_text_fr'] ?? '',
+                $input['section1_text_en'] ?? '',
+                $input['section1_image'] ?? '',
+                $input['section2_title_fr'] ?? '',
+                $input['section2_title_en'] ?? '',
+                $input['section2_text_fr'] ?? '',
+                $input['section2_text_en'] ?? '',
+                $input['section2_image'] ?? '',
+                $input['section3_title_fr'] ?? '',
+                $input['section3_title_en'] ?? '',
+                $input['section3_text_fr'] ?? '',
+                $input['section3_text_en'] ?? '',
+                $input['section3_image'] ?? '',
+                $input['section4_title_fr'] ?? '',
+                $input['section4_title_en'] ?? '',
+                $input['section4_text_fr'] ?? '',
+                $input['section4_text_en'] ?? '',
+                $input['section4_image'] ?? '',
                 $input['cta_text_fr'] ?? 'Prendre rendez-vous',
                 $input['cta_text_en'] ?? 'Book Appointment',
                 $input['cta_url'] ?? '#contact',
-                (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                (int) ($input['display_order'] ?? 0),
+                isset($input['is_active']) ? (int) $input['is_active'] : 1,
                 $sectionsJson
             ]);
 
@@ -248,15 +296,31 @@ try {
                 $input['desc_back_en'] ?? '',
                 $input['card_image'] ?? '',
                 $heroGallery,
-                $input['section1_title_fr'] ?? '', $input['section1_title_en'] ?? '', $input['section1_text_fr'] ?? '', $input['section1_text_en'] ?? '', $input['section1_image'] ?? '',
-                $input['section2_title_fr'] ?? '', $input['section2_title_en'] ?? '', $input['section2_text_fr'] ?? '', $input['section2_text_en'] ?? '', $input['section2_image'] ?? '',
-                $input['section3_title_fr'] ?? '', $input['section3_title_en'] ?? '', $input['section3_text_fr'] ?? '', $input['section3_text_en'] ?? '', $input['section3_image'] ?? '',
-                $input['section4_title_fr'] ?? '', $input['section4_title_en'] ?? '', $input['section4_text_fr'] ?? '', $input['section4_text_en'] ?? '', $input['section4_image'] ?? '',
+                $input['section1_title_fr'] ?? '',
+                $input['section1_title_en'] ?? '',
+                $input['section1_text_fr'] ?? '',
+                $input['section1_text_en'] ?? '',
+                $input['section1_image'] ?? '',
+                $input['section2_title_fr'] ?? '',
+                $input['section2_title_en'] ?? '',
+                $input['section2_text_fr'] ?? '',
+                $input['section2_text_en'] ?? '',
+                $input['section2_image'] ?? '',
+                $input['section3_title_fr'] ?? '',
+                $input['section3_title_en'] ?? '',
+                $input['section3_text_fr'] ?? '',
+                $input['section3_text_en'] ?? '',
+                $input['section3_image'] ?? '',
+                $input['section4_title_fr'] ?? '',
+                $input['section4_title_en'] ?? '',
+                $input['section4_text_fr'] ?? '',
+                $input['section4_text_en'] ?? '',
+                $input['section4_image'] ?? '',
                 $input['cta_text_fr'] ?? 'Prendre rendez-vous',
                 $input['cta_text_en'] ?? 'Book Appointment',
                 $input['cta_url'] ?? '#contact',
-                (int)($input['display_order'] ?? 0),
-                isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                (int) ($input['display_order'] ?? 0),
+                isset($input['is_active']) ? (int) $input['is_active'] : 1,
                 $sectionsJson,
                 $id
             ]);
@@ -289,8 +353,8 @@ try {
                 $it['gallery_images'] = json_decode($it['gallery_images_json'] ?? '[]', true) ?: [];
                 $it['sections'] = json_decode($it['sections_json'] ?? '[]', true) ?: [];
                 $it['tags'] = $it['tags'] ?? '';
-                $it['show_in_home'] = isset($it['show_in_home']) ? (int)$it['show_in_home'] : 1;
-                $it['is_featured'] = isset($it['is_featured']) ? (int)$it['is_featured'] : 0;
+                $it['show_in_home'] = isset($it['show_in_home']) ? (int) $it['show_in_home'] : 1;
+                $it['is_featured'] = isset($it['is_featured']) ? (int) $it['is_featured'] : 0;
             }
             echo json_encode(['success' => true, 'items' => $items]);
             exit;
@@ -303,7 +367,7 @@ try {
             $gallery = json_encode($input['gallery_images'] ?? []);
             $sections = json_encode($input['sections'] ?? []);
             $tags = trim($input['tags'] ?? '');
-            $isFeatured = isset($input['is_featured']) ? (int)$input['is_featured'] : 0;
+            $isFeatured = isset($input['is_featured']) ? (int) $input['is_featured'] : 0;
             if ($isFeatured === 1) {
                 $pdo->exec("UPDATE cms_articles SET is_featured = 0");
             }
@@ -339,8 +403,8 @@ try {
                 $input['read_time_en'] ?? '5 min',
                 $input['cover_image'] ?? 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200',
                 $gallery,
-                isset($input['is_published']) ? (int)$input['is_published'] : 1,
-                isset($input['show_in_home']) ? (int)$input['show_in_home'] : 1,
+                isset($input['is_published']) ? (int) $input['is_published'] : 1,
+                isset($input['show_in_home']) ? (int) $input['show_in_home'] : 1,
                 $isFeatured,
                 $input['home_title_fr'] ?? null,
                 $input['home_title_en'] ?? null,
@@ -364,7 +428,7 @@ try {
             $gallery = json_encode($input['gallery_images'] ?? []);
             $sections = json_encode($input['sections'] ?? []);
             $tags = trim($input['tags'] ?? '');
-            $isFeatured = isset($input['is_featured']) ? (int)$input['is_featured'] : 0;
+            $isFeatured = isset($input['is_featured']) ? (int) $input['is_featured'] : 0;
             if ($isFeatured === 1) {
                 $pdo->prepare("UPDATE cms_articles SET is_featured = 0 WHERE id != ?")->execute([$id]);
             }
@@ -395,8 +459,8 @@ try {
                 $input['read_time_en'] ?? '',
                 $input['cover_image'] ?? '',
                 $gallery,
-                isset($input['is_published']) ? (int)$input['is_published'] : 1,
-                isset($input['show_in_home']) ? (int)$input['show_in_home'] : 1,
+                isset($input['is_published']) ? (int) $input['is_published'] : 1,
+                isset($input['show_in_home']) ? (int) $input['show_in_home'] : 1,
                 $isFeatured,
                 $input['home_title_fr'] ?? null,
                 $input['home_title_en'] ?? null,
@@ -451,7 +515,7 @@ try {
             $stmt = $pdo->prepare("INSERT INTO cms_pages_content (page_key, content_fr, content_en, updated_at)
                 VALUES (?, ?, ?, CURRENT_TIMESTAMP)
                 ON CONFLICT(page_key) DO UPDATE SET content_fr = excluded.content_fr, content_en = excluded.content_en, updated_at = CURRENT_TIMESTAMP");
-            
+
             try {
                 $stmt->execute([$pageKey, $contentFr, $contentEn]);
             } catch (Throwable $t) {
@@ -489,7 +553,7 @@ try {
 
             foreach ($items as $idx => &$it) {
                 $img = trim($it['image'] ?? '');
-                $order = (int)($it['display_order'] ?? ($idx + 1));
+                $order = (int) ($it['display_order'] ?? ($idx + 1));
                 $fallback = $realDefaults[$order] ?? '/images/treatments/infiltrations_rachidiennes.jpg';
 
                 if (empty($img) || strpos($img, 'unsplash') !== false) {
@@ -525,8 +589,8 @@ try {
                     $input['category_fr'] ?? 'Geste Interventionnel',
                     $input['category_en'] ?? 'Interventional Procedure',
                     $postedImg,
-                    (int)($input['display_order'] ?? 0),
-                    isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                    (int) ($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int) $input['is_active'] : 1,
                     $input['traitement_slug'] ?? 'infiltrations-rachidiennes',
                     $input['pathologie_slug'] ?? 'lombalgie-chronique',
                     $input['short_desc_fr'] ?? '',
@@ -542,12 +606,12 @@ try {
                     $input['category_fr'] ?? 'Geste Interventionnel',
                     $input['category_en'] ?? 'Interventional Procedure',
                     $postedImg,
-                    (int)($input['display_order'] ?? 0),
-                    isset($input['is_active']) ? (int)$input['is_active'] : 1
+                    (int) ($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int) $input['is_active'] : 1
                 ]);
             }
 
-            echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId(), 'message' => 'Cas clinique créé avec succès.']);
+            echo json_encode(['success' => true, 'id' => (int) $pdo->lastInsertId(), 'message' => 'Cas clinique créé avec succès.']);
             exit;
         }
 
@@ -580,8 +644,8 @@ try {
                     $input['category_fr'] ?? '',
                     $input['category_en'] ?? '',
                     $input['image'] ?? '',
-                    (int)($input['display_order'] ?? 0),
-                    isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                    (int) ($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int) $input['is_active'] : 1,
                     $input['traitement_slug'] ?? 'infiltrations-rachidiennes',
                     $input['pathologie_slug'] ?? 'lombalgie-chronique',
                     $input['short_desc_fr'] ?? '',
@@ -606,8 +670,8 @@ try {
                     $input['category_fr'] ?? '',
                     $input['category_en'] ?? '',
                     $input['image'] ?? '',
-                    (int)($input['display_order'] ?? 0),
-                    isset($input['is_active']) ? (int)$input['is_active'] : 1,
+                    (int) ($input['display_order'] ?? 0),
+                    isset($input['is_active']) ? (int) $input['is_active'] : 1,
                     $id
                 ]);
             }
@@ -692,7 +756,8 @@ try {
 
             if (isset($_GET['download']) && $_GET['download'] === '1') {
                 $filename = "itid_cms_backup_" . date("Ymd_His") . ".json";
-                if (ob_get_length()) ob_end_clean();
+                if (ob_get_length())
+                    ob_end_clean();
                 header("Content-Type: application/json; charset=utf-8");
                 header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
                 header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -752,11 +817,11 @@ try {
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                     foreach ($data['articles'] as $art) {
-                        $gallery = is_string($art['gallery_images_json'] ?? null) 
-                            ? $art['gallery_images_json'] 
+                        $gallery = is_string($art['gallery_images_json'] ?? null)
+                            ? $art['gallery_images_json']
                             : json_encode($art['gallery_images'] ?? $art['gallery_images_json'] ?? []);
-                        $sections = is_string($art['sections_json'] ?? null) 
-                            ? $art['sections_json'] 
+                        $sections = is_string($art['sections_json'] ?? null)
+                            ? $art['sections_json']
                             : json_encode($art['sections'] ?? $art['sections_json'] ?? []);
 
                         $artStmt->execute([
@@ -777,9 +842,9 @@ try {
                             $art['read_time_en'] ?? '3 min',
                             $art['cover_image'] ?? '',
                             $gallery,
-                            isset($art['is_published']) ? (int)$art['is_published'] : 1,
-                            isset($art['show_in_home']) ? (int)$art['show_in_home'] : 1,
-                            isset($art['is_featured']) ? (int)$art['is_featured'] : 0,
+                            isset($art['is_published']) ? (int) $art['is_published'] : 1,
+                            isset($art['show_in_home']) ? (int) $art['show_in_home'] : 1,
+                            isset($art['is_featured']) ? (int) $art['is_featured'] : 0,
                             $art['home_title_fr'] ?? null,
                             $art['home_title_en'] ?? null,
                             $art['home_desc_fr'] ?? null,
@@ -807,8 +872,8 @@ try {
                             $cas['category_fr'] ?? '',
                             $cas['category_en'] ?? '',
                             $cas['image'] ?? '',
-                            (int)($cas['display_order'] ?? 0),
-                            isset($cas['is_active']) ? (int)$cas['is_active'] : 1,
+                            (int) ($cas['display_order'] ?? 0),
+                            isset($cas['is_active']) ? (int) $cas['is_active'] : 1,
                             $cas['traitement_slug'] ?? 'infiltrations-rachidiennes',
                             $cas['traitement_name'] ?? null,
                             $cas['pathologie_slug'] ?? 'lombalgie-chronique',
@@ -839,11 +904,11 @@ try {
                     )");
 
                     foreach ($data['pathologies'] as $p) {
-                        $heroGal = is_string($p['hero_gallery_json'] ?? null) 
-                            ? $p['hero_gallery_json'] 
+                        $heroGal = is_string($p['hero_gallery_json'] ?? null)
+                            ? $p['hero_gallery_json']
                             : json_encode($p['hero_gallery'] ?? $p['hero_gallery_json'] ?? []);
-                        $secs = is_string($p['sections_json'] ?? null) 
-                            ? $p['sections_json'] 
+                        $secs = is_string($p['sections_json'] ?? null)
+                            ? $p['sections_json']
                             : json_encode($p['sections'] ?? $p['sections_json'] ?? []);
 
                         $pathoStmt->execute([
@@ -878,8 +943,8 @@ try {
                             $p['section4_text_en'] ?? '',
                             $p['section4_image'] ?? '',
                             $p['wikipedia_url'] ?? '',
-                            (int)($p['display_order'] ?? 0),
-                            isset($p['is_active']) ? (int)$p['is_active'] : 1,
+                            (int) ($p['display_order'] ?? 0),
+                            isset($p['is_active']) ? (int) $p['is_active'] : 1,
                             $secs
                         ]);
                         $restoredCounts['pathologies']++;
@@ -908,11 +973,11 @@ try {
                     )");
 
                     foreach ($data['traitements'] as $tr) {
-                        $heroGal = is_string($tr['hero_gallery_json'] ?? null) 
-                            ? $tr['hero_gallery_json'] 
+                        $heroGal = is_string($tr['hero_gallery_json'] ?? null)
+                            ? $tr['hero_gallery_json']
                             : json_encode($tr['hero_gallery'] ?? $tr['hero_gallery_json'] ?? []);
-                        $secs = is_string($tr['sections_json'] ?? null) 
-                            ? $tr['sections_json'] 
+                        $secs = is_string($tr['sections_json'] ?? null)
+                            ? $tr['sections_json']
                             : json_encode($tr['sections'] ?? $tr['sections_json'] ?? []);
 
                         $traitStmt->execute([
@@ -951,8 +1016,8 @@ try {
                             $tr['cta_text_fr'] ?? 'Prendre rendez-vous',
                             $tr['cta_text_en'] ?? 'Book Appointment',
                             $tr['cta_url'] ?? '#contact',
-                            (int)($tr['display_order'] ?? 0),
-                            isset($tr['is_active']) ? (int)$tr['is_active'] : 1,
+                            (int) ($tr['display_order'] ?? 0),
+                            isset($tr['is_active']) ? (int) $tr['is_active'] : 1,
                             $secs
                         ]);
                         $restoredCounts['traitements']++;
@@ -976,7 +1041,7 @@ try {
         }
 
         // Helper interne : Résolution robuste du dossier uploads physique
-        $resolveUploadsDir = function() {
+        $resolveUploadsDir = function () {
             $candidates = [
                 dirname(__DIR__, 3) . '/uploads',
                 rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/\\') . '/uploads',
@@ -987,7 +1052,8 @@ try {
             foreach ($candidates as $cand) {
                 if (!empty($cand) && is_dir($cand)) {
                     $rp = realpath($cand);
-                    if ($rp && is_dir($rp)) return $rp;
+                    if ($rp && is_dir($rp))
+                        return $rp;
                 }
             }
             $target = dirname(__DIR__, 3) . '/uploads';
@@ -1028,7 +1094,7 @@ try {
                 }
 
                 // Toujours ajouter un fichier manifeste pour garantir que le ZIP contient au moins 1 fichier
-                $zip->addFromString('INFO_ARCHIVE_ITID.txt', "ITID France — Sauvegarde des Médias & Photos\nDate d'export : " . date('d/m/Y H:i:s') . "\n");
+                $zip->addFromString('INFO_ARCHIVE_ITID.txt', "ITID France || Sauvegarde des Médias & Photos\nDate d'export : " . date('d/m/Y H:i:s') . "\n");
 
                 $fileCount = 0;
 
@@ -1042,9 +1108,11 @@ try {
                         foreach ($files as $name => $file) {
                             if (!$file->isDir()) {
                                 $filePath = $file->getRealPath();
-                                if (!$filePath || !is_readable($filePath)) continue;
+                                if (!$filePath || !is_readable($filePath))
+                                    continue;
                                 $base = basename($filePath);
-                                if ($base === '.htaccess' || $base === 'web.config' || str_ends_with(strtolower($base), '.zip')) continue;
+                                if ($base === '.htaccess' || $base === 'web.config' || str_ends_with(strtolower($base), '.zip'))
+                                    continue;
 
                                 $relativePath = substr($filePath, strlen($uploadsDir) + 1);
                                 $zip->addFile($filePath, 'uploads/' . str_replace('\\', '/', $relativePath));
@@ -1067,9 +1135,11 @@ try {
                         foreach ($imgFiles as $name => $file) {
                             if (!$file->isDir()) {
                                 $filePath = $file->getRealPath();
-                                if (!$filePath || !is_readable($filePath)) continue;
+                                if (!$filePath || !is_readable($filePath))
+                                    continue;
                                 $base = basename($filePath);
-                                if ($base === '.htaccess' || str_ends_with(strtolower($base), '.zip')) continue;
+                                if ($base === '.htaccess' || str_ends_with(strtolower($base), '.zip'))
+                                    continue;
 
                                 $relativePath = substr($filePath, strlen($imagesDir) + 1);
                                 $zip->addFile($filePath, 'images/' . str_replace('\\', '/', $relativePath));

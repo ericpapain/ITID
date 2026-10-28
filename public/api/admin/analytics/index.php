@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Administration Analytics (/api/admin/analytics/...)
+// ITID France || API Administration Analytics (/api/admin/analytics/...)
 // ======================================================================
 
 header('Content-Type: application/json; charset=UTF-8');
@@ -40,7 +40,7 @@ if ($endpoint === 'export' || (isset($_GET['export']) && $_GET['export'] === 'cs
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="analytics_itid_' . date('Ymd_His') . '.csv"');
     echo "\xEF\xBB\xBF"; // BOM UTF-8
-    
+
     $out = fopen('php://output', 'w');
     fputcsv($out, ['ID Session', 'Date Début', 'Visiteur Token', 'Pays', 'Ville', 'Appareil', 'Navigateur', 'OS', 'Pages Vues', 'Durée (sec)', 'Page Entrée', 'Page Sortie', 'IP']);
 
@@ -85,38 +85,38 @@ if ($endpoint === 'overview') {
 
         // Visiteurs aujourd'hui
         $vtRes = $pdo->query("SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions WHERE {$todayCondition}")->fetchColumn();
-        $visitorsToday = (int)$vtRes;
+        $visitorsToday = (int) $vtRes;
 
         // Visiteurs cette semaine
         $vwRes = $pdo->query("SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions WHERE {$weekCondition}")->fetchColumn();
-        $visitorsWeek = (int)$vwRes;
+        $visitorsWeek = (int) $vwRes;
 
         // Visiteurs ce mois
         $vmRes = $pdo->query("SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions WHERE {$monthCondition}")->fetchColumn();
-        $visitorsMonth = (int)$vmRes;
+        $visitorsMonth = (int) $vmRes;
 
         // Visiteurs uniques totaux
         $vuRes = $pdo->query("SELECT COUNT(*) FROM visitors")->fetchColumn();
-        $uniqueVisitors = (int)$vuRes;
+        $uniqueVisitors = (int) $vuRes;
 
         // Sessions totales
         $stRes = $pdo->query("SELECT COUNT(*) FROM visitor_sessions")->fetchColumn();
-        $totalSessions = (int)$stRes;
+        $totalSessions = (int) $stRes;
 
         // Pages vues totales
         $pvRes = $pdo->query("SELECT COUNT(*) FROM page_views")->fetchColumn();
-        $totalPages = (int)$pvRes;
+        $totalPages = (int) $pvRes;
 
         // Durée moyenne des sessions (secondes)
         $avgDur = $pdo->query("SELECT AVG(duration_seconds) FROM visitor_sessions WHERE duration_seconds > 0")->fetchColumn();
-        $avgDurationSeconds = (int)round((float)$avgDur);
+        $avgDurationSeconds = (int) round((float) $avgDur);
 
         // Pages par session
         $pagesPerSession = $totalSessions > 0 ? round($totalPages / $totalSessions, 1) : 0;
 
         // Visiteurs actuellement actifs (dernières 5 min)
         $actRes = $pdo->query("SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions WHERE {$activeCondition}")->fetchColumn();
-        $activeNow = (int)$actRes;
+        $activeNow = (int) $actRes;
 
         // Sessions actives détaillées en direct
         $activeSessions = $pdo->query("
@@ -156,16 +156,20 @@ if ($endpoint === 'overview') {
 if ($endpoint === 'timeseries') {
     $range = $_GET['range'] ?? '7d';
     $days = 7;
-    if ($range === 'today') $days = 1;
-    elseif ($range === 'yesterday') $days = 2;
-    elseif ($range === '30d') $days = 30;
-    elseif ($range === '90d') $days = 90;
+    if ($range === 'today')
+        $days = 1;
+    elseif ($range === 'yesterday')
+        $days = 2;
+    elseif ($range === '30d')
+        $days = 30;
+    elseif ($range === '90d')
+        $days = 90;
 
     try {
         if ($range === 'today' || $range === 'yesterday') {
             // Regroupement par heure
             $hourFormat = $isSqlite ? "strftime('%H:00', started_at)" : "DATE_FORMAT(started_at, '%H:00')";
-            $dateFilter = ($range === 'today') 
+            $dateFilter = ($range === 'today')
                 ? ($isSqlite ? "date(started_at) = date('now')" : "DATE(started_at) = CURDATE()")
                 : ($isSqlite ? "date(started_at) = date('now', '-1 day')" : "DATE(started_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)");
 
@@ -182,8 +186,8 @@ if ($endpoint === 'timeseries') {
         } else {
             // Regroupement par jour
             $dateFormat = $isSqlite ? "strftime('%Y-%m-%d', started_at)" : "DATE_FORMAT(started_at, '%Y-%m-%d')";
-            $dateFilter = $isSqlite 
-                ? "started_at >= datetime('now', '-{$days} days')" 
+            $dateFilter = $isSqlite
+                ? "started_at >= datetime('now', '-{$days} days')"
                 : "started_at >= DATE_SUB(NOW(), INTERVAL {$days} DAY)";
 
             $sql = "
@@ -245,8 +249,9 @@ if ($endpoint === 'top-pages') {
 // ----------------------------------------------------------------------
 if ($endpoint === 'geo') {
     try {
-        $totalVisitors = (int)$pdo->query("SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions WHERE country IS NOT NULL")->fetchColumn();
-        if ($totalVisitors === 0) $totalVisitors = 1;
+        $totalVisitors = (int) $pdo->query("SELECT COUNT(DISTINCT visitor_id) FROM visitor_sessions WHERE country IS NOT NULL")->fetchColumn();
+        if ($totalVisitors === 0)
+            $totalVisitors = 1;
 
         $countries = $pdo->query("
             SELECT country, country_code, COUNT(DISTINCT visitor_id) as visitors
@@ -288,8 +293,9 @@ if ($endpoint === 'geo') {
 // ----------------------------------------------------------------------
 if ($endpoint === 'devices') {
     try {
-        $total = (int)$pdo->query("SELECT COUNT(*) FROM visitor_sessions")->fetchColumn();
-        if ($total === 0) $total = 1;
+        $total = (int) $pdo->query("SELECT COUNT(*) FROM visitor_sessions")->fetchColumn();
+        if ($total === 0)
+            $total = 1;
 
         $devices = $pdo->query("
             SELECT device_type, COUNT(*) as count
@@ -340,13 +346,13 @@ if ($endpoint === 'devices') {
 // ----------------------------------------------------------------------
 if ($endpoint === 'visitors') {
     try {
-        $page = max(1, (int)($_GET['page'] ?? 1));
-        $limit = min(100, max(1, (int)($_GET['limit'] ?? 50)));
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $limit = min(100, max(1, (int) ($_GET['limit'] ?? 50)));
         $offset = ($page - 1) * $limit;
 
-        $search = trim((string)($_GET['search'] ?? ''));
-        $countryFilter = trim((string)($_GET['country'] ?? ''));
-        $deviceFilter = trim((string)($_GET['device'] ?? ''));
+        $search = trim((string) ($_GET['search'] ?? ''));
+        $countryFilter = trim((string) ($_GET['country'] ?? ''));
+        $deviceFilter = trim((string) ($_GET['device'] ?? ''));
 
         $where = ["1=1"];
         $params = [];
@@ -354,7 +360,9 @@ if ($endpoint === 'visitors') {
         if ($search !== '') {
             $where[] = "(v.visitor_token LIKE ? OR v.last_ip_address LIKE ? OR v.city LIKE ?)";
             $like = '%' . $search . '%';
-            $params[] = $like; $params[] = $like; $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
         }
         if ($countryFilter !== '') {
             $where[] = "v.country = ?";
@@ -369,7 +377,7 @@ if ($endpoint === 'visitors') {
 
         $countStmt = $pdo->prepare("SELECT COUNT(*) FROM visitors v WHERE {$whereSql}");
         $countStmt->execute($params);
-        $total = (int)$countStmt->fetchColumn();
+        $total = (int) $countStmt->fetchColumn();
 
         $dataStmt = $pdo->prepare("
             SELECT v.id, v.visitor_token, v.first_seen_at, v.last_seen_at,
@@ -405,7 +413,7 @@ if ($endpoint === 'visitors') {
 // 8. FICHE DÉTAILLÉE D'UN VISITEUR (Parcours chronologique complet)
 // ----------------------------------------------------------------------
 if ($endpoint === 'visitor_detail' || isset($_GET['visitor_id'])) {
-    $vId = (int)($_GET['visitor_id'] ?? $_GET['id'] ?? 0);
+    $vId = (int) ($_GET['visitor_id'] ?? $_GET['id'] ?? 0);
 
     try {
         $vStmt = $pdo->prepare("SELECT * FROM visitors WHERE id = ?");

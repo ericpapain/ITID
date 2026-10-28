@@ -160,7 +160,7 @@ function loadJsonFromDisk<T>(filePath: string, defaultVal: T): T {
       const parsed = JSON.parse(content);
       if (Array.isArray(parsed)) return parsed as unknown as T;
       if (parsed !== null && parsed !== undefined && typeof parsed === 'object') return parsed;
-    } catch {}
+    } catch { }
   }
   saveJsonToDisk(filePath, defaultVal);
   return defaultVal;
@@ -170,7 +170,7 @@ function saveJsonToDisk(filePath: string, data: any) {
   try {
     ensureDataDir();
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch {}
+  } catch { }
 }
 
 const defaultPathologies = [
@@ -290,6 +290,92 @@ const defaultHeroMedia = [
   }
 ];
 
+const defaultVisiteSlides = [
+  {
+    id: "accueil",
+    index: "01",
+    kicker: "Accueil",
+    title: "Espace apaisant",
+    description: "Dès votre arrivée, notre équipe vous accueille dans un environnement conçu pour réduire l'anxiété.",
+    background: "linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)",
+    accent: "#2a9d8f",
+    image: "/image_itid/img.jpg"
+  },
+  {
+    id: "salle",
+    index: "02",
+    kicker: "Consultation",
+    title: "Salles modernes",
+    description: "Des espaces de consultation équipés pour un diagnostic précis et une prise en charge optimale.",
+    background: "linear-gradient(160deg, #1a3a5c 0%, #0f2440 100%)",
+    accent: "#48d1c2",
+    image: "/image_itid/rf.jpg"
+  },
+  {
+    id: "itid1",
+    index: "03",
+    kicker: "Interventionnel",
+    title: "Plateau technique",
+    description: "Des équipements de pointe pour réaliser des infiltrations et interventions guidées par imagerie.",
+    background: "linear-gradient(160deg, #0f2440 0%, #0a1628 100%)",
+    accent: "#2a9d8f",
+    image: "/image_itid/imo.webp"
+  },
+  {
+    id: "ext",
+    index: "04",
+    kicker: "Environnement",
+    title: "Cadre verdoyant",
+    description: "Le centre est entouré d'espaces verts pour favoriser la sérénité et le calme des patients.",
+    background: "linear-gradient(160deg, #1a3a5c 0%, #0a1628 100%)",
+    accent: "#48d1c2",
+    image: "/image_itid/rrty.webp"
+  }
+];
+
+const defaultVisiteSlidesEn = [
+  {
+    id: "accueil",
+    index: "01",
+    kicker: "Reception",
+    title: "Soothing Environment",
+    description: "Upon your arrival, our medical team welcomes you in a calming atmosphere designed to ease anxiety.",
+    background: "linear-gradient(160deg, #0f2440 0%, #1a3a5c 100%)",
+    accent: "#2a9d8f",
+    image: "/image_itid/img.jpg"
+  },
+  {
+    id: "salle",
+    index: "02",
+    kicker: "Consultation",
+    title: "Modern Exam Rooms",
+    description: "Dedicated consultation suites equipped for accurate diagnosis and personalized pain evaluation.",
+    background: "linear-gradient(160deg, #1a3a5c 0%, #0f2440 100%)",
+    accent: "#48d1c2",
+    image: "/image_itid/rf.jpg"
+  },
+  {
+    id: "itid1",
+    index: "03",
+    kicker: "Interventional",
+    title: "Technical Platform",
+    description: "State-of-the-art medical equipment for imaging-guided infiltrations and advanced procedures.",
+    background: "linear-gradient(160deg, #0f2440 0%, #0a1628 100%)",
+    accent: "#2a9d8f",
+    image: "/image_itid/imo.webp"
+  },
+  {
+    id: "ext",
+    index: "04",
+    kicker: "Surroundings",
+    title: "Greenery & Calm",
+    description: "Our center is nestled in serene green surroundings to foster comfort, healing, and peace of mind.",
+    background: "linear-gradient(160deg, #1a3a5c 0%, #0a1628 100%)",
+    accent: "#48d1c2",
+    image: "/image_itid/rrty.webp"
+  }
+];
+
 const initialPages: Record<string, { content_fr: any; content_en: any }> = {
   home: {
     content_fr: {
@@ -307,6 +393,18 @@ const initialPages: Record<string, { content_fr: any; content_en: any }> = {
       heroBtn1: "Book Appointment",
       heroBtn1Url: "https://www.doctolib.fr",
       heroMediaList: defaultHeroMedia
+    }
+  },
+  about: {
+    content_fr: {
+      aboutTitle: "L'Excellence Médicale au Service du Patient Douloureux",
+      aboutDesc: "Fondé par une équipe de médecins spécialistes en anesthésie, réanimation et algologie interventionnelle, l'ITID est né de la volonté d'offrir des solutions concrètes, minimalement invasives et personnalisées aux patients en échec thérapeutique.",
+      visiteSlides: defaultVisiteSlides
+    },
+    content_en: {
+      aboutTitle: "Medical Excellence Dedicated to Patients in Pain",
+      aboutDesc: "Founded by an expert team of pain physicians, anesthesiologists, and interventional algologists, ITID provides advanced, minimally invasive, and personalized therapies for refractory pain conditions.",
+      visiteSlides: defaultVisiteSlidesEn
     }
   }
 };
@@ -327,7 +425,7 @@ export async function getPublicCasCliniques(req: Request, res: Response) {
           items: rows.map((r: any, idx: number) => ({ ...r, image: sanitizeCaseImage(r.image, idx) }))
         });
       }
-    } catch {}
+    } catch { }
 
     const items = inMemoryCasCliniques
       .filter(c => c.is_active !== 0)
@@ -354,7 +452,7 @@ export async function getPublicPageContent(req: Request, res: Response) {
           content_en: typeof row.content_en === 'string' ? JSON.parse(row.content_en || '{}') : row.content_en,
         });
       }
-    } catch {}
+    } catch { }
 
     const pageData = inMemoryPages[pageKey] || { content_fr: {}, content_en: {} };
     return res.json({
@@ -406,7 +504,7 @@ export async function getPublicPathologies(req: Request, res: Response) {
           return res.json({ success: true, pathologies: items });
         }
       }
-    } catch {}
+    } catch { }
 
     // Fallback mémoire / disque
     if (slug) {
@@ -477,7 +575,7 @@ export async function getPublicTraitements(req: Request, res: Response) {
           return res.json({ success: true, traitements: items });
         }
       }
-    } catch {}
+    } catch { }
 
     if (slug) {
       const cleanSlug = (slug as string).toLowerCase().trim();
@@ -532,7 +630,7 @@ export async function getPublicArticles(req: Request, res: Response) {
           return res.json({ success: true, articles: items });
         }
       }
-    } catch {}
+    } catch { }
 
     if (slug) {
       const found = inMemoryArticles.find(a => a.slug === slug);
@@ -563,7 +661,7 @@ export async function handleAdminCms(req: Request, res: Response) {
         if (Array.isArray(rows)) {
           return res.json({ success: true, items: rows.map((r: any, idx: number) => ({ ...r, image: sanitizeCaseImage(r.image, idx) })) });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryCasCliniques });
     }
 
@@ -595,7 +693,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             'INSERT INTO cms_cas_cliniques (title_fr, title_en, category_fr, category_en, image, display_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [newItem.title_fr, newItem.title_en, newItem.category_fr, newItem.category_en, newItem.image, newItem.display_order, newItem.is_active]
           );
-        } catch {}
+        } catch { }
       }
       inMemoryCasCliniques.push(newItem);
       saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
@@ -615,7 +713,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             'UPDATE cms_cas_cliniques SET title_fr = ?, title_en = ?, category_fr = ?, category_en = ?, image = ?, display_order = ?, is_active = ? WHERE id = ?',
             [body.title_fr, body.title_en, body.category_fr, body.category_en, body.image, body.display_order, body.is_active, id]
           );
-        } catch {}
+        } catch { }
       }
       const idx = inMemoryCasCliniques.findIndex(c => c.id === id);
       if (idx !== -1) {
@@ -629,7 +727,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_cas_cliniques WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryCasCliniques = inMemoryCasCliniques.filter(c => c.id !== id);
       saveJsonToDisk(casCliniquesFilePath, inMemoryCasCliniques);
       return res.json({ success: true, message: 'Cas clinique supprimé avec succès.' });
@@ -650,7 +748,7 @@ export async function handleAdminCms(req: Request, res: Response) {
           }));
           return res.json({ success: true, items });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryPathologies });
     }
 
@@ -701,7 +799,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               body.wikipedia_url || '', parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
             ]
           );
-        } catch {}
+        } catch { }
       }
       inMemoryPathologies.push({ ...body, id: newId, slug, sections: body.sections || [] });
       saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
@@ -753,7 +851,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               body.wikipedia_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
             ]
           );
-        } catch {}
+        } catch { }
       }
       const idx = inMemoryPathologies.findIndex(p => p.id === id);
       if (idx !== -1) {
@@ -767,7 +865,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_pathologies WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryPathologies = inMemoryPathologies.filter(p => p.id !== id);
       saveJsonToDisk(pathologiesFilePath, inMemoryPathologies);
       return res.json({ success: true, message: 'Pathologie supprimée avec succès.' });
@@ -787,7 +885,7 @@ export async function handleAdminCms(req: Request, res: Response) {
           }));
           return res.json({ success: true, items });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryTraitements });
     }
 
@@ -844,7 +942,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               parseInt(body.display_order ?? 0, 10), body.is_active !== undefined ? parseInt(body.is_active, 10) : 1
             ]
           );
-        } catch {}
+        } catch { }
       }
       inMemoryTraitements.push({ ...body, id: newId, slug, sections: body.sections || [] });
       saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
@@ -900,7 +998,7 @@ export async function handleAdminCms(req: Request, res: Response) {
               body.cta_text_fr, body.cta_text_en, body.cta_url, parseInt(body.display_order ?? 0, 10), parseInt(body.is_active ?? 1, 10), id
             ]
           );
-        } catch {}
+        } catch { }
       }
       const idx = inMemoryTraitements.findIndex(t => t.id === id);
       if (idx !== -1) {
@@ -914,7 +1012,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_traitements WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryTraitements = inMemoryTraitements.filter(t => t.id !== id);
       saveJsonToDisk(traitementsFilePath, inMemoryTraitements);
       return res.json({ success: true, message: 'Traitement supprimé avec succès.' });
@@ -933,7 +1031,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             const cleanGallery = Array.isArray(rawGallery) && rawGallery.length > 0
               ? rawGallery.map((img: string, gIdx: number) => sanitizeCaseImage(img, gIdx))
               : [cleanCover, '/images/glowing_3d_spine.jpg', '/images/treatments/infiltrations_rachidiennes.jpg'];
-            
+
             const rawSections = typeof r.sections_json === 'string' ? JSON.parse(r.sections_json || '[]') : r.sections_json || [];
             const cleanSections = Array.isArray(rawSections) ? rawSections.map((s: any, sIdx: number) => ({
               ...s,
@@ -949,7 +1047,7 @@ export async function handleAdminCms(req: Request, res: Response) {
           });
           return res.json({ success: true, items });
         }
-      } catch {}
+      } catch { }
       return res.json({ success: true, items: inMemoryArticles });
     }
 
@@ -977,7 +1075,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             sectionsJson, body.tags || ''
           ]
         );
-      } catch {}
+      } catch { }
       inMemoryArticles.push({ ...body, id: newId, slug });
       saveJsonToDisk(articlesFilePath, inMemoryArticles);
       return res.json({ success: true, id: newId, message: 'Article créé avec succès.' });
@@ -1004,7 +1102,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             body.home_desc_fr || null, body.home_desc_en || null, sectionsJson, body.tags || '', id
           ]
         );
-      } catch {}
+      } catch { }
       const idx = inMemoryArticles.findIndex(a => a.id === id);
       if (idx !== -1) {
         inMemoryArticles[idx] = { ...inMemoryArticles[idx], ...body, id };
@@ -1017,7 +1115,7 @@ export async function handleAdminCms(req: Request, res: Response) {
       if (!id) return res.status(400).json({ success: false, error: 'ID manquant' });
       try {
         await executeQuery('DELETE FROM cms_articles WHERE id = ?', [id]);
-      } catch {}
+      } catch { }
       inMemoryArticles = inMemoryArticles.filter(a => a.id !== id);
       saveJsonToDisk(articlesFilePath, inMemoryArticles);
       return res.json({ success: true, message: 'Article supprimé avec succès.' });
@@ -1040,7 +1138,7 @@ export async function handleAdminCms(req: Request, res: Response) {
             content_en: typeof row.content_en === 'string' ? JSON.parse(row.content_en || '{}') : row.content_en,
           });
         }
-      } catch {}
+      } catch { }
 
       const pageData = inMemoryPages[pageKey] || { content_fr: {}, content_en: {} };
       return res.json({
@@ -1060,7 +1158,7 @@ export async function handleAdminCms(req: Request, res: Response) {
            ON DUPLICATE KEY UPDATE content_fr = VALUES(content_fr), content_en = VALUES(content_en)`,
           [pageKey, contentFrStr, contentEnStr]
         );
-      } catch {}
+      } catch { }
 
       inMemoryPages[pageKey] = {
         content_fr: body.content_fr || {},
@@ -1117,7 +1215,7 @@ export async function handleAdminCms(req: Request, res: Response) {
         const archive = archiver('zip', { zlib: { level: 9 } });
         archive.pipe(res);
 
-        archive.append(`ITID France — Sauvegarde Médias\nDate: ${new Date().toISOString()}\n`, { name: 'INFO_ARCHIVE_ITID.txt' });
+        archive.append(`ITID France || Sauvegarde Médias\nDate: ${new Date().toISOString()}\n`, { name: 'INFO_ARCHIVE_ITID.txt' });
 
         const uploadsPath = path.join(process.cwd(), 'public', 'uploads');
         if (fs.existsSync(uploadsPath)) {

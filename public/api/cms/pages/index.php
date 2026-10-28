@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — API Publique Pages Globales (Home, About, Formations)
+// ITID France || API Publique Pages Globales (Home, About, Formations)
 // ======================================================================
 
 require_once __DIR__ . '/../../db.php';

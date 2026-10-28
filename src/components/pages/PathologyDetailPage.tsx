@@ -6,6 +6,7 @@ import { ImageCarousel } from "../ui/ImageCarousel";
 import { PATHOLOGIES, DEFAULT_PATHOLOGIES } from "../../data";
 import { getCleanImageSrc, getCleanGallery, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 import RichContentRenderer from "../ui/RichContentRenderer";
+import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
 
 export function PathologyDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -233,7 +234,7 @@ export function PathologyDetailPage() {
 
               <div className="flex flex-wrap items-center gap-3">
                 <a
-                  href="https://www.doctolib.fr"
+                  href={DOCTOLIB_APPOINTMENT_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-[0_8px_20px_-4px_rgba(42,157,143,0.35)] hover:brightness-105 hover:scale-[1.01] transition-all flex items-center gap-2 cursor-pointer"
@@ -434,7 +435,7 @@ export function PathologyDetailPage() {
 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
-              href="https://www.doctolib.fr"
+              href={DOCTOLIB_APPOINTMENT_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-[0_8px_20px_rgba(72,202,228,0.4)] hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"

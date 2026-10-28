@@ -1,5 +1,5 @@
 /**
- * ITID France — Utilitaire Universel de Résilience et Normalisation des Médias
+ * ITID France || Utilitaire Universel de Résilience et Normalisation des Médias
  * Inspiré de la stratégie ultra-résistante de la section Cas Cliniques.
  * 
  * Garantit qu'AUCUNE image ni vidéo ne s'affiche jamais cassée ou sous forme d'écran noir,

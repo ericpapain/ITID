@@ -200,16 +200,15 @@ export async function handleTriggerCampaign(req: Request, res: Response) {
       const emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
           <div style="background: #0c1a2e; padding: 20px; text-align: center; border-bottom: 3px solid #2a9d8f;">
-            <h2 style="color: #ffffff; margin: 0; font-size: 18px;">ITID France — Nouvelle Publication</h2>
+            <h2 style="color: #ffffff; margin: 0; font-size: 18px;">ITID France || Nouvelle Publication</h2>
           </div>
           <div style="padding: 24px; color: #334155; line-height: 1.6;">
             <h3 style="color: #1a3a5c; margin-top: 0;">${escapeHtml(contentTitle)}</h3>
             <p>${escapeHtml(contentSummary || '')}</p>
-            ${
-              contentUrl
-                ? `<div style="margin: 24px 0;"><a href="${contentUrl}" style="padding: 12px 24px; background: #2a9d8f; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Lire l'article complet</a></div>`
-                : ''
-            }
+            ${contentUrl
+          ? `<div style="margin: 24px 0;"><a href="${contentUrl}" style="padding: 12px 24px; background: #2a9d8f; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Lire l'article complet</a></div>`
+          : ''
+        }
             <p style="margin-top: 30px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px;">
               Vous recevez ce message car vous êtes abonné(e) aux actualités d'ITID France.<br>
               <a href="${unsubUrl}" style="color: #2a9d8f;">Se désinscrire</a>
@@ -237,7 +236,7 @@ export async function handleTriggerCampaign(req: Request, res: Response) {
           'UPDATE newsletter_campaigns SET status = "sent", sent_at = NOW(), sent_count = ? WHERE id = ?',
           [sentCount, campaignId]
         );
-      } catch {}
+      } catch { }
     }
 
     return res.json({

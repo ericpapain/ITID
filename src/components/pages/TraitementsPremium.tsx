@@ -12,6 +12,7 @@ import { useIsMobile } from "../../hooks/useIsMobile";
 import bgVideo from "../../images/video_intervention_ITID.mp4";
 import { useTranslation } from "react-i18next";
 import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
+import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
 
 function TreatmentFrontFace({
   title,
@@ -133,7 +134,7 @@ function TreatmentBackFace({
         )}
 
         <a
-          href="https://www.doctolib.fr"
+          href={DOCTOLIB_APPOINTMENT_URL}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
@@ -403,7 +404,7 @@ export function TraitementsPremium() {
             </p>
             <div className="pt-2">
               <a
-                href="https://www.doctolib.fr"
+                href={DOCTOLIB_APPOINTMENT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-md hover:scale-105 transition-all cursor-pointer"

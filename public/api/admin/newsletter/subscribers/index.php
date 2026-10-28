@@ -1,6 +1,6 @@
 <?php
 // ======================================================================
-// ITID France — Administration des Abonnés Newsletter (PHP / LiteSpeed)
+// ITID France || Administration des Abonnés Newsletter (PHP / LiteSpeed)
 // GET: Liste & recherche | POST: Désinscription manuelle | CSV Export
 // ======================================================================
 
@@ -27,13 +27,13 @@ $pdo = getItidDb();
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="abonnes_newsletter_itid_' . date('Ymd_His') . '.csv"');
-    
+
     // BOM UTF-8 pour Excel
     echo "\xEF\xBB\xBF";
-    
+
     $out = fopen('php://output', 'w');
     fputcsv($out, ['ID', 'Date Inscription', 'Email', 'Prénom', 'Statut', 'Source']);
-    
+
     $stmt = $pdo->query("SELECT id, created_at, email, first_name, status, source FROM newsletter_subscribers ORDER BY created_at DESC");
     while ($row = $stmt->fetch()) {
         fputcsv($out, [
@@ -55,8 +55,8 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'unsubscribe') {
     $raw = file_get_contents('php://input');
     $body = json_decode($raw, true) ?: [];
-    
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : (int)($body['id'] ?? 0);
+
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : (int) ($body['id'] ?? 0);
 
     if (!$id) {
         http_response_code(400);
@@ -81,12 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
 // ----------------------------------------------------------------------
 // 3. Consultation paginée avec filtres (GET)
 // ----------------------------------------------------------------------
-$page = max(1, (int)($_GET['page'] ?? 1));
-$limit = min(100, max(1, (int)($_GET['limit'] ?? 20)));
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$limit = min(100, max(1, (int) ($_GET['limit'] ?? 20)));
 $offset = ($page - 1) * $limit;
 
-$statusFilter = isset($_GET['status']) ? trim((string)$_GET['status']) : '';
-$search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
+$statusFilter = isset($_GET['status']) ? trim((string) $_GET['status']) : '';
+$search = isset($_GET['search']) ? trim((string) $_GET['search']) : '';
 
 $where = ["1=1"];
 $params = [];
@@ -109,7 +109,7 @@ try {
     // Total
     $countStmt = $pdo->prepare("SELECT COUNT(*) AS total FROM newsletter_subscribers WHERE {$whereSql}");
     $countStmt->execute($params);
-    $total = (int)$countStmt->fetchColumn();
+    $total = (int) $countStmt->fetchColumn();
 
     // Données
     $dataSql = "
@@ -124,7 +124,7 @@ try {
     $rows = $dataStmt->fetchAll();
 
     foreach ($rows as &$r) {
-        $r['id'] = (int)$r['id'];
+        $r['id'] = (int) $r['id'];
     }
     unset($r);
 

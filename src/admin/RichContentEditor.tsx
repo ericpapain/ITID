@@ -27,9 +27,12 @@ import {
   X,
   ExternalLink,
   ChevronDown,
-  Palette
+  Palette,
+  Layers,
+  Type
 } from "lucide-react";
 import { RichContentRenderer } from "../components/ui/RichContentRenderer";
+import { SectionImportModal, ImportedSectionData } from "./SectionImportModal";
 
 interface RichContentEditorProps {
   value: string;
@@ -63,7 +66,35 @@ export function RichContentEditor({
   const [linkOpenNewTab, setLinkOpenNewTab] = useState(false);
 
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showSectionImportModal, setShowSectionImportModal] = useState(false);
   const [savedSelection, setSavedSelection] = useState<Range | null>(null);
+
+  const FONT_FAMILIES = [
+    { label: "Police standard", value: "inherit" },
+    { label: "Inter (Moderne & Net)", value: "'Inter', system-ui, sans-serif" },
+    { label: "Outfit (Titres & Prestige)", value: "'Outfit', sans-serif" },
+    { label: "Lora (Éditorial ITID)", value: "'Lora', Georgia, serif" },
+    { label: "Playfair Display (Élégant)", value: "'Playfair Display', Georgia, serif" },
+    { label: "Merriweather (Sérif Lecture)", value: "'Merriweather', serif" },
+    { label: "JetBrains Mono (Technique)", value: "'JetBrains Mono', monospace" },
+    { label: "Arial (Standard)", value: "Arial, sans-serif" },
+    { label: "Georgia (Classique)", value: "Georgia, serif" },
+  ];
+
+  const FONT_SIZES = [
+    { label: "11px - Très petite", value: "11px" },
+    { label: "12px - Légende", value: "12px" },
+    { label: "13px - Petite", value: "13px" },
+    { label: "14px - Compacte", value: "14px" },
+    { label: "15px - Normale", value: "15px" },
+    { label: "16px - Aérée", value: "16px" },
+    { label: "18px - Grande", value: "18px" },
+    { label: "20px - Très grande", value: "20px" },
+    { label: "24px - Sous-titre H3", value: "24px" },
+    { label: "28px - Titre H2", value: "28px" },
+    { label: "32px - Titre H1", value: "32px" },
+    { label: "36px - Titre Majeur", value: "36px" },
+  ];
 
   // Available CMS items for linking
   const [traitementsList, setTraitementsList] = useState<{ slug: string; title: string }[]>([]);
@@ -183,20 +214,79 @@ export function RichContentEditor({
     setShowColorPicker(false);
   };
 
-  const applyTextSize = (sizePx: string) => {
+  const applyFontFamily = (family: string) => {
     restoreSavedSelection();
-    // Wrap selection with styled span
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) return;
     const range = sel.getRangeAt(0);
-    const span = document.createElement("span");
-    span.style.fontSize = sizePx;
-    try {
-      range.surroundContents(span);
-    } catch {
-      document.execCommand("fontSize", false, "3");
+
+    if (range.collapsed) {
+      document.execCommand("fontName", false, family);
+    } else {
+      const span = document.createElement("span");
+      span.style.fontFamily = family;
+      try {
+        const fragment = range.extractContents();
+        span.appendChild(fragment);
+        range.insertNode(span);
+        sel.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        sel.addRange(newRange);
+      } catch {
+        document.execCommand("fontName", false, family);
+      }
     }
     handleEditorInput();
+  };
+
+  const applyTextSize = (sizePx: string) => {
+    restoreSavedSelection();
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+
+    if (range.collapsed) {
+      document.execCommand("fontSize", false, "3");
+    } else {
+      const span = document.createElement("span");
+      span.style.fontSize = sizePx;
+      try {
+        const fragment = range.extractContents();
+        span.appendChild(fragment);
+        range.insertNode(span);
+        sel.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        sel.addRange(newRange);
+      } catch {
+        document.execCommand("fontSize", false, "3");
+      }
+    }
+    handleEditorInput();
+  };
+
+  const handleImportSectionIntoEditor = (sec: ImportedSectionData) => {
+    restoreSavedSelection();
+    const title = sec.title_fr || sec.title || "";
+    const text = sec.text_fr || sec.text || "";
+    const badge = sec.badge || "";
+    const image = sec.image || "";
+
+    const html = `
+<div class="my-5 p-5 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-sm space-y-3" data-imported-section="true">
+  ${badge ? `<span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30">${badge}</span>` : ""}
+  ${title ? `<h3 class="text-lg md:text-xl font-bold text-white mt-1">${title}</h3>` : ""}
+  ${image ? `<div class="rounded-xl overflow-hidden my-3 max-h-72 border border-white/10"><img src="${image}" alt="${title}" class="w-full h-full object-cover" /></div>` : ""}
+  <div class="text-sm leading-relaxed text-slate-200">${text}</div>
+</div><p><br></p>`;
+
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+    document.execCommand("insertHTML", false, html);
+    handleEditorInput();
+    setShowSectionImportModal(false);
   };
 
   // -------------------------------------------------------------
@@ -454,16 +544,34 @@ export function RichContentEditor({
               <option value="h3">Sous-titre (H3)</option>
             </select>
 
+            {/* Polices de caractères */}
+            <select
+              onMouseDown={saveCurrentSelection}
+              onChange={(e) => applyFontFamily(e.target.value)}
+              defaultValue="inherit"
+              className="bg-slate-800 border border-slate-700 text-white rounded px-2 py-1 text-xs outline-none cursor-pointer"
+              title="Police de caractères"
+            >
+              {FONT_FAMILIES.map((f) => (
+                <option key={f.value} value={f.value} style={{ fontFamily: f.value !== "inherit" ? f.value : undefined }}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+
             {/* Tailles de police */}
             <select
+              onMouseDown={saveCurrentSelection}
               onChange={(e) => applyTextSize(e.target.value)}
               defaultValue="15px"
               className="bg-slate-800 border border-slate-700 text-white rounded px-2 py-1 text-xs outline-none cursor-pointer"
+              title="Taille de la police"
             >
-              <option value="13px">Taille : Petite (13px)</option>
-              <option value="15px">Taille : Normale (15px)</option>
-              <option value="18px">Taille : Grande (18px)</option>
-              <option value="22px">Taille : Très grande (22px)</option>
+              {FONT_SIZES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
             </select>
 
             <div className="h-4 w-px bg-slate-700 mx-1" />
@@ -627,6 +735,20 @@ export function RichContentEditor({
             >
               <TableIcon size={13} />
               <span>Tableau</span>
+            </button>
+
+            {/* Importer Section */}
+            <button
+              type="button"
+              onClick={() => {
+                saveCurrentSelection();
+                setShowSectionImportModal(true);
+              }}
+              className="px-2.5 py-1 bg-gradient-to-r from-teal-950/70 to-emerald-950/70 hover:from-teal-900 hover:to-emerald-900 border border-[#2a9d8f]/50 text-[#48cae4] hover:text-white rounded-lg transition-all flex items-center gap-1.5 font-semibold cursor-pointer shadow-sm"
+              title="Importer et insérer une section complète d'un article, traitement ou pathologie"
+            >
+              <Layers size={13} />
+              <span>📥 Importer Section</span>
             </button>
 
             {/* Menu contextuel rapide si tableau sélectionné */}
@@ -1045,6 +1167,15 @@ export function RichContentEditor({
           </div>
         </div>
       )}
+
+      {/* MODAL 3 : INJECTION / IMPORT DE SECTION D'ARTICLE OU CONTENU */}
+      <SectionImportModal
+        isOpen={showSectionImportModal}
+        onClose={() => setShowSectionImportModal(false)}
+        onImport={handleImportSectionIntoEditor}
+        title="Insérer le contenu d'une section"
+        subtitle="Choisissez un article, une pathologie ou un traitement pour injecter une section dans votre texte."
+      />
     </div>
   );
 }

@@ -90,8 +90,8 @@ export async function sendContactNotification(data: ContactNotificationPayload):
         <h4 style="margin: 0 0 8px 0; color: #1a3a5c; font-size: 13px;">Détails complémentaires :</h4>
         <ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #475569;">
           ${Object.entries(data.metadata)
-            .map(([k, v]) => `<li><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(v))}</li>`)
-            .join('')}
+        .map(([k, v]) => `<li><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(v))}</li>`)
+        .join('')}
         </ul>
       </div>
     `;
@@ -100,7 +100,7 @@ export async function sendContactNotification(data: ContactNotificationPayload):
   const html = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
       <div style="background: #0c1a2e; padding: 24px; text-align: center; border-bottom: 3px solid #2a9d8f;">
-        <h2 style="color: #ffffff; margin: 0; font-size: 20px; letter-spacing: 0.5px;">ITID France — Nouvelle Demande</h2>
+        <h2 style="color: #ffffff; margin: 0; font-size: 20px; letter-spacing: 0.5px;">ITID France || Nouvelle Demande</h2>
         <span style="display: inline-block; margin-top: 6px; padding: 3px 10px; background: #2a9d8f; color: #ffffff; font-size: 11px; font-weight: bold; border-radius: 20px; text-transform: uppercase;">
           ${safeForm}
         </span>
