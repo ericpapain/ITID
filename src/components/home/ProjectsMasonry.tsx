@@ -491,7 +491,7 @@ export function ProjectsMasonry() {
     if (isPaused || activeLightboxIndex !== null || displayList.length <= 1) return;
     const interval = setInterval(() => {
       handleNext();
-    }, 4500);
+    }, 2000);
     return () => clearInterval(interval);
   }, [displayList.length, isPaused, activeLightboxIndex]);
 

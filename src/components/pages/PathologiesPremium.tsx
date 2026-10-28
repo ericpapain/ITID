@@ -84,7 +84,7 @@ export function PathologiesPremium() {
     if (isPaused || selectedItem !== null || items.length <= 1) return;
     const interval = setInterval(() => {
       handleNext();
-    }, 4500);
+    }, 2000);
     return () => clearInterval(interval);
   }, [items.length, isPaused, selectedItem]);
 

@@ -3,9 +3,10 @@ import { z } from 'zod';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { executeQuery, isConnected } from '../config/db';
-import { sendContactNotification } from '../config/mail';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const MESSAGES_FILE = path.join(__dirname, '../data/contact_messages.json');
 
 function getLocalMessages(): any[] {
