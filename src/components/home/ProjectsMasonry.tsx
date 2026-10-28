@@ -65,7 +65,7 @@ function ActiveSliderCard({ item, index = 0, onExpand, isDraggingRef, hasTreatme
 
   return (
     <div
-      className="relative w-[300px] h-[480px] md:w-[400px] md:h-[600px] shrink-0 pointer-events-auto select-none"
+      className="relative w-[290px] h-[460px] md:w-[360px] md:h-[520px] shrink-0 pointer-events-auto select-none"
       style={{ perspective: 1400 }}
     >
       <div
@@ -435,26 +435,35 @@ export function ProjectsMasonry() {
     };
   });
 
-  const maxLimit = -Math.max(0, (displayList.length - 1) * 430);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const isMobile = useIsMobile();
   const videoRef = useRef<HTMLVideoElement>(null);
   const { displayedText, showCursor, ref: typeRef } = useTypewriter(t('masonry.title1') + t('masonry.title2'));
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollX = useMotionValue(0);
-  const springScroll = useSpring(scrollX, { stiffness: 100, damping: 20 });
 
-  // Écouteur clavier Échap et Flèches pour la modale Lightbox
+  const cardWidth = isMobile ? 290 : 360;
+  const cardGap = 24;
+  const cardStep = cardWidth + cardGap;
+
+  // Écouteur clavier Échap et Flèches pour la modale Lightbox ou navigation slider
   useEffect(() => {
-    if (activeLightboxIndex === null) return;
-
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setActiveLightboxIndex(null);
-      } else if (e.key === "ArrowLeft") {
-        setActiveLightboxIndex((prev) => (prev! > 0 ? prev! - 1 : displayList.length - 1));
-      } else if (e.key === "ArrowRight") {
-        setActiveLightboxIndex((prev) => (prev! < displayList.length - 1 ? prev! + 1 : 0));
+      if (activeLightboxIndex !== null) {
+        if (e.key === "Escape") {
+          setActiveLightboxIndex(null);
+        } else if (e.key === "ArrowLeft") {
+          setActiveLightboxIndex((prev) => (prev! > 0 ? prev! - 1 : displayList.length - 1));
+        } else if (e.key === "ArrowRight") {
+          setActiveLightboxIndex((prev) => (prev! < displayList.length - 1 ? prev! + 1 : 0));
+        }
+      } else {
+        if (e.key === "ArrowLeft") {
+          handlePrev();
+        } else if (e.key === "ArrowRight") {
+          handleNext();
+        }
       }
     }
 
@@ -469,65 +478,34 @@ export function ProjectsMasonry() {
     }
   }, []);
 
-  // Velocity-based skew effect
-  const skewX = useTransform(springScroll, (v) => {
-    const vel = springScroll.getVelocity();
-    return Math.max(-15, Math.min(15, vel * -0.005)) + "deg";
-  });
-
-  const scale = useTransform(springScroll, (v) => {
-    const vel = Math.abs(springScroll.getVelocity());
-    return Math.max(0.9, 1 - vel * 0.0001);
-  });
-
-  const handleDragStart = () => {
-    isDraggingRef.current = true;
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + displayList.length) % displayList.length);
   };
 
-  const handleDrag = (e: any, info: PanInfo) => {
-    isDraggingRef.current = true;
-    scrollX.set(scrollX.get() + info.delta.x);
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % displayList.length);
   };
 
-  const handleDragEnd = (e: any, info: PanInfo) => {
-    const current = scrollX.get();
-    const velocity = info.velocity.x;
+  // Circulation automatique calme carte par carte (en boucle) avec pause au survol
+  useEffect(() => {
+    if (isPaused || activeLightboxIndex !== null || displayList.length <= 1) return;
+    const interval = setInterval(() => {
+      handleNext();
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [displayList.length, isPaused, activeLightboxIndex]);
 
-    let target = current + velocity * 0.2; // Inertia
-    if (target > 0) target = 0;
-    if (target < maxLimit) target = maxLimit;
-
-    scrollX.set(target);
-
-    // Réinitialiser isDragging après un court délai pour éviter les faux clics
+  const handleDragEnd = (_e: any, info: PanInfo) => {
+    const threshold = 35;
+    if (info.offset.x < -threshold) {
+      handleNext();
+    } else if (info.offset.x > threshold) {
+      handlePrev();
+    }
     setTimeout(() => {
       isDraggingRef.current = false;
     }, 60);
   };
-
-  const handlePrev = () => {
-    const current = scrollX.get();
-    let target = current + 450;
-    if (target > 0) target = 0;
-    scrollX.set(target);
-  };
-
-  const handleNext = () => {
-    const current = scrollX.get();
-    let target = current - 450;
-    if (target < maxLimit) target = 0;
-    scrollX.set(target);
-  };
-
-  // Défilement automatique périodique
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isDraggingRef.current && activeLightboxIndex === null) {
-        handleNext();
-      }
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [maxLimit, activeLightboxIndex]);
 
   const title1Len = t('masonry.title1').length;
   const currentModalItem = activeLightboxIndex !== null ? displayList[activeLightboxIndex] : null;
@@ -549,7 +527,7 @@ export function ProjectsMasonry() {
       </div>
 
       <div className="py-16 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10 pointer-events-none">
+        <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10 pointer-events-none">
           <div>
             <h2 ref={typeRef} className="text-5xl md:text-7xl font-bold text-[#1a3a5c] min-h-[1.2em]" style={{ fontFamily: "var(--font-display)" }}>
               {displayedText.substring(0, title1Len)}
@@ -567,55 +545,95 @@ export function ProjectsMasonry() {
           </ShimmerButton>
         </div>
 
-        <div className="relative w-full h-[520px] md:h-[650px]" ref={containerRef}>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 opacity-[0.03] pointer-events-none text-[10rem] md:text-[15rem] font-bold text-[#1a3a5c] tracking-widest" style={{ fontFamily: "var(--font-display)" }}>
-            DRAG
-          </div>
-
-          {/* Boutons de navigation gauche / droite du slider */}
-          <div className="absolute top-1/2 left-4 right-4 md:left-8 md:right-8 flex justify-between z-20 pointer-events-none -translate-y-1/2">
+        {/* Conteneur Carrousel sans ondulation, circulation carte par carte */}
+        <div
+          className="relative w-full overflow-hidden py-4"
+          ref={containerRef}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Boutons de navigation gauche / droite */}
+          <div className="absolute top-1/2 left-4 right-4 md:left-8 md:right-8 flex justify-between z-30 pointer-events-none -translate-y-1/2">
             <button
+              type="button"
               onClick={handlePrev}
               aria-label="Cas précédent"
-              className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/30 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#1a3a5c] pointer-events-auto hover:bg-white/60 hover:scale-110 transition-all shadow-xl cursor-pointer"
+              className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-slate-900/80 hover:bg-[#2a9d8f] text-white border border-white/20 backdrop-blur-md flex items-center justify-center pointer-events-auto hover:scale-105 transition-all shadow-xl cursor-pointer"
             >
-              <span className="text-xl md:text-2xl font-bold">←</span>
+              <ChevronLeft size={26} />
             </button>
             <button
+              type="button"
               onClick={handleNext}
               aria-label="Cas suivant"
-              className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/30 backdrop-blur-md border border-white/40 flex items-center justify-center text-[#1a3a5c] pointer-events-auto hover:bg-white/60 hover:scale-110 transition-all shadow-xl cursor-pointer"
+              className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-slate-900/80 hover:bg-[#2a9d8f] text-white border border-white/20 backdrop-blur-md flex items-center justify-center pointer-events-auto hover:scale-105 transition-all shadow-xl cursor-pointer"
             >
-              <span className="text-xl md:text-2xl font-bold">→</span>
+              <ChevronRight size={26} />
             </button>
           </div>
 
-          {/* Slider défilant interactif avec Cartes Flip */}
-          <motion.div
-            drag="x"
-            dragElastic={0.1}
-            dragConstraints={{ left: maxLimit, right: 0 }}
-            onDragStart={handleDragStart}
-            onDrag={handleDrag}
-            onDragEnd={handleDragEnd}
-            style={{ x: springScroll }}
-            className="absolute left-[10%] top-0 flex gap-8 cursor-grab active:cursor-grabbing z-10 px-10"
-          >
-            {displayList.map((item, idx) => {
-              const hasTreatmentDesc = Boolean(item.traitement_slug && treatmentsWithDesc.has(item.traitement_slug.toLowerCase().trim()));
-              return (
-                <motion.div key={item.id || idx} style={{ skewX, scale }}>
-                  <ActiveSliderCard
-                    item={item}
-                    index={idx}
-                    onExpand={() => setActiveLightboxIndex(idx)}
-                    isDraggingRef={isDraggingRef}
-                    hasTreatmentDescription={hasTreatmentDesc}
-                  />
-                </motion.div>
-              );
-            })}
-          </motion.div>
+          {/* Track de défilement centré carte par carte */}
+          <div className="w-full flex items-center justify-center overflow-visible">
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.15}
+              onDragStart={() => { isDraggingRef.current = true; }}
+              onDragEnd={handleDragEnd}
+              animate={{ x: `calc(50% - ${cardWidth / 2}px - ${currentIndex * cardStep}px)` }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              className="flex gap-6 cursor-grab active:cursor-grabbing z-10 py-6"
+            >
+              {displayList.map((item, idx) => {
+                const isActive = idx === currentIndex;
+                const hasTreatmentDesc = Boolean(item.traitement_slug && treatmentsWithDesc.has(item.traitement_slug.toLowerCase().trim()));
+                return (
+                  <motion.div
+                    key={item.id || idx}
+                    animate={{
+                      scale: isActive ? 1 : 0.94,
+                      opacity: isActive ? 1 : 0.65
+                    }}
+                    transition={{ duration: 0.35 }}
+                    onClick={() => {
+                      if (!isActive) setCurrentIndex(idx);
+                    }}
+                    className="shrink-0 transition-all duration-300 rounded-3xl"
+                  >
+                    <ActiveSliderCard
+                      item={item}
+                      index={idx}
+                      onExpand={() => setActiveLightboxIndex(idx)}
+                      isDraggingRef={isDraggingRef}
+                      hasTreatmentDescription={hasTreatmentDesc}
+                    />
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </div>
+
+          {/* Pagination & Indicateurs carte par carte */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 z-20 relative">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#1a3a5c] bg-white/70 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
+              Cas {currentIndex + 1} / {displayList.length}
+            </span>
+            <div className="flex items-center gap-1.5 bg-slate-900/40 backdrop-blur-md p-1.5 rounded-full border border-white/10">
+              {displayList.map((_, dotIdx) => (
+                <button
+                  key={dotIdx}
+                  type="button"
+                  onClick={() => setCurrentIndex(dotIdx)}
+                  aria-label={`Aller au cas ${dotIdx + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                    dotIdx === currentIndex
+                      ? "w-8 bg-[#2a9d8f]"
+                      : "w-2 bg-white/40 hover:bg-white/80"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
