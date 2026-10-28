@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from "framer-motion";
 import { User, Mail, Phone, RotateCcw } from "lucide-react";
 import { SpotlightInput } from "../ui/SpotlightInput";
 import { ShimmerButton } from "../ui/ShimmerButton";
@@ -6,9 +7,26 @@ import { useContactForm } from "../../hooks/useContactForm";
 import { useTranslation } from "react-i18next";
 import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
 
+export const URGENT_CONDITIONS = [
+  "Algodystrophie",
+  "Douleurs liées au cancer",
+  "Lumbago aigu",
+  "Sciatique récente hyperalgique",
+  "Crise d'algie vasculaire de la face",
+  "Infiltrations lombaires",
+  "Infiltrations cervicales",
+  "Infiltrations de l'épaule",
+  "Infiltrations du genou",
+  "Infiltrations articulaires",
+];
+
 export function ContactSection() {
   const { t } = useTranslation();
   const { formData, setFormData, sent, loading, error, handleSubmit, resetForm } = useContactForm();
+
+  const isUrgent = Boolean(
+    formData.subject && (formData.subject.includes("urgent") || formData.subject.includes("Urgent") || formData.subject.includes("🚨"))
+  );
 
   return (
     <section id="contact" className="relative py-12 overflow-hidden" style={{ background: "var(--background)" }}>
@@ -148,7 +166,15 @@ export function ContactSection() {
                     required
                     className="w-full px-3.5 py-3 rounded-xl text-sm outline-none cursor-pointer bg-white text-[#1a3a5c] font-medium border border-slate-300 focus:border-[#2a9d8f] focus:ring-2 focus:ring-[#2a9d8f]/20 shadow-sm transition-all"
                     value={formData.subject}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, subject: e.target.value }))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const isNowUrgent = val.includes("urgent") || val.includes("Urgent") || val.includes("🚨");
+                      setFormData((prev) => ({
+                        ...prev,
+                        subject: val,
+                        urgentCondition: isNowUrgent ? prev.urgentCondition : "",
+                      }));
+                    }}
                   >
                     <option value={t('contact.subjects.urgent')}>{t('contact.subjects.urgent')}</option>
                     <option value={t('contact.subjects.firstConsult')}>{t('contact.subjects.firstConsult')}</option>
@@ -161,6 +187,75 @@ export function ContactSection() {
                   </select>
                 </div>
               </div>
+
+              {/* Menu interactif pour distinguer et choisir les pathologies urgentes */}
+              <AnimatePresence>
+                {isUrgent && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, y: -8 }}
+                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    transition={{ duration: 0.25 }}
+                    className="rounded-2xl p-4 bg-gradient-to-br from-red-50/95 via-amber-50/90 to-red-50/95 border-2 border-red-300 shadow-md space-y-3 overflow-hidden text-left"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-red-700 font-bold text-xs sm:text-sm">
+                        <span className="relative flex h-3 w-3 shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+                        </span>
+                        <span>Précisez votre motif d'urgence médicale :</span>
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider bg-red-600 text-white px-2.5 py-0.5 rounded-full shadow-xs shrink-0">
+                        Prioritaire
+                      </span>
+                    </div>
+
+                    {/* Menu déroulant obligatoire */}
+                    <div>
+                      <select
+                        required
+                        className="w-full px-3.5 py-3 rounded-xl text-sm outline-none cursor-pointer bg-white text-[#1a3a5c] font-semibold border-2 border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 shadow-sm transition-all"
+                        value={formData.urgentCondition || ""}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, urgentCondition: e.target.value }))}
+                      >
+                        <option value="">-- Sélectionnez votre pathologie ou geste urgent --</option>
+                        {URGENT_CONDITIONS.map((cond) => (
+                          <option key={cond} value={cond} className="text-[#1a3a5c] font-medium">
+                            🚨 {cond}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Puces cliquables rapides ("le patient clique sur sa patho") */}
+                    <div>
+                      <p className="text-[11px] text-red-800/80 mb-2 font-medium">
+                        Ou cliquez directement sur la pathologie / geste concerné :
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {URGENT_CONDITIONS.map((cond) => {
+                          const isSelected = formData.urgentCondition === cond;
+                          return (
+                            <button
+                              key={cond}
+                              type="button"
+                              onClick={() => setFormData((prev) => ({ ...prev, urgentCondition: cond }))}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                                isSelected
+                                  ? "bg-red-600 text-white shadow-md border border-red-700 scale-102 font-bold"
+                                  : "bg-white hover:bg-red-50 text-[#1a3a5c] border border-red-200 hover:border-red-400"
+                              }`}
+                            >
+                              {cond} {isSelected && "✓"}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="space-y-3">
                 {[
