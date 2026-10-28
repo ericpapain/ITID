@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
 
 interface ChatMessage {
   role: "bot" | "user";
@@ -202,7 +203,7 @@ export function ChatBot() {
 
   const handleActionClick = (action: NonNullable<ChatMessage["action"]>) => {
     if (action.type === "doctolib") {
-      window.open("https://www.doctolib.fr", "_blank", "noopener,noreferrer");
+      window.open(DOCTOLIB_APPOINTMENT_URL, "_blank", "noopener,noreferrer");
     } else if (action.type === "route" && action.target) {
       setOpen(false);
       navigate(action.target);

@@ -35,7 +35,7 @@ export function EquipePanorama() {
     : [];
 
   return (
-    <section className="relative py-16 overflow-hidden bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f2] to-[#dcece9] text-[#1a3a5c]">
+    <section className="relative py-10 md:py-12 overflow-hidden bg-gradient-to-br from-[#f0f7f6] via-[#e8f4f2] to-[#dcece9] text-[#1a3a5c]">
       {/* Background Parallax & Glow */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <video
@@ -54,43 +54,42 @@ export function EquipePanorama() {
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* Header Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8 md:mb-10"
         >
-
-          <h2 ref={typeRef} className="text-5xl md:text-6xl font-bold min-h-[1.2em]" style={{ fontFamily: "var(--font-display)" }}>
+          <h2 ref={typeRef} className="text-4xl md:text-5xl font-bold min-h-[1.2em]" style={{ fontFamily: "var(--font-display)" }}>
             {displayedText.substring(0, 11)}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a9d8f] via-[#21867a] to-[#48cae4]">
               {displayedText.substring(11)}
             </span>
             <span className={`inline-block w-[4px] md:w-[6px] h-[0.9em] bg-[#1a3a5c] align-middle ml-2 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-75`} />
           </h2>
-          <p className="mt-4 text-gray-600 text-sm sm:text-base max-w-xl mx-auto font-light">
+          <p className="mt-2 text-gray-600 text-xs sm:text-sm max-w-xl mx-auto font-light">
             {t("team.subtitle", "Cliquez sur le bouton « Découvrir » d'une pile pour ouvrir sa fiche détaillée.")}
           </p>
         </motion.div>
 
         {/* 3 Columns Layout (Fixed & Stable Grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {CATEGORIES.map((cat) => {
             const roles = TEAM_ROLES.filter((item) => item.category === cat.id);
 
             return (
               <div key={cat.id} className="flex flex-col col-span-1">
                 {/* Category Header Bar */}
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#2a9d8f]/20">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl p-2.5 rounded-2xl bg-white/50 border border-[#2a9d8f]/20 shadow-sm">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#2a9d8f]/20">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl p-2 rounded-xl bg-white/50 border border-[#2a9d8f]/20 shadow-xs">
                       {cat.icon}
                     </span>
                     <div>
-                      <h3 className="text-2xl font-bold text-[#1a3a5c] leading-snug" style={{ fontFamily: "var(--font-display)" }}>
+                      <h3 className="text-lg md:text-xl font-bold text-[#1a3a5c] leading-snug" style={{ fontFamily: "var(--font-display)" }}>
                         {t(cat.titleKey, cat.title)}
                       </h3>
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30">
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30">
                         {roles.length > 1 ? t("team.members_other", { count: roles.length }) : t("team.members_one", { count: roles.length })}
                       </span>
                     </div>
@@ -99,34 +98,34 @@ export function EquipePanorama() {
                   <button
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg interactive bg-[#2a9d8f] text-white hover:bg-[#21867a] shadow-[0_0_20px_rgba(42,157,143,0.4)]"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all shadow-md interactive bg-[#2a9d8f] text-white hover:bg-[#21867a]"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3.5 h-3.5" />
                     {t("team.discoverCount", { count: roles.length, defaultValue: `Découvrir (${roles.length})` })}
                   </button>
                 </div>
 
-                {/* 3D CARD STACK PREVIEW */}
+                {/* 3D CARD STACK PREVIEW - HAUTEUR RÉDUITE */}
                 <div
                   onClick={() => setSelectedCategory(cat)}
                   onMouseEnter={() => setHoveredCategory(cat.id)}
                   onMouseLeave={() => setHoveredCategory(null)}
-                  className="relative h-[440px] w-full cursor-pointer group card-hover-highlight select-none"
+                  className="relative h-[290px] md:h-[310px] w-full cursor-pointer group card-hover-highlight select-none"
                 >
                   {roles.map((item, idx) => {
                     if (idx >= 3) return null;
 
                     const isHovered = hoveredCategory === cat.id;
-                    const offset = isHovered ? idx * 45 : idx * 16;
-                    const scaleVal = isHovered ? 1 - idx * 0.02 : 1 - idx * 0.05;
-                    const rotateDeg = isHovered ? (idx === 1 ? 6 : idx === 2 ? -6 : 0) : (idx === 1 ? 3 : idx === 2 ? -3 : 0);
+                    const offset = isHovered ? idx * 24 : idx * 10;
+                    const scaleVal = isHovered ? 1 - idx * 0.02 : 1 - idx * 0.04;
+                    const rotateDeg = isHovered ? (idx === 1 ? 4 : idx === 2 ? -4 : 0) : (idx === 1 ? 2 : idx === 2 ? -2 : 0);
                     const zIdx = 30 - idx * 10;
                     const opacityVal = 1 - idx * 0.15;
 
                     return (
                       <div
                         key={item.role + idx}
-                        className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${cat.gradient} backdrop-blur-xl border border-white/40 p-8 flex flex-col justify-between overflow-hidden shadow-2xl transition-all duration-500 group-hover:border-[#2a9d8f]/50 group-hover:shadow-[0_20px_40px_rgba(42,157,143,0.3)]`}
+                        className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${cat.gradient} backdrop-blur-xl border border-white/40 p-5 md:p-6 flex flex-col justify-between overflow-hidden shadow-xl transition-all duration-400 group-hover:border-[#2a9d8f]/50 group-hover:shadow-[0_15px_30px_rgba(42,157,143,0.25)]`}
                         style={{
                           top: `${offset}px`,
                           transform: `scale(${scaleVal}) rotate(${rotateDeg}deg)`,
@@ -137,21 +136,21 @@ export function EquipePanorama() {
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/90 pointer-events-none" />
 
                         <div className="flex justify-between items-start z-10">
-                          <span className="text-5xl opacity-80 group-hover:scale-110 transition-transform duration-500">
+                          <span className="text-3xl md:text-4xl opacity-80 group-hover:scale-105 transition-transform duration-300">
                             {item.icon}
                           </span>
                           {idx === 0 && (
-                            <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30">
+                            <span className="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#2a9d8f]/20 text-[#48cae4] border border-[#2a9d8f]/30">
                               {t("team.topOfStack", "Sommet de pile")}
                             </span>
                           )}
                         </div>
 
                         <div className="relative z-10 mt-auto">
-                          <h4 className="text-2xl font-bold text-[#1a3a5c] mb-3 leading-snug">
+                          <h4 className="text-lg md:text-xl font-bold text-[#1a3a5c] mb-1.5 leading-snug">
                             {t(item.role)}
                           </h4>
-                          <p className="text-sm text-gray-700 line-clamp-3 leading-relaxed font-light">
+                          <p className="text-xs md:text-sm text-gray-700 line-clamp-2 sm:line-clamp-3 leading-relaxed font-light">
                             {t(item.detail)}
                           </p>
                         </div>

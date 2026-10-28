@@ -2322,7 +2322,7 @@ function HomePageEditor({ dataFr, dataEn, onChangeFr, onChangeEn, lang }: any) {
             <label className="block text-slate-300 font-semibold mb-1">Lien Bouton Doctolib</label>
             <input
               type="text"
-              value={activeData.heroBtn1Url || "https://www.doctolib.fr"}
+              value={activeData.heroBtn1Url || "https://www.doctolib.fr/anesthesiste/troyes/jerry-ngong?pid=practice-798344&phs=true&page=1&index=1"}
               onChange={(e) => onChange({ heroBtn1Url: e.target.value })}
               className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
             />

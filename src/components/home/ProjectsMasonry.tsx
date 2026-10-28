@@ -527,7 +527,7 @@ export function ProjectsMasonry() {
       </div>
 
       <div className="py-16 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10 pointer-events-none">
+        <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-20">
           <div>
             <h2 ref={typeRef} className="text-5xl md:text-7xl font-bold text-[#1a3a5c] min-h-[1.2em]" style={{ fontFamily: "var(--font-display)" }}>
               {displayedText.substring(0, title1Len)}
@@ -537,12 +537,15 @@ export function ProjectsMasonry() {
               <span className={`inline-block w-[4px] md:w-[6px] h-[0.9em] bg-[#1a3a5c] align-middle ml-2 ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-75`} />
             </h2>
           </div>
-          <ShimmerButton
-            as="Link"
-            to="/traitements"
-          >
-            {t('masonry.discoverMore', 'Tous les Traitements')} <span className="text-xl ml-1">→</span>
-          </ShimmerButton>
+          <div className="pointer-events-auto">
+            <ShimmerButton
+              as="Link"
+              to="/traitements"
+              data-discover="true"
+            >
+              {t('masonry.discoverMore', 'Découvrir plus')} <span className="text-xl ml-1">→</span>
+            </ShimmerButton>
+          </div>
         </div>
 
         {/* Conteneur Carrousel sans ondulation, circulation carte par carte */}

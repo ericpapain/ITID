@@ -9,6 +9,7 @@ import { NoiseGradient } from "../ui/NoiseGradient";
 import { useTranslation } from "react-i18next";
 import { HeroMediaItem, extractYouTubeId, getYouTubeEmbedUrl } from "../../utils/mediaUtils";
 import { getCleanImageSrc, getCleanVideoSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
+import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
 
 const DEFAULT_HERO_MEDIA: HeroMediaItem[] = [
   {
@@ -139,7 +140,9 @@ export function HeroPremium() {
   const text2 = homeCms?.heroTitle2 || t('hero.title2');
   const subtitle = homeCms?.heroSubtitle || t('hero.subtitle');
   const btn1Text = homeCms?.heroBtn1 || t('buttons.bookAppointment');
-  const btn1Url = homeCms?.heroBtn1Url || "https://www.doctolib.fr";
+  const btn1Url = (!homeCms?.heroBtn1Url || homeCms.heroBtn1Url.includes("doctolib.fr"))
+    ? DOCTOLIB_APPOINTMENT_URL
+    : homeCms.heroBtn1Url;
 
   const [displayedText1, setDisplayedText1] = useState("");
   const [displayedText2, setDisplayedText2] = useState("");

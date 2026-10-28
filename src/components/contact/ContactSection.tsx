@@ -4,6 +4,7 @@ import { ShimmerButton } from "../ui/ShimmerButton";
 import { BackgroundBeams } from "../animations/BackgroundBeams";
 import { useContactForm } from "../../hooks/useContactForm";
 import { useTranslation } from "react-i18next";
+import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
 
 export function ContactSection() {
   const { t } = useTranslation();
@@ -72,7 +73,7 @@ export function ContactSection() {
           </div>
 
           <a
-            href="https://www.doctolib.fr"
+            href={DOCTOLIB_APPOINTMENT_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-bold text-white transition-opacity hover:opacity-90"
