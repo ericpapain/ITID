@@ -393,12 +393,12 @@ export function TreatmentDetailPage() {
                 {descBack}
               </p>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 <a
                   href={DOCTOLIB_APPOINTMENT_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-[0_8px_20px_-4px_rgba(42,157,143,0.35)] hover:brightness-105 hover:scale-[1.01] transition-all flex items-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#2a9d8f] to-[#48cae4] text-[#0c1a2e] font-bold text-sm shadow-[0_8px_20px_-4px_rgba(42,157,143,0.35)] hover:brightness-105 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
                 >
                   <Calendar size={17} />
                   <span>{t("buttons.bookAppointment", "Prendre rendez-vous pour ce geste")}</span>
@@ -406,7 +406,7 @@ export function TreatmentDetailPage() {
 
                 <Link
                   to="/pathologies"
-                  className="px-4 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-[#1a3a5c] border border-slate-200/90 text-sm font-semibold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-[#1a3a5c] border border-slate-200/90 text-sm font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
                 >
                   <span>{t("treatments.viewPathologies", "Pathologies traitées")}</span>
                   <ArrowRight size={15} />
@@ -415,7 +415,7 @@ export function TreatmentDetailPage() {
             </div>
 
             {/* Colonne Droite : Carrousel Multi-Photos */}
-            <div className="lg:col-span-5 h-64 sm:h-72 lg:h-[350px] rounded-2xl overflow-hidden shadow-md border border-slate-200/90 relative bg-slate-100">
+            <div className="lg:col-span-5 h-56 sm:h-72 lg:h-[350px] rounded-2xl overflow-hidden shadow-md border border-slate-200/90 relative bg-slate-100">
               <ImageCarousel 
                 images={heroImages} 
                 alt={title} 
@@ -445,7 +445,7 @@ export function TreatmentDetailPage() {
             return (
               <section
                 key={sec.id || idx}
-                className="bg-white rounded-2xl p-5 sm:p-6 md:p-7 border border-slate-200/80 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)]"
+                className="bg-white rounded-2xl p-4 sm:p-6 md:p-7 border border-slate-200/80 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)] overflow-hidden"
               >
                 {secPos === "none" ? (
                   <div className="w-full space-y-2.5 sm:space-y-3">
@@ -455,15 +455,15 @@ export function TreatmentDetailPage() {
                     </div>
                     {secTitle && (
                       <h2
-                        className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0c1a2e] leading-snug"
+                        className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0c1a2e] leading-snug break-words"
                         style={{ fontFamily: "var(--font-display)" }}
                       >
                         {secTitle}
                       </h2>
                     )}
                     {secText && (
-                      <div className="rich-content-light text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
-                        <RichContentRenderer content={secText} />
+                      <div className="rich-content-light text-sm sm:text-base text-slate-600 font-normal leading-relaxed overflow-x-hidden">
+                        <RichContentRenderer content={secText} theme="light" />
                       </div>
                     )}
                   </div>
@@ -493,15 +493,15 @@ export function TreatmentDetailPage() {
                       </div>
                       {secTitle && (
                         <h2
-                          className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0c1a2e] leading-snug"
+                          className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0c1a2e] leading-snug break-words"
                           style={{ fontFamily: "var(--font-display)" }}
                         >
                           {secTitle}
                         </h2>
                       )}
                       {secText && (
-                        <div className="rich-content-light text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
-                          <RichContentRenderer content={secText} />
+                        <div className="rich-content-light text-sm sm:text-base text-slate-600 font-normal leading-relaxed overflow-x-hidden">
+                          <RichContentRenderer content={secText} theme="light" />
                         </div>
                       )}
                     </div>

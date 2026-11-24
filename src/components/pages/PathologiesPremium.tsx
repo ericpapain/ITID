@@ -458,7 +458,7 @@ export function PathologiesPremium() {
         </div>
 
         {/* Track de défilement horizontal centré sur la carte active */}
-        <div className="w-full flex items-center justify-center overflow-visible py-4">
+        <div className="w-full max-w-full flex items-center justify-center overflow-hidden py-4">
           <motion.div
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
@@ -522,7 +522,7 @@ export function PathologiesPremium() {
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="w-full max-w-[420px] sm:max-w-[440px] md:max-w-[460px] h-[520px] sm:h-[550px] max-h-[90vh] pointer-events-auto flex flex-col"
+              className="w-full max-w-[420px] sm:max-w-[440px] md:max-w-[460px] h-[480px] sm:h-[530px] max-h-[85vh] pointer-events-auto flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <MedicalCard

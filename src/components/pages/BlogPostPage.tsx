@@ -323,7 +323,7 @@ export default function BlogPostPage() {
 
                       {secContent && (
                         <div className="rich-content-light text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
-                          <RichContentRenderer content={secContent} />
+                          <RichContentRenderer content={secContent} theme="light" />
                         </div>
                       )}
                     </div>
@@ -367,7 +367,7 @@ export default function BlogPostPage() {
 
                         {secContent && (
                           <div className="rich-content-light text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
-                            <RichContentRenderer content={secContent} />
+                            <RichContentRenderer content={secContent} theme="light" />
                           </div>
                         )}
                       </div>
@@ -416,7 +416,7 @@ export default function BlogPostPage() {
               Synthèse & Perspectives
             </h3>
             <div className="text-slate-700 leading-relaxed font-light text-base md:text-lg">
-              <RichContentRenderer content={article.content} />
+              <RichContentRenderer content={article.content} theme="light" />
             </div>
           </div>
         )}

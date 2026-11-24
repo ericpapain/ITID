@@ -360,7 +360,7 @@ export function TraitementsPremium() {
 
           {/* Filtres par catégorie si traitements et cas cliniques coexistent */}
           {treatmentsMapped.length > 0 && casesMapped.length > 0 && (
-            <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/80 shadow-xs">
+            <div className="flex flex-wrap sm:inline-flex items-center justify-center gap-1.5 p-1 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200/80 shadow-xs max-w-full">
               <button
                 type="button"
                 onClick={() => setActiveFilter("all")}
