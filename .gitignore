@@ -36,6 +36,8 @@ image itid/*.mp4
 *.sqlite-shm
 *.sqlite-wal
 *.sqlite.bak*
+_backups*/
+_backups_pre_refonte_carrousel/
 *.empty_bak
 itid_data/
 public/api/data/*.sqlite
