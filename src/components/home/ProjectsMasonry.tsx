@@ -658,9 +658,9 @@ export function ProjectsMasonry() {
             setEnlargedIndex(null);
           }}
         >
-          {/* Conteneur de la carte agrandie */}
+          {/* Conteneur de la carte agrandie (très grand format) */}
           <div
-            className="relative w-full max-w-4xl bg-[#0a1628] border border-[#48cae4]/40 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[92vh] animate-in zoom-in-95 duration-200"
+            className="relative w-full max-w-6xl xl:max-w-7xl bg-[#0a1628] border border-[#48cae4]/50 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(72,202,228,0.25)] flex flex-col md:flex-row max-h-[95vh] md:min-h-[580px] lg:min-h-[660px] animate-in zoom-in-95 duration-200"
             onClick={(e) => {
               // Situation 1 : un clic à l'intérieur de la carte ne la ferme pas
               e.stopPropagation();
@@ -679,9 +679,9 @@ export function ProjectsMasonry() {
                 setEnlargedIndex(null);
               }}
               aria-label="Fermer la vue agrandie"
-              className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-black/70 hover:bg-red-500/40 hover:border-red-400 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg"
+              className="absolute top-4 right-4 z-30 w-11 h-11 rounded-full bg-black/75 hover:bg-red-500/50 hover:border-red-400 border border-white/25 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg hover:scale-105"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
 
             {/* Navigation interne Flèches Précédent / Suivant */}
@@ -693,9 +693,9 @@ export function ProjectsMasonry() {
                 setEnlargedIndex((prev) => (prev! > 0 ? prev! - 1 : count - 1));
               }}
               aria-label="Cas précédent"
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/65 hover:bg-[#48cae4] hover:text-[#0c1a2e] border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
+              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/75 hover:bg-[#48cae4] hover:text-[#0c1a2e] border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-xl hover:scale-105"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={22} />
             </button>
 
             <button
@@ -706,14 +706,14 @@ export function ProjectsMasonry() {
                 setEnlargedIndex((prev) => (prev! < count - 1 ? prev! + 1 : 0));
               }}
               aria-label="Cas suivant"
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/65 hover:bg-[#48cae4] hover:text-[#0c1a2e] border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-md md:right-16"
+              className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/75 hover:bg-[#48cae4] hover:text-[#0c1a2e] border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-xl hover:scale-105"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={22} />
             </button>
 
-            {/* Colonne Gauche : Image complète (object-fit: contain, proportions respectées) */}
+            {/* Colonne Gauche : Image complète (object-fit: contain, proportions respectées, très grand format) */}
             <div
-              className="md:w-1/2 relative bg-slate-950/90 overflow-hidden flex items-center justify-center min-h-[260px] md:min-h-[460px] cursor-pointer group select-none"
+              className="md:w-7/12 lg:w-3/5 relative bg-slate-950/95 overflow-hidden flex items-center justify-center min-h-[300px] md:min-h-[540px] lg:min-h-[640px] cursor-pointer group select-none"
               onClick={(e) => {
                 // Section 5 : clic sur l'image ouvre la vue agrandie indépendante de l'image
                 e.stopPropagation();
@@ -733,7 +733,7 @@ export function ProjectsMasonry() {
               <img
                 src={currentModalImage}
                 alt={currentModalItem.title}
-                className="relative z-10 max-h-[360px] md:max-h-[440px] w-auto max-w-full object-contain p-3 transition-transform duration-500 group-hover:scale-102"
+                className="relative z-10 max-h-[380px] md:max-h-[540px] lg:max-h-[640px] w-auto max-w-full object-contain p-3 sm:p-4 transition-transform duration-500 group-hover:scale-102"
                 onError={(e) => {
                   e.currentTarget.src =
                     REAL_FALLBACK_IMAGES[enlargedIndex! % REAL_FALLBACK_IMAGES.length];
@@ -748,14 +748,14 @@ export function ProjectsMasonry() {
               </div>
 
               {/* Bouton incitatif pour l'agrandissement d'image */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white text-xs font-semibold shadow-lg group-hover:border-[#48cae4] group-hover:text-[#48cae4] transition-all pointer-events-none">
-                <ZoomIn size={14} className="text-[#48cae4]" />
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/80 hover:bg-black/95 backdrop-blur-md border border-white/20 text-white text-xs font-semibold shadow-lg group-hover:border-[#48cae4] group-hover:text-[#48cae4] transition-all pointer-events-none">
+                <ZoomIn size={15} className="text-[#48cae4]" />
                 <span>Cliquer pour agrandir l'image</span>
               </div>
             </div>
 
             {/* Colonne Droite : Informations réorganisées du Recto et du Verso */}
-            <div className="md:w-1/2 p-6 sm:p-8 flex flex-col justify-between space-y-4 overflow-y-auto custom-scrollbar">
+            <div className="md:w-5/12 lg:w-2/5 p-6 sm:p-8 lg:p-10 flex flex-col justify-between space-y-5 overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400 font-bold flex items-center gap-1">
@@ -767,7 +767,7 @@ export function ProjectsMasonry() {
                 </div>
 
                 <h3
-                  className="text-2xl sm:text-3xl font-bold text-white leading-tight"
+                  className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {currentModalItem.title}
@@ -818,7 +818,7 @@ export function ProjectsMasonry() {
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
                     Protocole & Description Clinique :
                   </span>
-                  <p className="text-sm text-slate-200 font-light leading-relaxed whitespace-pre-line">
+                  <p className="text-sm sm:text-base text-slate-200 font-light leading-relaxed whitespace-pre-line">
                     {currentModalItem.short_desc ||
                       "Prise en charge spécialisée et protocole mini-invasif de haute précision réalisé par les médecins algologues et radiologues interventionnels de l'Institut."}
                   </p>
