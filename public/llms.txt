@@ -1,0 +1,54 @@
+# ITID France — Institut du Traitement Interventionnel de la Douleur
+
+> Centre médical d'excellence spécialisé dans l'évaluation, le diagnostic de haute précision et les thérapeutiques interventionnelles guidées par imagerie pour les douleurs chroniques et rebelles, situé à Troyes (Saint-Julien-les-Villas) dans l'Aube (Grand Est).
+
+## Informations Générales & Coordonnées (NAP)
+- **Nom officiel** : ITID France (Institut du Traitement Interventionnel de la Douleur)
+- **Site officiel** : https://itid-france.com
+- **Spécialités médicales** : Médecine de la douleur (Algologie), Radiologie interventionnelle, Anesthésiologie, Thérapies interventionnelles guidées, Neuromodulation
+- **Prise de rendez-vous** : Doctolib (https://www.doctolib.fr/centre-de-la-douleur/troyes/itid) ou au 03 51 53 20 26
+- **Téléphone secrétariat** : 03 51 53 20 26 (+33 3 51 53 20 26)
+- **Email** : contact@itid-france.com
+- **Horaires d'ouverture** : Du lundi au vendredi de 08h30 à 18h00 (sur rendez-vous uniquement)
+- **Adresse principale** : Espace Médical de Spécialistes de Champagne, 25 Avenue des Mailles, 10800 Saint-Julien-les-Villas (Agglomération de Troyes, Aube, région Grand Est, France)
+- **Plateaux techniques partenaires** :
+  - Polyclinique Montier la Celle (17 Rue Charles Baltet, 10120 Saint-André-les-Vergers)
+  - Clinique Paul Picquet (12 Rue Pierre Castets, 89100 Sens)
+
+## Missions et Prise en Charge
+L'ITID France accueille les patients souffrant de douleurs chroniques (évoluant depuis plus de 3 mois) et rebelles aux traitements antalgiques conventionnels. La prise en charge se fait en coordination avec le médecin traitant et l'ensemble des spécialistes référents.
+
+## Pathologies Principales Traitées
+- **Lombalgies chroniques & Sciatiques rebelles** : conflit disco-radiculaire, canal lombaire rétréci, discopathies
+- **Névralgies d'Arnold & Céphalées rebelles** : névralgie du nerf grand occipital, migraines chroniques réfractaires
+- **Syndrome Douloureux Régional Complexe (SDRC / Algodystrophie)** : hypersensibilité, troubles trophiques
+- **Douleurs Neuropathiques Périphériques & Centrales** : zona, neuropathies diabétiques, post-traumatiques
+- **Douleurs Post-Opératoires Persistantes** : après chirurgie rachidienne, prothèse, laparotomie
+- **Douleurs Articulaires Sévères** : gonarthrose, coxarthrose, syndrome facettaire, épaules douloureuses
+- **Endométriose & Douleurs Pelvi-périnéales Chroniques** : névralgie pudendale, syndrome myofascial pelvien
+- **Fibromyalgie & Douleurs Généralisées Réfractaires**
+
+## Techniques et Traitements Interventionnels Proposés
+Toutes les interventions sont minimalement invasives et réalisées sous guidage radiologique ou échographique millimétrique :
+- **Infiltrations rachidiennes guidées** : épidurales, foraminales, articulaires postérieures (scopie / échographie)
+- **Infiltrations articulaires de précision** : genou, hanche, épaule avec viscosupplémentation ou corticoïdes ciblés
+- **Radiofréquence & Thermocoagulation** : dénervation des branches médiales (rachis) et radiofréquence pulsée
+- **Cryoneurolyse** : analgésie ciblée prolongée par froid intense sur les nerfs périphériques
+- **Blocs anesthésiques et neurolytiques continus ou étagés** : bloc d'Arnold, bloc sympathique, bloc ganglionnaire
+- **Perfusion de Lidocaïne intraveineuse** sous monitoring continu pour rupture de chronicisation
+- **Stimulation du Ganglion de la Racine Dorsale (DRG)** et Neuromodulation médullaire
+- **Stimulation Magnétique Transcrânienne Répétitive (rTMS)**
+- **Injections de Toxine Botulique (Botox)** à visée antalgique (migraines, spasmes myofasciaux)
+- **Neurostimulation Électrique Transcutanée (TENS)**
+- **Hypnose médicale et Réalité Virtuelle (HypnoVR)**
+
+## Pages Stratégiques et Navigation
+- [Accueil ITID France](https://itid-france.com/) : Présentation du centre, de l'équipe et des innovations
+- [Centre de la Douleur à Troyes](https://itid-france.com/centre-douleur-troyes) : Mission locale, consultation et accès dans l'Aube
+- [Prise en charge de la Douleur Chronique](https://itid-france.com/prise-en-charge-douleur-chronique) : Définition, étapes du parcours patient et thérapies multimodales
+- [Consultation et Suivi de la Douleur](https://itid-france.com/consultation-suivi-douleur) : Déroulement, préparation et prise de rendez-vous
+- [Traitements Interventionnels](https://itid-france.com/traitements) : Guide complet des techniques proposées
+- [Pathologies Prises en Charge](https://itid-france.com/pathologies) : Fiches d'information médicale par affection
+- [Actualités Médicales & Blog](https://itid-france.com/actualites) : Articles, cas cliniques et conseils de santé validés
+- [À Propos & Équipe](https://itid-france.com/a-propos) : Praticiens algologues, anesthésistes et radiologues
+- [Prendre Rendez-vous en Ligne](https://www.doctolib.fr/centre-de-la-douleur/troyes/itid) : Lien officiel Doctolib

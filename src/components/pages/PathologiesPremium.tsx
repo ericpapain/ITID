@@ -6,6 +6,7 @@ import { ShimmerButton } from "../ui/ShimmerButton";
 import { PATHOLOGIES } from "../../data";
 import { MedicalCard } from "../Cards";
 import { ContentNavigator } from "../ui/ContentNavigator";
+import { SEOHead } from "../seo/SEOHead";
 import spineImg from "../../images/spine_isolated.png";
 import bgVideo from "../../images/pathologie-2.mp4";
 import { useTranslation } from "react-i18next";
@@ -360,6 +361,14 @@ export function PathologiesPremium() {
 
   return (
     <div className="pt-28 pb-20 min-h-screen text-[#1a3a5c] relative overflow-hidden flex flex-col items-center justify-between">
+      <SEOHead
+        title="Pathologies & Douleurs Chroniques Prises en Charge à Troyes"
+        description="Fiches médicales d'information sur les douleurs chroniques traitées à l'ITID Troyes : lombalgie, névralgie d'Arnold, SDRC, fibromyalgie, sciatiques et douleurs neuropathiques."
+        canonical="https://itid-france.com/pathologies"
+        breadcrumbs={[
+          { name: "Pathologies", item: "/pathologies" }
+        ]}
+      />
       {/* Background Decor */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden bg-[#0c1a2e]">
         <video
@@ -397,12 +406,12 @@ export function PathologiesPremium() {
 
           {/* Centre : Titre Cartographie des Pathologies */}
           <div className="text-center flex-1">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
               {t('pathologies.mappingTitle', 'Cartographie des')}{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a9d8f] to-[#48cae4]">
                 {t('pathologies.mappingHighlight', 'Pathologies')}
               </span>
-            </h2>
+            </h1>
             <p className="text-xs sm:text-sm text-cyan-200/70 mt-1 max-w-xl mx-auto font-light">
               Faites défiler carte par carte ou sélectionnez directement une pathologie
             </p>

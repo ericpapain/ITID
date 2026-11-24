@@ -7,6 +7,7 @@ import { TRAITEMENTS, DEFAULT_TRAITEMENTS } from "../../data";
 import { getCleanImageSrc, getCleanGallery, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 import RichContentRenderer from "../ui/RichContentRenderer";
 import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
+import { SEOHead } from "../seo/SEOHead";
 
 export function TreatmentDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -308,6 +309,35 @@ export function TreatmentDetailPage() {
 
   return (
     <main className="min-h-screen bg-[#f0f7f6] text-[#1a3a5c] pt-24 md:pt-28 pb-16 relative overflow-hidden">
+      <SEOHead
+        title={`${title} | Traitement Douleur ITID Troyes`}
+        description={descBack ? descBack.replace(/<[^>]*>?/gm, "").slice(0, 160) : `Protocole thérapeutique et geste interventionnel pour ${title} pratiqué à l'Institut ITID Troyes (10).`}
+        canonicalUrl={`https://itid-france.com/traitements/${slug}`}
+        ogImage={heroImages[0]}
+        schemaType="MedicalProcedure"
+        schemaCustomData={{
+          "@type": "MedicalProcedure",
+          name: title,
+          description: descBack ? descBack.replace(/<[^>]*>?/gm, "").slice(0, 300) : title,
+          procedureType: "Interventional",
+          bodyLocation: title,
+          howPerformed: "Guidage scopique et échographique de haute précision",
+          relevantSpecialty: {
+            "@type": "MedicalSpecialty",
+            name: "Algologie / Médecine de la douleur"
+          },
+          provider: {
+            "@type": "MedicalClinic",
+            name: "ITID France — Institut du Traitement Interventionnel de la Douleur",
+            url: "https://itid-france.com"
+          }
+        }}
+        breadcrumbs={[
+          { name: "Accueil", item: "https://itid-france.com/" },
+          { name: "Traitements", item: "https://itid-france.com/traitements" },
+          { name: title, item: `https://itid-france.com/traitements/${slug}` }
+        ]}
+      />
       {/* Background Decor - Lumineux et apaisant */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-1/4 -right-40 w-[600px] h-[600px] bg-[#48cae4]/10 rounded-full blur-[140px]" />

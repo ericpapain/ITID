@@ -6,6 +6,7 @@ import { useTypewriter } from "../../hooks/useTypewriter";
 import { Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ImageCarousel } from "../ui/ImageCarousel";
+import { SEOHead } from "../seo/SEOHead";
 
 import { getCleanImageSrc, getCleanGallery } from "../../utils/imageUtils";
 
@@ -78,6 +79,15 @@ export default function BlogPage() {
 
   return (
     <main className="min-h-screen bg-[#0c1a2e] text-white pt-32 pb-24">
+      <SEOHead
+        title="Actualités Médicales & Innovations Douleur | ITID Troyes"
+        description="Retrouvez les publications, avancées cliniques et conseils de nos spécialistes en médecine de la douleur à Troyes (Aube)."
+        canonicalUrl="https://itid-france.com/actualites"
+        breadcrumbs={[
+          { name: "Accueil", item: "https://itid-france.com/" },
+          { name: "Actualités", item: "https://itid-france.com/actualites" }
+        ]}
+      />
       {/* Background gradients */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#48cae4]/10 rounded-full blur-[120px]" />

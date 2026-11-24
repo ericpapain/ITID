@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 import RichContentRenderer from "../ui/RichContentRenderer";
+import { SEOHead } from "../seo/SEOHead";
 
 function ResilientArticleImage({
   src,
@@ -174,6 +175,37 @@ export default function BlogPostPage() {
 
   return (
     <main className="min-h-screen bg-[#f0f7f6] text-[#1a3a5c]">
+      <SEOHead
+        title={`${article.title} | Actualités ITID France Troyes`}
+        description={article.summary ? article.summary.slice(0, 160) : article.title}
+        canonicalUrl={`https://itid-france.com/actualites/${currentSlug}`}
+        ogImage={article.coverImage}
+        schemaType="Article"
+        publishedTime={article.date}
+        authorName={article.author}
+        schemaCustomData={{
+          "@type": "MedicalScholarlyArticle",
+          headline: article.title,
+          description: article.summary,
+          image: article.coverImage,
+          datePublished: article.date,
+          author: {
+            "@type": "Person",
+            name: article.author,
+            jobTitle: article.authorRole
+          },
+          publisher: {
+            "@type": "MedicalClinic",
+            name: "ITID France",
+            url: "https://itid-france.com"
+          }
+        }}
+        breadcrumbs={[
+          { name: "Accueil", item: "https://itid-france.com/" },
+          { name: "Actualités", item: "https://itid-france.com/actualites" },
+          { name: article.title, item: `https://itid-france.com/actualites/${currentSlug}` }
+        ]}
+      />
       {/* Hero Header */}
       <div className="relative h-[60vh] min-h-[400px] w-full">
         <div className="absolute inset-0 bg-[#0c1a2e]">

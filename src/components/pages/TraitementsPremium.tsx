@@ -13,6 +13,7 @@ import bgVideo from "../../images/video_intervention_ITID.mp4";
 import { useTranslation } from "react-i18next";
 import { getCleanImageSrc, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
+import { SEOHead } from "../seo/SEOHead";
 
 function TreatmentFrontFace({
   title,
@@ -290,6 +291,14 @@ export function TraitementsPremium() {
 
   return (
     <div className="pt-28 md:pt-32 pb-24 min-h-screen text-[#1a3a5c] relative overflow-hidden">
+      <SEOHead
+        title="Traitements Interventionnels de la Douleur à Troyes (10)"
+        description="Techniques de traitement interventionnel guidées par imagerie à l'ITID Troyes : infiltrations rachidiennes, articulaires, radiofréquence, cryoneurolyse, rTMS et blocs."
+        canonical="https://itid-france.com/traitements"
+        breadcrumbs={[
+          { name: "Traitements", item: "/traitements" }
+        ]}
+      />
       {/* Interactive Particles Constellation Background */}
       <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
         <video
@@ -332,7 +341,7 @@ export function TraitementsPremium() {
 
         {/* Header Section */}
         <div className="mb-10 md:mb-14 text-center max-w-3xl mx-auto">
-          <h2
+          <h1
             className="text-4xl sm:text-5xl md:text-6xl font-bold mb-5 text-[#1a3a5c] leading-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
@@ -340,7 +349,7 @@ export function TraitementsPremium() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2a5080] to-[#2a9d8f]">
               {t("treatments.title", "Traitements & Gestes Interventionnels")}
             </span>
-          </h2>
+          </h1>
 
           <p className="text-base sm:text-lg leading-relaxed text-gray-600 font-light mb-6">
             {t(

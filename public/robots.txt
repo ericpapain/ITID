@@ -1,0 +1,54 @@
+# ======================================================================
+# ITID France — Robots.txt & Directives d'Indexation Moteurs et IA
+# Centre Médical Spécialisé du Traitement de la Douleur (Troyes & Aube)
+# https://itid-france.com
+# ======================================================================
+
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /images/
+Allow: /api/cms/
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/data/
+Disallow: /mon-profil
+
+# Directives spécifiques Moteurs de Recherche Traditionnels
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Directives spécifiques IA Génératives & Outils de Réponses IA (ChatGPT, Perplexity, Claude, Apple Intelligence)
+# Autorisation d'exploration pour référencement dans les moteurs conversationnels
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Déclaration des Sitemaps
+Sitemap: https://itid-france.com/sitemap.xml

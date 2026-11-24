@@ -7,6 +7,7 @@ import { PATHOLOGIES, DEFAULT_PATHOLOGIES } from "../../data";
 import { getCleanImageSrc, getCleanGallery, REAL_FALLBACK_IMAGES } from "../../utils/imageUtils";
 import RichContentRenderer from "../ui/RichContentRenderer";
 import { DOCTOLIB_APPOINTMENT_URL } from "../../constants/links";
+import { SEOHead } from "../seo/SEOHead";
 
 export function PathologyDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -170,6 +171,26 @@ export function PathologyDetailPage() {
 
   return (
     <main className="min-h-screen bg-[#f0f7f6] text-[#1a3a5c] pt-24 md:pt-28 pb-16 relative overflow-hidden font-sans">
+      <SEOHead
+        title={`${title} — Prise en Charge & Traitement à Troyes`}
+        description={shortDesc ? `${shortDesc.substring(0, 155)}...` : `Prise en charge spécialisée de ${title} au centre ITID à Troyes (10). Diagnostic de précision et protocoles interventionnels.`}
+        canonical={`https://itid-france.com/pathologies/${slug}`}
+        ogImage={data?.card_image}
+        breadcrumbs={[
+          { name: "Pathologies", item: "/pathologies" },
+          { name: title, item: `/pathologies/${slug}` }
+        ]}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "MedicalCondition",
+          "name": title,
+          "description": shortDesc,
+          "possibleTreatment": {
+            "@type": "MedicalTherapy",
+            "name": "Prise en charge interventionnelle guidée ITID"
+          }
+        }}
+      />
       {/* Background Decor - Doux et lumineux */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-1/4 -right-40 w-[600px] h-[600px] bg-[#48cae4]/10 rounded-full blur-[140px]" />

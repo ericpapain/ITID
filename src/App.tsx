@@ -53,6 +53,18 @@ const BlogPage = React.lazy(() => import("./components/pages/BlogPage"));
 const BlogPostPage = React.lazy(() => import("./components/pages/BlogPostPage"));
 const AdminApp = React.lazy(() => import("./admin/AdminApp"));
 
+// Pages Stratégiques Référencement & SEO Local Troyes / Aube
+const CentreDouleurTroyesPage = React.lazy(() =>
+  import("./components/pages/CentreDouleurTroyesPage").then((m) => ({ default: m.CentreDouleurTroyesPage }))
+);
+const PriseEnChargeDouleurPage = React.lazy(() =>
+  import("./components/pages/PriseEnChargeDouleurPage").then((m) => ({ default: m.PriseEnChargeDouleurPage }))
+);
+const ConsultationSuiviDouleurPage = React.lazy(() =>
+  import("./components/pages/ConsultationSuiviDouleurPage").then((m) => ({ default: m.ConsultationSuiviDouleurPage }))
+);
+import { SEOHead } from "./components/seo/SEOHead";
+
 // Clean loader for route transitions
 const PageLoader = () => (
   <div className="min-h-[70vh] flex items-center justify-center bg-[#0c1a2e]">
@@ -150,6 +162,11 @@ function AppContent() {
                 path="/"
                 element={
                   <>
+                    <SEOHead
+                      title="Centre du Traitement de la Douleur à Troyes (10)"
+                      description="Institut spécialisé dans l'évaluation et le traitement interventionnel guidé des douleurs chroniques et rebelles à Troyes (Aube). Infiltrations, radiofréquence, cryoneurolyse et consultations d'algologie."
+                      canonical="https://itid-france.com/"
+                    />
                     <HeroPremium />
                     <ParcoursPatient />
                     <ImmersionSection />
@@ -160,6 +177,14 @@ function AppContent() {
                   </>
                 }
               />
+              {/* Pages Stratégiques Référencement Local Troyes & Intentions Majeures */}
+              <Route path="/centre-douleur-troyes" element={<CentreDouleurTroyesPage />} />
+              <Route path="/medecine-douleur-troyes" element={<CentreDouleurTroyesPage />} />
+              <Route path="/prise-en-charge-douleur-chronique" element={<PriseEnChargeDouleurPage />} />
+              <Route path="/consultation-suivi-douleur" element={<ConsultationSuiviDouleurPage />} />
+              <Route path="/traitement-interventionnel-douleur" element={<TraitementsPremium />} />
+              <Route path="/pathologies-douleur" element={<PathologiesPremium />} />
+
               <Route path="/pathologies" element={<PathologiesPremium />} />
               <Route path="/pathologies/:slug" element={<PathologyDetailPage />} />
               <Route path="/traitements" element={<TraitementsPremium />} />

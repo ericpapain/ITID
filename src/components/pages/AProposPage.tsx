@@ -6,6 +6,7 @@ import { FlickeringGrid } from "../animations/FlickeringGrid";
 import { CardFlip } from "../ui/CardFlip";
 import { VISITE_SLIDES } from "../../constants/carousel";
 import { useTranslation } from "react-i18next";
+import { SEOHead } from "../seo/SEOHead";
 
 export function AProposPage() {
   const { t, i18n } = useTranslation();
@@ -88,6 +89,15 @@ export function AProposPage() {
 
   return (
     <div className="pt-32 pb-24 min-h-screen relative overflow-hidden" style={{ background: "var(--background)" }}>
+      <SEOHead
+        title="À Propos d'ITID France | Institut de la Douleur à Troyes"
+        description="Découvrez l'équipe médicale, les équipements de pointe et la vision de l'Institut du Traitement Interventionnel de la Douleur (ITID) à Troyes et Saint-Julien-les-Villas."
+        canonicalUrl="https://itid-france.com/a-propos"
+        breadcrumbs={[
+          { name: "Accueil", item: "https://itid-france.com/" },
+          { name: "À Propos", item: "https://itid-france.com/a-propos" }
+        ]}
+      />
       <FlickeringGrid colors={["#2a9d8f", "#1a3a5c"]} maxOpacity={0.3} squareSize={4} gridGap={8} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_30%,rgba(42,157,143,0.08),transparent_70%)]" />
       <div className="relative z-10 max-w-5xl mx-auto px-6">
@@ -101,7 +111,7 @@ export function AProposPage() {
 
         <div className="mb-16">
 
-          <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{t('about.title')}</h2>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ fontFamily: "var(--font-display)", color: "#1a3a5c" }}>{t('about.title')}</h1>
           <p className="text-lg leading-relaxed mb-6" style={{ color: "#6b7c93" }}>
             {t('about.desc')}
           </p>
